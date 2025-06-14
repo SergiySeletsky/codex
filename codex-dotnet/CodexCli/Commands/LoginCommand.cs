@@ -11,11 +11,13 @@ public static class LoginCommand
         var overridesOpt = new Option<string[]>("-c") { AllowMultipleArgumentsPerToken = true, Description = "Config overrides" };
         var tokenOpt = new Option<string?>("--token", "Token to save");
         var apiOpt = new Option<string?>("--api-key", "API key to save");
+        var providerOpt = new Option<string?>("--provider", () => "openai", "Provider id for API key");
         var cmd = new Command("login", "Login with ChatGPT");
         cmd.AddOption(overridesOpt);
         cmd.AddOption(tokenOpt);
         cmd.AddOption(apiOpt);
-        cmd.SetHandler(async (string? cfgPath, string? cd, string[] ov, string? tokenArg, string? apiArg) =>
+        cmd.AddOption(providerOpt);
+        cmd.SetHandler(async (string? cfgPath, string? cd, string[] ov, string? tokenArg, string? apiArg, string provider) =>
         {
             if (cd != null) Environment.CurrentDirectory = cd;
             AppConfig? cfg = null;
@@ -37,20 +39,21 @@ public static class LoginCommand
             var apiKey = apiArg;
             if (apiKey == null)
             {
-                Console.Write("OpenAI API key (optional): ");
+                Console.Write($"{provider} API key (optional): ");
                 apiKey = Console.ReadLine();
             }
-            apiKey ??= OpenAiKeyManager.GetKey();
+            var provInfo = cfg?.GetProvider(provider) ?? ModelProviderInfo.BuiltIns[provider];
+            apiKey ??= ApiKeyManager.GetKey(provInfo);
             if (!string.IsNullOrWhiteSpace(apiKey))
             {
-                OpenAiKeyManager.SaveKey(apiKey);
+                ApiKeyManager.SaveKey(provider, apiKey);
                 Console.WriteLine("API key saved.");
             }
             var overrides = ConfigOverrides.Parse(ov);
             if (overrides.Overrides.Count > 0)
                 Console.WriteLine($"{overrides.Overrides.Count} override(s) parsed");
             await Task.CompletedTask;
-        }, configOption, cdOption, overridesOpt, tokenOpt, apiOpt);
+        }, configOption, cdOption, overridesOpt, tokenOpt, apiOpt, providerOpt);
         return cmd;
     }
 }

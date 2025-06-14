@@ -1,6 +1,7 @@
 using CodexCli.Commands;
 using Tomlyn;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace CodexCli.Config;
 
@@ -15,6 +16,7 @@ public class AppConfig
     public bool DisableResponseStorage { get; set; }
     public ReasoningEffort? ModelReasoningEffort { get; set; }
     public ReasoningSummary? ModelReasoningSummary { get; set; }
+    public Dictionary<string, ModelProviderInfo> ModelProviders { get; set; } = new();
     public Dictionary<string, ConfigProfile> Profiles { get; set; } = new();
 
     public static AppConfig Load(string path, string? profile = null)
@@ -38,6 +40,22 @@ public class AppConfig
             cfg.ModelReasoningEffort = mrev;
         if (model.TryGetValue("model_reasoning_summary", out var mrs) && Enum.TryParse<ReasoningSummary>(mrs?.ToString(), true, out var mrsv))
             cfg.ModelReasoningSummary = mrsv;
+        if (model.TryGetValue("model_providers", out var mpMap) && mpMap is IDictionary<string, object?> provMap)
+        {
+            foreach (var (k,v) in provMap)
+            {
+                if (v is IDictionary<string, object?> pv)
+                {
+                    var info = new ModelProviderInfo();
+                    if (pv.TryGetValue("name", out var n)) info.Name = n?.ToString() ?? string.Empty;
+                    if (pv.TryGetValue("base_url", out var b)) info.BaseUrl = b?.ToString() ?? string.Empty;
+                    if (pv.TryGetValue("env_key", out var e)) info.EnvKey = e?.ToString();
+                    if (pv.TryGetValue("wire_api", out var wa) && Enum.TryParse<WireApi>(wa?.ToString(), true, out var wv))
+                        info.WireApi = wv;
+                    cfg.ModelProviders[k] = info;
+                }
+            }
+        }
         if (model.TryGetValue("profiles", out var profs) && profs is IDictionary<string, object?> pmap)
         {
             foreach (var (k, v) in pmap)
@@ -57,6 +75,11 @@ public class AppConfig
                     cfg.Profiles[k] = cp;
                 }
             }
+        }
+        // Merge built-in provider definitions
+        foreach (var (k,v) in ModelProviderInfo.BuiltIns)
+        {
+            cfg.ModelProviders.TryAdd(k, v);
         }
         cfg.CodexHome ??= Environment.GetEnvironmentVariable("CODEX_HOME") ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".codex");
         if (cfg.Instructions == null)
@@ -78,4 +101,10 @@ public class AppConfig
     }
 
     public ApprovalMode ApprovalPolicy { get; set; } = ApprovalMode.UnlessAllowListed;
+
+    public ModelProviderInfo GetProvider(string id)
+    {
+        if (ModelProviders.TryGetValue(id, out var info)) return info;
+        return ModelProviderInfo.BuiltIns.TryGetValue(id, out var d) ? d : ModelProviderInfo.BuiltIns["openai"];
+    }
 }

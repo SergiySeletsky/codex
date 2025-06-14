@@ -3,10 +3,11 @@ namespace CodexCli.Util;
 public class OpenAIClient
 {
     private readonly string? _apiKey;
-
-    public OpenAIClient(string? apiKey)
+    private readonly string _baseUrl;
+    public OpenAIClient(string? apiKey, string baseUrl)
     {
         _apiKey = apiKey;
+        _baseUrl = baseUrl.TrimEnd('/');
     }
 
     public async Task<string> ChatAsync(string prompt)
@@ -22,7 +23,7 @@ public class OpenAIClient
         };
         var json = System.Text.Json.JsonSerializer.Serialize(payload);
         using var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
-        var resp = await http.PostAsync("https://api.openai.com/v1/chat/completions", content);
+        var resp = await http.PostAsync($"{_baseUrl}/chat/completions", content);
         resp.EnsureSuccessStatusCode();
         var respJson = await resp.Content.ReadAsStringAsync();
         using var doc = System.Text.Json.JsonDocument.Parse(respJson);

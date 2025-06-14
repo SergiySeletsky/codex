@@ -119,8 +119,10 @@ public static class ExecCommand
                 Console.Error.WriteLine($"{ov.Overrides.Count} override(s) parsed and applied");
             }
 
-            var apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
-            var client = new OpenAIClient(apiKey);
+            var providerId = opts.ModelProvider ?? cfg?.ModelProvider ?? "openai";
+            var providerInfo = cfg?.GetProvider(providerId) ?? ModelProviderInfo.BuiltIns[providerId];
+            var apiKey = ApiKeyManager.GetKey(providerInfo);
+            var client = new OpenAIClient(apiKey, providerInfo.BaseUrl);
             bool hideReason = opts.HideAgentReasoning ?? cfg?.HideAgentReasoning ?? false;
             bool disableStorage = opts.DisableResponseStorage ?? cfg?.DisableResponseStorage ?? false;
             bool withAnsi = opts.Color switch

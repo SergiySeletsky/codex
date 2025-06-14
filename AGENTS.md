@@ -142,3 +142,13 @@
 118. OpenAIClient sends real requests to api.openai.com
 119. SessionManagerTests verify GetHistoryEntry
 120. Added Azure.AI.OpenAI package reference
+121. Introduced ModelProviderInfo with built-in OpenAI and OpenRouter providers
+122. AppConfig parses model_providers and merges with defaults
+123. Added GetProvider helper to AppConfig
+124. Implemented ApiKeyManager for per-provider API keys
+125. Login command accepts --provider and stores keys via ApiKeyManager
+126. ExecCommand selects provider info and passes base URL to OpenAIClient
+127. OpenAIClient constructor accepts base URL
+128. Added unit tests for ModelProviderInfo loading
+129. Removed obsolete OpenAiKeyManager
+130. Auth.json now stores keys for multiple providers
