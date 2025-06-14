@@ -64,13 +64,6 @@
 ## Files Migrated
 - `codex-dotnet/CodexCli` project with Program.cs, command implementations under `Commands/`, and `Config/AppConfig.cs`.
 
-## TODO Next Run
-- Integrate exec command with real Codex agent and tool execution.
-- Expand MCP server to handle multiple connections and serve real events.
-- Add more comprehensive unit tests for binder logic.
-- Continue porting Rust protocol types and core libraries.
-- Implement real Codex agent integration for exec/interactive.
-- Support streaming responses in MCP server.
 53. Added config profile support with `AppConfig.Load(path, profile)` and `ConfigProfile`.
 54. `instructions` field loaded from config or `instructions.md`.
 55. Implemented `ProjectDoc` to merge `AGENTS.md` with instructions.
@@ -152,3 +145,16 @@
 128. Added unit tests for ModelProviderInfo loading
 129. Removed obsolete OpenAiKeyManager
 130. Auth.json now stores keys for multiple providers
+131. Added built-in providers gemini, ollama, mistral, deepseek, xai and groq
+132. ModelProviderInfo includes EnvKeyInstructions
+133. AppConfig parses env_key_instructions
+134. EnvUtils.GetModelProviderId reads CODEX_MODEL_PROVIDER
+135. Exec and login commands honor CODEX_MODEL_PROVIDER
+136. Added provider list subcommand
+137. Added tests for provider listing and env key instructions
+
+## TODO Next Run
+- Integrate exec command with real Codex agent and tool execution
+- Expand MCP server with real event streaming
+- Port apply_patch library and patch events
+- Add more comprehensive unit tests for provider handling

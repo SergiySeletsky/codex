@@ -25,6 +25,7 @@ class Program
         root.AddCommand(InteractiveCommand.Create(configOption, cdOption));
         root.AddCommand(CompletionCommand.Create(root, configOption, cdOption));
         root.AddCommand(HistoryCommand.Create());
+        root.AddCommand(ProviderCommand.Create(configOption));
         var verCmd = new Command("version", "Print version");
         verCmd.SetHandler(() =>
         {

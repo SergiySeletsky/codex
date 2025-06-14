@@ -50,6 +50,7 @@ public class AppConfig
                     if (pv.TryGetValue("name", out var n)) info.Name = n?.ToString() ?? string.Empty;
                     if (pv.TryGetValue("base_url", out var b)) info.BaseUrl = b?.ToString() ?? string.Empty;
                     if (pv.TryGetValue("env_key", out var e)) info.EnvKey = e?.ToString();
+                    if (pv.TryGetValue("env_key_instructions", out var ins)) info.EnvKeyInstructions = ins?.ToString();
                     if (pv.TryGetValue("wire_api", out var wa) && Enum.TryParse<WireApi>(wa?.ToString(), true, out var wv))
                         info.WireApi = wv;
                     cfg.ModelProviders[k] = info;

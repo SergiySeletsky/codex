@@ -119,7 +119,7 @@ public static class ExecCommand
                 Console.Error.WriteLine($"{ov.Overrides.Count} override(s) parsed and applied");
             }
 
-            var providerId = opts.ModelProvider ?? cfg?.ModelProvider ?? "openai";
+            var providerId = EnvUtils.GetModelProviderId(opts.ModelProvider) ?? cfg?.ModelProvider ?? "openai";
             var providerInfo = cfg?.GetProvider(providerId) ?? ModelProviderInfo.BuiltIns[providerId];
             var apiKey = ApiKeyManager.GetKey(providerInfo);
             var client = new OpenAIClient(apiKey, providerInfo.BaseUrl);

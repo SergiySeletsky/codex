@@ -11,13 +11,13 @@ public static class LoginCommand
         var overridesOpt = new Option<string[]>("-c") { AllowMultipleArgumentsPerToken = true, Description = "Config overrides" };
         var tokenOpt = new Option<string?>("--token", "Token to save");
         var apiOpt = new Option<string?>("--api-key", "API key to save");
-        var providerOpt = new Option<string?>("--provider", () => "openai", "Provider id for API key");
+        var providerOpt = new Option<string?>("--provider", "Provider id for API key");
         var cmd = new Command("login", "Login with ChatGPT");
         cmd.AddOption(overridesOpt);
         cmd.AddOption(tokenOpt);
         cmd.AddOption(apiOpt);
         cmd.AddOption(providerOpt);
-        cmd.SetHandler(async (string? cfgPath, string? cd, string[] ov, string? tokenArg, string? apiArg, string provider) =>
+        cmd.SetHandler(async (string? cfgPath, string? cd, string[] ov, string? tokenArg, string? apiArg, string? providerOptVal) =>
         {
             if (cd != null) Environment.CurrentDirectory = cd;
             AppConfig? cfg = null;
@@ -36,6 +36,7 @@ public static class LoginCommand
                 Console.WriteLine("Token saved.");
             }
 
+            var provider = EnvUtils.GetModelProviderId(providerOptVal) ?? "openai";
             var apiKey = apiArg;
             if (apiKey == null)
             {

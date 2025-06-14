@@ -13,6 +13,7 @@ public class ModelProviderInfo
     public string Name { get; set; } = string.Empty;
     public string BaseUrl { get; set; } = string.Empty;
     public string? EnvKey { get; set; }
+    public string? EnvKeyInstructions { get; set; }
     public WireApi WireApi { get; set; } = WireApi.Responses;
 
     public static Dictionary<string, ModelProviderInfo> BuiltIns { get; } = new()
@@ -22,6 +23,7 @@ public class ModelProviderInfo
             Name = "OpenAI",
             BaseUrl = "https://api.openai.com/v1",
             EnvKey = "OPENAI_API_KEY",
+            EnvKeyInstructions = "Create an API key (https://platform.openai.com) and export it as OPENAI_API_KEY",
             WireApi = WireApi.Responses,
         },
         ["openrouter"] = new ModelProviderInfo
@@ -29,6 +31,48 @@ public class ModelProviderInfo
             Name = "OpenRouter",
             BaseUrl = "https://openrouter.ai/api/v1",
             EnvKey = "OPENROUTER_API_KEY",
+            WireApi = WireApi.Chat,
+        },
+        ["gemini"] = new ModelProviderInfo
+        {
+            Name = "Gemini",
+            BaseUrl = "https://generativelanguage.googleapis.com/v1beta/openai",
+            EnvKey = "GEMINI_API_KEY",
+            WireApi = WireApi.Chat,
+        },
+        ["ollama"] = new ModelProviderInfo
+        {
+            Name = "Ollama",
+            BaseUrl = "http://localhost:11434/v1",
+            EnvKey = null,
+            WireApi = WireApi.Chat,
+        },
+        ["mistral"] = new ModelProviderInfo
+        {
+            Name = "Mistral",
+            BaseUrl = "https://api.mistral.ai/v1",
+            EnvKey = "MISTRAL_API_KEY",
+            WireApi = WireApi.Chat,
+        },
+        ["deepseek"] = new ModelProviderInfo
+        {
+            Name = "DeepSeek",
+            BaseUrl = "https://api.deepseek.com",
+            EnvKey = "DEEPSEEK_API_KEY",
+            WireApi = WireApi.Chat,
+        },
+        ["xai"] = new ModelProviderInfo
+        {
+            Name = "xAI",
+            BaseUrl = "https://api.x.ai/v1",
+            EnvKey = "XAI_API_KEY",
+            WireApi = WireApi.Chat,
+        },
+        ["groq"] = new ModelProviderInfo
+        {
+            Name = "Groq",
+            BaseUrl = "https://api.groq.com/openai/v1",
+            EnvKey = "GROQ_API_KEY",
             WireApi = WireApi.Chat,
         },
     };
