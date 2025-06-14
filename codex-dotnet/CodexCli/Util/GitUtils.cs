@@ -4,13 +4,18 @@ public static class GitUtils
 {
     public static bool IsInsideGitRepo(string directory)
     {
+        return GetRepoRoot(directory) != null;
+    }
+
+    public static string? GetRepoRoot(string directory)
+    {
         var dir = new DirectoryInfo(directory);
         while (dir != null)
         {
             if (Directory.Exists(Path.Combine(dir.FullName, ".git")))
-                return true;
+                return dir.FullName;
             dir = dir.Parent;
         }
-        return false;
+        return null;
     }
 }

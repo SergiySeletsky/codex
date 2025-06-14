@@ -14,8 +14,11 @@ public record ExecOptions(
     string? Profile,
     string? ModelProvider,
     bool FullAuto,
+    ApprovalMode? Approval,
+    SandboxPermission[] Sandbox,
     ColorMode Color,
     string? Cwd,
     string? LastMessageFile,
     bool SkipGitRepoCheck,
+    string[] NotifyCommand,
     string[] Overrides);

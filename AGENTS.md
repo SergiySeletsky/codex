@@ -18,6 +18,11 @@
  10. Interactive mode stores history with `/history`, `/help`, and `/quit`.
  11. Proper subcommand routing with async handlers.
  12. Added simple unit tests for config overrides parsing.
+ 13. Added Git repo root detection utility.
+ 14. Implemented elapsed time formatter and tests.
+ 15. Expanded config loader to support notify arrays and CODEX_HOME env var.
+ 16. Added approval and sandbox options for exec and interactive commands.
+ 17. Interactive command now accepts prompt, model and sandbox options.
 - Build verified with `dotnet build`.
 - Tests run with `dotnet test`.
 
@@ -30,3 +35,5 @@
 - Port remaining Rust modules (session management, agent core) to .NET libraries.
 - Enhance interactive TUI with additional commands and state persistence.
 - Add more unit tests for config loading and command parsing.
+- Implement sandbox permission parsing with custom paths.
+- Port elapsed and protocol event processing logic from Rust.
