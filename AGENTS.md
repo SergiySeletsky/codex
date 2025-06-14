@@ -23,6 +23,11 @@
  15. Expanded config loader to support notify arrays and CODEX_HOME env var.
  16. Added approval and sandbox options for exec and interactive commands.
  17. Interactive command now accepts prompt, model and sandbox options.
+ 18. Added SandboxPermission parser with disk-write-folder support.
+ 19. Added OpenAI API key manager and extended login command to set it.
+ 20. Interactive command reads initial prompt from stdin when '-' is used.
+ 21. Added utilities for CODEX_HOME and log directory detection.
+ 22. Added tests for sandbox permission parsing and git repo detection.
 - Build verified with `dotnet build`.
 - Tests run with `dotnet test`.
 
@@ -35,5 +40,6 @@
 - Port remaining Rust modules (session management, agent core) to .NET libraries.
 - Enhance interactive TUI with additional commands and state persistence.
 - Add more unit tests for config loading and command parsing.
-- Implement sandbox permission parsing with custom paths.
 - Port elapsed and protocol event processing logic from Rust.
+- Implement integration with OpenAI client library.
+- Add exec command logic for running tools.

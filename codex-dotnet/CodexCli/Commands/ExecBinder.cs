@@ -13,7 +13,7 @@ public class ExecBinder : BinderBase<ExecOptions>
     private readonly Option<string?> _provider;
     private readonly Option<bool> _fullAuto;
     private readonly Option<ApprovalMode?> _approval;
-    private readonly Option<SandboxPermission[]> _sandbox;
+    private readonly Option<string[]> _sandbox;
     private readonly Option<ColorMode> _color;
     private readonly Option<string?> _cwd;
     private readonly Option<string?> _lastMessage;
@@ -23,7 +23,7 @@ public class ExecBinder : BinderBase<ExecOptions>
 
     public ExecBinder(Argument<string?> prompt, Option<FileInfo[]> images, Option<string?> model,
         Option<string?> profile, Option<string?> provider, Option<bool> fullAuto,
-        Option<ApprovalMode?> approval, Option<SandboxPermission[]> sandbox, Option<ColorMode> color,
+        Option<ApprovalMode?> approval, Option<string[]> sandbox, Option<ColorMode> color,
         Option<string?> cwd, Option<string?> lastMessage, Option<bool> skipGit,
         Option<string[]> notify, Option<string[]> overrides)
     {
@@ -45,6 +45,10 @@ public class ExecBinder : BinderBase<ExecOptions>
 
     protected override ExecOptions GetBoundValue(BindingContext bindingContext)
     {
+        var sandboxRaw = bindingContext.ParseResult.GetValueForOption(_sandbox) ?? Array.Empty<string>();
+        var basePath = Environment.CurrentDirectory;
+        var sandbox = sandboxRaw.Select(s => SandboxPermissionParser.Parse(s, basePath)).ToArray();
+
         return new ExecOptions(
             bindingContext.ParseResult.GetValueForArgument(_prompt),
             bindingContext.ParseResult.GetValueForOption(_images) ?? Array.Empty<FileInfo>(),
@@ -53,7 +57,7 @@ public class ExecBinder : BinderBase<ExecOptions>
             bindingContext.ParseResult.GetValueForOption(_provider),
             bindingContext.ParseResult.GetValueForOption(_fullAuto),
             bindingContext.ParseResult.GetValueForOption(_approval),
-            bindingContext.ParseResult.GetValueForOption(_sandbox) ?? Array.Empty<SandboxPermission>(),
+            sandbox,
             bindingContext.ParseResult.GetValueForOption(_color),
             bindingContext.ParseResult.GetValueForOption(_cwd),
             bindingContext.ParseResult.GetValueForOption(_lastMessage),

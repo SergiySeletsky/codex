@@ -16,7 +16,7 @@ public static class InteractiveCommand
         var profileOpt = new Option<string?>("--profile");
         var fullAutoOpt = new Option<bool>("--full-auto", () => false);
         var approvalOpt = new Option<ApprovalMode?>("--ask-for-approval");
-        var sandboxOpt = new Option<SandboxPermission[]>("-s") { AllowMultipleArgumentsPerToken = true };
+        var sandboxOpt = new Option<string[]>("-s") { AllowMultipleArgumentsPerToken = true };
         var skipGitOpt = new Option<bool>("--skip-git-repo-check", () => false);
         var cwdOpt = new Option<string?>(new[]{"--cwd","-C"});
 
@@ -54,17 +54,34 @@ public static class InteractiveCommand
                 try { System.Diagnostics.Process.Start(notify[0], string.Join(' ', notify.Skip(1).Concat(new[]{"session_started"}))); } catch { }
             }
 
-            RunInteractive();
+            string? prompt = opts.Prompt;
+            if (string.IsNullOrEmpty(prompt) || prompt == "-")
+            {
+                if (!Console.IsInputRedirected)
+                {
+                    Console.Error.WriteLine("No prompt provided. Provide as argument or pipe via stdin.");
+                    return;
+                }
+                prompt = await Console.In.ReadToEndAsync();
+            }
+
+            var opts2 = opts with { Prompt = prompt };
+            RunInteractive(opts2);
             await Task.CompletedTask;
         }, binder, configOption, cdOption);
         return cmd;
     }
 
-    private static void RunInteractive()
+    private static void RunInteractive(InteractiveOptions opts)
     {
         var history = new List<string>();
         AnsiConsole.MarkupLine("[green]Codex interactive mode[/]");
         AnsiConsole.MarkupLine("Type /help for commands");
+        if (!string.IsNullOrEmpty(opts.Prompt))
+        {
+            history.Add(opts.Prompt);
+            AnsiConsole.MarkupLine($"Initial prompt: [blue]{opts.Prompt}[/]");
+        }
         while (true)
         {
             var prompt = AnsiConsole.Ask<string>("cmd> ");

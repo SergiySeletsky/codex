@@ -25,9 +25,14 @@ public static class LoginCommand
                 TokenManager.SaveToken(token);
                 Console.WriteLine("Token saved.");
             }
-            else
+
+            Console.Write("OpenAI API key (optional): ");
+            var apiKey = Console.ReadLine();
+            apiKey ??= OpenAiKeyManager.GetKey();
+            if (!string.IsNullOrWhiteSpace(apiKey))
             {
-                Console.WriteLine("No token provided.");
+                OpenAiKeyManager.SetKey(apiKey);
+                Console.WriteLine("API key set.");
             }
             var overrides = ConfigOverrides.Parse(ov);
             if (overrides.Overrides.Count > 0)

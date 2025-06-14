@@ -16,7 +16,7 @@ public static class ExecCommand
         var providerOpt = new Option<string?>("--model-provider", "Model provider");
         var fullAutoOpt = new Option<bool>("--full-auto", () => false, "Run in full-auto mode");
         var approvalOpt = new Option<ApprovalMode?>("--ask-for-approval", "When to require approval");
-        var sandboxOpt = new Option<SandboxPermission[]>("-s", description: "Sandbox permissions") { AllowMultipleArgumentsPerToken = true };
+        var sandboxOpt = new Option<string[]>("-s", description: "Sandbox permissions") { AllowMultipleArgumentsPerToken = true };
         var colorOpt = new Option<ColorMode>("--color", () => ColorMode.Auto, "Output color mode");
         var cwdOpt = new Option<string?>(new[] {"--cwd", "-C"}, "Working directory for Codex");
         var lastMsgOpt = new Option<string?>("--output-last-message", "File to write last agent message");

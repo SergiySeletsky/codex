@@ -11,13 +11,13 @@ public class InteractiveBinder : BinderBase<InteractiveOptions>
     private readonly Option<string?> _profile;
     private readonly Option<bool> _fullAuto;
     private readonly Option<ApprovalMode?> _approval;
-    private readonly Option<SandboxPermission[]> _sandbox;
+    private readonly Option<string[]> _sandbox;
     private readonly Option<bool> _skipGit;
     private readonly Option<string?> _cwd;
 
     public InteractiveBinder(Argument<string?> prompt, Option<FileInfo[]> images, Option<string?> model,
         Option<string?> profile, Option<bool> fullAuto, Option<ApprovalMode?> approval,
-        Option<SandboxPermission[]> sandbox, Option<bool> skipGit, Option<string?> cwd)
+        Option<string[]> sandbox, Option<bool> skipGit, Option<string?> cwd)
     {
         _prompt = prompt;
         _images = images;
@@ -39,7 +39,8 @@ public class InteractiveBinder : BinderBase<InteractiveOptions>
             bindingContext.ParseResult.GetValueForOption(_profile),
             bindingContext.ParseResult.GetValueForOption(_fullAuto),
             bindingContext.ParseResult.GetValueForOption(_approval),
-            bindingContext.ParseResult.GetValueForOption(_sandbox) ?? Array.Empty<SandboxPermission>(),
+            (bindingContext.ParseResult.GetValueForOption(_sandbox) ?? Array.Empty<string>())
+                .Select(s => SandboxPermissionParser.Parse(s, Environment.CurrentDirectory)).ToArray(),
             bindingContext.ParseResult.GetValueForOption(_skipGit),
             bindingContext.ParseResult.GetValueForOption(_cwd)
         );
