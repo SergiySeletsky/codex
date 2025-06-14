@@ -12,12 +12,14 @@ public static class LoginCommand
         var tokenOpt = new Option<string?>("--token", "Token to save");
         var apiOpt = new Option<string?>("--api-key", "API key to save");
         var providerOpt = new Option<string?>("--provider", "Provider id for API key");
+        var chatgptOpt = new Option<bool>("--chatgpt", () => false, "Use ChatGPT browser login");
         var cmd = new Command("login", "Login with ChatGPT");
         cmd.AddOption(overridesOpt);
         cmd.AddOption(tokenOpt);
         cmd.AddOption(apiOpt);
         cmd.AddOption(providerOpt);
-        cmd.SetHandler(async (string? cfgPath, string? cd, string[] ov, string? tokenArg, string? apiArg, string? providerOptVal) =>
+        cmd.AddOption(chatgptOpt);
+        cmd.SetHandler(async (string? cfgPath, string? cd, string[] ov, string? tokenArg, string? apiArg, string? providerOptVal, bool chatgpt) =>
         {
             if (cd != null) Environment.CurrentDirectory = cd;
             AppConfig? cfg = null;
@@ -45,6 +47,18 @@ public static class LoginCommand
             }
             var provInfo = cfg?.GetProvider(provider) ?? ModelProviderInfo.BuiltIns[provider];
             apiKey ??= ApiKeyManager.GetKey(provInfo);
+            if (string.IsNullOrWhiteSpace(apiKey) && chatgpt)
+            {
+                Console.WriteLine("Launching browser login...");
+                try
+                {
+                    apiKey = await ChatGptLogin.LoginAsync(EnvUtils.FindCodexHome(), false);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
             if (!string.IsNullOrWhiteSpace(apiKey))
             {
                 ApiKeyManager.SaveKey(provider, apiKey);
@@ -58,7 +72,7 @@ public static class LoginCommand
             if (overrides.Overrides.Count > 0)
                 Console.WriteLine($"{overrides.Overrides.Count} override(s) parsed");
             await Task.CompletedTask;
-        }, configOption, cdOption, overridesOpt, tokenOpt, apiOpt, providerOpt);
+        }, configOption, cdOption, overridesOpt, tokenOpt, apiOpt, providerOpt, chatgptOpt);
         return cmd;
     }
 }

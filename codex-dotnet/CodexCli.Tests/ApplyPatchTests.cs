@@ -25,6 +25,14 @@ public class ApplyPatchTests
         Assert.Equal("hello\n", text);
     }
 
+    [Fact]
+    public void Apply_EscapePath_Throws()
+    {
+        using var dir = new TempDir();
+        string patch = "*** Begin Patch\n*** Add File: ../bad.txt\n+hi\n*** End Patch";
+        Assert.Throws<PatchParseException>(() => PatchApplier.Apply(patch, dir.Path));
+    }
+
     private sealed class TempDir : IDisposable
     {
         public string Path { get; } = System.IO.Path.Combine(System.IO.Path.GetTempPath(), System.IO.Path.GetRandomFileName());

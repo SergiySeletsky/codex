@@ -14,4 +14,11 @@ public class ProviderInfoTests
         var result = parser.Invoke("info openai");
         Assert.Equal(0, result);
     }
+
+    [Fact]
+    public void ProviderEnvKeyInstructions()
+    {
+        var info = ModelProviderInfo.BuiltIns["openai"];
+        Assert.NotNull(info.EnvKeyInstructions);
+    }
 }

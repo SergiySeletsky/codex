@@ -123,6 +123,7 @@ public static class ExecCommand
             var providerInfo = cfg?.GetProvider(providerId) ?? ModelProviderInfo.BuiltIns[providerId];
             var apiKey = ApiKeyManager.GetKey(providerInfo);
             var client = new OpenAIClient(apiKey, providerInfo.BaseUrl);
+            var execPolicy = ExecPolicy.LoadDefault();
             bool hideReason = opts.HideAgentReasoning ?? cfg?.HideAgentReasoning ?? false;
             bool disableStorage = opts.DisableResponseStorage ?? cfg?.DisableResponseStorage ?? false;
             bool withAnsi = opts.Color switch
@@ -171,6 +172,11 @@ public static class ExecCommand
                         SessionManager.AddEntry(sessionId, am.Message);
                         break;
                     case ExecApprovalRequestEvent ar:
+                        if (!execPolicy.IsAllowed(ar.Command.First()))
+                        {
+                            Console.WriteLine($"Denied '{string.Join(" ", ar.Command)}' (forbidden)");
+                            break;
+                        }
                         Console.Write($"Run '{string.Join(" ", ar.Command)}'? [y/N] ");
                         var resp = Console.ReadLine();
                         if (!resp?.StartsWith("y", StringComparison.OrdinalIgnoreCase) ?? true)

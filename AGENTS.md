@@ -167,9 +167,18 @@
 150. ProviderInfoTests verify info subcommand
 151. UnifiedDiffTests cover ParseUnified
 152. Provider info and unified diff features documented
+153. Added apply_patch tool instructions file for reference
+154. Implemented ChatGptLogin utility running embedded Python script
+155. Login command gains --chatgpt option to launch browser-based login
+156. Introduced ExecPolicy loader parsing default.policy
+157. ExecCommand enforces ExecPolicy when approving commands
+158. PatchApplier validates paths stay within cwd
+159. Added ExecPolicyTests and updated ApplyPatchTests
+160. Added ProviderInfoTests for EnvKeyInstructions
+161. Embedded ChatGptLogin script test
 
 ## TODO Next Run
 - Integrate real Codex agent responses
-- Expand ApplyPatchCommand with safety checks
-- Add comprehensive unit tests for provider handling
-- Port shell environment policy logic
+- Support advanced exec policy options
+- Improve error handling around ChatGPT login
+- Add more provider handling tests
