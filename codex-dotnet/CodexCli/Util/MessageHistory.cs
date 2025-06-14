@@ -13,6 +13,8 @@ public static class MessageHistory
         return Path.Combine(home, HistoryFile);
     }
 
+    public static string GetHistoryFile(AppConfig cfg) => GetHistoryPath(cfg);
+
     public class HistoryEntry
     {
         public string SessionId { get; set; } = string.Empty;
@@ -48,6 +50,58 @@ public static class MessageHistory
         await foreach (var _ in File.ReadLinesAsync(path))
             count++;
         return (0UL, count);
+    }
+
+    public static async Task<int> CountEntriesAsync(AppConfig cfg)
+    {
+        var meta = await HistoryMetadataAsync(cfg);
+        return meta.Count;
+    }
+
+    public static async Task<IEnumerable<string>> LastEntriesAsync(int count, AppConfig cfg)
+    {
+        var path = GetHistoryPath(cfg);
+        if (!File.Exists(path)) return Enumerable.Empty<string>();
+        var lines = await File.ReadAllLinesAsync(path);
+        return lines.Reverse().Take(count).Select(line =>
+        {
+            try
+            {
+                var entry = JsonSerializer.Deserialize<HistoryEntry>(line);
+                return entry?.Text ?? string.Empty;
+            }
+            catch
+            {
+                return string.Empty;
+            }
+        }).Reverse();
+    }
+
+    public static async Task<IEnumerable<string>> SearchEntriesAsync(string term, AppConfig cfg)
+    {
+        var path = GetHistoryPath(cfg);
+        if (!File.Exists(path)) return Enumerable.Empty<string>();
+        var results = new List<string>();
+        await foreach (var line in File.ReadLinesAsync(path))
+        {
+            if (line.Contains(term, StringComparison.OrdinalIgnoreCase))
+            {
+                try
+                {
+                    var entry = JsonSerializer.Deserialize<HistoryEntry>(line);
+                    if (entry != null)
+                        results.Add(entry.Text);
+                }
+                catch { }
+            }
+        }
+        return results;
+    }
+
+    public static void ClearHistory(AppConfig cfg)
+    {
+        var path = GetHistoryPath(cfg);
+        if (File.Exists(path)) File.Delete(path);
     }
 
     public static string? LookupEntry(ulong logId, int offset, AppConfig cfg)

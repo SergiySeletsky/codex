@@ -1,5 +1,6 @@
 using CodexCli.Util;
 using CodexCli.Config;
+using System.Linq;
 using Xunit;
 
 public class MessageHistoryTests
@@ -16,6 +17,16 @@ public class MessageHistoryTests
         Assert.Equal(2, meta.Count);
         var e1 = MessageHistory.LookupEntry(meta.LogId, 1, cfg);
         Assert.Equal("world", e1);
+        var count = await MessageHistory.CountEntriesAsync(cfg);
+        Assert.Equal(2, count);
+        var last = await MessageHistory.LastEntriesAsync(1, cfg);
+        Assert.Single(last);
+        Assert.Equal("world", last.First());
+        var search = await MessageHistory.SearchEntriesAsync("hello", cfg);
+        Assert.Single(search);
+        MessageHistory.ClearHistory(cfg);
+        var meta2 = await MessageHistory.HistoryMetadataAsync(cfg);
+        Assert.Equal(0, meta2.Count);
         Directory.Delete(dir, true);
     }
 }

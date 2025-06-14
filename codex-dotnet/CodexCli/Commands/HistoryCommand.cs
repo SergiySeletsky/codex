@@ -87,6 +87,48 @@ public static class HistoryCommand
             else Console.WriteLine("not found");
         }, msgOffsetArg);
 
+        var msgPathCmd = new Command("messages-path", "Print message history file path");
+        msgPathCmd.SetHandler(() =>
+        {
+            var cfg = new AppConfig();
+            Console.WriteLine(MessageHistory.GetHistoryFile(cfg));
+        });
+
+        var msgClearCmd = new Command("messages-clear", "Delete message history file");
+        msgClearCmd.SetHandler(() =>
+        {
+            var cfg = new AppConfig();
+            MessageHistory.ClearHistory(cfg);
+        });
+
+        var msgSearchCmd = new Command("messages-search", "Search message history for text");
+        var termArg = new Argument<string>("term", "Search term");
+        msgSearchCmd.AddArgument(termArg);
+        msgSearchCmd.SetHandler(async (string term) =>
+        {
+            var cfg = new AppConfig();
+            var results = await MessageHistory.SearchEntriesAsync(term, cfg);
+            foreach (var r in results) Console.WriteLine(r);
+        }, termArg);
+
+        var msgLastCmd = new Command("messages-last", "Show last N history entries");
+        var lastCountArg = new Argument<int>("n", getDefaultValue: () => 10);
+        msgLastCmd.AddArgument(lastCountArg);
+        msgLastCmd.SetHandler(async (int n) =>
+        {
+            var cfg = new AppConfig();
+            var lines = await MessageHistory.LastEntriesAsync(n, cfg);
+            foreach (var l in lines) Console.WriteLine(l);
+        }, lastCountArg);
+
+        var msgCountCmd = new Command("messages-count", "Print number of history entries");
+        msgCountCmd.SetHandler(async () =>
+        {
+            var cfg = new AppConfig();
+            var count = await MessageHistory.CountEntriesAsync(cfg);
+            Console.WriteLine(count);
+        });
+
         var root = new Command("history", "Manage session history");
         root.AddCommand(listCmd);
         root.AddCommand(showCmd);
@@ -97,6 +139,11 @@ public static class HistoryCommand
         root.AddCommand(infoCmd);
         root.AddCommand(msgMetaCmd);
         root.AddCommand(msgEntryCmd);
+        root.AddCommand(msgPathCmd);
+        root.AddCommand(msgClearCmd);
+        root.AddCommand(msgSearchCmd);
+        root.AddCommand(msgLastCmd);
+        root.AddCommand(msgCountCmd);
         return root;
     }
 }

@@ -257,7 +257,11 @@
 235. InteractiveCommand toggles mouse capture based on config
 236. HistoryCommand registers new message history subcommands
 237. Installed .NET 8 SDK via apt-get for building
+238. Added MessageHistory API for counting, searching, last-N, and clearing entries
+239. Extended HistoryCommand with messages-path, messages-clear, messages-search,
+     messages-last and messages-count subcommands
+240. MessageHistoryTests cover new APIs
 
 ## TODO Next Run
-- Expand message history CLI
-- Implement remaining Rust features
+- Port more Rust CLI features
+- Investigate hanging tests and fix
