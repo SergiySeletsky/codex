@@ -23,9 +23,13 @@ public class ExecBinderTests
         var skipGitOpt = new Option<bool>("--skip-git-repo-check");
         var notifyOpt = new Option<string[]>("--notify") { AllowMultipleArgumentsPerToken = true };
         var overridesOpt = new Option<string[]>("-c") { AllowMultipleArgumentsPerToken = true };
+        var effortOpt = new Option<ReasoningEffort?>("--reasoning-effort");
+        var summaryOpt = new Option<ReasoningSummary?>("--reasoning-summary");
+        var instrOpt = new Option<string?>("--instructions");
 
         var binder = new ExecBinder(promptArg, imagesOpt, modelOpt, profileOpt, providerOpt,
-            fullAutoOpt, approvalOpt, sandboxOpt, colorOpt, cwdOpt, lastOpt, skipGitOpt, notifyOpt, overridesOpt);
+            fullAutoOpt, approvalOpt, sandboxOpt, colorOpt, cwdOpt, lastOpt, skipGitOpt,
+            notifyOpt, overridesOpt, effortOpt, summaryOpt, instrOpt);
 
         var cmd = new Command("exec");
         cmd.AddArgument(promptArg);

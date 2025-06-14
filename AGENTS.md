@@ -69,3 +69,13 @@
 - Expand MCP server to handle multiple connections and serve real events.
 - Add more comprehensive unit tests for binder logic.
 - Continue porting Rust protocol types and core libraries.
+53. Added config profile support with `AppConfig.Load(path, profile)` and `ConfigProfile`.
+54. `instructions` field loaded from config or `instructions.md`.
+55. Implemented `ProjectDoc` to merge `AGENTS.md` with instructions.
+56. Added `--instructions` option plus reasoning effort/summary enums.
+57. Exec and interactive commands now apply profiles and load instructions when prompt absent.
+58. Added `ReasoningEffort` and `ReasoningSummary` enums with binder support.
+59. Implemented session history retrieval via `SessionManager.GetHistory` (existing but now documented).
+60. Added tests for profile loading, project doc instructions, and updated binder tests.
+- Build verified with `dotnet build`.
+- Tests run with `dotnet test`.

@@ -38,3 +38,18 @@ public readonly record struct SandboxPermission(SandboxPermissionType Type, stri
     }
 }
 
+
+public enum ReasoningEffort
+{
+    None,
+    Low,
+    Medium,
+    High
+}
+
+public enum ReasoningSummary
+{
+    None,
+    Brief,
+    Detailed
+}

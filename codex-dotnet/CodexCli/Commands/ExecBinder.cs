@@ -20,12 +20,16 @@ public class ExecBinder : BinderBase<ExecOptions>
     private readonly Option<bool> _skipGit;
     private readonly Option<string[]> _notify;
     private readonly Option<string[]> _overrides;
+    private readonly Option<ReasoningEffort?> _effort;
+    private readonly Option<ReasoningSummary?> _summary;
+    private readonly Option<string?> _instructions;
 
     public ExecBinder(Argument<string?> prompt, Option<FileInfo[]> images, Option<string?> model,
         Option<string?> profile, Option<string?> provider, Option<bool> fullAuto,
         Option<ApprovalMode?> approval, Option<string[]> sandbox, Option<ColorMode> color,
         Option<string?> cwd, Option<string?> lastMessage, Option<bool> skipGit,
-        Option<string[]> notify, Option<string[]> overrides)
+        Option<string[]> notify, Option<string[]> overrides, Option<ReasoningEffort?> effort,
+        Option<ReasoningSummary?> summary, Option<string?> instructions)
     {
         _prompt = prompt;
         _images = images;
@@ -41,6 +45,9 @@ public class ExecBinder : BinderBase<ExecOptions>
         _skipGit = skipGit;
         _notify = notify;
         _overrides = overrides;
+        _effort = effort;
+        _summary = summary;
+        _instructions = instructions;
     }
 
     protected override ExecOptions GetBoundValue(BindingContext bindingContext)
@@ -63,7 +70,10 @@ public class ExecBinder : BinderBase<ExecOptions>
             bindingContext.ParseResult.GetValueForOption(_lastMessage),
             bindingContext.ParseResult.GetValueForOption(_skipGit),
             bindingContext.ParseResult.GetValueForOption(_notify) ?? Array.Empty<string>(),
-            bindingContext.ParseResult.GetValueForOption(_overrides) ?? Array.Empty<string>()
+            bindingContext.ParseResult.GetValueForOption(_overrides) ?? Array.Empty<string>(),
+            bindingContext.ParseResult.GetValueForOption(_effort),
+            bindingContext.ParseResult.GetValueForOption(_summary),
+            bindingContext.ParseResult.GetValueForOption(_instructions)
         );
     }
 }

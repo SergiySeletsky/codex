@@ -24,6 +24,9 @@ public static class InteractiveCommand
         var overridesOpt = new Option<string[]>("-c") { AllowMultipleArgumentsPerToken = true };
         var skipGitOpt = new Option<bool>("--skip-git-repo-check", () => false);
         var cwdOpt = new Option<string?>(new[]{"--cwd","-C"});
+        var effortOpt = new Option<ReasoningEffort?>("--reasoning-effort");
+        var summaryOpt = new Option<ReasoningSummary?>("--reasoning-summary");
+        var instrOpt = new Option<string?>("--instructions");
 
         var cmd = new Command("interactive", "Run interactive TUI session");
         cmd.AddArgument(promptArg);
@@ -39,16 +42,20 @@ public static class InteractiveCommand
         cmd.AddOption(overridesOpt);
         cmd.AddOption(skipGitOpt);
         cmd.AddOption(cwdOpt);
+        cmd.AddOption(effortOpt);
+        cmd.AddOption(summaryOpt);
+        cmd.AddOption(instrOpt);
 
         var binder = new InteractiveBinder(promptArg, imagesOpt, modelOpt, profileOpt, providerOpt,
-            fullAutoOpt, approvalOpt, sandboxOpt, colorOpt, skipGitOpt, cwdOpt, notifyOpt, overridesOpt);
+            fullAutoOpt, approvalOpt, sandboxOpt, colorOpt, skipGitOpt, cwdOpt, notifyOpt, overridesOpt,
+            effortOpt, summaryOpt, instrOpt);
 
         cmd.SetHandler(async (InteractiveOptions opts, string? cfgPath, string? cd) =>
         {
             if (cd != null) Environment.CurrentDirectory = cd;
             AppConfig? cfg = null;
             if (!string.IsNullOrEmpty(cfgPath) && File.Exists(cfgPath))
-                cfg = AppConfig.Load(cfgPath);
+                cfg = AppConfig.Load(cfgPath, opts.Profile);
 
             if (!opts.SkipGitRepoCheck && !GitUtils.IsInsideGitRepo(Environment.CurrentDirectory))
             {
@@ -66,10 +73,21 @@ public static class InteractiveCommand
             {
                 if (!Console.IsInputRedirected)
                 {
-                    Console.Error.WriteLine("No prompt provided. Provide as argument or pipe via stdin.");
-                    return;
+                    var inst = opts.InstructionsPath != null && File.Exists(opts.InstructionsPath)
+                        ? File.ReadAllText(opts.InstructionsPath)
+                        : cfg != null ? ProjectDoc.GetUserInstructions(cfg, Environment.CurrentDirectory) : null;
+                    if (!string.IsNullOrWhiteSpace(inst))
+                        prompt = inst;
+                    else
+                    {
+                        Console.Error.WriteLine("No prompt provided. Provide as argument or pipe via stdin.");
+                        return;
+                    }
                 }
-                prompt = await Console.In.ReadToEndAsync();
+                else
+                {
+                    prompt = await Console.In.ReadToEndAsync();
+                }
             }
 
             var opts2 = opts with { Prompt = prompt };

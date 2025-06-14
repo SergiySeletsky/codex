@@ -18,11 +18,15 @@ public class InteractiveBinder : BinderBase<InteractiveOptions>
     private readonly Option<string?> _cwd;
     private readonly Option<string[]> _notify;
     private readonly Option<string[]> _overrides;
+    private readonly Option<ReasoningEffort?> _effort;
+    private readonly Option<ReasoningSummary?> _summary;
+    private readonly Option<string?> _instructions;
 
     public InteractiveBinder(Argument<string?> prompt, Option<FileInfo[]> images, Option<string?> model,
         Option<string?> profile, Option<string?> provider, Option<bool> fullAuto, Option<ApprovalMode?> approval,
         Option<string[]> sandbox, Option<ColorMode> color, Option<bool> skipGit, Option<string?> cwd,
-        Option<string[]> notify, Option<string[]> overrides)
+        Option<string[]> notify, Option<string[]> overrides, Option<ReasoningEffort?> effort,
+        Option<ReasoningSummary?> summary, Option<string?> instructions)
     {
         _prompt = prompt;
         _images = images;
@@ -37,6 +41,9 @@ public class InteractiveBinder : BinderBase<InteractiveOptions>
         _cwd = cwd;
         _notify = notify;
         _overrides = overrides;
+        _effort = effort;
+        _summary = summary;
+        _instructions = instructions;
     }
 
     protected override InteractiveOptions GetBoundValue(BindingContext bindingContext)
@@ -55,7 +62,10 @@ public class InteractiveBinder : BinderBase<InteractiveOptions>
             bindingContext.ParseResult.GetValueForOption(_skipGit),
             bindingContext.ParseResult.GetValueForOption(_cwd),
             bindingContext.ParseResult.GetValueForOption(_notify) ?? Array.Empty<string>(),
-            bindingContext.ParseResult.GetValueForOption(_overrides) ?? Array.Empty<string>()
+            bindingContext.ParseResult.GetValueForOption(_overrides) ?? Array.Empty<string>(),
+            bindingContext.ParseResult.GetValueForOption(_effort),
+            bindingContext.ParseResult.GetValueForOption(_summary),
+            bindingContext.ParseResult.GetValueForOption(_instructions)
         );
     }
 }

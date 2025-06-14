@@ -24,6 +24,9 @@ public static class ExecCommand
         var skipGitOpt = new Option<bool>("--skip-git-repo-check", () => false, "Allow running outside git repo");
         var notifyOpt = new Option<string[]>("--notify", description: "Notification command") { AllowMultipleArgumentsPerToken = true };
         var overridesOpt = new Option<string[]>("-c", description: "Config overrides") { AllowMultipleArgumentsPerToken = true };
+        var effortOpt = new Option<ReasoningEffort?>("--reasoning-effort");
+        var summaryOpt = new Option<ReasoningSummary?>("--reasoning-summary");
+        var instrOpt = new Option<string?>("--instructions", "Path to instructions file");
 
         var cmd = new Command("exec", "Run Codex non-interactively");
         cmd.AddArgument(promptArg);
@@ -40,16 +43,21 @@ public static class ExecCommand
         cmd.AddOption(skipGitOpt);
         cmd.AddOption(notifyOpt);
         cmd.AddOption(overridesOpt);
+        cmd.AddOption(effortOpt);
+        cmd.AddOption(summaryOpt);
+        cmd.AddOption(instrOpt);
 
         var binder = new ExecBinder(promptArg, imagesOpt, modelOpt, profileOpt, providerOpt, fullAutoOpt,
-            approvalOpt, sandboxOpt, colorOpt, cwdOpt, lastMsgOpt, skipGitOpt, notifyOpt, overridesOpt);
+            approvalOpt, sandboxOpt, colorOpt, cwdOpt, lastMsgOpt, skipGitOpt, notifyOpt, overridesOpt,
+            effortOpt, summaryOpt, instrOpt);
 
         cmd.SetHandler(async (ExecOptions opts, string? cfgPath, string? cd) =>
         {
             if (cd != null) Environment.CurrentDirectory = cd;
             AppConfig? cfg = null;
             if (!string.IsNullOrEmpty(cfgPath) && File.Exists(cfgPath))
-                cfg = AppConfig.Load(cfgPath);
+                cfg = AppConfig.Load(cfgPath, opts.Profile);
+
             var sessionId = SessionManager.CreateSession();
 
             if (opts.NotifyCommand.Length > 0)
@@ -66,8 +74,25 @@ public static class ExecCommand
             var prompt = opts.Prompt;
             if (string.IsNullOrEmpty(prompt) || prompt == "-")
             {
-                Console.WriteLine("Reading prompt from stdin...");
-                prompt = await Console.In.ReadToEndAsync();
+                if (!Console.IsInputRedirected)
+                {
+                    var inst = opts.InstructionsPath != null && File.Exists(opts.InstructionsPath)
+                        ? File.ReadAllText(opts.InstructionsPath)
+                        : cfg != null ? ProjectDoc.GetUserInstructions(cfg, Environment.CurrentDirectory) : null;
+                    if (!string.IsNullOrWhiteSpace(inst))
+                    {
+                        prompt = inst;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Reading prompt from stdin...");
+                        prompt = await Console.In.ReadToEndAsync();
+                    }
+                }
+                else
+                {
+                    prompt = await Console.In.ReadToEndAsync();
+                }
             }
             SessionManager.AddEntry(sessionId, prompt ?? string.Empty);
 

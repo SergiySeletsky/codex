@@ -21,4 +21,7 @@ public record ExecOptions(
     string? LastMessageFile,
     bool SkipGitRepoCheck,
     string[] NotifyCommand,
-    string[] Overrides);
+    string[] Overrides,
+    ReasoningEffort? ReasoningEffort,
+    ReasoningSummary? ReasoningSummary,
+    string? InstructionsPath);

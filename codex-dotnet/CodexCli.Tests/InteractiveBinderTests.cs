@@ -22,9 +22,13 @@ public class InteractiveBinderTests
         var cwdOpt = new Option<string?>("--cwd");
         var notifyOpt = new Option<string[]>("--notify") { AllowMultipleArgumentsPerToken = true };
         var overridesOpt = new Option<string[]>("-c") { AllowMultipleArgumentsPerToken = true };
+        var effortOpt = new Option<ReasoningEffort?>("--reasoning-effort");
+        var summaryOpt = new Option<ReasoningSummary?>("--reasoning-summary");
+        var instrOpt = new Option<string?>("--instructions");
 
         var binder = new InteractiveBinder(promptArg, imagesOpt, modelOpt, profileOpt, providerOpt,
-            fullAutoOpt, approvalOpt, sandboxOpt, colorOpt, skipGitOpt, cwdOpt, notifyOpt, overridesOpt);
+            fullAutoOpt, approvalOpt, sandboxOpt, colorOpt, skipGitOpt, cwdOpt, notifyOpt, overridesOpt,
+            effortOpt, summaryOpt, instrOpt);
 
         var cmd = new Command("interactive");
         cmd.AddArgument(promptArg);

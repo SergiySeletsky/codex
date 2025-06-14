@@ -13,4 +13,7 @@ public record InteractiveOptions(
     bool SkipGitRepoCheck,
     string? Cwd,
     string[] NotifyCommand,
-    string[] Overrides);
+    string[] Overrides,
+    ReasoningEffort? ReasoningEffort,
+    ReasoningSummary? ReasoningSummary,
+    string? InstructionsPath);
