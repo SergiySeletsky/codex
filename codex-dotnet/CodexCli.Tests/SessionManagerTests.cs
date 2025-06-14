@@ -1,3 +1,5 @@
+using System.IO;
+
 namespace CodexCli.Tests;
 
 public class SessionManagerTests
@@ -10,6 +12,9 @@ public class SessionManagerTests
         var hist = CodexCli.Util.SessionManager.GetHistory(id);
         Assert.Single(hist);
         Assert.Equal("hello", hist[0]);
+        var file = CodexCli.Util.SessionManager.GetHistoryFile(id);
+        Assert.NotNull(file);
+        Assert.True(File.Exists(file));
     }
 
     [Fact]

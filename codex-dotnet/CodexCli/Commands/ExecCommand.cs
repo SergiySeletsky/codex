@@ -50,6 +50,7 @@ public static class ExecCommand
             AppConfig? cfg = null;
             if (!string.IsNullOrEmpty(cfgPath) && File.Exists(cfgPath))
                 cfg = AppConfig.Load(cfgPath);
+            var sessionId = SessionManager.CreateSession();
 
             if (opts.NotifyCommand.Length > 0)
                 NotifyUtils.RunNotify(opts.NotifyCommand, "session_started");
@@ -68,6 +69,7 @@ public static class ExecCommand
                 Console.WriteLine("Reading prompt from stdin...");
                 prompt = await Console.In.ReadToEndAsync();
             }
+            SessionManager.AddEntry(sessionId, prompt ?? string.Empty);
 
             var ov = ConfigOverrides.Parse(opts.Overrides);
             if (ov.Overrides.Count > 0)
@@ -78,13 +80,20 @@ public static class ExecCommand
             var apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
             var client = new OpenAIClient(apiKey);
             var processor = new CodexCli.Protocol.EventProcessor(opts.Color != ColorMode.Never);
-            processor.PrintConfigSummary(opts.Model ?? cfg?.Model ?? "default", Environment.CurrentDirectory, prompt.Trim());
+            processor.PrintConfigSummary(
+                opts.Model ?? cfg?.Model ?? "default",
+                opts.ModelProvider ?? cfg?.ModelProvider ?? string.Empty,
+                Environment.CurrentDirectory,
+                prompt.Trim());
 
             await foreach (var ev in CodexCli.Protocol.MockCodexAgent.RunAsync(prompt))
             {
                 processor.ProcessEvent(ev);
                 switch (ev)
                 {
+                    case AgentMessageEvent am:
+                        SessionManager.AddEntry(sessionId, am.Message);
+                        break;
                     case ExecApprovalRequestEvent ar:
                         Console.Write($"Run '{string.Join(" ", ar.Command)}'? [y/N] ");
                         var resp = Console.ReadLine();
@@ -105,6 +114,9 @@ public static class ExecCommand
                         break;
                 }
             }
+
+            if (SessionManager.GetHistoryFile(sessionId) is { } histPath)
+                Console.WriteLine($"History saved to {histPath}");
 
             if (opts.NotifyCommand.Length > 0)
                 NotifyUtils.RunNotify(opts.NotifyCommand, "session_complete");

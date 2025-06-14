@@ -20,9 +20,11 @@ public class EventProcessor
         _green = withAnsi ? new Style(foreground: Color.Green) : Style.Plain;
     }
 
-    public void PrintConfigSummary(string model, string cwd, string prompt)
+    public void PrintConfigSummary(string model, string provider, string cwd, string prompt)
     {
         AnsiConsole.MarkupLine($"[grey]{Elapsed.Timestamp()}[/] [bold]model:[/] {model}");
+        if (!string.IsNullOrEmpty(provider))
+            AnsiConsole.MarkupLine($"[grey]{Elapsed.Timestamp()}[/] [bold]provider:[/] {provider}");
         AnsiConsole.MarkupLine($"[grey]{Elapsed.Timestamp()}[/] [bold]cwd:[/] {cwd}");
         AnsiConsole.MarkupLine("--------");
         AnsiConsole.MarkupLine($"[grey]{Elapsed.Timestamp()}[/] [bold cyan]User instructions:[/]\n{prompt}");

@@ -153,5 +153,7 @@ public static class InteractiveCommand
             SessionManager.AddEntry(sessionId, prompt);
             AnsiConsole.MarkupLine($"You typed: [blue]{prompt}[/]");
         }
+        if (SessionManager.GetHistoryFile(sessionId) is { } path)
+            AnsiConsole.MarkupLine($"History saved to [green]{path}[/]");
     }
 }

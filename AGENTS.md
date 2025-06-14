@@ -50,6 +50,14 @@
 42. Interactive command supports provider, color, notify and override options plus /reset command.
 43. SessionManager exposes ClearHistory and associated tests.
 44. Added EnvUtilsTests for default history dir.
+45. SessionManager now writes history entries to files under `GetHistoryDir`.
+46. Exec command records agent messages and reports the history file path.
+47. Interactive command prints the history file path when exiting.
+48. Added `model_provider` support in `AppConfig` and displayed in config summary.
+49. Exec command now honors provider from config or CLI.
+50. Implemented basic SSE streaming in `mcp` command on `/events`.
+51. Added binder unit tests for `ExecBinder` and `InteractiveBinder`.
+52. SessionManager tests verify history file creation.
 - Build verified with `dotnet build`.
 - Tests run with `dotnet test`.
 
@@ -58,7 +66,6 @@
 
 ## TODO Next Run
 - Integrate exec command with real Codex agent and tool execution.
-- Stream events over HTTP in MCP server.
-- Persist session history to disk.
+- Expand MCP server to handle multiple connections and serve real events.
 - Add more comprehensive unit tests for binder logic.
 - Continue porting Rust protocol types and core libraries.

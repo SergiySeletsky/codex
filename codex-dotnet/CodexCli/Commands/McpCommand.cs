@@ -2,6 +2,7 @@ using System.CommandLine;
 using CodexCli.Config;
 using System.Net;
 using System.Text;
+using System.IO;
 
 namespace CodexCli.Commands;
 
@@ -23,13 +24,27 @@ public static class McpCommand
             listener.Start();
             Console.WriteLine($"MCP server listening on port {port}");
             var ctx = await listener.GetContextAsync();
-            using var reader = new StreamReader(ctx.Request.InputStream);
-            var body = await reader.ReadToEndAsync();
-            Console.WriteLine($"Received: {body}");
-            var resp = Encoding.UTF8.GetBytes("ok");
-            ctx.Response.ContentLength64 = resp.Length;
-            await ctx.Response.OutputStream.WriteAsync(resp);
-            ctx.Response.Close();
+            if (ctx.Request.Url?.AbsolutePath == "/events")
+            {
+                ctx.Response.ContentType = "text/event-stream";
+                using var writer = new StreamWriter(ctx.Response.OutputStream);
+                await foreach (var ev in CodexCli.Protocol.MockCodexAgent.RunAsync("hello"))
+                {
+                    await writer.WriteAsync($"data: {ev.GetType().Name}\n\n");
+                    await writer.FlushAsync();
+                }
+                ctx.Response.Close();
+            }
+            else
+            {
+                using var reader = new StreamReader(ctx.Request.InputStream);
+                var body = await reader.ReadToEndAsync();
+                Console.WriteLine($"Received: {body}");
+                var resp = Encoding.UTF8.GetBytes("ok");
+                ctx.Response.ContentLength64 = resp.Length;
+                await ctx.Response.OutputStream.WriteAsync(resp);
+                ctx.Response.Close();
+            }
         }, configOption, cdOption, portOpt);
         return cmd;
     }
