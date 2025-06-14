@@ -43,8 +43,8 @@ public static class LoginCommand
             apiKey ??= OpenAiKeyManager.GetKey();
             if (!string.IsNullOrWhiteSpace(apiKey))
             {
-                OpenAiKeyManager.SetKey(apiKey);
-                Console.WriteLine("API key set.");
+                OpenAiKeyManager.SaveKey(apiKey);
+                Console.WriteLine("API key saved.");
             }
             var overrides = ConfigOverrides.Parse(ov);
             if (overrides.Overrides.Count > 0)

@@ -37,4 +37,14 @@ public static class OpenAiKeyManager
         Environment.SetEnvironmentVariable(EnvVar, key);
         _cached = key;
     }
+
+    public static void SaveKey(string key)
+    {
+        SetKey(key);
+        var dir = EnvUtils.FindCodexHome();
+        Directory.CreateDirectory(dir);
+        var path = Path.Combine(dir, "auth.json");
+        var json = System.Text.Json.JsonSerializer.Serialize(new Dictionary<string,string>{{EnvVar, key}});
+        File.WriteAllText(path, json);
+    }
 }

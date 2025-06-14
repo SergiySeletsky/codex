@@ -132,3 +132,13 @@
 108. Interactive /delete removes saved sessions
 109. ExecBinder and InteractiveBinder tests updated for new options
 110. EnvUtils tests verify log level env var
+111. Added AddToHistory and GetHistoryEntry events
+112. EventProcessor handles new history events
+113. MockCodexAgent emits history events
+114. SessionManager can fetch a specific history entry
+115. History command supports 'entry' subcommand
+116. Login command saves OpenAI API key to auth.json
+117. OpenAiKeyManager.SaveKey implemented
+118. OpenAIClient sends real requests to api.openai.com
+119. SessionManagerTests verify GetHistoryEntry
+120. Added Azure.AI.OpenAI package reference

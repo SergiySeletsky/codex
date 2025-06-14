@@ -78,6 +78,13 @@ public static class SessionManager
         }
     }
 
+    public static string? GetHistoryEntry(string id, int offset)
+    {
+        var path = GetHistoryFile(id);
+        if (path == null || !File.Exists(path)) return null;
+        return File.ReadLines(path).Skip(offset).FirstOrDefault();
+    }
+
     public static bool DeleteSession(string id)
     {
         var removed = Sessions.TryRemove(id, out _);

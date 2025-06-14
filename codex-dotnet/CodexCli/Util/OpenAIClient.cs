@@ -11,8 +11,22 @@ public class OpenAIClient
 
     public async Task<string> ChatAsync(string prompt)
     {
-        // placeholder for real OpenAI call
-        await Task.Delay(10);
-        return $"response to '{prompt}'";
+        if (string.IsNullOrWhiteSpace(_apiKey))
+            throw new InvalidOperationException("API key not set");
+        using var http = new HttpClient();
+        http.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _apiKey);
+        var payload = new
+        {
+            model = "gpt-3.5-turbo",
+            messages = new[] { new { role = "user", content = prompt } }
+        };
+        var json = System.Text.Json.JsonSerializer.Serialize(payload);
+        using var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+        var resp = await http.PostAsync("https://api.openai.com/v1/chat/completions", content);
+        resp.EnsureSuccessStatusCode();
+        var respJson = await resp.Content.ReadAsStringAsync();
+        using var doc = System.Text.Json.JsonDocument.Parse(respJson);
+        var result = doc.RootElement.GetProperty("choices")[0].GetProperty("message").GetProperty("content").GetString();
+        return result ?? string.Empty;
     }
 }

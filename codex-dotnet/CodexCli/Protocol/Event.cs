@@ -16,3 +16,6 @@ public record McpToolCallBeginEvent(string Id, string Server, string Tool, strin
 public record McpToolCallEndEvent(string Id, bool IsSuccess, string ResultJson) : Event(Id);
 public record AgentReasoningEvent(string Id, string Text) : Event(Id);
 public record SessionConfiguredEvent(string Id, string SessionId, string Model) : Event(Id);
+public record AddToHistoryEvent(string Id, string Text) : Event(Id);
+public record GetHistoryEntryRequestEvent(string Id, string SessionId, int Offset) : Event(Id);
+public record GetHistoryEntryResponseEvent(string Id, string SessionId, int Offset, string? Entry) : Event(Id);

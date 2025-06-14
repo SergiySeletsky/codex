@@ -49,12 +49,24 @@ public static class HistoryCommand
             Console.WriteLine("All sessions deleted");
         });
 
+        var entryCmd = new Command("entry", "Show a single history entry");
+        var offsetArg = new Argument<int>("offset", "Entry offset");
+        entryCmd.AddArgument(idArg);
+        entryCmd.AddArgument(offsetArg);
+        entryCmd.SetHandler((string id, int offset) =>
+        {
+            var line = SessionManager.GetHistoryEntry(id, offset);
+            if (line != null) Console.WriteLine(line);
+            else Console.WriteLine("not found");
+        }, idArg, offsetArg);
+
         var root = new Command("history", "Manage session history");
         root.AddCommand(listCmd);
         root.AddCommand(showCmd);
         root.AddCommand(clearCmd);
         root.AddCommand(pathCmd);
         root.AddCommand(purgeCmd);
+        root.AddCommand(entryCmd);
         return root;
     }
 }

@@ -16,7 +16,9 @@ public static async IAsyncEnumerable<Event> RunAsync(string prompt, IReadOnlyLis
     }
         yield return new SessionConfiguredEvent(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), "gpt-4");
         await Task.Delay(50);
-        yield return new AgentMessageEvent(Guid.NewGuid().ToString(), $"Echoing: {prompt.Trim()}");
+        var msgId = Guid.NewGuid().ToString();
+        yield return new AgentMessageEvent(msgId, $"Echoing: {prompt.Trim()}");
+        yield return new AddToHistoryEvent(Guid.NewGuid().ToString(), $"{prompt.Trim()}");
         await Task.Delay(50);
         yield return new ExecCommandBeginEvent(Guid.NewGuid().ToString(), new[]{"touch","file.txt"}, "/tmp");
         await Task.Delay(50);
@@ -37,6 +39,7 @@ public static async IAsyncEnumerable<Event> RunAsync(string prompt, IReadOnlyLis
         await Task.Delay(50);
         yield return new AgentReasoningEvent(Guid.NewGuid().ToString(), "thinking...");
         await Task.Delay(50);
+        yield return new GetHistoryEntryResponseEvent(Guid.NewGuid().ToString(), "session", 0, prompt.Trim());
         yield return new TaskCompleteEvent(Guid.NewGuid().ToString(), $"{prompt.Trim()} done");
     }
 }
