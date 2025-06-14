@@ -216,5 +216,16 @@
 
 197. ExecCommand detects apply_patch commands and applies patches locally using PatchApplier
 
+198. Introduced ShellEnvironmentPolicyInherit enum and EnvironmentVariablePattern glob helper
+199. Added ShellEnvironmentPolicy class
+200. Implemented ExecEnv.Create to build filtered environments
+201. AppConfig parses [shell_environment_policy] table
+202. Added ShellEnvironmentPolicy property to AppConfig
+203. DebugCommand applies ShellEnvironmentPolicy when running processes
+204. Added ExecEnvTests verifying default excludes are removed
+205. ExecEnvTests verify include_only filtering
+206. Created new test file ExecEnvTests.cs
+
 ## TODO Next Run
-- Continue migrating features from Rust project
+- Implement shell environment policy overrides via CLI
+- Integrate ExecEnv into other commands that spawn processes

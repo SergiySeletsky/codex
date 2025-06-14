@@ -16,7 +16,7 @@ public static class DebugCommand
         seatbelt.SetHandler((string c, string? cfgPath, string? cd) =>
         {
             if (cd != null) Environment.CurrentDirectory = cd;
-            RunProcess(c);
+            RunProcess(c, cfgPath);
         }, seatbeltArg, configOption, cdOption);
 
         var landlockArg = new Argument<string>("cmd");
@@ -25,7 +25,7 @@ public static class DebugCommand
         landlock.SetHandler((string c, string? cfgPath, string? cd) =>
         {
             if (cd != null) Environment.CurrentDirectory = cd;
-            RunProcess(c);
+            RunProcess(c, cfgPath);
         }, landlockArg, configOption, cdOption);
 
         cmd.AddCommand(seatbelt);
@@ -33,7 +33,7 @@ public static class DebugCommand
         return cmd;
     }
 
-    private static void RunProcess(string command)
+    private static void RunProcess(string command, string? configPath)
     {
         var parts = command.Split(' ', 2);
         var psi = new System.Diagnostics.ProcessStartInfo(parts[0])
@@ -42,6 +42,13 @@ public static class DebugCommand
         };
         if (parts.Length > 1)
             psi.ArgumentList.Add(parts[1]);
+        if (!string.IsNullOrEmpty(configPath) && File.Exists(configPath))
+        {
+            var cfg = AppConfig.Load(configPath);
+            var env = ExecEnv.Create(cfg.ShellEnvironmentPolicy);
+            foreach (var (k,v) in env)
+                psi.Environment[k] = v;
+        }
         var proc = System.Diagnostics.Process.Start(psi)!;
         ExitStatus.ExitWith(proc);
     }

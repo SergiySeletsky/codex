@@ -16,6 +16,7 @@ public class AppConfig
     public bool DisableResponseStorage { get; set; }
     public ReasoningEffort? ModelReasoningEffort { get; set; }
     public ReasoningSummary? ModelReasoningSummary { get; set; }
+    public ShellEnvironmentPolicy ShellEnvironmentPolicy { get; set; } = new();
     public Dictionary<string, ModelProviderInfo> ModelProviders { get; set; } = new();
     public Dictionary<string, ConfigProfile> Profiles { get; set; } = new();
 
@@ -40,6 +41,19 @@ public class AppConfig
             cfg.ModelReasoningEffort = mrev;
         if (model.TryGetValue("model_reasoning_summary", out var mrs) && Enum.TryParse<ReasoningSummary>(mrs?.ToString(), true, out var mrsv))
             cfg.ModelReasoningSummary = mrsv;
+        if (model.TryGetValue("shell_environment_policy", out var sep) && sep is IDictionary<string, object?> sepd)
+        {
+            if (sepd.TryGetValue("inherit", out var inh) && Enum.TryParse<ShellEnvironmentPolicyInherit>(inh?.ToString(), true, out var inv))
+                cfg.ShellEnvironmentPolicy.Inherit = inv;
+            if (sepd.TryGetValue("ignore_default_excludes", out var ide))
+                cfg.ShellEnvironmentPolicy.IgnoreDefaultExcludes = ide is bool b ? b : bool.TryParse(ide?.ToString(), out var bb) && bb;
+            if (sepd.TryGetValue("exclude", out var exc) && exc is object[] excArr)
+                cfg.ShellEnvironmentPolicy.Exclude = excArr.Select(o => EnvironmentVariablePattern.CaseInsensitive(o?.ToString() ?? string.Empty)).ToList();
+            if (sepd.TryGetValue("set", out var set) && set is IDictionary<string, object?> setd)
+                cfg.ShellEnvironmentPolicy.Set = setd.ToDictionary(kv => kv.Key, kv => kv.Value?.ToString() ?? string.Empty);
+            if (sepd.TryGetValue("include_only", out var inc) && inc is object[] incArr)
+                cfg.ShellEnvironmentPolicy.IncludeOnly = incArr.Select(o => EnvironmentVariablePattern.CaseInsensitive(o?.ToString() ?? string.Empty)).ToList();
+        }
         if (model.TryGetValue("model_providers", out var mpMap) && mpMap is IDictionary<string, object?> provMap)
         {
             foreach (var (k,v) in provMap)
