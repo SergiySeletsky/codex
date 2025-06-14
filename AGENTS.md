@@ -284,9 +284,16 @@
 260. Added messages-watch subcommand to history command
 261. Implemented MessageHistory.WatchEntriesAsync API
 262. Added unit tests for project doc limit and message watching
+263. Introduced McpServer handling JSON-RPC over HTTP with initialize, ping, tools/list and tools/call
+264. McpCommand now runs McpServer instance
+265. Added PingAsync to McpClient and --ping option to mcp-client command
+266. Created McpServerTests verifying initialize and list tools
+267. Added TestUtils helper for free TCP port lookup
+268. Added minimal event broadcasting API in McpServer
 
 ## TODO Next Run
 - Port more Rust CLI features
 - Investigate hanging tests and fix
 - Expand MCP client functionality and add more protocol tests
 - Implement remaining MCP server features
+- Add more McpServer request handlers and server options

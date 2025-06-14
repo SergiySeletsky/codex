@@ -15,16 +15,18 @@ public static class McpClientCommand
         var callOpt = new Option<string?>("--call", description: "Tool name to call");
         var argsOpt = new Option<string?>("--args", description: "JSON arguments for tool");
         var envOpt = new Option<string[]>("--env", description: "Extra VAR=VAL pairs", getDefaultValue: () => Array.Empty<string>());
+        var pingOpt = new Option<bool>("--ping", description: "Send ping request and exit");
         cmd.AddOption(timeoutOpt);
         cmd.AddOption(jsonOpt);
         cmd.AddOption(callOpt);
         cmd.AddOption(argsOpt);
         cmd.AddOption(envOpt);
+        cmd.AddOption(pingOpt);
         var progArg = new Argument<string>("program");
         var argsArg = new Argument<string[]>("args") { Arity = ArgumentArity.ZeroOrMore };
         cmd.AddArgument(progArg);
         cmd.AddArgument(argsArg);
-        cmd.SetHandler(async (string program, string[] args, int timeout, bool json, string? call, string? arguments, string[] env) =>
+        cmd.SetHandler(async (string program, string[] args, int timeout, bool json, string? call, string? arguments, string[] env, bool ping) =>
         {
             var extraEnv = env.Select(e => e.Split('=', 2)).Where(p => p.Length == 2).ToDictionary(p => p[0], p => p[1]);
             using var client = await McpClient.StartAsync(program, args, extraEnv);
@@ -34,7 +36,12 @@ public static class McpClientCommand
                 "2025-03-26");
             await client.InitializeAsync(initParams, timeout);
 
-            if (call == null)
+            if (ping)
+            {
+                await client.PingAsync(timeout);
+                Console.WriteLine("pong");
+            }
+            else if (call == null)
             {
                 var tools = await client.ListToolsAsync(null, timeout);
                 var obj = JsonSerializer.Serialize(tools, new JsonSerializerOptions { WriteIndented = json });
@@ -49,7 +56,7 @@ public static class McpClientCommand
                 var obj = JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = json });
                 Console.WriteLine(obj);
             }
-        }, progArg, argsArg, timeoutOpt, jsonOpt, callOpt, argsOpt, envOpt);
+        }, progArg, argsArg, timeoutOpt, jsonOpt, callOpt, argsOpt, envOpt, pingOpt);
         return cmd;
     }
 }

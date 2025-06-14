@@ -132,6 +132,9 @@ public class McpClient : IDisposable
         return SendRequestAsync<CallToolResult>("tools/call", p, timeoutSeconds);
     }
 
+    public Task PingAsync(int timeoutSeconds = 10)
+        => SendRequestAsync("ping", null, timeoutSeconds);
+
     public void Dispose()
     {
         _cts.Cancel();
