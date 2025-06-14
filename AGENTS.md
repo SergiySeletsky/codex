@@ -26,8 +26,18 @@
  18. Added SandboxPermission parser with disk-write-folder support.
  19. Added OpenAI API key manager and extended login command to set it.
  20. Interactive command reads initial prompt from stdin when '-' is used.
- 21. Added utilities for CODEX_HOME and log directory detection.
- 22. Added tests for sandbox permission parsing and git repo detection.
+21. Added utilities for CODEX_HOME and log directory detection.
+22. Added tests for sandbox permission parsing and git repo detection.
+23. Introduced simplified protocol events and EventProcessor for printing agent output.
+24. Added MockCodexAgent to simulate event streams for exec command.
+25. Exec command now prints config summary and processes events, writing last message to file.
+26. Interactive mode runs notify command on start and completion and adds /log command.
+27. Added NotifyUtils helper and ExitStatus propagation for debug commands.
+28. Implemented basic seatbelt/landlock debug commands executing processes.
+29. Proto command parses JSON-RPC messages and prints method names.
+30. Added timestamp helper in Elapsed and utilities tests.
+31. Added EnvUtilsTests verifying CODEX_HOME environment variable handling.
+32. Added event and protocol classes under `Protocol/`.
 - Build verified with `dotnet build`.
 - Tests run with `dotnet test`.
 
@@ -43,3 +53,4 @@
 - Port elapsed and protocol event processing logic from Rust.
 - Implement integration with OpenAI client library.
 - Add exec command logic for running tools.
+- Flesh out protocol event types and real Codex core integration.

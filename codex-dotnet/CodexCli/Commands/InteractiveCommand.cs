@@ -51,7 +51,7 @@ public static class InteractiveCommand
 
             if (cfg?.NotifyCommand is { Length: >0 } notify)
             {
-                try { System.Diagnostics.Process.Start(notify[0], string.Join(' ', notify.Skip(1).Concat(new[]{"session_started"}))); } catch { }
+                NotifyUtils.RunNotify(notify, "session_started");
             }
 
             string? prompt = opts.Prompt;
@@ -66,13 +66,15 @@ public static class InteractiveCommand
             }
 
             var opts2 = opts with { Prompt = prompt };
-            RunInteractive(opts2);
+            RunInteractive(opts2, cfg);
+            if (cfg?.NotifyCommand is { Length: >0 } notify2)
+                NotifyUtils.RunNotify(notify2, "session_complete");
             await Task.CompletedTask;
         }, binder, configOption, cdOption);
         return cmd;
     }
 
-    private static void RunInteractive(InteractiveOptions opts)
+    private static void RunInteractive(InteractiveOptions opts, AppConfig? cfg)
     {
         var history = new List<string>();
         AnsiConsole.MarkupLine("[green]Codex interactive mode[/]");
@@ -95,7 +97,13 @@ public static class InteractiveCommand
             }
             if (prompt.Equals("/help", StringComparison.OrdinalIgnoreCase))
             {
-                AnsiConsole.MarkupLine("Available commands: /history, /quit, /help");
+                AnsiConsole.MarkupLine("Available commands: /history, /quit, /help, /log");
+                continue;
+            }
+            if (prompt.Equals("/log", StringComparison.OrdinalIgnoreCase))
+            {
+                var dir = cfg != null ? EnvUtils.GetLogDir(cfg) : Path.Combine(EnvUtils.FindCodexHome(), "log");
+                AnsiConsole.MarkupLine($"Log dir: [blue]{dir}[/]");
                 continue;
             }
             history.Add(prompt);

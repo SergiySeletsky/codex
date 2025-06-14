@@ -27,7 +27,16 @@ public static class ProtoCommand
             {
                 line = line.Trim();
                 if (line.Length == 0) continue;
-                Console.WriteLine($"Got submission: {line}");
+                try
+                {
+                    var msg = System.Text.Json.JsonSerializer.Deserialize<CodexCli.Protocol.JsonRpcMessage>(line);
+                    if (msg?.Method != null)
+                        Console.WriteLine($"method={msg.Method}");
+                }
+                catch
+                {
+                    Console.WriteLine($"Invalid JSON: {line}");
+                }
             }
         }, configOption, cdOption);
         return cmd;

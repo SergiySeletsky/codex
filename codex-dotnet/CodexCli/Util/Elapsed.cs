@@ -36,5 +36,13 @@ public static class Elapsed
             return $"{minutes}m{seconds:00}s";
         }
     }
+
+    /// <summary>
+    /// Returns a timestamp string formatted as [YYYY-MM-DDTHH:MM:SS].
+    /// </summary>
+    public static string Timestamp()
+    {
+        return $"[{DateTime.UtcNow:yyyy-MM-ddTHH:mm:ss}]";
+    }
 }
 

@@ -1,6 +1,7 @@
 using System.CommandLine;
 using CodexCli.Config;
 using CodexCli.Util;
+using CodexCli.Protocol;
 using System.Linq;
 
 namespace CodexCli.Commands;
@@ -49,6 +50,10 @@ public static class ExecCommand
             AppConfig? cfg = null;
             if (!string.IsNullOrEmpty(cfgPath) && File.Exists(cfgPath))
                 cfg = AppConfig.Load(cfgPath);
+
+            if (opts.NotifyCommand.Length > 0)
+                NotifyUtils.RunNotify(opts.NotifyCommand, "session_started");
+
             if (!opts.SkipGitRepoCheck && !GitUtils.IsInsideGitRepo(Environment.CurrentDirectory))
             {
                 Console.Error.WriteLine("Not inside a git repo. Use --skip-git-repo-check to override.");
@@ -65,27 +70,25 @@ public static class ExecCommand
             }
 
             var ov = ConfigOverrides.Parse(opts.Overrides);
-
-            Console.WriteLine($"Model: {opts.Model ?? cfg?.Model}");
-            Console.WriteLine($"Provider: {opts.ModelProvider ?? "default"}");
-            Console.WriteLine($"Profile: {opts.Profile}");
-            Console.WriteLine($"Full auto: {opts.FullAuto}");
-            Console.WriteLine($"Approval: {opts.Approval}");
-            Console.WriteLine($"Sandbox: {string.Join(',', opts.Sandbox)}");
-            Console.WriteLine($"Color: {opts.Color}");
-            Console.WriteLine($"Cwd: {opts.Cwd}");
-            Console.WriteLine($"Images: {string.Join(',', opts.Images.Select(i => i.FullName))}");
-            Console.WriteLine($"Prompt: {prompt?.Trim()}");
-            if (opts.NotifyCommand.Length > 0)
-                Console.WriteLine($"Notify: {string.Join(' ', opts.NotifyCommand)}");
             if (ov.Overrides.Count > 0)
             {
-                Console.WriteLine("Overrides:");
-                foreach (var kv in ov.Overrides)
-                    Console.WriteLine($"  {kv.Key}={kv.Value}");
+                Console.Error.WriteLine($"{ov.Overrides.Count} override(s) parsed");
             }
-            if (opts.LastMessageFile != null)
-                await File.WriteAllTextAsync(opts.LastMessageFile, "(last message placeholder)");
+
+            var processor = new CodexCli.Protocol.EventProcessor(opts.Color != ColorMode.Never);
+            processor.PrintConfigSummary(opts.Model ?? cfg?.Model ?? "default", Environment.CurrentDirectory, prompt.Trim());
+
+            await foreach (var ev in CodexCli.Protocol.MockCodexAgent.RunAsync(prompt))
+            {
+                processor.ProcessEvent(ev);
+                if (ev is TaskCompleteEvent tc && opts.LastMessageFile != null)
+                {
+                    await File.WriteAllTextAsync(opts.LastMessageFile, tc.LastAgentMessage ?? string.Empty);
+                }
+            }
+
+            if (opts.NotifyCommand.Length > 0)
+                NotifyUtils.RunNotify(opts.NotifyCommand, "session_complete");
         }, binder, configOption, cdOption);
         return cmd;
     }
