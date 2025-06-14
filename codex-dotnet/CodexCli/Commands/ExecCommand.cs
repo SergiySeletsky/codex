@@ -195,6 +195,55 @@ public static class ExecCommand
                         if (!resp?.StartsWith("y", StringComparison.OrdinalIgnoreCase) ?? true)
                             Console.WriteLine("Denied");
                         break;
+                    case ExecCommandBeginEvent begin:
+                        var argv = begin.Command.ToArray();
+                        if (ApplyPatchCommandParser.MaybeParseApplyPatch(argv, out var patch) == MaybeApplyPatch.Body &&
+                            patch != null &&
+                            ApplyPatchCommandParser.MaybeParseApplyPatchVerified(argv, begin.Cwd, out var action) == MaybeApplyPatchVerified.Body &&
+                            action != null)
+                        {
+                            var changes = new Dictionary<string, FileChange>();
+                            foreach (var kv in action.Changes)
+                            {
+                                var fc = kv.Value.Kind switch
+                                {
+                                    "add" => (FileChange)new AddFileChange(kv.Value.Content ?? string.Empty),
+                                    "delete" => new DeleteFileChange(),
+                                    "update" => new UpdateFileChange(kv.Value.UnifiedDiff!, kv.Value.MovePath),
+                                    _ => throw new InvalidOperationException()
+                                };
+                                changes[kv.Key] = fc;
+                            }
+                            var pbEvent = new PatchApplyBeginEvent(Guid.NewGuid().ToString(), true, changes);
+                            if (opts.Json)
+                                Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(pbEvent));
+                            else
+                                processor.ProcessEvent(pbEvent);
+                            if (logWriter != null)
+                                await logWriter.WriteLineAsync(System.Text.Json.JsonSerializer.Serialize(pbEvent));
+                            try
+                            {
+                                var result = PatchApplier.ApplyWithSummary(patch, begin.Cwd);
+                                var peEvent = new PatchApplyEndEvent(Guid.NewGuid().ToString(), result.Summary, string.Empty, true);
+                                if (opts.Json)
+                                    Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(peEvent));
+                                else
+                                    processor.ProcessEvent(peEvent);
+                                if (logWriter != null)
+                                    await logWriter.WriteLineAsync(System.Text.Json.JsonSerializer.Serialize(peEvent));
+                            }
+                            catch (PatchParseException e)
+                            {
+                                var peEvent = new PatchApplyEndEvent(Guid.NewGuid().ToString(), string.Empty, e.Message, false);
+                                if (opts.Json)
+                                    Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(peEvent));
+                                else
+                                    processor.ProcessEvent(peEvent);
+                                if (logWriter != null)
+                                    await logWriter.WriteLineAsync(System.Text.Json.JsonSerializer.Serialize(peEvent));
+                            }
+                        }
+                        break;
                     case PatchApplyApprovalRequestEvent pr:
                         Console.Write($"Apply patch? [y/N] ");
                         var r = Console.ReadLine();

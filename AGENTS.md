@@ -214,5 +214,7 @@
 195. Added heredoc extraction logic for bash -lc patterns
 196. ApplyPatchCommandParserTests verify literal and heredoc parsing
 
+197. ExecCommand detects apply_patch commands and applies patches locally using PatchApplier
+
 ## TODO Next Run
-- Integrate ApplyPatchCommandParser into ExecCommand for automatic patch handling
+- Continue migrating features from Rust project
