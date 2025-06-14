@@ -8,7 +8,19 @@ public static class JsonToToml
 {
     public static string ConvertToToml(JsonElement element)
     {
-        var model = Convert(element);
+        object model;
+        if (element.ValueKind == JsonValueKind.Array)
+        {
+            var tbl = new TomlTable();
+            int i = 0;
+            foreach (var v in element.EnumerateArray())
+                tbl[i++.ToString()] = Convert(v);
+            model = tbl;
+        }
+        else
+        {
+            model = Convert(element);
+        }
         return Toml.FromModel(model);
     }
 

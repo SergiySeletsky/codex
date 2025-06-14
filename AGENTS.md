@@ -272,6 +272,12 @@
 248. Added unit tests for JsonToToml
 249. Created McpClientCommand options for timeout and JSON output
 250. Implemented provider login key saving via ApiKeyManager
+251. Added typed MCP request/response records and default server environment
+252. McpClient now exposes InitializeAsync, ListToolsAsync and CallToolAsync
+253. McpClientCommand supports --call, --args and --env for tool invocation
+254. McpClientCommand prints results in JSON format when requested
+255. Added CreateServerEnv helper aligning with Rust defaults
+256. Extended JsonToTomlTests with array conversion
 
 ## TODO Next Run
 - Port more Rust CLI features

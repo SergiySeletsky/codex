@@ -22,6 +22,26 @@ public class McpClient : IDisposable
         Task.Run(ReaderLoop);
     }
 
+    private static readonly string[] DefaultEnvVars = OperatingSystem.IsWindows() ?
+        new[] { "PATH", "PATHEXT", "USERNAME", "USERDOMAIN", "USERPROFILE", "TEMP", "TMP" } :
+        new[] { "HOME", "LOGNAME", "PATH", "SHELL", "USER", "__CF_USER_TEXT_ENCODING", "LANG", "LC_ALL", "TERM", "TMPDIR", "TZ" };
+
+    private static IDictionary<string, string> CreateServerEnv(IDictionary<string, string>? extra)
+    {
+        var env = new Dictionary<string, string>();
+        foreach (var var in DefaultEnvVars)
+        {
+            var val = Environment.GetEnvironmentVariable(var);
+            if (val != null) env[var] = val;
+        }
+        if (extra != null)
+        {
+            foreach (var kv in extra)
+                env[kv.Key] = kv.Value;
+        }
+        return env;
+    }
+
     public static async Task<McpClient> StartAsync(string program, IEnumerable<string> args, IDictionary<string, string>? env = null)
     {
         var psi = new ProcessStartInfo(program)
@@ -32,11 +52,8 @@ public class McpClient : IDisposable
             UseShellExecute = false
         };
         foreach (var a in args) psi.ArgumentList.Add(a);
-        if (env != null)
-        {
-            psi.Environment.Clear();
-            foreach (var kv in env) psi.Environment[kv.Key] = kv.Value;
-        }
+        psi.Environment.Clear();
+        foreach (var kv in CreateServerEnv(env)) psi.Environment[kv.Key] = kv.Value;
         var p = Process.Start(psi) ?? throw new InvalidOperationException("failed to start process");
         return new McpClient(p);
     }
@@ -93,6 +110,28 @@ public class McpClient : IDisposable
         return _stdin.WriteLineAsync(json);
     }
 
+    public async Task<T> SendRequestAsync<T>(string method, object? parameters, int timeoutSeconds = 10)
+    {
+        var msg = await SendRequestAsync(method, parameters, timeoutSeconds);
+        if (msg.Result.HasValue)
+        {
+            return msg.Result.Value.Deserialize<T>();
+        }
+        throw new InvalidOperationException("response missing result");
+    }
+
+    public Task InitializeAsync(InitializeRequestParams p, int timeoutSeconds = 10)
+        => SendRequestAsync("initialize", p, timeoutSeconds);
+
+    public Task<ListToolsResult> ListToolsAsync(ListToolsRequestParams? p = null, int timeoutSeconds = 10)
+        => SendRequestAsync<ListToolsResult>("tools/list", p, timeoutSeconds);
+
+    public Task<CallToolResult> CallToolAsync(string name, JsonElement? arguments = null, int timeoutSeconds = 10)
+    {
+        var p = new CallToolRequestParams(name, arguments);
+        return SendRequestAsync<CallToolResult>("tools/call", p, timeoutSeconds);
+    }
+
     public void Dispose()
     {
         _cts.Cancel();
@@ -104,4 +143,11 @@ public class McpClient : IDisposable
 public record ClientCapabilities(object? Experimental, object? Roots, object? Sampling);
 public record Implementation(string Name, string Version);
 public record InitializeRequestParams(ClientCapabilities Capabilities, Implementation ClientInfo, string ProtocolVersion);
+public record ListToolsRequestParams(string? Cursor);
+public record ToolInputSchema(JsonElement? Properties, List<string>? Required, string Type);
+public record ToolAnnotations(bool? DestructiveHint, bool? IdempotentHint, bool? OpenWorldHint, bool? ReadOnlyHint, string? Title);
+public record Tool(string Name, ToolInputSchema InputSchema, string? Description, ToolAnnotations? Annotations);
+public record ListToolsResult(string? NextCursor, List<Tool> Tools);
+public record CallToolRequestParams(string Name, JsonElement? Arguments);
+public record CallToolResult(List<JsonElement> Content, bool? IsError);
 

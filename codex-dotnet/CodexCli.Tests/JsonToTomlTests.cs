@@ -12,4 +12,13 @@ public class JsonToTomlTests
         Assert.Contains("a = 1", toml);
         Assert.Contains("b = \"x\"", toml);
     }
+
+    [Fact]
+    public void Convert_Array()
+    {
+        var json = JsonDocument.Parse("[1,2,3]");
+        var toml = JsonToToml.ConvertToToml(json.RootElement);
+        Assert.Contains("0 = 1", toml);
+        Assert.Contains("1 = 2", toml);
+    }
 }
