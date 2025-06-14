@@ -50,6 +50,10 @@ public static class LoginCommand
                 ApiKeyManager.SaveKey(provider, apiKey);
                 Console.WriteLine("API key saved.");
             }
+            else if (!string.IsNullOrEmpty(provInfo.EnvKeyInstructions))
+            {
+                Console.WriteLine(provInfo.EnvKeyInstructions);
+            }
             var overrides = ConfigOverrides.Parse(ov);
             if (overrides.Overrides.Count > 0)
                 Console.WriteLine($"{overrides.Overrides.Count} override(s) parsed");

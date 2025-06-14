@@ -14,7 +14,7 @@ public static class PatchParser
     {
         var lines = patch.Trim().Split('\n');
         if (lines.Length < 2 || lines[0].Trim() != "*** Begin Patch" || lines[^1].Trim() != "*** End Patch")
-            throw new InvalidDataException("patch missing begin/end markers");
+            throw new PatchParseException("patch missing begin/end markers");
         var hunks = new List<PatchHunk>();
         int i = 1;
         while (i < lines.Length - 1)
@@ -55,6 +55,12 @@ public static class PatchParser
                 var updateLines = new List<string>();
                 while (i < lines.Length - 1 && !lines[i].StartsWith("***"))
                 {
+                    if (lines[i].Trim() == "*** End of File")
+                    {
+                        updateLines.Add(lines[i].Trim());
+                        i++;
+                        break;
+                    }
                     updateLines.Add(lines[i]);
                     i++;
                 }
@@ -64,5 +70,20 @@ public static class PatchParser
             i++;
         }
         return hunks;
+    }
+
+    public static List<string> ParseUnified(string diff)
+    {
+        var lines = diff.Trim().Split('\n');
+        var data = new List<string>();
+        foreach (var line in lines)
+        {
+            if (line.StartsWith("---") || line.StartsWith("+++"))
+                continue;
+            if (line.StartsWith("@@"))
+                continue;
+            data.Add(line);
+        }
+        return data;
     }
 }

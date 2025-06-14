@@ -157,9 +157,19 @@
 140. ExecCommand now applies patch changes on PatchApplyBeginEvent
 141. Added unit tests for patch parser and apply logic
 142. MockCodexAgent emits FileChange-based patch event
+143. Added provider info and current subcommands
+144. Provider login prints EnvKeyInstructions when key missing
+145. PatchParser recognizes *** End of File marker
+146. Added ParseUnified helper for unified diff support
+147. PatchApplier throws PatchParseException on errors
+148. Created ApplyPatchCommand to run patches from CLI
+149. Program registers apply_patch command
+150. ProviderInfoTests verify info subcommand
+151. UnifiedDiffTests cover ParseUnified
+152. Provider info and unified diff features documented
 
 ## TODO Next Run
-- Improve patch parser to support unified diffs
 - Integrate real Codex agent responses
-- Expand apply_patch tests and error handling
-- Add more comprehensive unit tests for provider handling
+- Expand ApplyPatchCommand with safety checks
+- Add comprehensive unit tests for provider handling
+- Port shell environment policy logic

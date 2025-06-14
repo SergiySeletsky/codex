@@ -7,7 +7,15 @@ public static class PatchApplier
 {
     public static string Apply(string patch, string cwd)
     {
-        var hunks = PatchParser.Parse(patch);
+        List<PatchHunk> hunks;
+        try
+        {
+            hunks = PatchParser.Parse(patch);
+        }
+        catch (PatchParseException e)
+        {
+            throw new PatchParseException($"Failed to parse patch: {e.Message}");
+        }
         var stdout = new StringBuilder();
         foreach (var hunk in hunks)
         {
