@@ -53,4 +53,27 @@ public static class SessionManager
 
     public static string? GetHistoryFile(string id) =>
         SessionFiles.TryGetValue(id, out var path) ? path : null;
+
+    public static IEnumerable<string> ListSessions()
+    {
+        var dir = EnvUtils.GetHistoryDir();
+        if (!Directory.Exists(dir))
+            yield break;
+        foreach (var file in Directory.GetFiles(dir, "*.txt"))
+            yield return Path.GetFileNameWithoutExtension(file);
+    }
+
+    public static bool DeleteSession(string id)
+    {
+        var removed = Sessions.TryRemove(id, out _);
+        if (SessionFiles.TryRemove(id, out var path) || removed)
+        {
+            if (path == null)
+                path = Path.Combine(EnvUtils.GetHistoryDir(), id + ".txt");
+            if (File.Exists(path))
+                File.Delete(path);
+            return true;
+        }
+        return false;
+    }
 }

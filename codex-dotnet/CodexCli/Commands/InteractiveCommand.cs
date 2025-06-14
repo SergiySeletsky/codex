@@ -148,13 +148,25 @@ public static class InteractiveCommand
             }
             if (prompt.Equals("/help", StringComparison.OrdinalIgnoreCase))
             {
-                AnsiConsole.MarkupLine("Available commands: /history, /reset, /quit, /help, /log, /config, /save <file>, /save-last <file>");
+                AnsiConsole.MarkupLine("Available commands: /history, /reset, /quit, /help, /log, /config, /save <file>, /save-last <file>, /version, /sessions");
                 continue;
             }
             if (prompt.Equals("/log", StringComparison.OrdinalIgnoreCase))
             {
                 var dir = cfg != null ? EnvUtils.GetLogDir(cfg) : Path.Combine(EnvUtils.FindCodexHome(), "log");
                 AnsiConsole.MarkupLine($"Log dir: [blue]{dir}[/]");
+                continue;
+            }
+            if (prompt.Equals("/version", StringComparison.OrdinalIgnoreCase))
+            {
+                var ver = typeof(Program).Assembly.GetName().Version?.ToString() ?? "?";
+                AnsiConsole.MarkupLine($"Version: [blue]{ver}[/]");
+                continue;
+            }
+            if (prompt.Equals("/sessions", StringComparison.OrdinalIgnoreCase))
+            {
+                foreach (var id in SessionManager.ListSessions())
+                    AnsiConsole.MarkupLine(id);
                 continue;
             }
             if (prompt.Equals("/config", StringComparison.OrdinalIgnoreCase))

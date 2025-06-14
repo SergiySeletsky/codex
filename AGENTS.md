@@ -110,3 +110,13 @@
 90. MCP server broadcasts events to multiple SSE clients
 - Build verified with `dotnet build`.
 - Tests run with `dotnet test`.
+91. Added CODEX_LOG_DIR support in EnvUtils and tests
+92. SessionManager can list and delete sessions with history command
+93. Added /version and /sessions commands in interactive mode
+94. New history subcommand with list/show/clear
+95. GetLogDir now honors CODEX_LOG_DIR
+96. SessionManager tests cover deletion and listing
+97. EnvUtils tests cover log directory env variable
+98. Interactive /help updated for new commands
+99. Program registers history subcommand
+100. HistoryCommand prints sessions and history

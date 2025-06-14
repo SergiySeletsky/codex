@@ -21,6 +21,7 @@ class Program
         root.AddCommand(DebugCommand.Create(configOption, cdOption));
         root.AddCommand(InteractiveCommand.Create(configOption, cdOption));
         root.AddCommand(CompletionCommand.Create(root, configOption, cdOption));
+        root.AddCommand(HistoryCommand.Create());
 
         if (args.Length == 0)
         {

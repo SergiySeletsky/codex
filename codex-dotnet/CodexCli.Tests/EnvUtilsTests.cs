@@ -38,4 +38,14 @@ public class EnvUtilsTests
         Environment.SetEnvironmentVariable("CODEX_HOME", null);
         Directory.Delete(home, true);
     }
+
+    [Fact]
+    public void LogDirPrefersEnv()
+    {
+        var cfg = new CodexCli.Config.AppConfig();
+        Environment.SetEnvironmentVariable("CODEX_LOG_DIR", "/tmp/codex-log");
+        var res = CodexCli.Util.EnvUtils.GetLogDir(cfg);
+        Assert.Equal("/tmp/codex-log", res);
+        Environment.SetEnvironmentVariable("CODEX_LOG_DIR", null);
+    }
 }

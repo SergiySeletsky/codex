@@ -19,6 +19,9 @@ public static class EnvUtils
 
     public static string GetLogDir(AppConfig cfg)
     {
+        var env = Environment.GetEnvironmentVariable("CODEX_LOG_DIR");
+        if (!string.IsNullOrEmpty(env))
+            return env;
         return Path.Combine(cfg.CodexHome ?? FindCodexHome(), "log");
     }
 

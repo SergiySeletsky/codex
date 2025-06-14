@@ -26,4 +26,14 @@ public class SessionManagerTests
         var hist = CodexCli.Util.SessionManager.GetHistory(id);
         Assert.Empty(hist);
     }
+
+    [Fact]
+    public void ListsAndDeletesSessions()
+    {
+        var id = CodexCli.Util.SessionManager.CreateSession();
+        CodexCli.Util.SessionManager.AddEntry(id, "x");
+        Assert.Contains(id, CodexCli.Util.SessionManager.ListSessions());
+        Assert.True(CodexCli.Util.SessionManager.DeleteSession(id));
+        Assert.DoesNotContain(id, CodexCli.Util.SessionManager.ListSessions());
+    }
 }
