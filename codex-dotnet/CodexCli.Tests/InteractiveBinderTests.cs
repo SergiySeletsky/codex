@@ -1,6 +1,7 @@
 using System.CommandLine;
 using CodexCli.Commands;
 using System.IO;
+using CodexCli.Config;
 
 namespace CodexCli.Tests;
 
@@ -30,10 +31,18 @@ public class InteractiveBinderTests
         var noProjDocOpt = new Option<bool>("--no-project-doc");
         var lastMsgOpt = new Option<string?>("--output-last-message");
         var logOpt = new Option<string?>("--event-log");
+        var envInheritOpt = new Option<ShellEnvironmentPolicyInherit?>("--env-inherit");
+        var envIgnoreOpt = new Option<bool?>("--env-ignore-default-excludes");
+        var envExcludeOpt = new Option<string[]>("--env-exclude") { AllowMultipleArgumentsPerToken = true };
+        var envSetOpt = new Option<string[]>("--env-set") { AllowMultipleArgumentsPerToken = true };
+        var envIncludeOpt = new Option<string[]>("--env-include-only") { AllowMultipleArgumentsPerToken = true };
+        var docMaxOpt = new Option<int?>("--project-doc-max-bytes");
+        var docPathOpt = new Option<string?>("--project-doc-path");
 
         var binder = new InteractiveBinder(promptArg, imagesOpt, modelOpt, profileOpt, providerOpt,
             fullAutoOpt, approvalOpt, sandboxOpt, colorOpt, skipGitOpt, cwdOpt, notifyOpt, overridesOpt,
-            effortOpt, summaryOpt, instrOpt, hideReasonOpt, disableStorageOpt, lastMsgOpt, noProjDocOpt, logOpt);
+            effortOpt, summaryOpt, instrOpt, hideReasonOpt, disableStorageOpt, lastMsgOpt, noProjDocOpt, logOpt,
+            envInheritOpt, envIgnoreOpt, envExcludeOpt, envSetOpt, envIncludeOpt, docMaxOpt, docPathOpt);
 
         var cmd = new Command("interactive");
         cmd.AddArgument(promptArg);
@@ -44,12 +53,17 @@ public class InteractiveBinderTests
         cmd.AddOption(noProjDocOpt);
         cmd.AddOption(lastMsgOpt);
         cmd.AddOption(logOpt);
+        cmd.AddOption(envInheritOpt);
+        cmd.AddOption(envIgnoreOpt);
+        cmd.AddOption(envExcludeOpt);
+        cmd.AddOption(envSetOpt);
+        cmd.AddOption(envIncludeOpt);
         InteractiveOptions? captured = null;
         cmd.SetHandler((InteractiveOptions o) => captured = o, binder);
         var root = new RootCommand();
         root.AddCommand(cmd);
 
-        await root.InvokeAsync("interactive hello --full-auto --skip-git-repo-check --hide-agent-reasoning --disable-response-storage --no-project-doc --event-log t.log");
+        await root.InvokeAsync("interactive hello --full-auto --skip-git-repo-check --hide-agent-reasoning --disable-response-storage --no-project-doc --event-log t.log --env-inherit none --env-exclude SECRET --env-set F=2 --env-include-only PATH");
 
         Assert.NotNull(captured);
         Assert.True(captured!.FullAuto);
@@ -59,5 +73,9 @@ public class InteractiveBinderTests
         Assert.True(captured.DisableResponseStorage);
         Assert.True(captured.NoProjectDoc);
         Assert.Equal("t.log", captured.EventLogFile);
+        Assert.Equal(ShellEnvironmentPolicyInherit.None, captured.EnvInherit);
+        Assert.Contains("SECRET", captured.EnvExclude);
+        Assert.Contains("F=2", captured.EnvSet);
+        Assert.Contains("PATH", captured.EnvIncludeOnly);
     }
 }

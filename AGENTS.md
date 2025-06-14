@@ -225,7 +225,68 @@
 204. Added ExecEnvTests verifying default excludes are removed
 205. ExecEnvTests verify include_only filtering
 206. Created new test file ExecEnvTests.cs
+207. Added CLI options to override shell environment policy
+208. Created ShellEnvPolicy fields in ExecOptions and InteractiveOptions
+209. Extended ExecBinder and InteractiveBinder to bind env options
+210. ExecCommand and InteractiveCommand apply policy overrides and pass env to NotifyUtils
+211. NotifyUtils accepts environment dictionary
+212. ChatGptLogin accepts environment and LoginCommand uses policy overrides via new binder
+213. DebugCommand supports env policy options for seatbelt/landlock
+214. Added LoginBinder and LoginOptions classes
+215. Updated binder tests for new options
+216. Build and tests updated for .NET 8
+217. Added HistoryPersistence, UriBasedFileOpener and Tui parsing in AppConfig
+218. SessionManager respects HistoryPersistence setting
+219. Exec and Interactive commands configure SessionManager persistence
+220. Added TaskStartedEvent and EventProcessor handling
+221. MockCodexAgent emits TaskStartedEvent
+222. History command gained info subcommand listing sessions with start times
+223. Added AppConfigExtraTests for new config fields
+224. Introduced MarkdownUtils with citation rewriting
+225. EventProcessor rewrites file citations in agent messages
+226. ExecCommand passes file opener to EventProcessor
+227. Added MarkdownUtilsTests verifying citation rewriting
+
+228. Added MessageHistory utility writing global `history.jsonl`
+229. AppendEntryAsync sets owner-only permissions on Unix
+230. Implemented HistoryMetadataAsync and LookupEntry helpers
+231. ExecCommand saves agent messages to message history
+232. ExecCommand saves AddToHistory events to message history
+233. HistoryCommand now has messages-meta and messages-entry subcommands
+234. Added MessageHistoryTests verifying append and lookup
+235. InteractiveCommand toggles mouse capture based on config
+236. HistoryCommand registers new message history subcommands
+237. Installed .NET 8 SDK via apt-get for building
+238. Added MessageHistory API for counting, searching, last-N, and clearing entries
+239. Extended HistoryCommand with messages-path, messages-clear, messages-search,
+     messages-last and messages-count subcommands
+240. MessageHistoryTests cover new APIs
+
+241. Implemented minimal McpClient class for JSON-RPC communication
+242. Added mcp-client command running an MCP server and listing tools
+243. Added JsonToToml utility converting JSON values to TOML
+244. Introduced JsonToTomlTests verifying basic conversion
+245. Provider command now supports 'login' subcommand to store API keys
+246. Program registers new mcp-client command
+247. History messages-last subcommand accepts --json option
+248. Added unit tests for JsonToToml
+249. Created McpClientCommand options for timeout and JSON output
+250. Implemented provider login key saving via ApiKeyManager
+251. Added typed MCP request/response records and default server environment
+252. McpClient now exposes InitializeAsync, ListToolsAsync and CallToolAsync
+253. McpClientCommand supports --call, --args and --env for tool invocation
+254. McpClientCommand prints results in JSON format when requested
+255. Added CreateServerEnv helper aligning with Rust defaults
+256. Extended JsonToTomlTests with array conversion
+257. Added project_doc_max_bytes config field with CLI overrides
+258. ProjectDoc.GetUserInstructions now accepts size and path overrides
+259. Exec and interactive commands expose --project-doc-max-bytes and --project-doc-path
+260. Added messages-watch subcommand to history command
+261. Implemented MessageHistory.WatchEntriesAsync API
+262. Added unit tests for project doc limit and message watching
 
 ## TODO Next Run
-- Implement shell environment policy overrides via CLI
-- Integrate ExecEnv into other commands that spawn processes
+- Port more Rust CLI features
+- Investigate hanging tests and fix
+- Expand MCP client functionality and add more protocol tests
+- Implement remaining MCP server features

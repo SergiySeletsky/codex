@@ -118,6 +118,17 @@ public static class ProviderCommand
             File.WriteAllText(cfgPath, Toml.FromModel(model));
         }, setId, configOption);
 
+        var loginCmd = new Command("login", "Store API key for a provider");
+        var loginId = new Argument<string>("id");
+        var keyOpt = new Option<string>("--api-key") { IsRequired = true };
+        loginCmd.AddArgument(loginId);
+        loginCmd.AddOption(keyOpt);
+        loginCmd.SetHandler((string id, string key) =>
+        {
+            ApiKeyManager.SaveKey(id, key);
+            Console.WriteLine($"Saved API key for {id}");
+        }, loginId, keyOpt);
+
         var cmd = new Command("provider", "Provider utilities");
         cmd.AddCommand(list);
         cmd.AddCommand(infoCmd);
@@ -125,6 +136,7 @@ public static class ProviderCommand
         cmd.AddCommand(addCmd);
         cmd.AddCommand(removeCmd);
         cmd.AddCommand(setCmd);
+        cmd.AddCommand(loginCmd);
         return cmd;
     }
 }

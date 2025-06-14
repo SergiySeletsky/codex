@@ -1,5 +1,6 @@
 using System.CommandLine;
 using CodexCli.Util;
+using CodexCli.Config;
 
 namespace CodexCli.Commands;
 
@@ -49,6 +50,13 @@ public static class HistoryCommand
             Console.WriteLine("All sessions deleted");
         });
 
+        var infoCmd = new Command("info", "List sessions with start times");
+        infoCmd.SetHandler(() =>
+        {
+            foreach (var info in SessionManager.ListSessionsWithInfo())
+                Console.WriteLine($"{info.Id} {info.Start:o}");
+        });
+
         var entryCmd = new Command("entry", "Show a single history entry");
         var offsetArg = new Argument<int>("offset", "Entry offset");
         entryCmd.AddArgument(idArg);
@@ -60,6 +68,84 @@ public static class HistoryCommand
             else Console.WriteLine("not found");
         }, idArg, offsetArg);
 
+        var msgMetaCmd = new Command("messages-meta", "Show message history metadata");
+        msgMetaCmd.SetHandler(async () =>
+        {
+            var cfg = new AppConfig();
+            var meta = await MessageHistory.HistoryMetadataAsync(cfg);
+            Console.WriteLine($"log {meta.LogId} count {meta.Count}");
+        });
+
+        var msgEntryCmd = new Command("messages-entry", "Show message history entry by offset");
+        var msgOffsetArg = new Argument<int>("offset", "Entry offset");
+        msgEntryCmd.AddArgument(msgOffsetArg);
+        msgEntryCmd.SetHandler((int offset) =>
+        {
+            var cfg = new AppConfig();
+            var text = MessageHistory.LookupEntry(0, offset, cfg);
+            if (text != null) Console.WriteLine(text);
+            else Console.WriteLine("not found");
+        }, msgOffsetArg);
+
+        var msgPathCmd = new Command("messages-path", "Print message history file path");
+        msgPathCmd.SetHandler(() =>
+        {
+            var cfg = new AppConfig();
+            Console.WriteLine(MessageHistory.GetHistoryFile(cfg));
+        });
+
+        var msgClearCmd = new Command("messages-clear", "Delete message history file");
+        msgClearCmd.SetHandler(() =>
+        {
+            var cfg = new AppConfig();
+            MessageHistory.ClearHistory(cfg);
+        });
+
+        var msgSearchCmd = new Command("messages-search", "Search message history for text");
+        var termArg = new Argument<string>("term", "Search term");
+        msgSearchCmd.AddArgument(termArg);
+        msgSearchCmd.SetHandler(async (string term) =>
+        {
+            var cfg = new AppConfig();
+            var results = await MessageHistory.SearchEntriesAsync(term, cfg);
+            foreach (var r in results) Console.WriteLine(r);
+        }, termArg);
+
+        var msgLastCmd = new Command("messages-last", "Show last N history entries");
+        var lastCountArg = new Argument<int>("n", getDefaultValue: () => 10);
+        var jsonOpt = new Option<bool>("--json", "Output JSON array");
+        msgLastCmd.AddArgument(lastCountArg);
+        msgLastCmd.AddOption(jsonOpt);
+        msgLastCmd.SetHandler(async (int n, bool json) =>
+        {
+            var cfg = new AppConfig();
+            var lines = await MessageHistory.LastEntriesAsync(n, cfg);
+            if (json)
+            {
+                Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(lines));
+            }
+            else
+            {
+                foreach (var l in lines) Console.WriteLine(l);
+            }
+        }, lastCountArg, jsonOpt);
+
+        var msgCountCmd = new Command("messages-count", "Print number of history entries");
+        msgCountCmd.SetHandler(async () =>
+        {
+            var cfg = new AppConfig();
+            var count = await MessageHistory.CountEntriesAsync(cfg);
+            Console.WriteLine(count);
+        });
+
+        var msgWatchCmd = new Command("messages-watch", "Watch for new history entries");
+        msgWatchCmd.SetHandler(async () =>
+        {
+            var cfg = new AppConfig();
+            await foreach (var line in MessageHistory.WatchEntriesAsync(cfg, CancellationToken.None))
+                Console.WriteLine(line);
+        });
+
         var root = new Command("history", "Manage session history");
         root.AddCommand(listCmd);
         root.AddCommand(showCmd);
@@ -67,6 +153,15 @@ public static class HistoryCommand
         root.AddCommand(pathCmd);
         root.AddCommand(purgeCmd);
         root.AddCommand(entryCmd);
+        root.AddCommand(infoCmd);
+        root.AddCommand(msgMetaCmd);
+        root.AddCommand(msgEntryCmd);
+        root.AddCommand(msgPathCmd);
+        root.AddCommand(msgClearCmd);
+        root.AddCommand(msgSearchCmd);
+        root.AddCommand(msgLastCmd);
+        root.AddCommand(msgCountCmd);
+        root.AddCommand(msgWatchCmd);
         return root;
     }
 }

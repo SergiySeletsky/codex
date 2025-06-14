@@ -1,3 +1,5 @@
+using CodexCli.Config;
+
 namespace CodexCli.Commands;
 
 public enum ColorMode
@@ -29,4 +31,11 @@ public record ExecOptions(
     bool? DisableResponseStorage,
     bool NoProjectDoc,
     bool Json,
-    string? EventLogFile);
+    string? EventLogFile,
+    ShellEnvironmentPolicyInherit? EnvInherit,
+    bool? EnvIgnoreDefaultExcludes,
+    string[] EnvExclude,
+    string[] EnvSet,
+    string[] EnvIncludeOnly,
+    int? ProjectDocMaxBytes,
+    string? ProjectDocPath);
