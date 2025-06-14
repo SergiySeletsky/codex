@@ -107,24 +107,47 @@ public static class ExecCommand
             var ov = ConfigOverrides.Parse(opts.Overrides);
             if (ov.Overrides.Count > 0)
             {
-                Console.Error.WriteLine($"{ov.Overrides.Count} override(s) parsed");
+                if (cfg == null) cfg = new AppConfig();
+                ov.Apply(cfg);
+                Console.Error.WriteLine($"{ov.Overrides.Count} override(s) parsed and applied");
             }
 
             var apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
             var client = new OpenAIClient(apiKey);
             bool hideReason = opts.HideAgentReasoning ?? cfg?.HideAgentReasoning ?? false;
             bool disableStorage = opts.DisableResponseStorage ?? cfg?.DisableResponseStorage ?? false;
-            var processor = new CodexCli.Protocol.EventProcessor(opts.Color != ColorMode.Never, !hideReason);
+            bool withAnsi = opts.Color switch
+            {
+                ColorMode.Always => true,
+                ColorMode.Never => false,
+                _ => !Console.IsOutputRedirected
+            };
+
+            var sandboxList = opts.Sandbox.ToList();
+            if (opts.FullAuto)
+            {
+                sandboxList.Clear();
+                sandboxList.Add(new SandboxPermission(SandboxPermissionType.DiskWriteCwd));
+                sandboxList.Add(new SandboxPermission(SandboxPermissionType.DiskWritePlatformUserTempFolder));
+                sandboxList.Add(new SandboxPermission(SandboxPermissionType.DiskWritePlatformGlobalTempFolder));
+            }
+
+            var sandboxLabel = opts.FullAuto
+                ? "full-auto"
+                : (sandboxList.Count > 0 ? string.Join(',', sandboxList.Select(s => s.ToString())) : "default");
+            var processor = new CodexCli.Protocol.EventProcessor(withAnsi, !hideReason);
             processor.PrintConfigSummary(
                 opts.Model ?? cfg?.Model ?? "default",
                 opts.ModelProvider ?? cfg?.ModelProvider ?? string.Empty,
                 Environment.CurrentDirectory,
+                sandboxLabel,
                 prompt.Trim(),
                 disableStorage,
                 opts.ReasoningEffort ?? cfg?.ModelReasoningEffort,
                 opts.ReasoningSummary ?? cfg?.ModelReasoningSummary);
 
-            await foreach (var ev in CodexCli.Protocol.MockCodexAgent.RunAsync(prompt))
+            var imagePaths = opts.Images.Select(i => i.FullName).ToArray();
+            await foreach (var ev in CodexCli.Protocol.MockCodexAgent.RunAsync(prompt, imagePaths))
             {
                 if (opts.Json)
                     Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(ev));

@@ -24,12 +24,13 @@ public class EventProcessor
         _showReasoning = showReasoning;
     }
 
-    public void PrintConfigSummary(string model, string provider, string cwd, string prompt, bool disableStorage, ReasoningEffort? effort, ReasoningSummary? summary)
+    public void PrintConfigSummary(string model, string provider, string cwd, string sandbox, string prompt, bool disableStorage, ReasoningEffort? effort, ReasoningSummary? summary)
     {
         AnsiConsole.MarkupLine($"[grey]{Elapsed.Timestamp()}[/] [bold]model:[/] {model}");
         if (!string.IsNullOrEmpty(provider))
             AnsiConsole.MarkupLine($"[grey]{Elapsed.Timestamp()}[/] [bold]provider:[/] {provider}");
         AnsiConsole.MarkupLine($"[grey]{Elapsed.Timestamp()}[/] [bold]cwd:[/] {cwd}");
+        AnsiConsole.MarkupLine($"[grey]{Elapsed.Timestamp()}[/] [bold]sandbox:[/] {sandbox}");
         if (disableStorage)
             AnsiConsole.MarkupLine($"[grey]{Elapsed.Timestamp()}[/] [bold]response storage:[/] disabled");
         if (effort != null)

@@ -30,6 +30,7 @@ public static class InteractiveCommand
         var hideReasonOpt = new Option<bool?>("--hide-agent-reasoning");
         var disableStorageOpt = new Option<bool?>("--disable-response-storage");
         var noProjDocOpt = new Option<bool>("--no-project-doc", () => false);
+        var lastMsgOpt = new Option<string?>("--output-last-message");
 
         var cmd = new Command("interactive", "Run interactive TUI session");
         cmd.AddArgument(promptArg);
@@ -51,10 +52,11 @@ public static class InteractiveCommand
         cmd.AddOption(hideReasonOpt);
         cmd.AddOption(disableStorageOpt);
         cmd.AddOption(noProjDocOpt);
+        cmd.AddOption(lastMsgOpt);
 
         var binder = new InteractiveBinder(promptArg, imagesOpt, modelOpt, profileOpt, providerOpt,
             fullAutoOpt, approvalOpt, sandboxOpt, colorOpt, skipGitOpt, cwdOpt, notifyOpt, overridesOpt,
-            effortOpt, summaryOpt, instrOpt, hideReasonOpt, disableStorageOpt, noProjDocOpt);
+            effortOpt, summaryOpt, instrOpt, hideReasonOpt, disableStorageOpt, lastMsgOpt, noProjDocOpt);
 
         cmd.SetHandler(async (InteractiveOptions opts, string? cfgPath, string? cd) =>
         {
@@ -62,6 +64,14 @@ public static class InteractiveCommand
             AppConfig? cfg = null;
             if (!string.IsNullOrEmpty(cfgPath) && File.Exists(cfgPath))
                 cfg = AppConfig.Load(cfgPath, opts.Profile);
+
+            var ov = ConfigOverrides.Parse(opts.Overrides);
+            if (ov.Overrides.Count > 0)
+            {
+                if (cfg == null) cfg = new AppConfig();
+                ov.Apply(cfg);
+                AnsiConsole.MarkupLine($"[yellow]{ov.Overrides.Count} override(s) applied[/]");
+            }
 
             if (!opts.SkipGitRepoCheck && !GitUtils.IsInsideGitRepo(Environment.CurrentDirectory))
             {
@@ -152,6 +162,8 @@ public static class InteractiveCommand
                 if (cfg != null)
                 {
                     AnsiConsole.MarkupLine($"Model: [blue]{cfg.Model}[/]");
+                    if (!string.IsNullOrEmpty(cfg.ModelProvider))
+                        AnsiConsole.MarkupLine($"Provider: [blue]{cfg.ModelProvider}[/]");
                     var codexHome = cfg.CodexHome ?? EnvUtils.FindCodexHome();
                     AnsiConsole.MarkupLine($"CodexHome: [blue]{codexHome}[/]");
                     AnsiConsole.MarkupLine($"Hide reasoning: [blue]{cfg.HideAgentReasoning}[/]");
@@ -199,5 +211,7 @@ public static class InteractiveCommand
         }
         if (SessionManager.GetHistoryFile(sessionId) is { } path)
             AnsiConsole.MarkupLine($"History saved to [green]{path}[/]");
+        if (opts.LastMessageFile != null && lastMessage != null)
+            File.WriteAllText(opts.LastMessageFile, lastMessage);
     }
 }

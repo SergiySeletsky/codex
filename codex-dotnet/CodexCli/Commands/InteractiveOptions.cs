@@ -19,4 +19,5 @@ public record InteractiveOptions(
     string? InstructionsPath,
     bool? HideAgentReasoning,
     bool? DisableResponseStorage,
+    string? LastMessageFile,
     bool NoProjectDoc);

@@ -1,4 +1,7 @@
 using Tomlyn;
+using System.Linq;
+using System.Collections.Generic;
+using CodexCli.Commands;
 
 namespace CodexCli.Config;
 
@@ -30,5 +33,51 @@ public class ConfigOverrides
             }
         }
         return overrides;
+    }
+
+    public void Apply(AppConfig cfg)
+    {
+        foreach (var (key, value) in Overrides)
+        {
+            switch (key)
+            {
+                case "model":
+                    cfg.Model = value?.ToString();
+                    break;
+                case "model_provider":
+                    cfg.ModelProvider = value?.ToString();
+                    break;
+                case "codex_home":
+                    cfg.CodexHome = value?.ToString();
+                    break;
+                case "instructions":
+                    cfg.Instructions = value?.ToString();
+                    break;
+                case "notify":
+                    if (value is IEnumerable<object?> seq)
+                        cfg.NotifyCommand = seq.Select(o => o?.ToString() ?? string.Empty).ToArray();
+                    break;
+                case "hide_agent_reasoning":
+                    if (value is bool b1) cfg.HideAgentReasoning = b1;
+                    else if (bool.TryParse(value?.ToString(), out var b1p)) cfg.HideAgentReasoning = b1p;
+                    break;
+                case "disable_response_storage":
+                    if (value is bool b2) cfg.DisableResponseStorage = b2;
+                    else if (bool.TryParse(value?.ToString(), out var b2p)) cfg.DisableResponseStorage = b2p;
+                    break;
+                case "approval_policy":
+                    if (Enum.TryParse<ApprovalMode>(value?.ToString(), true, out var ap))
+                        cfg.ApprovalPolicy = ap;
+                    break;
+                case "model_reasoning_effort":
+                    if (Enum.TryParse<ReasoningEffort>(value?.ToString(), true, out var mre))
+                        cfg.ModelReasoningEffort = mre;
+                    break;
+                case "model_reasoning_summary":
+                    if (Enum.TryParse<ReasoningSummary>(value?.ToString(), true, out var mrs))
+                        cfg.ModelReasoningSummary = mrs;
+                    break;
+            }
+        }
     }
 }

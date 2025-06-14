@@ -98,5 +98,15 @@
 78. Binder tests updated for new options
 79. ProjectDoc tests cover environment variable
 80. Interactive /config now shows reasoning effort and summary
+81. Added ConfigOverrides.Apply to update configuration values
+82. Exec and interactive commands apply config overrides at runtime
+83. Event processor now auto-detects ANSI color usage
+84. Full-auto mode populates sandbox permissions and summary shows sandbox policy
+85. EventProcessor prints sandbox in config summary
+86. MockCodexAgent accepts image paths and emits upload events; exec command sends images
+87. Interactive command supports --output-last-message and writes last message on exit
+88. Interactive /config now displays provider information
+89. Added unit test for ConfigOverrides.Apply
+90. MCP server broadcasts events to multiple SSE clients
 - Build verified with `dotnet build`.
 - Tests run with `dotnet test`.

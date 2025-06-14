@@ -1,12 +1,19 @@
 using CodexCli.Protocol;
+using System.Collections.Generic;
+using System.IO;
 
 namespace CodexCli.Protocol;
 
 public static class MockCodexAgent
 {
-    public static async IAsyncEnumerable<Event> RunAsync(string prompt)
+public static async IAsyncEnumerable<Event> RunAsync(string prompt, IReadOnlyList<string> images)
+{
+    await Task.Delay(50);
+    foreach (var img in images)
     {
-        await Task.Delay(50);
+        yield return new BackgroundEvent(Guid.NewGuid().ToString(), $"uploaded {Path.GetFileName(img)}");
+        await Task.Delay(10);
+    }
         yield return new SessionConfiguredEvent(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), "gpt-4");
         await Task.Delay(50);
         yield return new AgentMessageEvent(Guid.NewGuid().ToString(), $"Echoing: {prompt.Trim()}");

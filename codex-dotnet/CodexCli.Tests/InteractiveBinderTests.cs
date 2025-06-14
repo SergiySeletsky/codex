@@ -28,10 +28,11 @@ public class InteractiveBinderTests
         var hideReasonOpt = new Option<bool?>("--hide-agent-reasoning");
         var disableStorageOpt = new Option<bool?>("--disable-response-storage");
         var noProjDocOpt = new Option<bool>("--no-project-doc");
+        var lastMsgOpt = new Option<string?>("--output-last-message");
 
         var binder = new InteractiveBinder(promptArg, imagesOpt, modelOpt, profileOpt, providerOpt,
             fullAutoOpt, approvalOpt, sandboxOpt, colorOpt, skipGitOpt, cwdOpt, notifyOpt, overridesOpt,
-            effortOpt, summaryOpt, instrOpt, hideReasonOpt, disableStorageOpt, noProjDocOpt);
+            effortOpt, summaryOpt, instrOpt, hideReasonOpt, disableStorageOpt, lastMsgOpt, noProjDocOpt);
 
         var cmd = new Command("interactive");
         cmd.AddArgument(promptArg);
@@ -40,6 +41,7 @@ public class InteractiveBinderTests
         cmd.AddOption(hideReasonOpt);
         cmd.AddOption(disableStorageOpt);
         cmd.AddOption(noProjDocOpt);
+        cmd.AddOption(lastMsgOpt);
         InteractiveOptions? captured = null;
         cmd.SetHandler((InteractiveOptions o) => captured = o, binder);
         var root = new RootCommand();
