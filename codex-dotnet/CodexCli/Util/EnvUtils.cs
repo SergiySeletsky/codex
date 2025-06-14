@@ -21,4 +21,13 @@ public static class EnvUtils
     {
         return Path.Combine(cfg.CodexHome ?? FindCodexHome(), "log");
     }
+
+    public static string GetHistoryDir(AppConfig? cfg = null)
+    {
+        var env = Environment.GetEnvironmentVariable("CODEX_HISTORY_DIR");
+        if (!string.IsNullOrEmpty(env))
+            return env;
+        var home = cfg?.CodexHome ?? FindCodexHome();
+        return Path.Combine(home, "history");
+    }
 }

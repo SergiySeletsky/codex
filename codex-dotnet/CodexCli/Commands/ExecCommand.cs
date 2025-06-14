@@ -75,15 +75,34 @@ public static class ExecCommand
                 Console.Error.WriteLine($"{ov.Overrides.Count} override(s) parsed");
             }
 
+            var apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
+            var client = new OpenAIClient(apiKey);
             var processor = new CodexCli.Protocol.EventProcessor(opts.Color != ColorMode.Never);
             processor.PrintConfigSummary(opts.Model ?? cfg?.Model ?? "default", Environment.CurrentDirectory, prompt.Trim());
 
             await foreach (var ev in CodexCli.Protocol.MockCodexAgent.RunAsync(prompt))
             {
                 processor.ProcessEvent(ev);
-                if (ev is TaskCompleteEvent tc && opts.LastMessageFile != null)
+                switch (ev)
                 {
-                    await File.WriteAllTextAsync(opts.LastMessageFile, tc.LastAgentMessage ?? string.Empty);
+                    case ExecApprovalRequestEvent ar:
+                        Console.Write($"Run '{string.Join(" ", ar.Command)}'? [y/N] ");
+                        var resp = Console.ReadLine();
+                        if (!resp?.StartsWith("y", StringComparison.OrdinalIgnoreCase) ?? true)
+                            Console.WriteLine("Denied");
+                        break;
+                    case PatchApplyApprovalRequestEvent pr:
+                        Console.Write($"Apply patch? [y/N] ");
+                        var r = Console.ReadLine();
+                        if (!r?.StartsWith("y", StringComparison.OrdinalIgnoreCase) ?? true)
+                            Console.WriteLine("Patch denied");
+                        break;
+                    case TaskCompleteEvent tc:
+                        var aiResp = await client.ChatAsync(prompt);
+                        Console.WriteLine(aiResp);
+                        if (opts.LastMessageFile != null)
+                            await File.WriteAllTextAsync(opts.LastMessageFile, tc.LastAgentMessage ?? string.Empty);
+                        break;
                 }
             }
 

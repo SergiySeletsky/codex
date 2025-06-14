@@ -3,6 +3,7 @@ using Spectre.Console;
 using CodexCli.Config;
 using CodexCli.Util;
 using System.Linq;
+using SessionManager = CodexCli.Util.SessionManager;
 
 namespace CodexCli.Commands;
 
@@ -76,12 +77,14 @@ public static class InteractiveCommand
 
     private static void RunInteractive(InteractiveOptions opts, AppConfig? cfg)
     {
+        var sessionId = SessionManager.CreateSession();
         var history = new List<string>();
         AnsiConsole.MarkupLine("[green]Codex interactive mode[/]");
         AnsiConsole.MarkupLine("Type /help for commands");
         if (!string.IsNullOrEmpty(opts.Prompt))
         {
             history.Add(opts.Prompt);
+            SessionManager.AddEntry(sessionId, opts.Prompt);
             AnsiConsole.MarkupLine($"Initial prompt: [blue]{opts.Prompt}[/]");
         }
         while (true)
@@ -97,7 +100,7 @@ public static class InteractiveCommand
             }
             if (prompt.Equals("/help", StringComparison.OrdinalIgnoreCase))
             {
-                AnsiConsole.MarkupLine("Available commands: /history, /quit, /help, /log");
+                AnsiConsole.MarkupLine("Available commands: /history, /quit, /help, /log, /config, /save <file>");
                 continue;
             }
             if (prompt.Equals("/log", StringComparison.OrdinalIgnoreCase))
@@ -106,7 +109,35 @@ public static class InteractiveCommand
                 AnsiConsole.MarkupLine($"Log dir: [blue]{dir}[/]");
                 continue;
             }
+            if (prompt.Equals("/config", StringComparison.OrdinalIgnoreCase))
+            {
+                if (cfg != null)
+                {
+                    AnsiConsole.MarkupLine($"Model: [blue]{cfg.Model}[/]");
+                    var codexHome = cfg.CodexHome ?? EnvUtils.FindCodexHome();
+                    AnsiConsole.MarkupLine($"CodexHome: [blue]{codexHome}[/]");
+                }
+                else
+                {
+                    AnsiConsole.MarkupLine("No config loaded");
+                }
+                continue;
+            }
+            if (prompt.StartsWith("/save", StringComparison.OrdinalIgnoreCase))
+            {
+                var parts = prompt.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+                if (parts.Length < 2)
+                {
+                    AnsiConsole.MarkupLine("Usage: /save <file>");
+                    continue;
+                }
+                var file = parts[1];
+                File.WriteAllLines(file, history);
+                AnsiConsole.MarkupLine($"Saved history to [green]{file}[/]");
+                continue;
+            }
             history.Add(prompt);
+            SessionManager.AddEntry(sessionId, prompt);
             AnsiConsole.MarkupLine($"You typed: [blue]{prompt}[/]");
         }
     }

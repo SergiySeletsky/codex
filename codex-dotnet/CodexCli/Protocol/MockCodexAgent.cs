@@ -10,6 +10,8 @@ public static class MockCodexAgent
         await Task.Delay(100);
         yield return new AgentMessageEvent(id, $"Echoing: {prompt.Trim()}");
         await Task.Delay(100);
+        yield return new ExecApprovalRequestEvent(Guid.NewGuid().ToString(), new[]{"touch","file.txt"});
+        await Task.Delay(100);
         yield return new TaskCompleteEvent(Guid.NewGuid().ToString(), $"{prompt.Trim()} done");
     }
 }

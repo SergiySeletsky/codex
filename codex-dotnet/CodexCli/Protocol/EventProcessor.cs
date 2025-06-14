@@ -54,6 +54,13 @@ public class EventProcessor
                 foreach (var line in output.Take(20))
                     AnsiConsole.MarkupLine($"[dim]{Markup.Escape(line)}[/]");
                 break;
+            case ExecApprovalRequestEvent ar:
+                var cmd2 = string.Join(' ', ar.Command.Select(Markup.Escape));
+                AnsiConsole.MarkupLine($"{ts} [yellow]approval required for[/] [bold]{cmd2}[/]");
+                break;
+            case PatchApplyApprovalRequestEvent pr:
+                AnsiConsole.MarkupLine($"{ts} [yellow]patch approval required:[/] {Markup.Escape(pr.PatchSummary)}");
+                break;
             case TaskCompleteEvent tc:
                 AnsiConsole.MarkupLine($"{ts} task complete");
                 if (tc.LastAgentMessage != null)

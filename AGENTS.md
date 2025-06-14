@@ -38,6 +38,12 @@
 30. Added timestamp helper in Elapsed and utilities tests.
 31. Added EnvUtilsTests verifying CODEX_HOME environment variable handling.
 32. Added event and protocol classes under `Protocol/`.
+33. Added session manager, /config and /save commands in interactive mode.
+34. EnvUtils now supports CODEX_HISTORY_DIR and history directory lookup with tests.
+35. Implemented new approval request events and handling in ExecCommand.
+36. MockCodexAgent emits approval events; ExecCommand prompts user.
+37. Integrated basic OpenAIClient stub in ExecCommand.
+38. Added SessionManager tests and OpenAIClient placeholder.
 - Build verified with `dotnet build`.
 - Tests run with `dotnet test`.
 
@@ -51,6 +57,6 @@
 - Enhance interactive TUI with additional commands and state persistence.
 - Add more unit tests for config loading and command parsing.
 - Port elapsed and protocol event processing logic from Rust.
-- Implement integration with OpenAI client library.
+- Improve OpenAIClient with real API calls when credentials available.
 - Add exec command logic for running tools.
-- Flesh out protocol event types and real Codex core integration.
+- Expand protocol event handling and integrate with real Codex core.
