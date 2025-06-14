@@ -152,9 +152,14 @@
 135. Exec and login commands honor CODEX_MODEL_PROVIDER
 136. Added provider list subcommand
 137. Added tests for provider listing and env key instructions
+138. Added basic apply_patch parser and PatchApplier library
+139. Event definitions updated with FileChange enum
+140. ExecCommand now applies patch changes on PatchApplyBeginEvent
+141. Added unit tests for patch parser and apply logic
+142. MockCodexAgent emits FileChange-based patch event
 
 ## TODO Next Run
-- Integrate exec command with real Codex agent and tool execution
-- Expand MCP server with real event streaming
-- Port apply_patch library and patch events
+- Improve patch parser to support unified diffs
+- Integrate real Codex agent responses
+- Expand apply_patch tests and error handling
 - Add more comprehensive unit tests for provider handling

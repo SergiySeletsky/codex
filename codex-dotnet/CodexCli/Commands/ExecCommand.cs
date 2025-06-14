@@ -182,6 +182,27 @@ public static class ExecCommand
                         if (!r?.StartsWith("y", StringComparison.OrdinalIgnoreCase) ?? true)
                             Console.WriteLine("Patch denied");
                         break;
+                    case PatchApplyBeginEvent pb:
+                        foreach (var kv in pb.Changes)
+                        {
+                            var path = kv.Key;
+                            switch (kv.Value)
+                            {
+                                case AddFileChange add:
+                                    Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+                                    File.WriteAllText(path, add.Content);
+                                    break;
+                                case DeleteFileChange:
+                                    if (File.Exists(path)) File.Delete(path);
+                                    break;
+                                case UpdateFileChange upd:
+                                    var full = Path.GetFullPath(path);
+                                    var text = File.Exists(full) ? File.ReadAllText(full) : string.Empty;
+                                    File.WriteAllText(full, text + "\n" + upd.UnifiedDiff);
+                                    break;
+                            }
+                        }
+                        break;
                     case TaskCompleteEvent tc:
                         var aiResp = await client.ChatAsync(prompt);
                         Console.WriteLine(aiResp);
