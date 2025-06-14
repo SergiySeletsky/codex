@@ -208,6 +208,11 @@
 189. ApplyPatchCommand prints summary when applying patch
 190. New unit tests cover improved diff logic
 191. Documented apply patch improvements
+192. Added ApplyPatchCommandParser for detecting apply_patch CLI arguments
+193. Added ApplyPatchAction and ApplyPatchFileChange definitions
+194. Implemented MaybeParseApplyPatch and MaybeParseApplyPatchVerified helpers
+195. Added heredoc extraction logic for bash -lc patterns
+196. ApplyPatchCommandParserTests verify literal and heredoc parsing
 
 ## TODO Next Run
-- Implement parsing of apply_patch command arguments
+- Integrate ApplyPatchCommandParser into ExecCommand for automatic patch handling
