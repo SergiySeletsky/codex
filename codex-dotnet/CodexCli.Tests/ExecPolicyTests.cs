@@ -14,6 +14,7 @@ public class ExecPolicyTests
     public void DeniesUnknownProgram()
     {
         var policy = ExecPolicy.LoadDefault();
-        Assert.False(policy.IsAllowed("rm"));
+        Assert.True(policy.IsForbidden("rm"));
+        Assert.Equal("dangerous", policy.GetReason("rm"));
     }
 }

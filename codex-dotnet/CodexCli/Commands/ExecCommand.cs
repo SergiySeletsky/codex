@@ -121,8 +121,9 @@ public static class ExecCommand
 
             var providerId = EnvUtils.GetModelProviderId(opts.ModelProvider) ?? cfg?.ModelProvider ?? "openai";
             var providerInfo = cfg?.GetProvider(providerId) ?? ModelProviderInfo.BuiltIns[providerId];
+            var baseUrl = EnvUtils.GetProviderBaseUrl(null) ?? providerInfo.BaseUrl;
             var apiKey = ApiKeyManager.GetKey(providerInfo);
-            var client = new OpenAIClient(apiKey, providerInfo.BaseUrl);
+            var client = new OpenAIClient(apiKey, baseUrl);
             var execPolicy = ExecPolicy.LoadDefault();
             bool hideReason = opts.HideAgentReasoning ?? cfg?.HideAgentReasoning ?? false;
             bool disableStorage = opts.DisableResponseStorage ?? cfg?.DisableResponseStorage ?? false;
@@ -158,7 +159,10 @@ public static class ExecCommand
                 EnvUtils.GetLogLevel(null));
 
             var imagePaths = opts.Images.Select(i => i.FullName).ToArray();
-            await foreach (var ev in CodexCli.Protocol.MockCodexAgent.RunAsync(prompt, imagePaths))
+            IAsyncEnumerable<Event> events = providerId == "mock"
+                ? CodexCli.Protocol.MockCodexAgent.RunAsync(prompt, imagePaths)
+                : CodexCli.Protocol.RealCodexAgent.RunAsync(prompt, client, opts.Model ?? cfg?.Model ?? "default");
+            await foreach (var ev in events)
             {
                 if (opts.Json)
                     Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(ev));
@@ -172,9 +176,15 @@ public static class ExecCommand
                         SessionManager.AddEntry(sessionId, am.Message);
                         break;
                     case ExecApprovalRequestEvent ar:
-                        if (!execPolicy.IsAllowed(ar.Command.First()))
+                        var prog = ar.Command.First();
+                        if (execPolicy.IsForbidden(prog))
                         {
-                            Console.WriteLine($"Denied '{string.Join(" ", ar.Command)}' (forbidden)");
+                            Console.WriteLine($"Denied '{string.Join(" ", ar.Command)}' ({execPolicy.GetReason(prog)})");
+                            break;
+                        }
+                        if (!execPolicy.IsAllowed(prog))
+                        {
+                            Console.WriteLine($"Denied '{string.Join(" ", ar.Command)}' (unverified)");
                             break;
                         }
                         Console.Write($"Run '{string.Join(" ", ar.Command)}'? [y/N] ");
@@ -210,8 +220,11 @@ public static class ExecCommand
                         }
                         break;
                     case TaskCompleteEvent tc:
-                        var aiResp = await client.ChatAsync(prompt);
-                        Console.WriteLine(aiResp);
+                        if (providerId == "mock")
+                        {
+                            var aiResp = await client.ChatAsync(prompt);
+                            Console.WriteLine(aiResp);
+                        }
                         if (opts.LastMessageFile != null)
                             await File.WriteAllTextAsync(opts.LastMessageFile, tc.LastAgentMessage ?? string.Empty);
                         break;

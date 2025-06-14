@@ -51,4 +51,12 @@ public static string GetLogLevel(string? cliLevel = null)
         var env = Environment.GetEnvironmentVariable("CODEX_MODEL_PROVIDER");
         return string.IsNullOrEmpty(env) ? null : env;
     }
+
+    public static string? GetProviderBaseUrl(string? cliVal = null)
+    {
+        if (!string.IsNullOrEmpty(cliVal))
+            return cliVal;
+        var env = Environment.GetEnvironmentVariable("CODEX_MODEL_BASE_URL");
+        return string.IsNullOrEmpty(env) ? null : env;
+    }
 }

@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.ComponentModel;
 using System.Text.Json;
 
 namespace CodexCli.Util;
@@ -18,12 +19,19 @@ public static class ChatGptLogin
             UseShellExecute = false,
         };
         psi.Environment["CODEX_HOME"] = codexHome;
-        using var proc = Process.Start(psi)!;
-        var stdout = captureOutput ? await proc.StandardOutput.ReadToEndAsync() : null;
-        var stderr = captureOutput ? await proc.StandardError.ReadToEndAsync() : null;
-        await proc.WaitForExitAsync();
-        if (proc.ExitCode != 0)
-            throw new Exception($"login_with_chatgpt failed: {stderr}");
+        try
+        {
+            using var proc = Process.Start(psi) ?? throw new InvalidOperationException("python3 not found");
+            var stdout = captureOutput ? await proc.StandardOutput.ReadToEndAsync() : null;
+            var stderr = captureOutput ? await proc.StandardError.ReadToEndAsync() : null;
+            await proc.WaitForExitAsync();
+            if (proc.ExitCode != 0)
+                throw new InvalidOperationException($"login_with_chatgpt failed: {stderr}");
+        }
+        catch (Exception e) when (e is Win32Exception or FileNotFoundException)
+        {
+            throw new InvalidOperationException("Failed to run login_with_chatgpt", e);
+        }
         var authPath = Path.Combine(codexHome, "auth.json");
         var json = await File.ReadAllTextAsync(authPath);
         using var doc = JsonDocument.Parse(json);

@@ -75,5 +75,12 @@ public class ModelProviderInfo
             EnvKey = "GROQ_API_KEY",
             WireApi = WireApi.Chat,
         },
+        ["mock"] = new ModelProviderInfo
+        {
+            Name = "Mock",
+            BaseUrl = "http://localhost",
+            EnvKey = null,
+            WireApi = WireApi.Responses,
+        },
     };
 }

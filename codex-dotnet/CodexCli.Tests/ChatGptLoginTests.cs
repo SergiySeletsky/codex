@@ -1,5 +1,7 @@
 using CodexCli.Util;
 using Xunit;
+using System.Threading.Tasks;
+using System.IO;
 
 public class ChatGptLoginTests
 {
@@ -9,4 +11,5 @@ public class ChatGptLoginTests
         var path = ChatGptLogin.GetScriptPath();
         Assert.True(File.Exists(path));
     }
+
 }

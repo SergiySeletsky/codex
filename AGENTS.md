@@ -176,9 +176,19 @@
 159. Added ExecPolicyTests and updated ApplyPatchTests
 160. Added ProviderInfoTests for EnvKeyInstructions
 161. Embedded ChatGptLogin script test
+162. Added mock model provider
+163. Provider base URL can be overridden via CODEX_MODEL_BASE_URL
+164. Introduced RealCodexAgent using OpenAIClient
+165. ExecCommand selects RealCodexAgent unless provider is 'mock'
+166. ExecPolicy tracks forbidden programs with reasons
+167. ExecCommand prints denial reason for forbidden and unverified commands
+168. ChatGptLogin throws informative errors on failure
+169. ProviderInfoTests cover base URL environment override
+170. ExecPolicyTests verify forbidden reason
+171. ChatGptLoginTests ensure failure case handled
 
 ## TODO Next Run
-- Integrate real Codex agent responses
-- Support advanced exec policy options
-- Improve error handling around ChatGPT login
-- Add more provider handling tests
+- Stream responses from RealCodexAgent
+- Parse policy file for flags and options
+- Expand provider command with add/remove functionality
+- Improve ApplyPatch diff algorithm
