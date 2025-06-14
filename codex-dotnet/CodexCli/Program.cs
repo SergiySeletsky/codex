@@ -20,6 +20,7 @@ class Program
         root.AddCommand(ProtoCommand.Create(configOption, cdOption));
         root.AddCommand(DebugCommand.Create(configOption, cdOption));
         root.AddCommand(InteractiveCommand.Create(configOption, cdOption));
+        root.AddCommand(CompletionCommand.Create(root, configOption, cdOption));
 
         if (args.Length == 0)
         {

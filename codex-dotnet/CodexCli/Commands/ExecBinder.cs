@@ -25,6 +25,8 @@ public class ExecBinder : BinderBase<ExecOptions>
     private readonly Option<string?> _instructions;
     private readonly Option<bool?> _hideReasoning;
     private readonly Option<bool?> _disableStorage;
+    private readonly Option<bool> _noProjectDoc;
+    private readonly Option<bool> _json;
 
     public ExecBinder(Argument<string?> prompt, Option<FileInfo[]> images, Option<string?> model,
         Option<string?> profile, Option<string?> provider, Option<bool> fullAuto,
@@ -32,7 +34,8 @@ public class ExecBinder : BinderBase<ExecOptions>
         Option<string?> cwd, Option<string?> lastMessage, Option<bool> skipGit,
         Option<string[]> notify, Option<string[]> overrides, Option<ReasoningEffort?> effort,
         Option<ReasoningSummary?> summary, Option<string?> instructions,
-        Option<bool?> hideReasoning, Option<bool?> disableStorage)
+        Option<bool?> hideReasoning, Option<bool?> disableStorage,
+        Option<bool> noProjectDoc, Option<bool> json)
     {
         _prompt = prompt;
         _images = images;
@@ -53,6 +56,8 @@ public class ExecBinder : BinderBase<ExecOptions>
         _instructions = instructions;
         _hideReasoning = hideReasoning;
         _disableStorage = disableStorage;
+        _noProjectDoc = noProjectDoc;
+        _json = json;
     }
 
     protected override ExecOptions GetBoundValue(BindingContext bindingContext)
@@ -80,7 +85,9 @@ public class ExecBinder : BinderBase<ExecOptions>
             bindingContext.ParseResult.GetValueForOption(_summary),
             bindingContext.ParseResult.GetValueForOption(_instructions),
             bindingContext.ParseResult.GetValueForOption(_hideReasoning),
-            bindingContext.ParseResult.GetValueForOption(_disableStorage)
+            bindingContext.ParseResult.GetValueForOption(_disableStorage),
+            bindingContext.ParseResult.GetValueForOption(_noProjectDoc),
+            bindingContext.ParseResult.GetValueForOption(_json)
         );
     }
 }

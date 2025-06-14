@@ -88,5 +88,15 @@
 68. Interactive /config command shows reasoning/storage settings
 69. EventProcessor prints storage status in summary
 70. Added flags to ExecOptions and InteractiveOptions
+71. Added --no-project-doc option and CODEX_DISABLE_PROJECT_DOC support
+72. ProjectDoc now searches ~/.codex/AGENTS.md
+73. Parsed approval_policy and reasoning effort/summary from config and profiles
+74. EventProcessor prints reasoning effort and summary
+75. Exec command supports --json for raw event output
+76. Interactive mode gained /save-last command
+77. Added completion subcommand for shell completions
+78. Binder tests updated for new options
+79. ProjectDoc tests cover environment variable
+80. Interactive /config now shows reasoning effort and summary
 - Build verified with `dotnet build`.
 - Tests run with `dotnet test`.

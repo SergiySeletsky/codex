@@ -13,6 +13,8 @@ public class AppConfig
     public string? Instructions { get; set; }
     public bool HideAgentReasoning { get; set; }
     public bool DisableResponseStorage { get; set; }
+    public ReasoningEffort? ModelReasoningEffort { get; set; }
+    public ReasoningSummary? ModelReasoningSummary { get; set; }
     public Dictionary<string, ConfigProfile> Profiles { get; set; } = new();
 
     public static AppConfig Load(string path, string? profile = null)
@@ -30,6 +32,12 @@ public class AppConfig
             cfg.HideAgentReasoning = har is bool hb ? hb : bool.TryParse(har?.ToString(), out var b) && b;
         if (model.TryGetValue("disable_response_storage", out var drsVal))
             cfg.DisableResponseStorage = drsVal is bool db ? db : bool.TryParse(drsVal?.ToString(), out var b2) && b2;
+        if (model.TryGetValue("approval_policy", out var apVal) && Enum.TryParse<ApprovalMode>(apVal?.ToString(), true, out var apParsed))
+            cfg.ApprovalPolicy = apParsed;
+        if (model.TryGetValue("model_reasoning_effort", out var mre) && Enum.TryParse<ReasoningEffort>(mre?.ToString(), true, out var mrev))
+            cfg.ModelReasoningEffort = mrev;
+        if (model.TryGetValue("model_reasoning_summary", out var mrs) && Enum.TryParse<ReasoningSummary>(mrs?.ToString(), true, out var mrsv))
+            cfg.ModelReasoningSummary = mrsv;
         if (model.TryGetValue("profiles", out var profs) && profs is IDictionary<string, object?> pmap)
         {
             foreach (var (k, v) in pmap)
@@ -42,6 +50,10 @@ public class AppConfig
                     if (pm.TryGetValue("approval_policy", out var ap) && Enum.TryParse<ApprovalMode>(ap?.ToString(), true, out var apv)) cp.ApprovalPolicy = apv;
                     if (pm.TryGetValue("disable_response_storage", out var drs2))
                         cp.DisableResponseStorage = drs2 is bool db ? db : bool.TryParse(drs2?.ToString(), out var b) ? b : (bool?)null;
+                    if (pm.TryGetValue("model_reasoning_effort", out var mre2) && Enum.TryParse<ReasoningEffort>(mre2?.ToString(), true, out var mrev2))
+                        cp.ModelReasoningEffort = mrev2;
+                    if (pm.TryGetValue("model_reasoning_summary", out var mrs2) && Enum.TryParse<ReasoningSummary>(mrs2?.ToString(), true, out var mrsv2))
+                        cp.ModelReasoningSummary = mrsv2;
                     cfg.Profiles[k] = cp;
                 }
             }
@@ -59,6 +71,8 @@ public class AppConfig
             if (p.ModelProvider != null) cfg.ModelProvider = p.ModelProvider;
             if (p.ApprovalPolicy != null) cfg.ApprovalPolicy = p.ApprovalPolicy.Value;
             if (p.DisableResponseStorage != null) cfg.DisableResponseStorage = p.DisableResponseStorage.Value;
+            if (p.ModelReasoningEffort != null) cfg.ModelReasoningEffort = p.ModelReasoningEffort;
+            if (p.ModelReasoningSummary != null) cfg.ModelReasoningSummary = p.ModelReasoningSummary;
         }
         return cfg;
     }

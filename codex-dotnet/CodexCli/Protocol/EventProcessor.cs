@@ -1,4 +1,5 @@
 using CodexCli.Util;
+using CodexCli.Commands;
 using Spectre.Console;
 
 namespace CodexCli.Protocol;
@@ -23,7 +24,7 @@ public class EventProcessor
         _showReasoning = showReasoning;
     }
 
-    public void PrintConfigSummary(string model, string provider, string cwd, string prompt, bool disableStorage)
+    public void PrintConfigSummary(string model, string provider, string cwd, string prompt, bool disableStorage, ReasoningEffort? effort, ReasoningSummary? summary)
     {
         AnsiConsole.MarkupLine($"[grey]{Elapsed.Timestamp()}[/] [bold]model:[/] {model}");
         if (!string.IsNullOrEmpty(provider))
@@ -31,6 +32,10 @@ public class EventProcessor
         AnsiConsole.MarkupLine($"[grey]{Elapsed.Timestamp()}[/] [bold]cwd:[/] {cwd}");
         if (disableStorage)
             AnsiConsole.MarkupLine($"[grey]{Elapsed.Timestamp()}[/] [bold]response storage:[/] disabled");
+        if (effort != null)
+            AnsiConsole.MarkupLine($"[grey]{Elapsed.Timestamp()}[/] [bold]reasoning effort:[/] {effort}");
+        if (summary != null)
+            AnsiConsole.MarkupLine($"[grey]{Elapsed.Timestamp()}[/] [bold]reasoning summary:[/] {summary}");
         AnsiConsole.MarkupLine("--------");
         AnsiConsole.MarkupLine($"[grey]{Elapsed.Timestamp()}[/] [bold cyan]User instructions:[/]\n{prompt}");
     }

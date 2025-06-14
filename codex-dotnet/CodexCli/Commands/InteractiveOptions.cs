@@ -18,4 +18,5 @@ public record InteractiveOptions(
     ReasoningSummary? ReasoningSummary,
     string? InstructionsPath,
     bool? HideAgentReasoning,
-    bool? DisableResponseStorage);
+    bool? DisableResponseStorage,
+    bool NoProjectDoc);

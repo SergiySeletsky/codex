@@ -29,6 +29,8 @@ public static class ExecCommand
         var instrOpt = new Option<string?>("--instructions", "Path to instructions file");
         var hideReasonOpt = new Option<bool?>("--hide-agent-reasoning", "Hide reasoning events");
         var disableStorageOpt = new Option<bool?>("--disable-response-storage", "Disable response storage");
+        var noProjDocOpt = new Option<bool>("--no-project-doc", () => false, "Disable AGENTS.md project doc");
+        var jsonOpt = new Option<bool>("--json", () => false, "Output raw JSON events");
 
         var cmd = new Command("exec", "Run Codex non-interactively");
         cmd.AddArgument(promptArg);
@@ -50,10 +52,12 @@ public static class ExecCommand
         cmd.AddOption(instrOpt);
         cmd.AddOption(hideReasonOpt);
         cmd.AddOption(disableStorageOpt);
+        cmd.AddOption(noProjDocOpt);
+        cmd.AddOption(jsonOpt);
 
         var binder = new ExecBinder(promptArg, imagesOpt, modelOpt, profileOpt, providerOpt, fullAutoOpt,
             approvalOpt, sandboxOpt, colorOpt, cwdOpt, lastMsgOpt, skipGitOpt, notifyOpt, overridesOpt,
-            effortOpt, summaryOpt, instrOpt, hideReasonOpt, disableStorageOpt);
+            effortOpt, summaryOpt, instrOpt, hideReasonOpt, disableStorageOpt, noProjDocOpt, jsonOpt);
 
         cmd.SetHandler(async (ExecOptions opts, string? cfgPath, string? cd) =>
         {
@@ -82,7 +86,7 @@ public static class ExecCommand
                 {
                     var inst = opts.InstructionsPath != null && File.Exists(opts.InstructionsPath)
                         ? File.ReadAllText(opts.InstructionsPath)
-                        : cfg != null ? ProjectDoc.GetUserInstructions(cfg, Environment.CurrentDirectory) : null;
+                        : cfg != null ? ProjectDoc.GetUserInstructions(cfg, Environment.CurrentDirectory, opts.NoProjectDoc) : null;
                     if (!string.IsNullOrWhiteSpace(inst))
                     {
                         prompt = inst;
@@ -116,11 +120,16 @@ public static class ExecCommand
                 opts.ModelProvider ?? cfg?.ModelProvider ?? string.Empty,
                 Environment.CurrentDirectory,
                 prompt.Trim(),
-                disableStorage);
+                disableStorage,
+                opts.ReasoningEffort ?? cfg?.ModelReasoningEffort,
+                opts.ReasoningSummary ?? cfg?.ModelReasoningSummary);
 
             await foreach (var ev in CodexCli.Protocol.MockCodexAgent.RunAsync(prompt))
             {
-                processor.ProcessEvent(ev);
+                if (opts.Json)
+                    Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(ev));
+                else
+                    processor.ProcessEvent(ev);
                 switch (ev)
                 {
                     case AgentMessageEvent am:

@@ -7,4 +7,6 @@ public class ConfigProfile
     public string? ModelProvider { get; set; }
     public ApprovalMode? ApprovalPolicy { get; set; }
     public bool? DisableResponseStorage { get; set; }
+    public ReasoningEffort? ModelReasoningEffort { get; set; }
+    public ReasoningSummary? ModelReasoningSummary { get; set; }
 }

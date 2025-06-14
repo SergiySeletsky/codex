@@ -20,6 +20,12 @@ public static class ProjectDoc
 
     private static string? FindProjectDoc(string cwd)
     {
+        var global = Path.Combine(EnvUtils.FindCodexHome(), "AGENTS.md");
+        if (File.Exists(global))
+        {
+            var txt = LoadFirstCandidate(Path.GetDirectoryName(global)!);
+            if (!string.IsNullOrEmpty(txt)) return txt;
+        }
         var dir = new DirectoryInfo(cwd);
         var repoRoot = GitUtils.GetRepoRoot(cwd);
         while (dir != null)
@@ -32,10 +38,11 @@ public static class ProjectDoc
         return null;
     }
 
-    public static string? GetUserInstructions(AppConfig cfg, string cwd)
+    public static string? GetUserInstructions(AppConfig cfg, string cwd, bool skipProjectDoc = false)
     {
+        var disable = skipProjectDoc || Environment.GetEnvironmentVariable("CODEX_DISABLE_PROJECT_DOC") == "1";
         var inst = cfg.Instructions;
-        var doc = FindProjectDoc(cwd);
+        var doc = disable ? null : FindProjectDoc(cwd);
         if (inst != null && doc != null)
             return inst.Trim() + Separator + doc.Trim();
         return inst ?? doc;
