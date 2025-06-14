@@ -9,10 +9,12 @@ public static class ApplyPatchCommand
     {
         var patchArg = new Argument<string?>("patch", () => null, "Patch file or '-' for stdin");
         var cwdOpt = new Option<string?>("--cwd", "Working directory");
+        var summaryOpt = new Option<bool>("--summary", () => false, "Print summary only");
         var cmd = new Command("apply_patch", "Apply a patch to the file system");
         cmd.AddArgument(patchArg);
         cmd.AddOption(cwdOpt);
-        cmd.SetHandler((string? patchFile, string? cwd) =>
+        cmd.AddOption(summaryOpt);
+        cmd.SetHandler((string? patchFile, string? cwd, bool summaryOnly) =>
         {
             string patchText;
             if (patchFile == null || patchFile == "-")
@@ -22,15 +24,18 @@ public static class ApplyPatchCommand
             cwd ??= Directory.GetCurrentDirectory();
             try
             {
-                var output = PatchApplier.Apply(patchText, cwd);
-                Console.WriteLine(output);
+                var result = PatchApplier.ApplyWithSummary(patchText, cwd);
+                if (summaryOnly)
+                    Console.WriteLine(result.Summary);
+                else
+                    Console.WriteLine(result.Summary);
             }
             catch (PatchParseException e)
             {
                 Console.Error.WriteLine(e.Message);
                 Environment.ExitCode = 1;
             }
-        }, patchArg, cwdOpt);
+        }, patchArg, cwdOpt, summaryOpt);
         return cmd;
     }
 }

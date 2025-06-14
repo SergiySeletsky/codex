@@ -198,5 +198,16 @@
 180. ExecPolicyTests cover VerifyCommand
 181. ProviderCommandTests cover add/remove/set-default
 
+182. Introduced AffectedPaths summary for patch application
+183. PatchApplier.ApplyWithSummary returns affected paths and summary
+184. ApplyPatchCommand supports --summary option
+185. Improved unified diff algorithm when applying updates
+186. ApplyPatchTests verify summary output
+187. ApplyPatchTests verify update file patching
+188. Added DiffPlex dependency
+189. ApplyPatchCommand prints summary when applying patch
+190. New unit tests cover improved diff logic
+191. Documented apply patch improvements
+
 ## TODO Next Run
-- Improve ApplyPatch diff algorithm
+- Implement parsing of apply_patch command arguments

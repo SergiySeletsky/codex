@@ -23,6 +23,18 @@ public class ApplyPatchTests
         Assert.True(File.Exists(Path.Combine(dir.Path, "foo.txt")));
         var text = File.ReadAllText(Path.Combine(dir.Path, "foo.txt"));
         Assert.Equal("hello\n", text);
+        Assert.Contains("added foo.txt", output);
+    }
+
+    [Fact]
+    public void Apply_UpdateFile()
+    {
+        using var dir = new TempDir();
+        File.WriteAllLines(Path.Combine(dir.Path, "a.txt"), new[] { "line1", "line2" });
+        string patch = "*** Begin Patch\n*** Update File: a.txt\n line1\n-line2\n+lineB\n*** End Patch";
+        PatchApplier.Apply(patch, dir.Path);
+        var lines = File.ReadAllLines(Path.Combine(dir.Path, "a.txt"));
+        Assert.Equal(new[] { "line1", "lineB" }, lines);
     }
 
     [Fact]

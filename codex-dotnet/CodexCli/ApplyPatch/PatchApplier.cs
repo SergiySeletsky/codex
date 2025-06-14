@@ -1,4 +1,3 @@
-using System.IO;
 using System.Text;
 
 namespace CodexCli.ApplyPatch;
@@ -6,6 +5,11 @@ namespace CodexCli.ApplyPatch;
 public static class PatchApplier
 {
     public static string Apply(string patch, string cwd)
+    {
+        return ApplyWithSummary(patch, cwd).Summary;
+    }
+
+    public static (AffectedPaths Affected, string Summary) ApplyWithSummary(string patch, string cwd)
     {
         List<PatchHunk> hunks;
         try
@@ -16,8 +20,13 @@ public static class PatchApplier
         {
             throw new PatchParseException($"Failed to parse patch: {e.Message}");
         }
+
+        var added = new List<string>();
+        var modified = new List<string>();
+        var deleted = new List<string>();
         var stdout = new StringBuilder();
         var cwdFull = Path.GetFullPath(cwd);
+
         foreach (var hunk in hunks)
         {
             switch (hunk)
@@ -28,6 +37,7 @@ public static class PatchApplier
                         throw new PatchParseException($"Path {add.Path} escapes cwd");
                     Directory.CreateDirectory(Path.GetDirectoryName(path)!);
                     File.WriteAllText(path, add.Contents);
+                    added.Add(add.Path);
                     stdout.AppendLine($"added {add.Path}");
                     break;
                 case DeleteFileHunk del:
@@ -37,6 +47,7 @@ public static class PatchApplier
                     if (File.Exists(dpath))
                     {
                         File.Delete(dpath);
+                        deleted.Add(del.Path);
                         stdout.AppendLine($"deleted {del.Path}");
                     }
                     break;
@@ -45,25 +56,7 @@ public static class PatchApplier
                     if (!upath.StartsWith(cwdFull))
                         throw new PatchParseException($"Path {upd.Path} escapes cwd");
                     var lines = File.Exists(upath) ? File.ReadAllLines(upath).ToList() : new List<string>();
-                    int idx = 0;
-                    foreach (var line in upd.Lines)
-                    {
-                        if (line.StartsWith("+"))
-                        {
-                            lines.Insert(idx, line[1..]);
-                            idx++;
-                        }
-                        else if (line.StartsWith("-"))
-                        {
-                            if (idx < lines.Count && lines[idx] == line[1..])
-                                lines.RemoveAt(idx);
-                        }
-                        else
-                        {
-                            if (idx < lines.Count && lines[idx] == line.TrimStart(' '))
-                                idx++;
-                        }
-                    }
+                    lines = ApplyUnifiedDiff(lines, upd.Lines);
                     if (upd.MovePath != null)
                     {
                         upath = Path.GetFullPath(Path.Combine(cwd, upd.MovePath));
@@ -72,10 +65,43 @@ public static class PatchApplier
                     }
                     Directory.CreateDirectory(Path.GetDirectoryName(upath)!);
                     File.WriteAllLines(upath, lines);
+                    modified.Add(upd.Path);
                     stdout.AppendLine($"updated {upd.Path}");
                     break;
             }
         }
-        return stdout.ToString();
+
+        var summary = stdout.ToString();
+        return (new AffectedPaths(added, modified, deleted), summary);
+    }
+
+    private static List<string> ApplyUnifiedDiff(List<string> original, List<string> diffLines)
+    {
+        var result = new List<string>();
+        int index = 0;
+        foreach (var line in diffLines)
+        {
+            if (line.StartsWith("+"))
+            {
+                result.Add(line.Substring(1));
+            }
+            else if (line.StartsWith("-"))
+            {
+                if (index < original.Count && original[index] == line.Substring(1))
+                    index++;
+            }
+            else
+            {
+                var ctx = line.TrimStart(' ');
+                if (index < original.Count && original[index] == ctx)
+                {
+                    result.Add(original[index]);
+                    index++;
+                }
+            }
+        }
+        if (index < original.Count)
+            result.AddRange(original.Skip(index));
+        return result;
     }
 }
