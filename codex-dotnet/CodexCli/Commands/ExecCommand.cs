@@ -197,6 +197,13 @@ public static class ExecCommand
                 {
                     case AgentMessageEvent am:
                         SessionManager.AddEntry(sessionId, am.Message);
+                        if (cfg != null)
+                            await MessageHistory.AppendEntryAsync(am.Message, sessionId, cfg);
+                        break;
+                    case AddToHistoryEvent ah:
+                        SessionManager.AddEntry(sessionId, ah.Text);
+                        if (cfg != null)
+                            await MessageHistory.AppendEntryAsync(ah.Text, sessionId, cfg);
                         break;
                     case ExecApprovalRequestEvent ar:
                         var prog = ar.Command.First();

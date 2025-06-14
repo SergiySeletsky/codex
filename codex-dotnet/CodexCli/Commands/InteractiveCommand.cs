@@ -140,6 +140,10 @@ public static class InteractiveCommand
 
     private static void RunInteractive(InteractiveOptions opts, AppConfig? cfg)
     {
+        bool enableMouse = !(cfg?.Tui.DisableMouseCapture ?? false);
+        Console.Write(enableMouse ? "\u001b[?1000h" : "\u001b[?1000l");
+        try
+        {
         SessionManager.SetPersistence(cfg?.History.Persistence ?? HistoryPersistence.SaveAll);
         var sessionId = SessionManager.CreateSession();
         var history = new List<string>();
@@ -274,5 +278,10 @@ public static class InteractiveCommand
             AnsiConsole.MarkupLine($"History saved to [green]{path}[/]");
         if (opts.LastMessageFile != null && lastMessage != null)
             File.WriteAllText(opts.LastMessageFile, lastMessage);
+        }
+        finally
+        {
+            Console.Write("\u001b[?1000l");
+        }
     }
 }

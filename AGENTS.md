@@ -247,6 +247,17 @@
 226. ExecCommand passes file opener to EventProcessor
 227. Added MarkdownUtilsTests verifying citation rewriting
 
+228. Added MessageHistory utility writing global `history.jsonl`
+229. AppendEntryAsync sets owner-only permissions on Unix
+230. Implemented HistoryMetadataAsync and LookupEntry helpers
+231. ExecCommand saves agent messages to message history
+232. ExecCommand saves AddToHistory events to message history
+233. HistoryCommand now has messages-meta and messages-entry subcommands
+234. Added MessageHistoryTests verifying append and lookup
+235. InteractiveCommand toggles mouse capture based on config
+236. HistoryCommand registers new message history subcommands
+237. Installed .NET 8 SDK via apt-get for building
+
 ## TODO Next Run
-- Verify citation rewriting integration
+- Expand message history CLI
 - Implement remaining Rust features

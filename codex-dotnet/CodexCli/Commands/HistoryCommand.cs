@@ -1,5 +1,6 @@
 using System.CommandLine;
 using CodexCli.Util;
+using CodexCli.Config;
 
 namespace CodexCli.Commands;
 
@@ -67,6 +68,25 @@ public static class HistoryCommand
             else Console.WriteLine("not found");
         }, idArg, offsetArg);
 
+        var msgMetaCmd = new Command("messages-meta", "Show message history metadata");
+        msgMetaCmd.SetHandler(async () =>
+        {
+            var cfg = new AppConfig();
+            var meta = await MessageHistory.HistoryMetadataAsync(cfg);
+            Console.WriteLine($"log {meta.LogId} count {meta.Count}");
+        });
+
+        var msgEntryCmd = new Command("messages-entry", "Show message history entry by offset");
+        var msgOffsetArg = new Argument<int>("offset", "Entry offset");
+        msgEntryCmd.AddArgument(msgOffsetArg);
+        msgEntryCmd.SetHandler((int offset) =>
+        {
+            var cfg = new AppConfig();
+            var text = MessageHistory.LookupEntry(0, offset, cfg);
+            if (text != null) Console.WriteLine(text);
+            else Console.WriteLine("not found");
+        }, msgOffsetArg);
+
         var root = new Command("history", "Manage session history");
         root.AddCommand(listCmd);
         root.AddCommand(showCmd);
@@ -75,6 +95,8 @@ public static class HistoryCommand
         root.AddCommand(purgeCmd);
         root.AddCommand(entryCmd);
         root.AddCommand(infoCmd);
+        root.AddCommand(msgMetaCmd);
+        root.AddCommand(msgEntryCmd);
         return root;
     }
 }
