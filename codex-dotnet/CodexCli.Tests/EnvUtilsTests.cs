@@ -25,4 +25,17 @@ public class EnvUtilsTests
         Environment.SetEnvironmentVariable("CODEX_HISTORY_DIR", null);
         Directory.Delete(tmp, true);
     }
+
+    [Fact]
+    public void HistoryDirFallsBackToHome()
+    {
+        Environment.SetEnvironmentVariable("CODEX_HISTORY_DIR", null);
+        var home = Path.Combine(Path.GetTempPath(), "codexhome-default");
+        Directory.CreateDirectory(home);
+        Environment.SetEnvironmentVariable("CODEX_HOME", home);
+        var res = CodexCli.Util.EnvUtils.GetHistoryDir();
+        Assert.Equal(Path.Combine(home, "history"), res);
+        Environment.SetEnvironmentVariable("CODEX_HOME", null);
+        Directory.Delete(home, true);
+    }
 }

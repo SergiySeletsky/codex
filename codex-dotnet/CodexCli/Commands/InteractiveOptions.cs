@@ -5,9 +5,12 @@ public record InteractiveOptions(
     FileInfo[] Images,
     string? Model,
     string? Profile,
+    string? ModelProvider,
     bool FullAuto,
     ApprovalMode? Approval,
     SandboxPermission[] Sandbox,
+    ColorMode Color,
     bool SkipGitRepoCheck,
-    string? Cwd);
-
+    string? Cwd,
+    string[] NotifyCommand,
+    string[] Overrides);

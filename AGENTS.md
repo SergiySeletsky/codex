@@ -44,6 +44,12 @@
 36. MockCodexAgent emits approval events; ExecCommand prompts user.
 37. Integrated basic OpenAIClient stub in ExecCommand.
 38. Added SessionManager tests and OpenAIClient placeholder.
+39. Added PatchApply, McpToolCall, AgentReasoning and SessionConfigured events.
+40. Extended EventProcessor to display these events.
+41. MockCodexAgent now emits diverse events for testing.
+42. Interactive command supports provider, color, notify and override options plus /reset command.
+43. SessionManager exposes ClearHistory and associated tests.
+44. Added EnvUtilsTests for default history dir.
 - Build verified with `dotnet build`.
 - Tests run with `dotnet test`.
 
@@ -51,12 +57,8 @@
 - `codex-dotnet/CodexCli` project with Program.cs, command implementations under `Commands/`, and `Config/AppConfig.cs`.
 
 ## TODO Next Run
-- Flesh out exec logic and integrate with agent core library.
-- Expand MCP server beyond basic listener and implement protocol event streaming.
-- Port remaining Rust modules (session management, agent core) to .NET libraries.
-- Enhance interactive TUI with additional commands and state persistence.
-- Add more unit tests for config loading and command parsing.
-- Port elapsed and protocol event processing logic from Rust.
-- Improve OpenAIClient with real API calls when credentials available.
-- Add exec command logic for running tools.
-- Expand protocol event handling and integrate with real Codex core.
+- Integrate exec command with real Codex agent and tool execution.
+- Stream events over HTTP in MCP server.
+- Persist session history to disk.
+- Add more comprehensive unit tests for binder logic.
+- Continue porting Rust protocol types and core libraries.

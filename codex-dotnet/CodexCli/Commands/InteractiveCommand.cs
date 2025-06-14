@@ -15,9 +15,13 @@ public static class InteractiveCommand
         var imagesOpt = new Option<FileInfo[]>("--image") { AllowMultipleArgumentsPerToken = true };
         var modelOpt = new Option<string?>("--model");
         var profileOpt = new Option<string?>("--profile");
+        var providerOpt = new Option<string?>("--model-provider");
         var fullAutoOpt = new Option<bool>("--full-auto", () => false);
         var approvalOpt = new Option<ApprovalMode?>("--ask-for-approval");
         var sandboxOpt = new Option<string[]>("-s") { AllowMultipleArgumentsPerToken = true };
+        var colorOpt = new Option<ColorMode>("--color", () => ColorMode.Auto);
+        var notifyOpt = new Option<string[]>("--notify") { AllowMultipleArgumentsPerToken = true };
+        var overridesOpt = new Option<string[]>("-c") { AllowMultipleArgumentsPerToken = true };
         var skipGitOpt = new Option<bool>("--skip-git-repo-check", () => false);
         var cwdOpt = new Option<string?>(new[]{"--cwd","-C"});
 
@@ -26,14 +30,18 @@ public static class InteractiveCommand
         cmd.AddOption(imagesOpt);
         cmd.AddOption(modelOpt);
         cmd.AddOption(profileOpt);
+        cmd.AddOption(providerOpt);
         cmd.AddOption(fullAutoOpt);
         cmd.AddOption(approvalOpt);
         cmd.AddOption(sandboxOpt);
+        cmd.AddOption(colorOpt);
+        cmd.AddOption(notifyOpt);
+        cmd.AddOption(overridesOpt);
         cmd.AddOption(skipGitOpt);
         cmd.AddOption(cwdOpt);
 
-        var binder = new InteractiveBinder(promptArg, imagesOpt, modelOpt, profileOpt,
-            fullAutoOpt, approvalOpt, sandboxOpt, skipGitOpt, cwdOpt);
+        var binder = new InteractiveBinder(promptArg, imagesOpt, modelOpt, profileOpt, providerOpt,
+            fullAutoOpt, approvalOpt, sandboxOpt, colorOpt, skipGitOpt, cwdOpt, notifyOpt, overridesOpt);
 
         cmd.SetHandler(async (InteractiveOptions opts, string? cfgPath, string? cd) =>
         {
@@ -50,10 +58,8 @@ public static class InteractiveCommand
 
             if (opts.Cwd != null) Environment.CurrentDirectory = opts.Cwd;
 
-            if (cfg?.NotifyCommand is { Length: >0 } notify)
-            {
-                NotifyUtils.RunNotify(notify, "session_started");
-            }
+            if (opts.NotifyCommand.Length > 0)
+                NotifyUtils.RunNotify(opts.NotifyCommand, "session_started");
 
             string? prompt = opts.Prompt;
             if (string.IsNullOrEmpty(prompt) || prompt == "-")
@@ -68,8 +74,8 @@ public static class InteractiveCommand
 
             var opts2 = opts with { Prompt = prompt };
             RunInteractive(opts2, cfg);
-            if (cfg?.NotifyCommand is { Length: >0 } notify2)
-                NotifyUtils.RunNotify(notify2, "session_complete");
+            if (opts.NotifyCommand.Length > 0)
+                NotifyUtils.RunNotify(opts.NotifyCommand, "session_complete");
             await Task.CompletedTask;
         }, binder, configOption, cdOption);
         return cmd;
@@ -98,9 +104,16 @@ public static class InteractiveCommand
                     AnsiConsole.MarkupLine($"[blue]{item}[/]");
                 continue;
             }
+            if (prompt.Equals("/reset", StringComparison.OrdinalIgnoreCase))
+            {
+                history.Clear();
+                SessionManager.ClearHistory(sessionId);
+                AnsiConsole.MarkupLine("History cleared");
+                continue;
+            }
             if (prompt.Equals("/help", StringComparison.OrdinalIgnoreCase))
             {
-                AnsiConsole.MarkupLine("Available commands: /history, /quit, /help, /log, /config, /save <file>");
+                AnsiConsole.MarkupLine("Available commands: /history, /reset, /quit, /help, /log, /config, /save <file>");
                 continue;
             }
             if (prompt.Equals("/log", StringComparison.OrdinalIgnoreCase))

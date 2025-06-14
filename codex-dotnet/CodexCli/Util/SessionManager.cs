@@ -18,7 +18,11 @@ public static class SessionManager
         if (Sessions.TryGetValue(id, out var list))
             list.Add(line);
     }
-
     public static IReadOnlyList<string> GetHistory(string id) =>
         Sessions.TryGetValue(id, out var list) ? list : Array.Empty<string>();
+    public static void ClearHistory(string id)
+    {
+        Sessions.TryRemove(id, out _);
+        Sessions[id] = new List<string>();
+    }
 }

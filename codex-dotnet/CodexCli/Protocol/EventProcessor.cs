@@ -61,6 +61,35 @@ public class EventProcessor
             case PatchApplyApprovalRequestEvent pr:
                 AnsiConsole.MarkupLine($"{ts} [yellow]patch approval required:[/] {Markup.Escape(pr.PatchSummary)}");
                 break;
+            case PatchApplyBeginEvent pb:
+                AnsiConsole.MarkupLine($"{ts} [magenta]apply_patch[/] auto_approved={pb.AutoApproved}:");
+                foreach (var (path, _) in pb.Changes)
+                    AnsiConsole.MarkupLine($"[magenta]{Markup.Escape(path)}[/]");
+                break;
+            case PatchApplyEndEvent pe:
+                var style2 = pe.Success ? _green : _red;
+                var title2 = pe.Success ? "succeeded" : "failed";
+                AnsiConsole.MarkupLine($"{ts} [magenta]apply_patch[/] [bold]{title2}[/]");
+                foreach (var line in (pe.Success ? pe.Stdout : pe.Stderr).Split('\n').Take(20))
+                    AnsiConsole.MarkupLine($"[dim]{Markup.Escape(line)}[/]");
+                break;
+            case McpToolCallBeginEvent mc:
+                var inv = $"{mc.Server}.{mc.Tool}" + (string.IsNullOrEmpty(mc.ArgumentsJson) ? "()" : $"({Markup.Escape(mc.ArgumentsJson)})");
+                AnsiConsole.MarkupLine($"{ts} [magenta]tool[/] [bold]{inv}[/]");
+                break;
+            case McpToolCallEndEvent mce:
+                var title3 = mce.IsSuccess ? "success" : "failed";
+                AnsiConsole.MarkupLine($"{ts} [magenta]tool[/] {title3}:");
+                foreach (var line in mce.ResultJson.Split('\n').Take(20))
+                    AnsiConsole.MarkupLine($"[dim]{Markup.Escape(line)}[/]");
+                break;
+            case AgentReasoningEvent ar:
+                AnsiConsole.MarkupLine($"{ts} [italic]{Markup.Escape(ar.Text)}[/]");
+                break;
+            case SessionConfiguredEvent sc:
+                AnsiConsole.MarkupLine($"{ts} [bold magenta]codex session[/] [dim]{sc.SessionId}[/]");
+                AnsiConsole.MarkupLine($"{ts} model: {sc.Model}");
+                break;
             case TaskCompleteEvent tc:
                 AnsiConsole.MarkupLine($"{ts} task complete");
                 if (tc.LastAgentMessage != null)
