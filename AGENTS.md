@@ -77,5 +77,16 @@
 58. Added `ReasoningEffort` and `ReasoningSummary` enums with binder support.
 59. Implemented session history retrieval via `SessionManager.GetHistory` (existing but now documented).
 60. Added tests for profile loading, project doc instructions, and updated binder tests.
+- Added hide-agent-reasoning and disable-response-storage settings in config and CLI
+61. EventProcessor now accepts a flag to hide reasoning events
+62. Config loader parses hide_agent_reasoning and disable_response_storage fields
+63. Profiles can override approval_policy and disable_response_storage
+64. Exec and interactive commands bind --hide-agent-reasoning and --disable-response-storage options
+65. Login command accepts --token and --api-key arguments
+66. Binder tests updated for new options
+67. AppConfigProfileTests verify new fields
+68. Interactive /config command shows reasoning/storage settings
+69. EventProcessor prints storage status in summary
+70. Added flags to ExecOptions and InteractiveOptions
 - Build verified with `dotnet build`.
 - Tests run with `dotnet test`.

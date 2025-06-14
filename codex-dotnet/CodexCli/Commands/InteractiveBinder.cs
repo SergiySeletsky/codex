@@ -21,12 +21,15 @@ public class InteractiveBinder : BinderBase<InteractiveOptions>
     private readonly Option<ReasoningEffort?> _effort;
     private readonly Option<ReasoningSummary?> _summary;
     private readonly Option<string?> _instructions;
+    private readonly Option<bool?> _hideReasoning;
+    private readonly Option<bool?> _disableStorage;
 
     public InteractiveBinder(Argument<string?> prompt, Option<FileInfo[]> images, Option<string?> model,
         Option<string?> profile, Option<string?> provider, Option<bool> fullAuto, Option<ApprovalMode?> approval,
         Option<string[]> sandbox, Option<ColorMode> color, Option<bool> skipGit, Option<string?> cwd,
         Option<string[]> notify, Option<string[]> overrides, Option<ReasoningEffort?> effort,
-        Option<ReasoningSummary?> summary, Option<string?> instructions)
+        Option<ReasoningSummary?> summary, Option<string?> instructions,
+        Option<bool?> hideReasoning, Option<bool?> disableStorage)
     {
         _prompt = prompt;
         _images = images;
@@ -44,6 +47,8 @@ public class InteractiveBinder : BinderBase<InteractiveOptions>
         _effort = effort;
         _summary = summary;
         _instructions = instructions;
+        _hideReasoning = hideReasoning;
+        _disableStorage = disableStorage;
     }
 
     protected override InteractiveOptions GetBoundValue(BindingContext bindingContext)
@@ -65,7 +70,9 @@ public class InteractiveBinder : BinderBase<InteractiveOptions>
             bindingContext.ParseResult.GetValueForOption(_overrides) ?? Array.Empty<string>(),
             bindingContext.ParseResult.GetValueForOption(_effort),
             bindingContext.ParseResult.GetValueForOption(_summary),
-            bindingContext.ParseResult.GetValueForOption(_instructions)
+            bindingContext.ParseResult.GetValueForOption(_instructions),
+            bindingContext.ParseResult.GetValueForOption(_hideReasoning),
+            bindingContext.ParseResult.GetValueForOption(_disableStorage)
         );
     }
 }

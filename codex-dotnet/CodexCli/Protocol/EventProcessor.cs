@@ -11,21 +11,26 @@ public class EventProcessor
     private readonly Style _red;
     private readonly Style _green;
 
-    public EventProcessor(bool withAnsi)
+    private readonly bool _showReasoning;
+
+    public EventProcessor(bool withAnsi, bool showReasoning)
     {
         _bold = withAnsi ? new Style(decoration: Decoration.Bold) : Style.Plain;
         _cyan = withAnsi ? new Style(foreground: Color.CadetBlue) : Style.Plain;
         _dim = withAnsi ? new Style(decoration: Decoration.Dim) : Style.Plain;
         _red = withAnsi ? new Style(foreground: Color.Red) : Style.Plain;
         _green = withAnsi ? new Style(foreground: Color.Green) : Style.Plain;
+        _showReasoning = showReasoning;
     }
 
-    public void PrintConfigSummary(string model, string provider, string cwd, string prompt)
+    public void PrintConfigSummary(string model, string provider, string cwd, string prompt, bool disableStorage)
     {
         AnsiConsole.MarkupLine($"[grey]{Elapsed.Timestamp()}[/] [bold]model:[/] {model}");
         if (!string.IsNullOrEmpty(provider))
             AnsiConsole.MarkupLine($"[grey]{Elapsed.Timestamp()}[/] [bold]provider:[/] {provider}");
         AnsiConsole.MarkupLine($"[grey]{Elapsed.Timestamp()}[/] [bold]cwd:[/] {cwd}");
+        if (disableStorage)
+            AnsiConsole.MarkupLine($"[grey]{Elapsed.Timestamp()}[/] [bold]response storage:[/] disabled");
         AnsiConsole.MarkupLine("--------");
         AnsiConsole.MarkupLine($"[grey]{Elapsed.Timestamp()}[/] [bold cyan]User instructions:[/]\n{prompt}");
     }
@@ -86,7 +91,8 @@ public class EventProcessor
                     AnsiConsole.MarkupLine($"[dim]{Markup.Escape(line)}[/]");
                 break;
             case AgentReasoningEvent ar:
-                AnsiConsole.MarkupLine($"{ts} [italic]{Markup.Escape(ar.Text)}[/]");
+                if (_showReasoning)
+                    AnsiConsole.MarkupLine($"{ts} [italic]{Markup.Escape(ar.Text)}[/]");
                 break;
             case SessionConfiguredEvent sc:
                 AnsiConsole.MarkupLine($"{ts} [bold magenta]codex session[/] [dim]{sc.SessionId}[/]");

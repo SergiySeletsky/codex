@@ -23,13 +23,16 @@ public class ExecBinder : BinderBase<ExecOptions>
     private readonly Option<ReasoningEffort?> _effort;
     private readonly Option<ReasoningSummary?> _summary;
     private readonly Option<string?> _instructions;
+    private readonly Option<bool?> _hideReasoning;
+    private readonly Option<bool?> _disableStorage;
 
     public ExecBinder(Argument<string?> prompt, Option<FileInfo[]> images, Option<string?> model,
         Option<string?> profile, Option<string?> provider, Option<bool> fullAuto,
         Option<ApprovalMode?> approval, Option<string[]> sandbox, Option<ColorMode> color,
         Option<string?> cwd, Option<string?> lastMessage, Option<bool> skipGit,
         Option<string[]> notify, Option<string[]> overrides, Option<ReasoningEffort?> effort,
-        Option<ReasoningSummary?> summary, Option<string?> instructions)
+        Option<ReasoningSummary?> summary, Option<string?> instructions,
+        Option<bool?> hideReasoning, Option<bool?> disableStorage)
     {
         _prompt = prompt;
         _images = images;
@@ -48,6 +51,8 @@ public class ExecBinder : BinderBase<ExecOptions>
         _effort = effort;
         _summary = summary;
         _instructions = instructions;
+        _hideReasoning = hideReasoning;
+        _disableStorage = disableStorage;
     }
 
     protected override ExecOptions GetBoundValue(BindingContext bindingContext)
@@ -73,7 +78,9 @@ public class ExecBinder : BinderBase<ExecOptions>
             bindingContext.ParseResult.GetValueForOption(_overrides) ?? Array.Empty<string>(),
             bindingContext.ParseResult.GetValueForOption(_effort),
             bindingContext.ParseResult.GetValueForOption(_summary),
-            bindingContext.ParseResult.GetValueForOption(_instructions)
+            bindingContext.ParseResult.GetValueForOption(_instructions),
+            bindingContext.ParseResult.GetValueForOption(_hideReasoning),
+            bindingContext.ParseResult.GetValueForOption(_disableStorage)
         );
     }
 }

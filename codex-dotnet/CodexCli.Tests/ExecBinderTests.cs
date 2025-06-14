@@ -26,25 +26,31 @@ public class ExecBinderTests
         var effortOpt = new Option<ReasoningEffort?>("--reasoning-effort");
         var summaryOpt = new Option<ReasoningSummary?>("--reasoning-summary");
         var instrOpt = new Option<string?>("--instructions");
+        var hideReasonOpt = new Option<bool?>("--hide-agent-reasoning");
+        var disableStorageOpt = new Option<bool?>("--disable-response-storage");
 
         var binder = new ExecBinder(promptArg, imagesOpt, modelOpt, profileOpt, providerOpt,
             fullAutoOpt, approvalOpt, sandboxOpt, colorOpt, cwdOpt, lastOpt, skipGitOpt,
-            notifyOpt, overridesOpt, effortOpt, summaryOpt, instrOpt);
+            notifyOpt, overridesOpt, effortOpt, summaryOpt, instrOpt, hideReasonOpt, disableStorageOpt);
 
         var cmd = new Command("exec");
         cmd.AddArgument(promptArg);
         cmd.AddOption(modelOpt);
         cmd.AddOption(fullAutoOpt);
+        cmd.AddOption(hideReasonOpt);
+        cmd.AddOption(disableStorageOpt);
         ExecOptions? captured = null;
         cmd.SetHandler((ExecOptions o) => captured = o, binder);
         var root = new RootCommand();
         root.AddCommand(cmd);
 
-        await root.InvokeAsync("exec hello --model gpt-4 --full-auto");
+        await root.InvokeAsync("exec hello --model gpt-4 --full-auto --hide-agent-reasoning --disable-response-storage");
 
         Assert.NotNull(captured);
         Assert.Equal("hello", captured!.Prompt);
         Assert.Equal("gpt-4", captured.Model);
         Assert.True(captured.FullAuto);
+        Assert.True(captured.HideAgentReasoning);
+        Assert.True(captured.DisableResponseStorage);
     }
 }

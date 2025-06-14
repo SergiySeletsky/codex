@@ -25,25 +25,31 @@ public class InteractiveBinderTests
         var effortOpt = new Option<ReasoningEffort?>("--reasoning-effort");
         var summaryOpt = new Option<ReasoningSummary?>("--reasoning-summary");
         var instrOpt = new Option<string?>("--instructions");
+        var hideReasonOpt = new Option<bool?>("--hide-agent-reasoning");
+        var disableStorageOpt = new Option<bool?>("--disable-response-storage");
 
         var binder = new InteractiveBinder(promptArg, imagesOpt, modelOpt, profileOpt, providerOpt,
             fullAutoOpt, approvalOpt, sandboxOpt, colorOpt, skipGitOpt, cwdOpt, notifyOpt, overridesOpt,
-            effortOpt, summaryOpt, instrOpt);
+            effortOpt, summaryOpt, instrOpt, hideReasonOpt, disableStorageOpt);
 
         var cmd = new Command("interactive");
         cmd.AddArgument(promptArg);
         cmd.AddOption(fullAutoOpt);
         cmd.AddOption(skipGitOpt);
+        cmd.AddOption(hideReasonOpt);
+        cmd.AddOption(disableStorageOpt);
         InteractiveOptions? captured = null;
         cmd.SetHandler((InteractiveOptions o) => captured = o, binder);
         var root = new RootCommand();
         root.AddCommand(cmd);
 
-        await root.InvokeAsync("interactive hello --full-auto --skip-git-repo-check");
+        await root.InvokeAsync("interactive hello --full-auto --skip-git-repo-check --hide-agent-reasoning --disable-response-storage");
 
         Assert.NotNull(captured);
         Assert.True(captured!.FullAuto);
         Assert.True(captured.SkipGitRepoCheck);
         Assert.Equal("hello", captured.Prompt);
+        Assert.True(captured.HideAgentReasoning);
+        Assert.True(captured.DisableResponseStorage);
     }
 }

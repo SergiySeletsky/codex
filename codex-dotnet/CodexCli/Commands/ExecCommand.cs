@@ -27,6 +27,8 @@ public static class ExecCommand
         var effortOpt = new Option<ReasoningEffort?>("--reasoning-effort");
         var summaryOpt = new Option<ReasoningSummary?>("--reasoning-summary");
         var instrOpt = new Option<string?>("--instructions", "Path to instructions file");
+        var hideReasonOpt = new Option<bool?>("--hide-agent-reasoning", "Hide reasoning events");
+        var disableStorageOpt = new Option<bool?>("--disable-response-storage", "Disable response storage");
 
         var cmd = new Command("exec", "Run Codex non-interactively");
         cmd.AddArgument(promptArg);
@@ -46,10 +48,12 @@ public static class ExecCommand
         cmd.AddOption(effortOpt);
         cmd.AddOption(summaryOpt);
         cmd.AddOption(instrOpt);
+        cmd.AddOption(hideReasonOpt);
+        cmd.AddOption(disableStorageOpt);
 
         var binder = new ExecBinder(promptArg, imagesOpt, modelOpt, profileOpt, providerOpt, fullAutoOpt,
             approvalOpt, sandboxOpt, colorOpt, cwdOpt, lastMsgOpt, skipGitOpt, notifyOpt, overridesOpt,
-            effortOpt, summaryOpt, instrOpt);
+            effortOpt, summaryOpt, instrOpt, hideReasonOpt, disableStorageOpt);
 
         cmd.SetHandler(async (ExecOptions opts, string? cfgPath, string? cd) =>
         {
@@ -104,12 +108,15 @@ public static class ExecCommand
 
             var apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
             var client = new OpenAIClient(apiKey);
-            var processor = new CodexCli.Protocol.EventProcessor(opts.Color != ColorMode.Never);
+            bool hideReason = opts.HideAgentReasoning ?? cfg?.HideAgentReasoning ?? false;
+            bool disableStorage = opts.DisableResponseStorage ?? cfg?.DisableResponseStorage ?? false;
+            var processor = new CodexCli.Protocol.EventProcessor(opts.Color != ColorMode.Never, !hideReason);
             processor.PrintConfigSummary(
                 opts.Model ?? cfg?.Model ?? "default",
                 opts.ModelProvider ?? cfg?.ModelProvider ?? string.Empty,
                 Environment.CurrentDirectory,
-                prompt.Trim());
+                prompt.Trim(),
+                disableStorage);
 
             await foreach (var ev in CodexCli.Protocol.MockCodexAgent.RunAsync(prompt))
             {

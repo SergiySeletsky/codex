@@ -11,6 +11,8 @@ public class AppConfig
     public string? ModelProvider { get; set; }
     public string? CodexHome { get; set; }
     public string? Instructions { get; set; }
+    public bool HideAgentReasoning { get; set; }
+    public bool DisableResponseStorage { get; set; }
     public Dictionary<string, ConfigProfile> Profiles { get; set; } = new();
 
     public static AppConfig Load(string path, string? profile = null)
@@ -24,6 +26,10 @@ public class AppConfig
         if (model.TryGetValue("model_provider", out var mp)) cfg.ModelProvider = mp?.ToString();
         if (model.TryGetValue("codex_home", out var h)) cfg.CodexHome = h?.ToString();
         if (model.TryGetValue("instructions", out var inst)) cfg.Instructions = inst?.ToString();
+        if (model.TryGetValue("hide_agent_reasoning", out var har))
+            cfg.HideAgentReasoning = har is bool hb ? hb : bool.TryParse(har?.ToString(), out var b) && b;
+        if (model.TryGetValue("disable_response_storage", out var drsVal))
+            cfg.DisableResponseStorage = drsVal is bool db ? db : bool.TryParse(drsVal?.ToString(), out var b2) && b2;
         if (model.TryGetValue("profiles", out var profs) && profs is IDictionary<string, object?> pmap)
         {
             foreach (var (k, v) in pmap)
@@ -34,8 +40,8 @@ public class AppConfig
                     if (pm.TryGetValue("model", out var m2)) cp.Model = m2?.ToString();
                     if (pm.TryGetValue("model_provider", out var mp2)) cp.ModelProvider = mp2?.ToString();
                     if (pm.TryGetValue("approval_policy", out var ap) && Enum.TryParse<ApprovalMode>(ap?.ToString(), true, out var apv)) cp.ApprovalPolicy = apv;
-                    if (pm.TryGetValue("disable_response_storage", out var drs))
-                        cp.DisableResponseStorage = Toml.ToModel($"_x_ = {drs}").TryGetValue("_x_", out var val) && bool.TryParse(val?.ToString(), out var b) ? b : (bool?)null;
+                    if (pm.TryGetValue("disable_response_storage", out var drs2))
+                        cp.DisableResponseStorage = drs2 is bool db ? db : bool.TryParse(drs2?.ToString(), out var b) ? b : (bool?)null;
                     cfg.Profiles[k] = cp;
                 }
             }
@@ -51,7 +57,11 @@ public class AppConfig
         {
             if (p.Model != null) cfg.Model = p.Model;
             if (p.ModelProvider != null) cfg.ModelProvider = p.ModelProvider;
+            if (p.ApprovalPolicy != null) cfg.ApprovalPolicy = p.ApprovalPolicy.Value;
+            if (p.DisableResponseStorage != null) cfg.DisableResponseStorage = p.DisableResponseStorage.Value;
         }
         return cfg;
     }
+
+    public ApprovalMode ApprovalPolicy { get; set; } = ApprovalMode.UnlessAllowListed;
 }

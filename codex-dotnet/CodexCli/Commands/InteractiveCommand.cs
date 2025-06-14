@@ -27,6 +27,8 @@ public static class InteractiveCommand
         var effortOpt = new Option<ReasoningEffort?>("--reasoning-effort");
         var summaryOpt = new Option<ReasoningSummary?>("--reasoning-summary");
         var instrOpt = new Option<string?>("--instructions");
+        var hideReasonOpt = new Option<bool?>("--hide-agent-reasoning");
+        var disableStorageOpt = new Option<bool?>("--disable-response-storage");
 
         var cmd = new Command("interactive", "Run interactive TUI session");
         cmd.AddArgument(promptArg);
@@ -45,10 +47,12 @@ public static class InteractiveCommand
         cmd.AddOption(effortOpt);
         cmd.AddOption(summaryOpt);
         cmd.AddOption(instrOpt);
+        cmd.AddOption(hideReasonOpt);
+        cmd.AddOption(disableStorageOpt);
 
         var binder = new InteractiveBinder(promptArg, imagesOpt, modelOpt, profileOpt, providerOpt,
             fullAutoOpt, approvalOpt, sandboxOpt, colorOpt, skipGitOpt, cwdOpt, notifyOpt, overridesOpt,
-            effortOpt, summaryOpt, instrOpt);
+            effortOpt, summaryOpt, instrOpt, hideReasonOpt, disableStorageOpt);
 
         cmd.SetHandler(async (InteractiveOptions opts, string? cfgPath, string? cd) =>
         {
@@ -147,6 +151,8 @@ public static class InteractiveCommand
                     AnsiConsole.MarkupLine($"Model: [blue]{cfg.Model}[/]");
                     var codexHome = cfg.CodexHome ?? EnvUtils.FindCodexHome();
                     AnsiConsole.MarkupLine($"CodexHome: [blue]{codexHome}[/]");
+                    AnsiConsole.MarkupLine($"Hide reasoning: [blue]{cfg.HideAgentReasoning}[/]");
+                    AnsiConsole.MarkupLine($"Disable storage: [blue]{cfg.DisableResponseStorage}[/]");
                 }
                 else
                 {

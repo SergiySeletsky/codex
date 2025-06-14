@@ -16,4 +16,6 @@ public record InteractiveOptions(
     string[] Overrides,
     ReasoningEffort? ReasoningEffort,
     ReasoningSummary? ReasoningSummary,
-    string? InstructionsPath);
+    string? InstructionsPath,
+    bool? HideAgentReasoning,
+    bool? DisableResponseStorage);
