@@ -1,6 +1,7 @@
 using System.CommandLine;
 using CodexCli.Config;
 using CodexCli.Util;
+using CodexCli.Config;
 using CodexCli.Protocol;
 using CodexCli.ApplyPatch;
 using System.Linq;
@@ -81,6 +82,7 @@ public static class ExecCommand
             if (!string.IsNullOrEmpty(cfgPath) && File.Exists(cfgPath))
                 cfg = AppConfig.Load(cfgPath, opts.Profile);
 
+            SessionManager.SetPersistence(cfg?.History.Persistence ?? HistoryPersistence.SaveAll);
             var sessionId = SessionManager.CreateSession();
             StreamWriter? logWriter = null;
             if (opts.EventLogFile != null)
@@ -308,8 +310,10 @@ public static class ExecCommand
                                     }
                                     File.WriteAllLines(full, lines);
                                     break;
-                            }
+                                }
                         }
+                        break;
+                    case TaskStartedEvent tsEvent:
                         break;
                     case TaskCompleteEvent tc:
                         if (providerId == "mock")

@@ -15,6 +15,7 @@ public static async IAsyncEnumerable<Event> RunAsync(string prompt, IReadOnlyLis
         await Task.Delay(10);
     }
         yield return new SessionConfiguredEvent(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), "gpt-4");
+        yield return new TaskStartedEvent(Guid.NewGuid().ToString());
         await Task.Delay(50);
         var msgId = Guid.NewGuid().ToString();
         yield return new AgentMessageEvent(msgId, $"Echoing: {prompt.Trim()}");

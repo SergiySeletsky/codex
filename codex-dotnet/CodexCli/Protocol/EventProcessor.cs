@@ -114,6 +114,9 @@ public class EventProcessor
                 else
                     AnsiConsole.MarkupLine($"{ts} history entry {ge.Offset} not found");
                 break;
+            case TaskStartedEvent tsE:
+                AnsiConsole.MarkupLine($"{ts} task started");
+                break;
             case TaskCompleteEvent tc:
                 AnsiConsole.MarkupLine($"{ts} task complete");
                 if (tc.LastAgentMessage != null)

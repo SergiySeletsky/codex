@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using System;
 using System.IO;
+using CodexCli.Config;
 
 namespace CodexCli.Util;
 
@@ -9,6 +10,12 @@ public static class SessionManager
     private static readonly ConcurrentDictionary<string, List<string>> Sessions = new();
     private static readonly ConcurrentDictionary<string, string> SessionFiles = new();
     private static readonly ConcurrentDictionary<string, DateTime> SessionStarts = new();
+    private static HistoryPersistence PersistenceMode = HistoryPersistence.SaveAll;
+
+    public static void SetPersistence(HistoryPersistence mode)
+    {
+        PersistenceMode = mode;
+    }
 
     public static string CreateSession()
     {
@@ -19,7 +26,8 @@ public static class SessionManager
         var file = Path.Combine(dir, id + ".txt");
         SessionFiles[id] = file;
         SessionStarts[id] = DateTime.UtcNow;
-        File.WriteAllText(file, $"# started {SessionStarts[id]:o}\n");
+        if (PersistenceMode == HistoryPersistence.SaveAll)
+            File.WriteAllText(file, $"# started {SessionStarts[id]:o}\n");
         return id;
     }
 
@@ -28,7 +36,7 @@ public static class SessionManager
         if (Sessions.TryGetValue(id, out var list))
         {
             list.Add(line);
-            if (SessionFiles.TryGetValue(id, out var path))
+            if (PersistenceMode == HistoryPersistence.SaveAll && SessionFiles.TryGetValue(id, out var path))
                 File.AppendAllText(path, line + Environment.NewLine);
         }
     }

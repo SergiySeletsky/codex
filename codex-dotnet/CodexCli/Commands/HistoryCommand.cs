@@ -49,6 +49,13 @@ public static class HistoryCommand
             Console.WriteLine("All sessions deleted");
         });
 
+        var infoCmd = new Command("info", "List sessions with start times");
+        infoCmd.SetHandler(() =>
+        {
+            foreach (var info in SessionManager.ListSessionsWithInfo())
+                Console.WriteLine($"{info.Id} {info.Start:o}");
+        });
+
         var entryCmd = new Command("entry", "Show a single history entry");
         var offsetArg = new Argument<int>("offset", "Entry offset");
         entryCmd.AddArgument(idArg);
@@ -67,6 +74,7 @@ public static class HistoryCommand
         root.AddCommand(pathCmd);
         root.AddCommand(purgeCmd);
         root.AddCommand(entryCmd);
+        root.AddCommand(infoCmd);
         return root;
     }
 }

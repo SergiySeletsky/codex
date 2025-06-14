@@ -17,6 +17,9 @@ public class AppConfig
     public ReasoningEffort? ModelReasoningEffort { get; set; }
     public ReasoningSummary? ModelReasoningSummary { get; set; }
     public ShellEnvironmentPolicy ShellEnvironmentPolicy { get; set; } = new();
+    public History History { get; set; } = new();
+    public UriBasedFileOpener FileOpener { get; set; } = UriBasedFileOpener.None;
+    public Tui Tui { get; set; } = new();
     public Dictionary<string, ModelProviderInfo> ModelProviders { get; set; } = new();
     public Dictionary<string, ConfigProfile> Profiles { get; set; } = new();
 
@@ -53,6 +56,20 @@ public class AppConfig
                 cfg.ShellEnvironmentPolicy.Set = setd.ToDictionary(kv => kv.Key, kv => kv.Value?.ToString() ?? string.Empty);
             if (sepd.TryGetValue("include_only", out var inc) && inc is object[] incArr)
                 cfg.ShellEnvironmentPolicy.IncludeOnly = incArr.Select(o => EnvironmentVariablePattern.CaseInsensitive(o?.ToString() ?? string.Empty)).ToList();
+        }
+        if (model.TryGetValue("history", out var hist) && hist is IDictionary<string, object?> hmap)
+        {
+            if (hmap.TryGetValue("persistence", out var pval) && Enum.TryParse<HistoryPersistence>(pval?.ToString(), true, out var pv))
+                cfg.History.Persistence = pv;
+            if (hmap.TryGetValue("max_bytes", out var mb) && int.TryParse(mb?.ToString(), out var mbv))
+                cfg.History.MaxBytes = mbv;
+        }
+        if (model.TryGetValue("file_opener", out var fo) && Enum.TryParse<UriBasedFileOpener>(fo?.ToString(), true, out var fov))
+            cfg.FileOpener = fov;
+        if (model.TryGetValue("tui", out var tuiVal) && tuiVal is IDictionary<string, object?> tm)
+        {
+            if (tm.TryGetValue("disable_mouse_capture", out var dmc))
+                cfg.Tui.DisableMouseCapture = dmc is bool b3 ? b3 : bool.TryParse(dmc?.ToString(), out var tb) && tb;
         }
         if (model.TryGetValue("model_providers", out var mpMap) && mpMap is IDictionary<string, object?> provMap)
         {

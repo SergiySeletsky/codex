@@ -140,6 +140,7 @@ public static class InteractiveCommand
 
     private static void RunInteractive(InteractiveOptions opts, AppConfig? cfg)
     {
+        SessionManager.SetPersistence(cfg?.History.Persistence ?? HistoryPersistence.SaveAll);
         var sessionId = SessionManager.CreateSession();
         var history = new List<string>();
         string? lastMessage = null;

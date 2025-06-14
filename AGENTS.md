@@ -235,7 +235,14 @@
 214. Added LoginBinder and LoginOptions classes
 215. Updated binder tests for new options
 216. Build and tests updated for .NET 8
+217. Added HistoryPersistence, UriBasedFileOpener and Tui parsing in AppConfig
+218. SessionManager respects HistoryPersistence setting
+219. Exec and Interactive commands configure SessionManager persistence
+220. Added TaskStartedEvent and EventProcessor handling
+221. MockCodexAgent emits TaskStartedEvent
+222. History command gained info subcommand listing sessions with start times
+223. Added AppConfigExtraTests for new config fields
 
 ## TODO Next Run
-- Verify new env policy features across all commands
+- Verify history persistence and task start handling
 - Continue migrating remaining Rust features
