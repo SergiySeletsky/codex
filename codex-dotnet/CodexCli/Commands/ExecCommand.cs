@@ -2,7 +2,9 @@ using System.CommandLine;
 using CodexCli.Config;
 using CodexCli.Util;
 using CodexCli.Protocol;
+using CodexCli.ApplyPatch;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace CodexCli.Commands;
 
@@ -177,12 +179,13 @@ public static class ExecCommand
                         break;
                     case ExecApprovalRequestEvent ar:
                         var prog = ar.Command.First();
+                        var args = ar.Command.Skip(1).ToArray();
                         if (execPolicy.IsForbidden(prog))
                         {
                             Console.WriteLine($"Denied '{string.Join(" ", ar.Command)}' ({execPolicy.GetReason(prog)})");
                             break;
                         }
-                        if (!execPolicy.IsAllowed(prog))
+                        if (!execPolicy.VerifyCommand(prog, args))
                         {
                             Console.WriteLine($"Denied '{string.Join(" ", ar.Command)}' (unverified)");
                             break;
@@ -211,10 +214,30 @@ public static class ExecCommand
                                 case DeleteFileChange:
                                     if (File.Exists(path)) File.Delete(path);
                                     break;
-                                case UpdateFileChange upd:
+                               case UpdateFileChange upd:
                                     var full = Path.GetFullPath(path);
-                                    var text = File.Exists(full) ? File.ReadAllText(full) : string.Empty;
-                                    File.WriteAllText(full, text + "\n" + upd.UnifiedDiff);
+                                    var lines = File.Exists(full) ? File.ReadAllLines(full).ToList() : new List<string>();
+                                    var difflines = PatchParser.ParseUnified(upd.UnifiedDiff);
+                                    int idx2 = 0;
+                                    foreach (var ln in difflines)
+                                    {
+                                        if (ln.StartsWith("+"))
+                                        {
+                                            lines.Insert(idx2, ln.Substring(1));
+                                            idx2++;
+                                        }
+                                        else if (ln.StartsWith("-"))
+                                        {
+                                            if (idx2 < lines.Count && lines[idx2] == ln.Substring(1))
+                                                lines.RemoveAt(idx2);
+                                        }
+                                        else
+                                        {
+                                            if (idx2 < lines.Count && lines[idx2] == ln.TrimStart(' '))
+                                                idx2++;
+                                        }
+                                    }
+                                    File.WriteAllLines(full, lines);
                                     break;
                             }
                         }

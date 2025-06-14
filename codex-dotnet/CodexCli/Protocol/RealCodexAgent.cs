@@ -7,9 +7,13 @@ public static class RealCodexAgent
     public static async IAsyncEnumerable<Event> RunAsync(string prompt, OpenAIClient client, string model)
     {
         yield return new SessionConfiguredEvent(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), model);
-        var response = await client.ChatAsync(prompt);
         var msgId = Guid.NewGuid().ToString();
-        yield return new AgentMessageEvent(msgId, response);
-        yield return new TaskCompleteEvent(Guid.NewGuid().ToString(), response);
+        var full = new System.Text.StringBuilder();
+        await foreach (var chunk in client.ChatStreamAsync(prompt))
+        {
+            full.Append(chunk);
+            yield return new AgentMessageEvent(msgId, chunk);
+        }
+        yield return new TaskCompleteEvent(Guid.NewGuid().ToString(), full.ToString());
     }
 }

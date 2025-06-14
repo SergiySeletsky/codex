@@ -187,8 +187,16 @@
 170. ExecPolicyTests verify forbidden reason
 171. ChatGptLoginTests ensure failure case handled
 
+172. RealCodexAgent streams chat chunks via OpenAIClient.ChatStreamAsync
+173. ExecPolicy parses flags and opts from policy file
+174. ExecPolicy.VerifyCommand validates option usage
+175. ExecCommand uses VerifyCommand for approval checks
+176. CODEX_EXEC_POLICY_PATH overrides default policy path
+177. ProviderCommand supports add subcommand
+178. ProviderCommand supports remove subcommand
+179. ProviderCommand supports set-default subcommand
+180. ExecPolicyTests cover VerifyCommand
+181. ProviderCommandTests cover add/remove/set-default
+
 ## TODO Next Run
-- Stream responses from RealCodexAgent
-- Parse policy file for flags and options
-- Expand provider command with add/remove functionality
 - Improve ApplyPatch diff algorithm

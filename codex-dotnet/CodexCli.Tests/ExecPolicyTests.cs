@@ -17,4 +17,18 @@ public class ExecPolicyTests
         Assert.True(policy.IsForbidden("rm"));
         Assert.Equal("dangerous", policy.GetReason("rm"));
     }
+
+    [Fact]
+    public void VerifyCommand_AllowsExpectedFlags()
+    {
+        var policy = ExecPolicy.LoadDefault();
+        Assert.True(policy.VerifyCommand("ls", new[] { "-l" }));
+    }
+
+    [Fact]
+    public void VerifyCommand_RejectsUnknownFlag()
+    {
+        var policy = ExecPolicy.LoadDefault();
+        Assert.False(policy.VerifyCommand("ls", new[] { "--foo" }));
+    }
 }
