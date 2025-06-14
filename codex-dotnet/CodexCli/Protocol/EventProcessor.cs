@@ -1,4 +1,5 @@
 using CodexCli.Util;
+using CodexCli.Config;
 using CodexCli.Commands;
 using Spectre.Console;
 
@@ -13,8 +14,10 @@ public class EventProcessor
     private readonly Style _green;
 
     private readonly bool _showReasoning;
+    private readonly UriBasedFileOpener _fileOpener;
+    private readonly string _cwd;
 
-    public EventProcessor(bool withAnsi, bool showReasoning)
+    public EventProcessor(bool withAnsi, bool showReasoning, UriBasedFileOpener opener, string cwd)
     {
         _bold = withAnsi ? new Style(decoration: Decoration.Bold) : Style.Plain;
         _cyan = withAnsi ? new Style(foreground: Color.CadetBlue) : Style.Plain;
@@ -22,6 +25,8 @@ public class EventProcessor
         _red = withAnsi ? new Style(foreground: Color.Red) : Style.Plain;
         _green = withAnsi ? new Style(foreground: Color.Green) : Style.Plain;
         _showReasoning = showReasoning;
+        _fileOpener = opener;
+        _cwd = cwd;
     }
 
     public void PrintConfigSummary(string model, string provider, string cwd, string sandbox, string prompt, bool disableStorage, ReasoningEffort? effort, ReasoningSummary? summary, string logLevel)
@@ -48,7 +53,8 @@ public class EventProcessor
         switch (ev)
         {
             case AgentMessageEvent msg:
-                AnsiConsole.MarkupLine($"{ts} [bold magenta]codex[/]\n{msg.Message}");
+                var text = MarkdownUtils.RewriteFileCitations(msg.Message, _fileOpener, _cwd);
+                AnsiConsole.MarkupLine($"{ts} [bold magenta]codex[/]\n{text}");
                 break;
             case BackgroundEvent bg:
                 AnsiConsole.MarkupLine($"{ts} [dim]{bg.Message}[/]");
@@ -120,7 +126,10 @@ public class EventProcessor
             case TaskCompleteEvent tc:
                 AnsiConsole.MarkupLine($"{ts} task complete");
                 if (tc.LastAgentMessage != null)
-                    AnsiConsole.MarkupLine($"{tc.LastAgentMessage}");
+                {
+                    var last = MarkdownUtils.RewriteFileCitations(tc.LastAgentMessage, _fileOpener, _cwd);
+                    AnsiConsole.MarkupLine(last);
+                }
                 break;
         }
     }

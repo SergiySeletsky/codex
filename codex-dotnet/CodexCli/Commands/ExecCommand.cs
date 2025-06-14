@@ -1,7 +1,6 @@
 using System.CommandLine;
 using CodexCli.Config;
 using CodexCli.Util;
-using CodexCli.Config;
 using CodexCli.Protocol;
 using CodexCli.ApplyPatch;
 using System.Linq;
@@ -170,7 +169,7 @@ public static class ExecCommand
             var sandboxLabel = opts.FullAuto
                 ? "full-auto"
                 : (sandboxList.Count > 0 ? string.Join(',', sandboxList.Select(s => s.ToString())) : "default");
-            var processor = new CodexCli.Protocol.EventProcessor(withAnsi, !hideReason);
+            var processor = new CodexCli.Protocol.EventProcessor(withAnsi, !hideReason, cfg?.FileOpener ?? UriBasedFileOpener.None, Environment.CurrentDirectory);
             processor.PrintConfigSummary(
                 opts.Model ?? cfg?.Model ?? "default",
                 opts.ModelProvider ?? cfg?.ModelProvider ?? string.Empty,

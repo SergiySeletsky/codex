@@ -242,7 +242,11 @@
 221. MockCodexAgent emits TaskStartedEvent
 222. History command gained info subcommand listing sessions with start times
 223. Added AppConfigExtraTests for new config fields
+224. Introduced MarkdownUtils with citation rewriting
+225. EventProcessor rewrites file citations in agent messages
+226. ExecCommand passes file opener to EventProcessor
+227. Added MarkdownUtilsTests verifying citation rewriting
 
 ## TODO Next Run
-- Verify history persistence and task start handling
-- Continue migrating remaining Rust features
+- Verify citation rewriting integration
+- Implement remaining Rust features
