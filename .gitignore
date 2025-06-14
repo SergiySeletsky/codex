@@ -27,6 +27,10 @@ result
 *.swp
 *~
 
+# .NET build artifacts
+codex-dotnet/**/bin/
+codex-dotnet/**/obj/
+
 # cli tools
 CLAUDE.md
 .claude/

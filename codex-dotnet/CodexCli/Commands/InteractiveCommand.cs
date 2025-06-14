@@ -28,12 +28,20 @@ public static class InteractiveCommand
 
     private static void RunInteractive()
     {
+        var history = new List<string>();
         AnsiConsole.MarkupLine("[green]Codex interactive mode[/]");
         while (true)
         {
-            var prompt = AnsiConsole.Ask<string>("Enter command (or 'quit'): ");
-            if (prompt.Equals("quit", StringComparison.OrdinalIgnoreCase))
+            var prompt = AnsiConsole.Ask<string>("cmd> ");
+            if (prompt.Equals("/quit", StringComparison.OrdinalIgnoreCase))
                 break;
+            if (prompt.Equals("/history", StringComparison.OrdinalIgnoreCase))
+            {
+                foreach (var item in history)
+                    AnsiConsole.MarkupLine($"[blue]{item}[/]");
+                continue;
+            }
+            history.Add(prompt);
             AnsiConsole.MarkupLine($"You typed: [blue]{prompt}[/]");
         }
     }

@@ -1,5 +1,7 @@
 using System.CommandLine;
 using CodexCli.Config;
+using CodexCli.Util;
+using System.Linq;
 
 namespace CodexCli.Commands;
 
@@ -7,18 +9,66 @@ public static class ExecCommand
 {
     public static Command Create(Option<string?> configOption, Option<string?> cdOption)
     {
-        var promptArg = new Argument<string>("prompt", () => string.Empty, "Prompt text");
+        var promptArg = new Argument<string?>("prompt", description: "Prompt text");
+        var imagesOpt = new Option<FileInfo[]>("--image", "Image attachments") { AllowMultipleArgumentsPerToken = true };
+        var modelOpt = new Option<string?>("--model", "Model to use");
+        var profileOpt = new Option<string?>("--profile", "Config profile");
+        var fullAutoOpt = new Option<bool>("--full-auto", () => false, "Run in full-auto mode");
+        var colorOpt = new Option<string>("--color", () => "auto", "Output color mode (always, never, auto)");
+        var lastMsgOpt = new Option<string?>("--output-last-message", "File to write last agent message");
+        var skipGitOpt = new Option<bool>("--skip-git-repo-check", () => false, "Allow running outside git repo");
+        var overridesOpt = new Option<string[]>("-c", description: "Config overrides") { AllowMultipleArgumentsPerToken = true };
+
         var cmd = new Command("exec", "Run Codex non-interactively");
         cmd.AddArgument(promptArg);
-        cmd.SetHandler(async (string prompt, string? cfgPath, string? cd) =>
+        cmd.AddOption(imagesOpt);
+        cmd.AddOption(modelOpt);
+        cmd.AddOption(profileOpt);
+        cmd.AddOption(fullAutoOpt);
+        cmd.AddOption(colorOpt);
+        cmd.AddOption(lastMsgOpt);
+        cmd.AddOption(skipGitOpt);
+        cmd.AddOption(overridesOpt);
+
+        var binder = new ExecBinder(promptArg, imagesOpt, modelOpt, profileOpt, fullAutoOpt,
+            colorOpt, lastMsgOpt, skipGitOpt, overridesOpt);
+
+        cmd.SetHandler(async (ExecOptions opts, string? cfgPath, string? cd) =>
         {
             if (cd != null) Environment.CurrentDirectory = cd;
             AppConfig? cfg = null;
             if (!string.IsNullOrEmpty(cfgPath) && File.Exists(cfgPath))
                 cfg = AppConfig.Load(cfgPath);
-            Console.WriteLine($"Exec prompt: {prompt}");
-            await Task.CompletedTask;
-        }, promptArg, configOption, cdOption);
+            if (!opts.SkipGitRepoCheck && !GitUtils.IsInsideGitRepo(Environment.CurrentDirectory))
+            {
+                Console.Error.WriteLine("Not inside a git repo. Use --skip-git-repo-check to override.");
+                return;
+            }
+
+            var prompt = opts.Prompt;
+            if (string.IsNullOrEmpty(prompt) || prompt == "-")
+            {
+                Console.WriteLine("Reading prompt from stdin...");
+                prompt = await Console.In.ReadToEndAsync();
+            }
+
+            var ov = ConfigOverrides.Parse(opts.Overrides);
+
+            Console.WriteLine($"Model: {opts.Model ?? cfg?.Model}");
+            Console.WriteLine($"Profile: {opts.Profile}");
+            Console.WriteLine($"Full auto: {opts.FullAuto}");
+            Console.WriteLine($"Color: {opts.Color}");
+            Console.WriteLine($"Images: {string.Join(',', opts.Images.Select(i => i.FullName))}");
+            Console.WriteLine($"Prompt: {prompt?.Trim()}");
+            if (ov.Overrides.Count > 0)
+            {
+                Console.WriteLine("Overrides:");
+                foreach (var kv in ov.Overrides)
+                    Console.WriteLine($"  {kv.Key}={kv.Value}");
+            }
+            if (opts.LastMessageFile != null)
+                await File.WriteAllTextAsync(opts.LastMessageFile, "(last message placeholder)");
+        }, binder, configOption, cdOption);
         return cmd;
     }
 }
