@@ -36,11 +36,13 @@ public class InteractiveBinderTests
         var envExcludeOpt = new Option<string[]>("--env-exclude") { AllowMultipleArgumentsPerToken = true };
         var envSetOpt = new Option<string[]>("--env-set") { AllowMultipleArgumentsPerToken = true };
         var envIncludeOpt = new Option<string[]>("--env-include-only") { AllowMultipleArgumentsPerToken = true };
+        var docMaxOpt = new Option<int?>("--project-doc-max-bytes");
+        var docPathOpt = new Option<string?>("--project-doc-path");
 
         var binder = new InteractiveBinder(promptArg, imagesOpt, modelOpt, profileOpt, providerOpt,
             fullAutoOpt, approvalOpt, sandboxOpt, colorOpt, skipGitOpt, cwdOpt, notifyOpt, overridesOpt,
             effortOpt, summaryOpt, instrOpt, hideReasonOpt, disableStorageOpt, lastMsgOpt, noProjDocOpt, logOpt,
-            envInheritOpt, envIgnoreOpt, envExcludeOpt, envSetOpt, envIncludeOpt);
+            envInheritOpt, envIgnoreOpt, envExcludeOpt, envSetOpt, envIncludeOpt, docMaxOpt, docPathOpt);
 
         var cmd = new Command("interactive");
         cmd.AddArgument(promptArg);

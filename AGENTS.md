@@ -278,8 +278,15 @@
 254. McpClientCommand prints results in JSON format when requested
 255. Added CreateServerEnv helper aligning with Rust defaults
 256. Extended JsonToTomlTests with array conversion
+257. Added project_doc_max_bytes config field with CLI overrides
+258. ProjectDoc.GetUserInstructions now accepts size and path overrides
+259. Exec and interactive commands expose --project-doc-max-bytes and --project-doc-path
+260. Added messages-watch subcommand to history command
+261. Implemented MessageHistory.WatchEntriesAsync API
+262. Added unit tests for project doc limit and message watching
 
 ## TODO Next Run
 - Port more Rust CLI features
 - Investigate hanging tests and fix
 - Expand MCP client functionality and add more protocol tests
+- Implement remaining MCP server features

@@ -38,6 +38,8 @@ public static class InteractiveCommand
         var envExcludeOpt = new Option<string[]>("--env-exclude") { AllowMultipleArgumentsPerToken = true };
         var envSetOpt = new Option<string[]>("--env-set") { AllowMultipleArgumentsPerToken = true };
         var envIncludeOpt = new Option<string[]>("--env-include-only") { AllowMultipleArgumentsPerToken = true };
+        var docMaxOpt = new Option<int?>("--project-doc-max-bytes", "Limit size of AGENTS.md to read");
+        var docPathOpt = new Option<string?>("--project-doc-path", "Explicit project doc path");
 
         var cmd = new Command("interactive", "Run interactive TUI session");
         cmd.AddArgument(promptArg);
@@ -66,11 +68,13 @@ public static class InteractiveCommand
         cmd.AddOption(envExcludeOpt);
         cmd.AddOption(envSetOpt);
         cmd.AddOption(envIncludeOpt);
+        cmd.AddOption(docMaxOpt);
+        cmd.AddOption(docPathOpt);
 
         var binder = new InteractiveBinder(promptArg, imagesOpt, modelOpt, profileOpt, providerOpt,
             fullAutoOpt, approvalOpt, sandboxOpt, colorOpt, skipGitOpt, cwdOpt, notifyOpt, overridesOpt,
             effortOpt, summaryOpt, instrOpt, hideReasonOpt, disableStorageOpt, lastMsgOpt, noProjDocOpt, eventLogOpt,
-            envInheritOpt, envIgnoreOpt, envExcludeOpt, envSetOpt, envIncludeOpt);
+            envInheritOpt, envIgnoreOpt, envExcludeOpt, envSetOpt, envIncludeOpt, docMaxOpt, docPathOpt);
 
         cmd.SetHandler(async (InteractiveOptions opts, string? cfgPath, string? cd) =>
         {
@@ -114,7 +118,7 @@ public static class InteractiveCommand
                 {
                     var inst = opts.InstructionsPath != null && File.Exists(opts.InstructionsPath)
                         ? File.ReadAllText(opts.InstructionsPath)
-                        : cfg != null ? ProjectDoc.GetUserInstructions(cfg, Environment.CurrentDirectory, opts.NoProjectDoc) : null;
+                        : cfg != null ? ProjectDoc.GetUserInstructions(cfg, Environment.CurrentDirectory, opts.NoProjectDoc, opts.ProjectDocMaxBytes, opts.ProjectDocPath) : null;
                     if (!string.IsNullOrWhiteSpace(inst))
                         prompt = inst;
                     else

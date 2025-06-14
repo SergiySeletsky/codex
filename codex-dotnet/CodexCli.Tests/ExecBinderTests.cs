@@ -37,11 +37,13 @@ public class ExecBinderTests
         var envExcludeOpt = new Option<string[]>("--env-exclude") { AllowMultipleArgumentsPerToken = true };
         var envSetOpt = new Option<string[]>("--env-set") { AllowMultipleArgumentsPerToken = true };
         var envIncludeOpt = new Option<string[]>("--env-include-only") { AllowMultipleArgumentsPerToken = true };
+        var docMaxOpt = new Option<int?>("--project-doc-max-bytes");
+        var docPathOpt = new Option<string?>("--project-doc-path");
 
         var binder = new ExecBinder(promptArg, imagesOpt, modelOpt, profileOpt, providerOpt,
             fullAutoOpt, approvalOpt, sandboxOpt, colorOpt, cwdOpt, lastOpt, skipGitOpt,
             notifyOpt, overridesOpt, effortOpt, summaryOpt, instrOpt, hideReasonOpt, disableStorageOpt,
-            noProjDocOpt, jsonOpt, logOpt, envInheritOpt, envIgnoreOpt, envExcludeOpt, envSetOpt, envIncludeOpt);
+            noProjDocOpt, jsonOpt, logOpt, envInheritOpt, envIgnoreOpt, envExcludeOpt, envSetOpt, envIncludeOpt, docMaxOpt, docPathOpt);
 
         var cmd = new Command("exec");
         cmd.AddArgument(promptArg);

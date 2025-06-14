@@ -28,4 +28,6 @@ public record InteractiveOptions(
     bool? EnvIgnoreDefaultExcludes,
     string[] EnvExclude,
     string[] EnvSet,
-    string[] EnvIncludeOnly);
+    string[] EnvIncludeOnly,
+    int? ProjectDocMaxBytes,
+    string? ProjectDocPath);

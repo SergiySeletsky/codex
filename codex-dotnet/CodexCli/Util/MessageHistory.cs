@@ -128,4 +128,26 @@ public static class MessageHistory
         }
         return null;
     }
+
+    public static async IAsyncEnumerable<string> WatchEntriesAsync(AppConfig cfg, [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken token = default)
+    {
+        var path = GetHistoryPath(cfg);
+        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+        using var fs = new FileStream(path, FileMode.OpenOrCreate, FileAccess.Read, FileShare.ReadWrite);
+        using var sr = new StreamReader(fs);
+        while (!token.IsCancellationRequested)
+        {
+            var line = await sr.ReadLineAsync();
+            if (line != null)
+            {
+                HistoryEntry? entry = null;
+                try { entry = JsonSerializer.Deserialize<HistoryEntry>(line); } catch { }
+                if (entry != null) yield return entry.Text;
+            }
+            else
+            {
+                await Task.Delay(500, token);
+            }
+        }
+    }
 }

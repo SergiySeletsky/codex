@@ -39,6 +39,8 @@ public static class ExecCommand
         var envExcludeOpt = new Option<string[]>("--env-exclude") { AllowMultipleArgumentsPerToken = true };
         var envSetOpt = new Option<string[]>("--env-set") { AllowMultipleArgumentsPerToken = true };
         var envIncludeOpt = new Option<string[]>("--env-include-only") { AllowMultipleArgumentsPerToken = true };
+        var docMaxOpt = new Option<int?>("--project-doc-max-bytes", "Limit size of AGENTS.md to read");
+        var docPathOpt = new Option<string?>("--project-doc-path", "Explicit project doc path");
 
         var cmd = new Command("exec", "Run Codex non-interactively");
         cmd.AddArgument(promptArg);
@@ -68,11 +70,13 @@ public static class ExecCommand
         cmd.AddOption(envExcludeOpt);
         cmd.AddOption(envSetOpt);
         cmd.AddOption(envIncludeOpt);
+        cmd.AddOption(docMaxOpt);
+        cmd.AddOption(docPathOpt);
 
         var binder = new ExecBinder(promptArg, imagesOpt, modelOpt, profileOpt, providerOpt, fullAutoOpt,
             approvalOpt, sandboxOpt, colorOpt, cwdOpt, lastMsgOpt, skipGitOpt, notifyOpt, overridesOpt,
             effortOpt, summaryOpt, instrOpt, hideReasonOpt, disableStorageOpt, noProjDocOpt, jsonOpt, eventLogOpt,
-            envInheritOpt, envIgnoreOpt, envExcludeOpt, envSetOpt, envIncludeOpt);
+            envInheritOpt, envIgnoreOpt, envExcludeOpt, envSetOpt, envIncludeOpt, docMaxOpt, docPathOpt);
 
         cmd.SetHandler(async (ExecOptions opts, string? cfgPath, string? cd) =>
         {
@@ -116,7 +120,7 @@ public static class ExecCommand
                 {
                     var inst = opts.InstructionsPath != null && File.Exists(opts.InstructionsPath)
                         ? File.ReadAllText(opts.InstructionsPath)
-                        : cfg != null ? ProjectDoc.GetUserInstructions(cfg, Environment.CurrentDirectory, opts.NoProjectDoc) : null;
+                        : cfg != null ? ProjectDoc.GetUserInstructions(cfg, Environment.CurrentDirectory, opts.NoProjectDoc, opts.ProjectDocMaxBytes, opts.ProjectDocPath) : null;
                     if (!string.IsNullOrWhiteSpace(inst))
                     {
                         prompt = inst;

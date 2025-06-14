@@ -32,6 +32,8 @@ public class InteractiveBinder : BinderBase<InteractiveOptions>
     private readonly Option<string[]> _envExclude;
     private readonly Option<string[]> _envSet;
     private readonly Option<string[]> _envInclude;
+    private readonly Option<int?> _docMaxBytes;
+    private readonly Option<string?> _docPath;
 
     public InteractiveBinder(Argument<string?> prompt, Option<FileInfo[]> images, Option<string?> model,
         Option<string?> profile, Option<string?> provider, Option<bool> fullAuto, Option<ApprovalMode?> approval,
@@ -41,7 +43,8 @@ public class InteractiveBinder : BinderBase<InteractiveOptions>
         Option<bool?> hideReasoning, Option<bool?> disableStorage,
         Option<string?> lastMessage, Option<bool> noProjectDoc, Option<string?> eventLog,
         Option<ShellEnvironmentPolicyInherit?> envInherit, Option<bool?> envIgnore,
-        Option<string[]> envExclude, Option<string[]> envSet, Option<string[]> envInclude)
+        Option<string[]> envExclude, Option<string[]> envSet, Option<string[]> envInclude,
+        Option<int?> docMaxBytes, Option<string?> docPath)
     {
         _prompt = prompt;
         _images = images;
@@ -69,6 +72,8 @@ public class InteractiveBinder : BinderBase<InteractiveOptions>
         _envExclude = envExclude;
         _envSet = envSet;
         _envInclude = envInclude;
+        _docMaxBytes = docMaxBytes;
+        _docPath = docPath;
     }
 
     protected override InteractiveOptions GetBoundValue(BindingContext bindingContext)
@@ -100,7 +105,9 @@ public class InteractiveBinder : BinderBase<InteractiveOptions>
             bindingContext.ParseResult.GetValueForOption(_envIgnore),
             bindingContext.ParseResult.GetValueForOption(_envExclude) ?? Array.Empty<string>(),
             bindingContext.ParseResult.GetValueForOption(_envSet) ?? Array.Empty<string>(),
-            bindingContext.ParseResult.GetValueForOption(_envInclude) ?? Array.Empty<string>()
+            bindingContext.ParseResult.GetValueForOption(_envInclude) ?? Array.Empty<string>(),
+            bindingContext.ParseResult.GetValueForOption(_docMaxBytes),
+            bindingContext.ParseResult.GetValueForOption(_docPath)
         );
     }
 }

@@ -9,4 +9,5 @@ public class ConfigProfile
     public bool? DisableResponseStorage { get; set; }
     public ReasoningEffort? ModelReasoningEffort { get; set; }
     public ReasoningSummary? ModelReasoningSummary { get; set; }
+    public int? ProjectDocMaxBytes { get; set; }
 }

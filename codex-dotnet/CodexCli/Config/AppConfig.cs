@@ -19,6 +19,7 @@ public class AppConfig
     public ShellEnvironmentPolicy ShellEnvironmentPolicy { get; set; } = new();
     public History History { get; set; } = new();
     public UriBasedFileOpener FileOpener { get; set; } = UriBasedFileOpener.None;
+    public int ProjectDocMaxBytes { get; set; } = 32 * 1024;
     public Tui Tui { get; set; } = new();
     public Dictionary<string, ModelProviderInfo> ModelProviders { get; set; } = new();
     public Dictionary<string, ConfigProfile> Profiles { get; set; } = new();
@@ -34,6 +35,8 @@ public class AppConfig
         if (model.TryGetValue("model_provider", out var mp)) cfg.ModelProvider = mp?.ToString();
         if (model.TryGetValue("codex_home", out var h)) cfg.CodexHome = h?.ToString();
         if (model.TryGetValue("instructions", out var inst)) cfg.Instructions = inst?.ToString();
+        if (model.TryGetValue("project_doc_max_bytes", out var pdm) && int.TryParse(pdm?.ToString(), out var pdmv))
+            cfg.ProjectDocMaxBytes = pdmv;
         if (model.TryGetValue("hide_agent_reasoning", out var har))
             cfg.HideAgentReasoning = har is bool hb ? hb : bool.TryParse(har?.ToString(), out var b) && b;
         if (model.TryGetValue("disable_response_storage", out var drsVal))
@@ -104,6 +107,8 @@ public class AppConfig
                         cp.ModelReasoningEffort = mrev2;
                     if (pm.TryGetValue("model_reasoning_summary", out var mrs2) && Enum.TryParse<ReasoningSummary>(mrs2?.ToString(), true, out var mrsv2))
                         cp.ModelReasoningSummary = mrsv2;
+                    if (pm.TryGetValue("project_doc_max_bytes", out var pdm2) && int.TryParse(pdm2?.ToString(), out var pdmv2))
+                        cp.ProjectDocMaxBytes = pdmv2;
                     cfg.Profiles[k] = cp;
                 }
             }
@@ -128,6 +133,7 @@ public class AppConfig
             if (p.DisableResponseStorage != null) cfg.DisableResponseStorage = p.DisableResponseStorage.Value;
             if (p.ModelReasoningEffort != null) cfg.ModelReasoningEffort = p.ModelReasoningEffort;
             if (p.ModelReasoningSummary != null) cfg.ModelReasoningSummary = p.ModelReasoningSummary;
+            if (p.ProjectDocMaxBytes != null) cfg.ProjectDocMaxBytes = p.ProjectDocMaxBytes.Value;
         }
         return cfg;
     }

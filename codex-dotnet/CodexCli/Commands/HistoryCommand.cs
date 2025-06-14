@@ -138,6 +138,14 @@ public static class HistoryCommand
             Console.WriteLine(count);
         });
 
+        var msgWatchCmd = new Command("messages-watch", "Watch for new history entries");
+        msgWatchCmd.SetHandler(async () =>
+        {
+            var cfg = new AppConfig();
+            await foreach (var line in MessageHistory.WatchEntriesAsync(cfg, CancellationToken.None))
+                Console.WriteLine(line);
+        });
+
         var root = new Command("history", "Manage session history");
         root.AddCommand(listCmd);
         root.AddCommand(showCmd);
@@ -153,6 +161,7 @@ public static class HistoryCommand
         root.AddCommand(msgSearchCmd);
         root.AddCommand(msgLastCmd);
         root.AddCommand(msgCountCmd);
+        root.AddCommand(msgWatchCmd);
         return root;
     }
 }
