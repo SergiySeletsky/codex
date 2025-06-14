@@ -29,10 +29,11 @@ public class InteractiveBinderTests
         var disableStorageOpt = new Option<bool?>("--disable-response-storage");
         var noProjDocOpt = new Option<bool>("--no-project-doc");
         var lastMsgOpt = new Option<string?>("--output-last-message");
+        var logOpt = new Option<string?>("--event-log");
 
         var binder = new InteractiveBinder(promptArg, imagesOpt, modelOpt, profileOpt, providerOpt,
             fullAutoOpt, approvalOpt, sandboxOpt, colorOpt, skipGitOpt, cwdOpt, notifyOpt, overridesOpt,
-            effortOpt, summaryOpt, instrOpt, hideReasonOpt, disableStorageOpt, lastMsgOpt, noProjDocOpt);
+            effortOpt, summaryOpt, instrOpt, hideReasonOpt, disableStorageOpt, lastMsgOpt, noProjDocOpt, logOpt);
 
         var cmd = new Command("interactive");
         cmd.AddArgument(promptArg);
@@ -42,12 +43,13 @@ public class InteractiveBinderTests
         cmd.AddOption(disableStorageOpt);
         cmd.AddOption(noProjDocOpt);
         cmd.AddOption(lastMsgOpt);
+        cmd.AddOption(logOpt);
         InteractiveOptions? captured = null;
         cmd.SetHandler((InteractiveOptions o) => captured = o, binder);
         var root = new RootCommand();
         root.AddCommand(cmd);
 
-        await root.InvokeAsync("interactive hello --full-auto --skip-git-repo-check --hide-agent-reasoning --disable-response-storage --no-project-doc");
+        await root.InvokeAsync("interactive hello --full-auto --skip-git-repo-check --hide-agent-reasoning --disable-response-storage --no-project-doc --event-log t.log");
 
         Assert.NotNull(captured);
         Assert.True(captured!.FullAuto);
@@ -56,5 +58,6 @@ public class InteractiveBinderTests
         Assert.True(captured.HideAgentReasoning);
         Assert.True(captured.DisableResponseStorage);
         Assert.True(captured.NoProjectDoc);
+        Assert.Equal("t.log", captured.EventLogFile);
     }
 }

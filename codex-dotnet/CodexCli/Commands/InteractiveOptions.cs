@@ -20,4 +20,5 @@ public record InteractiveOptions(
     bool? HideAgentReasoning,
     bool? DisableResponseStorage,
     string? LastMessageFile,
-    bool NoProjectDoc);
+    bool NoProjectDoc,
+    string? EventLogFile);

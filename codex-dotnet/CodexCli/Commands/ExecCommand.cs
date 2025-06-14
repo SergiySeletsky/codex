@@ -31,6 +31,7 @@ public static class ExecCommand
         var disableStorageOpt = new Option<bool?>("--disable-response-storage", "Disable response storage");
         var noProjDocOpt = new Option<bool>("--no-project-doc", () => false, "Disable AGENTS.md project doc");
         var jsonOpt = new Option<bool>("--json", () => false, "Output raw JSON events");
+        var eventLogOpt = new Option<string?>("--event-log", "Path to save JSON event log");
 
         var cmd = new Command("exec", "Run Codex non-interactively");
         cmd.AddArgument(promptArg);
@@ -54,10 +55,11 @@ public static class ExecCommand
         cmd.AddOption(disableStorageOpt);
         cmd.AddOption(noProjDocOpt);
         cmd.AddOption(jsonOpt);
+        cmd.AddOption(eventLogOpt);
 
         var binder = new ExecBinder(promptArg, imagesOpt, modelOpt, profileOpt, providerOpt, fullAutoOpt,
             approvalOpt, sandboxOpt, colorOpt, cwdOpt, lastMsgOpt, skipGitOpt, notifyOpt, overridesOpt,
-            effortOpt, summaryOpt, instrOpt, hideReasonOpt, disableStorageOpt, noProjDocOpt, jsonOpt);
+            effortOpt, summaryOpt, instrOpt, hideReasonOpt, disableStorageOpt, noProjDocOpt, jsonOpt, eventLogOpt);
 
         cmd.SetHandler(async (ExecOptions opts, string? cfgPath, string? cd) =>
         {
@@ -67,6 +69,11 @@ public static class ExecCommand
                 cfg = AppConfig.Load(cfgPath, opts.Profile);
 
             var sessionId = SessionManager.CreateSession();
+            StreamWriter? logWriter = null;
+            if (opts.EventLogFile != null)
+            {
+                logWriter = new StreamWriter(opts.EventLogFile, append: false);
+            }
 
             if (opts.NotifyCommand.Length > 0)
                 NotifyUtils.RunNotify(opts.NotifyCommand, "session_started");
@@ -144,7 +151,8 @@ public static class ExecCommand
                 prompt.Trim(),
                 disableStorage,
                 opts.ReasoningEffort ?? cfg?.ModelReasoningEffort,
-                opts.ReasoningSummary ?? cfg?.ModelReasoningSummary);
+                opts.ReasoningSummary ?? cfg?.ModelReasoningSummary,
+                EnvUtils.GetLogLevel(null));
 
             var imagePaths = opts.Images.Select(i => i.FullName).ToArray();
             await foreach (var ev in CodexCli.Protocol.MockCodexAgent.RunAsync(prompt, imagePaths))
@@ -153,6 +161,8 @@ public static class ExecCommand
                     Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(ev));
                 else
                     processor.ProcessEvent(ev);
+                if (logWriter != null)
+                    await logWriter.WriteLineAsync(System.Text.Json.JsonSerializer.Serialize(ev));
                 switch (ev)
                 {
                     case AgentMessageEvent am:
@@ -177,6 +187,12 @@ public static class ExecCommand
                             await File.WriteAllTextAsync(opts.LastMessageFile, tc.LastAgentMessage ?? string.Empty);
                         break;
                 }
+            }
+
+            if (logWriter != null)
+            {
+                await logWriter.FlushAsync();
+                logWriter.Dispose();
             }
 
             if (SessionManager.GetHistoryFile(sessionId) is { } histPath)

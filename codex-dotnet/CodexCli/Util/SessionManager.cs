@@ -8,6 +8,7 @@ public static class SessionManager
 {
     private static readonly ConcurrentDictionary<string, List<string>> Sessions = new();
     private static readonly ConcurrentDictionary<string, string> SessionFiles = new();
+    private static readonly ConcurrentDictionary<string, DateTime> SessionStarts = new();
 
     public static string CreateSession()
     {
@@ -17,6 +18,8 @@ public static class SessionManager
         Directory.CreateDirectory(dir);
         var file = Path.Combine(dir, id + ".txt");
         SessionFiles[id] = file;
+        SessionStarts[id] = DateTime.UtcNow;
+        File.WriteAllText(file, $"# started {SessionStarts[id]:o}\n");
         return id;
     }
 
@@ -54,6 +57,9 @@ public static class SessionManager
     public static string? GetHistoryFile(string id) =>
         SessionFiles.TryGetValue(id, out var path) ? path : null;
 
+    public static DateTime? GetStartTime(string id) =>
+        SessionStarts.TryGetValue(id, out var dt) ? dt : null;
+
     public static IEnumerable<string> ListSessions()
     {
         var dir = EnvUtils.GetHistoryDir();
@@ -61,6 +67,15 @@ public static class SessionManager
             yield break;
         foreach (var file in Directory.GetFiles(dir, "*.txt"))
             yield return Path.GetFileNameWithoutExtension(file);
+    }
+
+    public static IEnumerable<(string Id, DateTime Start)> ListSessionsWithInfo()
+    {
+        foreach (var id in ListSessions())
+        {
+            var start = GetStartTime(id) ?? File.GetCreationTimeUtc(GetHistoryFile(id)!);
+            yield return (id, start);
+        }
     }
 
     public static bool DeleteSession(string id)
@@ -72,8 +87,17 @@ public static class SessionManager
                 path = Path.Combine(EnvUtils.GetHistoryDir(), id + ".txt");
             if (File.Exists(path))
                 File.Delete(path);
+            SessionStarts.TryRemove(id, out _);
             return true;
         }
         return false;
+    }
+
+    public static void DeleteAllSessions()
+    {
+        foreach (var id in ListSessions().ToArray())
+        {
+            DeleteSession(id);
+        }
     }
 }

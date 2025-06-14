@@ -48,4 +48,12 @@ public class EnvUtilsTests
         Assert.Equal("/tmp/codex-log", res);
         Environment.SetEnvironmentVariable("CODEX_LOG_DIR", null);
     }
+
+    [Fact]
+    public void LogLevelFromEnv()
+    {
+        Environment.SetEnvironmentVariable("CODEX_LOG_LEVEL", "Debug");
+        Assert.Equal("Debug", CodexCli.Util.EnvUtils.GetLogLevel(null));
+        Environment.SetEnvironmentVariable("CODEX_LOG_LEVEL", null);
+    }
 }

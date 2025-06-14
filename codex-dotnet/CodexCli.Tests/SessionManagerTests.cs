@@ -33,7 +33,28 @@ public class SessionManagerTests
         var id = CodexCli.Util.SessionManager.CreateSession();
         CodexCli.Util.SessionManager.AddEntry(id, "x");
         Assert.Contains(id, CodexCli.Util.SessionManager.ListSessions());
+        Assert.NotNull(CodexCli.Util.SessionManager.GetStartTime(id));
         Assert.True(CodexCli.Util.SessionManager.DeleteSession(id));
         Assert.DoesNotContain(id, CodexCli.Util.SessionManager.ListSessions());
+    }
+
+    [Fact]
+    public void PurgesSessions()
+    {
+        var id1 = CodexCli.Util.SessionManager.CreateSession();
+        var id2 = CodexCli.Util.SessionManager.CreateSession();
+        CodexCli.Util.SessionManager.AddEntry(id1, "a");
+        CodexCli.Util.SessionManager.AddEntry(id2, "b");
+        CodexCli.Util.SessionManager.DeleteAllSessions();
+        Assert.Empty(CodexCli.Util.SessionManager.ListSessions());
+    }
+
+    [Fact]
+    public void ListsSessionsWithInfo()
+    {
+        var id = CodexCli.Util.SessionManager.CreateSession();
+        var list = CodexCli.Util.SessionManager.ListSessionsWithInfo().ToList();
+        Assert.Contains(list, i => i.Id == id);
+        CodexCli.Util.SessionManager.DeleteSession(id);
     }
 }

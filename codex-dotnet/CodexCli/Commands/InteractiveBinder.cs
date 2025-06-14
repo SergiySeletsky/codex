@@ -25,6 +25,7 @@ public class InteractiveBinder : BinderBase<InteractiveOptions>
     private readonly Option<bool?> _disableStorage;
     private readonly Option<string?> _lastMessage;
     private readonly Option<bool> _noProjectDoc;
+    private readonly Option<string?> _eventLog;
 
     public InteractiveBinder(Argument<string?> prompt, Option<FileInfo[]> images, Option<string?> model,
         Option<string?> profile, Option<string?> provider, Option<bool> fullAuto, Option<ApprovalMode?> approval,
@@ -32,7 +33,7 @@ public class InteractiveBinder : BinderBase<InteractiveOptions>
         Option<string[]> notify, Option<string[]> overrides, Option<ReasoningEffort?> effort,
         Option<ReasoningSummary?> summary, Option<string?> instructions,
         Option<bool?> hideReasoning, Option<bool?> disableStorage,
-        Option<string?> lastMessage, Option<bool> noProjectDoc)
+        Option<string?> lastMessage, Option<bool> noProjectDoc, Option<string?> eventLog)
     {
         _prompt = prompt;
         _images = images;
@@ -54,6 +55,7 @@ public class InteractiveBinder : BinderBase<InteractiveOptions>
         _disableStorage = disableStorage;
         _lastMessage = lastMessage;
         _noProjectDoc = noProjectDoc;
+        _eventLog = eventLog;
     }
 
     protected override InteractiveOptions GetBoundValue(BindingContext bindingContext)
@@ -79,7 +81,8 @@ public class InteractiveBinder : BinderBase<InteractiveOptions>
             bindingContext.ParseResult.GetValueForOption(_hideReasoning),
             bindingContext.ParseResult.GetValueForOption(_disableStorage),
             bindingContext.ParseResult.GetValueForOption(_lastMessage),
-            bindingContext.ParseResult.GetValueForOption(_noProjectDoc)
+            bindingContext.ParseResult.GetValueForOption(_noProjectDoc),
+            bindingContext.ParseResult.GetValueForOption(_eventLog)
         );
     }
 }

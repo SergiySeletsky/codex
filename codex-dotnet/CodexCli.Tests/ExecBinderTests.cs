@@ -30,11 +30,12 @@ public class ExecBinderTests
         var disableStorageOpt = new Option<bool?>("--disable-response-storage");
         var noProjDocOpt = new Option<bool>("--no-project-doc");
         var jsonOpt = new Option<bool>("--json");
+        var logOpt = new Option<string?>("--event-log");
 
         var binder = new ExecBinder(promptArg, imagesOpt, modelOpt, profileOpt, providerOpt,
             fullAutoOpt, approvalOpt, sandboxOpt, colorOpt, cwdOpt, lastOpt, skipGitOpt,
             notifyOpt, overridesOpt, effortOpt, summaryOpt, instrOpt, hideReasonOpt, disableStorageOpt,
-            noProjDocOpt, jsonOpt);
+            noProjDocOpt, jsonOpt, logOpt);
 
         var cmd = new Command("exec");
         cmd.AddArgument(promptArg);
@@ -44,12 +45,13 @@ public class ExecBinderTests
         cmd.AddOption(disableStorageOpt);
         cmd.AddOption(noProjDocOpt);
         cmd.AddOption(jsonOpt);
+        cmd.AddOption(logOpt);
         ExecOptions? captured = null;
         cmd.SetHandler((ExecOptions o) => captured = o, binder);
         var root = new RootCommand();
         root.AddCommand(cmd);
 
-        await root.InvokeAsync("exec hello --model gpt-4 --full-auto --hide-agent-reasoning --disable-response-storage --no-project-doc --json");
+        await root.InvokeAsync("exec hello --model gpt-4 --full-auto --hide-agent-reasoning --disable-response-storage --no-project-doc --json --event-log log.txt");
 
         Assert.NotNull(captured);
         Assert.Equal("hello", captured!.Prompt);
@@ -59,5 +61,6 @@ public class ExecBinderTests
         Assert.True(captured.DisableResponseStorage);
         Assert.True(captured.NoProjectDoc);
         Assert.True(captured.Json);
+        Assert.Equal("log.txt", captured.EventLogFile);
     }
 }

@@ -4,6 +4,7 @@ using CodexCli.Config;
 using CodexCli.Util;
 using System.Linq;
 using SessionManager = CodexCli.Util.SessionManager;
+using System.IO;
 
 namespace CodexCli.Commands;
 
@@ -31,6 +32,7 @@ public static class InteractiveCommand
         var disableStorageOpt = new Option<bool?>("--disable-response-storage");
         var noProjDocOpt = new Option<bool>("--no-project-doc", () => false);
         var lastMsgOpt = new Option<string?>("--output-last-message");
+        var eventLogOpt = new Option<string?>("--event-log", "Path to save JSON event log");
 
         var cmd = new Command("interactive", "Run interactive TUI session");
         cmd.AddArgument(promptArg);
@@ -53,10 +55,11 @@ public static class InteractiveCommand
         cmd.AddOption(disableStorageOpt);
         cmd.AddOption(noProjDocOpt);
         cmd.AddOption(lastMsgOpt);
+        cmd.AddOption(eventLogOpt);
 
         var binder = new InteractiveBinder(promptArg, imagesOpt, modelOpt, profileOpt, providerOpt,
             fullAutoOpt, approvalOpt, sandboxOpt, colorOpt, skipGitOpt, cwdOpt, notifyOpt, overridesOpt,
-            effortOpt, summaryOpt, instrOpt, hideReasonOpt, disableStorageOpt, lastMsgOpt, noProjDocOpt);
+            effortOpt, summaryOpt, instrOpt, hideReasonOpt, disableStorageOpt, lastMsgOpt, noProjDocOpt, eventLogOpt);
 
         cmd.SetHandler(async (InteractiveOptions opts, string? cfgPath, string? cd) =>
         {
@@ -120,6 +123,9 @@ public static class InteractiveCommand
         var sessionId = SessionManager.CreateSession();
         var history = new List<string>();
         string? lastMessage = null;
+        StreamWriter? logWriter = null;
+        if (opts.EventLogFile != null)
+            logWriter = new StreamWriter(opts.EventLogFile, append: false);
         AnsiConsole.MarkupLine("[green]Codex interactive mode[/]");
         AnsiConsole.MarkupLine("Type /help for commands");
         if (!string.IsNullOrEmpty(opts.Prompt))
@@ -148,7 +154,7 @@ public static class InteractiveCommand
             }
             if (prompt.Equals("/help", StringComparison.OrdinalIgnoreCase))
             {
-                AnsiConsole.MarkupLine("Available commands: /history, /reset, /quit, /help, /log, /config, /save <file>, /save-last <file>, /version, /sessions");
+                AnsiConsole.MarkupLine("Available commands: /history, /reset, /quit, /help, /log, /config, /save <file>, /save-last <file>, /version, /sessions, /delete <id>");
                 continue;
             }
             if (prompt.Equals("/log", StringComparison.OrdinalIgnoreCase))
@@ -165,8 +171,23 @@ public static class InteractiveCommand
             }
             if (prompt.Equals("/sessions", StringComparison.OrdinalIgnoreCase))
             {
-                foreach (var id in SessionManager.ListSessions())
-                    AnsiConsole.MarkupLine(id);
+                foreach (var info in SessionManager.ListSessionsWithInfo())
+                    AnsiConsole.MarkupLine($"{info.Id} {info.Start:o}");
+                continue;
+            }
+            if (prompt.StartsWith("/delete", StringComparison.OrdinalIgnoreCase))
+            {
+                var parts = prompt.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+                if (parts.Length < 2)
+                {
+                    AnsiConsole.MarkupLine("Usage: /delete <id>");
+                    continue;
+                }
+                var id = parts[1];
+                if (SessionManager.DeleteSession(id))
+                    AnsiConsole.MarkupLine($"Deleted {id}");
+                else
+                    AnsiConsole.MarkupLine($"Session {id} not found");
                 continue;
             }
             if (prompt.Equals("/config", StringComparison.OrdinalIgnoreCase))
@@ -218,8 +239,15 @@ public static class InteractiveCommand
             }
             history.Add(prompt);
             SessionManager.AddEntry(sessionId, prompt);
+            if (logWriter != null)
+                logWriter.WriteLine(prompt);
             lastMessage = prompt;
             AnsiConsole.MarkupLine($"You typed: [blue]{prompt}[/]");
+        }
+        if (logWriter != null)
+        {
+            logWriter.Flush();
+            logWriter.Dispose();
         }
         if (SessionManager.GetHistoryFile(sessionId) is { } path)
             AnsiConsole.MarkupLine($"History saved to [green]{path}[/]");

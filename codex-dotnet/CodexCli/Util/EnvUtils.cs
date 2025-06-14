@@ -33,4 +33,14 @@ public static class EnvUtils
         var home = cfg?.CodexHome ?? FindCodexHome();
         return Path.Combine(home, "history");
     }
+
+    public static string GetLogLevel(string? cliLevel = null)
+    {
+        if (!string.IsNullOrEmpty(cliLevel))
+            return cliLevel;
+        var env = Environment.GetEnvironmentVariable("CODEX_LOG_LEVEL");
+        if (!string.IsNullOrEmpty(env))
+            return env;
+        return "Information";
+    }
 }

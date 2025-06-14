@@ -28,4 +28,5 @@ public record ExecOptions(
     bool? HideAgentReasoning,
     bool? DisableResponseStorage,
     bool NoProjectDoc,
-    bool Json);
+    bool Json,
+    string? EventLogFile);

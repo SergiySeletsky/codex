@@ -33,10 +33,28 @@ public static class HistoryCommand
                 Console.WriteLine($"Session {id} not found");
         }, idArg);
 
+        var pathCmd = new Command("path", "Show history file path");
+        pathCmd.AddArgument(idArg);
+        pathCmd.SetHandler((string id) =>
+        {
+            var p = SessionManager.GetHistoryFile(id);
+            if (p != null)
+                Console.WriteLine(p);
+        }, idArg);
+
+        var purgeCmd = new Command("purge", "Delete all session history");
+        purgeCmd.SetHandler(() =>
+        {
+            SessionManager.DeleteAllSessions();
+            Console.WriteLine("All sessions deleted");
+        });
+
         var root = new Command("history", "Manage session history");
         root.AddCommand(listCmd);
         root.AddCommand(showCmd);
         root.AddCommand(clearCmd);
+        root.AddCommand(pathCmd);
+        root.AddCommand(purgeCmd);
         return root;
     }
 }

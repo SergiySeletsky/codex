@@ -69,6 +69,8 @@
 - Expand MCP server to handle multiple connections and serve real events.
 - Add more comprehensive unit tests for binder logic.
 - Continue porting Rust protocol types and core libraries.
+- Implement real Codex agent integration for exec/interactive.
+- Support streaming responses in MCP server.
 53. Added config profile support with `AppConfig.Load(path, profile)` and `ConfigProfile`.
 54. `instructions` field loaded from config or `instructions.md`.
 55. Implemented `ProjectDoc` to merge `AGENTS.md` with instructions.
@@ -120,3 +122,13 @@
 98. Interactive /help updated for new commands
 99. Program registers history subcommand
 100. HistoryCommand prints sessions and history
+101. Added global --log-level option and CODEX_LOG_LEVEL env var
+102. Version subcommand prints assembly version
+103. EventProcessor shows log level in config summary
+104. Exec and interactive commands support --event-log to save JSON event log
+105. SessionManager records start timestamps and exposes ListSessionsWithInfo
+106. History command has path and purge subcommands
+107. Interactive /sessions shows start times
+108. Interactive /delete removes saved sessions
+109. ExecBinder and InteractiveBinder tests updated for new options
+110. EnvUtils tests verify log level env var
