@@ -105,6 +105,15 @@ public class EventProcessor
                 AnsiConsole.MarkupLine($"{ts} [bold magenta]codex session[/] [dim]{sc.SessionId}[/]");
                 AnsiConsole.MarkupLine($"{ts} model: {sc.Model}");
                 break;
+            case AddToHistoryEvent ah:
+                AnsiConsole.MarkupLine($"{ts} [green]history entry added[/]");
+                break;
+            case GetHistoryEntryResponseEvent ge:
+                if (ge.Entry != null)
+                    AnsiConsole.MarkupLine($"{ts} history[{ge.Offset}] {Markup.Escape(ge.Entry)}");
+                else
+                    AnsiConsole.MarkupLine($"{ts} history entry {ge.Offset} not found");
+                break;
             case TaskCompleteEvent tc:
                 AnsiConsole.MarkupLine($"{ts} task complete");
                 if (tc.LastAgentMessage != null)

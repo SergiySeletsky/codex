@@ -2,7 +2,9 @@ using System.CommandLine;
 using CodexCli.Config;
 using CodexCli.Util;
 using CodexCli.Protocol;
+using CodexCli.ApplyPatch;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace CodexCli.Commands;
 
@@ -119,8 +121,12 @@ public static class ExecCommand
                 Console.Error.WriteLine($"{ov.Overrides.Count} override(s) parsed and applied");
             }
 
-            var apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
-            var client = new OpenAIClient(apiKey);
+            var providerId = EnvUtils.GetModelProviderId(opts.ModelProvider) ?? cfg?.ModelProvider ?? "openai";
+            var providerInfo = cfg?.GetProvider(providerId) ?? ModelProviderInfo.BuiltIns[providerId];
+            var baseUrl = EnvUtils.GetProviderBaseUrl(null) ?? providerInfo.BaseUrl;
+            var apiKey = ApiKeyManager.GetKey(providerInfo);
+            var client = new OpenAIClient(apiKey, baseUrl);
+            var execPolicy = ExecPolicy.LoadDefault();
             bool hideReason = opts.HideAgentReasoning ?? cfg?.HideAgentReasoning ?? false;
             bool disableStorage = opts.DisableResponseStorage ?? cfg?.DisableResponseStorage ?? false;
             bool withAnsi = opts.Color switch
@@ -155,7 +161,10 @@ public static class ExecCommand
                 EnvUtils.GetLogLevel(null));
 
             var imagePaths = opts.Images.Select(i => i.FullName).ToArray();
-            await foreach (var ev in CodexCli.Protocol.MockCodexAgent.RunAsync(prompt, imagePaths))
+            IAsyncEnumerable<Event> events = providerId == "mock"
+                ? CodexCli.Protocol.MockCodexAgent.RunAsync(prompt, imagePaths)
+                : CodexCli.Protocol.RealCodexAgent.RunAsync(prompt, client, opts.Model ?? cfg?.Model ?? "default");
+            await foreach (var ev in events)
             {
                 if (opts.Json)
                     Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(ev));
@@ -169,10 +178,71 @@ public static class ExecCommand
                         SessionManager.AddEntry(sessionId, am.Message);
                         break;
                     case ExecApprovalRequestEvent ar:
+                        var prog = ar.Command.First();
+                        var args = ar.Command.Skip(1).ToArray();
+                        if (execPolicy.IsForbidden(prog))
+                        {
+                            Console.WriteLine($"Denied '{string.Join(" ", ar.Command)}' ({execPolicy.GetReason(prog)})");
+                            break;
+                        }
+                        if (!execPolicy.VerifyCommand(prog, args))
+                        {
+                            Console.WriteLine($"Denied '{string.Join(" ", ar.Command)}' (unverified)");
+                            break;
+                        }
                         Console.Write($"Run '{string.Join(" ", ar.Command)}'? [y/N] ");
                         var resp = Console.ReadLine();
                         if (!resp?.StartsWith("y", StringComparison.OrdinalIgnoreCase) ?? true)
                             Console.WriteLine("Denied");
+                        break;
+                    case ExecCommandBeginEvent begin:
+                        var argv = begin.Command.ToArray();
+                        if (ApplyPatchCommandParser.MaybeParseApplyPatch(argv, out var patch) == MaybeApplyPatch.Body &&
+                            patch != null &&
+                            ApplyPatchCommandParser.MaybeParseApplyPatchVerified(argv, begin.Cwd, out var action) == MaybeApplyPatchVerified.Body &&
+                            action != null)
+                        {
+                            var changes = new Dictionary<string, FileChange>();
+                            foreach (var kv in action.Changes)
+                            {
+                                var fc = kv.Value.Kind switch
+                                {
+                                    "add" => (FileChange)new AddFileChange(kv.Value.Content ?? string.Empty),
+                                    "delete" => new DeleteFileChange(),
+                                    "update" => new UpdateFileChange(kv.Value.UnifiedDiff!, kv.Value.MovePath),
+                                    _ => throw new InvalidOperationException()
+                                };
+                                changes[kv.Key] = fc;
+                            }
+                            var pbEvent = new PatchApplyBeginEvent(Guid.NewGuid().ToString(), true, changes);
+                            if (opts.Json)
+                                Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(pbEvent));
+                            else
+                                processor.ProcessEvent(pbEvent);
+                            if (logWriter != null)
+                                await logWriter.WriteLineAsync(System.Text.Json.JsonSerializer.Serialize(pbEvent));
+                            try
+                            {
+                                var result = PatchApplier.ApplyWithSummary(patch, begin.Cwd);
+                                var peEvent = new PatchApplyEndEvent(Guid.NewGuid().ToString(), result.Summary, string.Empty, true);
+                                if (opts.Json)
+                                    Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(peEvent));
+                                else
+                                    processor.ProcessEvent(peEvent);
+                                if (logWriter != null)
+                                    await logWriter.WriteLineAsync(System.Text.Json.JsonSerializer.Serialize(peEvent));
+                            }
+                            catch (PatchParseException e)
+                            {
+                                var peEvent = new PatchApplyEndEvent(Guid.NewGuid().ToString(), string.Empty, e.Message, false);
+                                if (opts.Json)
+                                    Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(peEvent));
+                                else
+                                    processor.ProcessEvent(peEvent);
+                                if (logWriter != null)
+                                    await logWriter.WriteLineAsync(System.Text.Json.JsonSerializer.Serialize(peEvent));
+                            }
+                        }
                         break;
                     case PatchApplyApprovalRequestEvent pr:
                         Console.Write($"Apply patch? [y/N] ");
@@ -180,9 +250,53 @@ public static class ExecCommand
                         if (!r?.StartsWith("y", StringComparison.OrdinalIgnoreCase) ?? true)
                             Console.WriteLine("Patch denied");
                         break;
+                    case PatchApplyBeginEvent pb:
+                        foreach (var kv in pb.Changes)
+                        {
+                            var path = kv.Key;
+                            switch (kv.Value)
+                            {
+                                case AddFileChange add:
+                                    Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+                                    File.WriteAllText(path, add.Content);
+                                    break;
+                                case DeleteFileChange:
+                                    if (File.Exists(path)) File.Delete(path);
+                                    break;
+                               case UpdateFileChange upd:
+                                    var full = Path.GetFullPath(path);
+                                    var lines = File.Exists(full) ? File.ReadAllLines(full).ToList() : new List<string>();
+                                    var difflines = PatchParser.ParseUnified(upd.UnifiedDiff);
+                                    int idx2 = 0;
+                                    foreach (var ln in difflines)
+                                    {
+                                        if (ln.StartsWith("+"))
+                                        {
+                                            lines.Insert(idx2, ln.Substring(1));
+                                            idx2++;
+                                        }
+                                        else if (ln.StartsWith("-"))
+                                        {
+                                            if (idx2 < lines.Count && lines[idx2] == ln.Substring(1))
+                                                lines.RemoveAt(idx2);
+                                        }
+                                        else
+                                        {
+                                            if (idx2 < lines.Count && lines[idx2] == ln.TrimStart(' '))
+                                                idx2++;
+                                        }
+                                    }
+                                    File.WriteAllLines(full, lines);
+                                    break;
+                            }
+                        }
+                        break;
                     case TaskCompleteEvent tc:
-                        var aiResp = await client.ChatAsync(prompt);
-                        Console.WriteLine(aiResp);
+                        if (providerId == "mock")
+                        {
+                            var aiResp = await client.ChatAsync(prompt);
+                            Console.WriteLine(aiResp);
+                        }
                         if (opts.LastMessageFile != null)
                             await File.WriteAllTextAsync(opts.LastMessageFile, tc.LastAgentMessage ?? string.Empty);
                         break;

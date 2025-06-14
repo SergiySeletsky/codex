@@ -64,13 +64,6 @@
 ## Files Migrated
 - `codex-dotnet/CodexCli` project with Program.cs, command implementations under `Commands/`, and `Config/AppConfig.cs`.
 
-## TODO Next Run
-- Integrate exec command with real Codex agent and tool execution.
-- Expand MCP server to handle multiple connections and serve real events.
-- Add more comprehensive unit tests for binder logic.
-- Continue porting Rust protocol types and core libraries.
-- Implement real Codex agent integration for exec/interactive.
-- Support streaming responses in MCP server.
 53. Added config profile support with `AppConfig.Load(path, profile)` and `ConfigProfile`.
 54. `instructions` field loaded from config or `instructions.md`.
 55. Implemented `ProjectDoc` to merge `AGENTS.md` with instructions.
@@ -132,3 +125,107 @@
 108. Interactive /delete removes saved sessions
 109. ExecBinder and InteractiveBinder tests updated for new options
 110. EnvUtils tests verify log level env var
+111. Added AddToHistory and GetHistoryEntry events
+112. EventProcessor handles new history events
+113. MockCodexAgent emits history events
+114. SessionManager can fetch a specific history entry
+115. History command supports 'entry' subcommand
+116. Login command saves OpenAI API key to auth.json
+117. OpenAiKeyManager.SaveKey implemented
+118. OpenAIClient sends real requests to api.openai.com
+119. SessionManagerTests verify GetHistoryEntry
+120. Added Azure.AI.OpenAI package reference
+121. Introduced ModelProviderInfo with built-in OpenAI and OpenRouter providers
+122. AppConfig parses model_providers and merges with defaults
+123. Added GetProvider helper to AppConfig
+124. Implemented ApiKeyManager for per-provider API keys
+125. Login command accepts --provider and stores keys via ApiKeyManager
+126. ExecCommand selects provider info and passes base URL to OpenAIClient
+127. OpenAIClient constructor accepts base URL
+128. Added unit tests for ModelProviderInfo loading
+129. Removed obsolete OpenAiKeyManager
+130. Auth.json now stores keys for multiple providers
+131. Added built-in providers gemini, ollama, mistral, deepseek, xai and groq
+132. ModelProviderInfo includes EnvKeyInstructions
+133. AppConfig parses env_key_instructions
+134. EnvUtils.GetModelProviderId reads CODEX_MODEL_PROVIDER
+135. Exec and login commands honor CODEX_MODEL_PROVIDER
+136. Added provider list subcommand
+137. Added tests for provider listing and env key instructions
+138. Added basic apply_patch parser and PatchApplier library
+139. Event definitions updated with FileChange enum
+140. ExecCommand now applies patch changes on PatchApplyBeginEvent
+141. Added unit tests for patch parser and apply logic
+142. MockCodexAgent emits FileChange-based patch event
+143. Added provider info and current subcommands
+144. Provider login prints EnvKeyInstructions when key missing
+145. PatchParser recognizes *** End of File marker
+146. Added ParseUnified helper for unified diff support
+147. PatchApplier throws PatchParseException on errors
+148. Created ApplyPatchCommand to run patches from CLI
+149. Program registers apply_patch command
+150. ProviderInfoTests verify info subcommand
+151. UnifiedDiffTests cover ParseUnified
+152. Provider info and unified diff features documented
+153. Added apply_patch tool instructions file for reference
+154. Implemented ChatGptLogin utility running embedded Python script
+155. Login command gains --chatgpt option to launch browser-based login
+156. Introduced ExecPolicy loader parsing default.policy
+157. ExecCommand enforces ExecPolicy when approving commands
+158. PatchApplier validates paths stay within cwd
+159. Added ExecPolicyTests and updated ApplyPatchTests
+160. Added ProviderInfoTests for EnvKeyInstructions
+161. Embedded ChatGptLogin script test
+162. Added mock model provider
+163. Provider base URL can be overridden via CODEX_MODEL_BASE_URL
+164. Introduced RealCodexAgent using OpenAIClient
+165. ExecCommand selects RealCodexAgent unless provider is 'mock'
+166. ExecPolicy tracks forbidden programs with reasons
+167. ExecCommand prints denial reason for forbidden and unverified commands
+168. ChatGptLogin throws informative errors on failure
+169. ProviderInfoTests cover base URL environment override
+170. ExecPolicyTests verify forbidden reason
+171. ChatGptLoginTests ensure failure case handled
+
+172. RealCodexAgent streams chat chunks via OpenAIClient.ChatStreamAsync
+173. ExecPolicy parses flags and opts from policy file
+174. ExecPolicy.VerifyCommand validates option usage
+175. ExecCommand uses VerifyCommand for approval checks
+176. CODEX_EXEC_POLICY_PATH overrides default policy path
+177. ProviderCommand supports add subcommand
+178. ProviderCommand supports remove subcommand
+179. ProviderCommand supports set-default subcommand
+180. ExecPolicyTests cover VerifyCommand
+181. ProviderCommandTests cover add/remove/set-default
+
+182. Introduced AffectedPaths summary for patch application
+183. PatchApplier.ApplyWithSummary returns affected paths and summary
+184. ApplyPatchCommand supports --summary option
+185. Improved unified diff algorithm when applying updates
+186. ApplyPatchTests verify summary output
+187. ApplyPatchTests verify update file patching
+188. Added DiffPlex dependency
+189. ApplyPatchCommand prints summary when applying patch
+190. New unit tests cover improved diff logic
+191. Documented apply patch improvements
+192. Added ApplyPatchCommandParser for detecting apply_patch CLI arguments
+193. Added ApplyPatchAction and ApplyPatchFileChange definitions
+194. Implemented MaybeParseApplyPatch and MaybeParseApplyPatchVerified helpers
+195. Added heredoc extraction logic for bash -lc patterns
+196. ApplyPatchCommandParserTests verify literal and heredoc parsing
+
+197. ExecCommand detects apply_patch commands and applies patches locally using PatchApplier
+
+198. Introduced ShellEnvironmentPolicyInherit enum and EnvironmentVariablePattern glob helper
+199. Added ShellEnvironmentPolicy class
+200. Implemented ExecEnv.Create to build filtered environments
+201. AppConfig parses [shell_environment_policy] table
+202. Added ShellEnvironmentPolicy property to AppConfig
+203. DebugCommand applies ShellEnvironmentPolicy when running processes
+204. Added ExecEnvTests verifying default excludes are removed
+205. ExecEnvTests verify include_only filtering
+206. Created new test file ExecEnvTests.cs
+
+## TODO Next Run
+- Implement shell environment policy overrides via CLI
+- Integrate ExecEnv into other commands that spawn processes

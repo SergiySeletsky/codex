@@ -34,7 +34,7 @@ public static class EnvUtils
         return Path.Combine(home, "history");
     }
 
-    public static string GetLogLevel(string? cliLevel = null)
+public static string GetLogLevel(string? cliLevel = null)
     {
         if (!string.IsNullOrEmpty(cliLevel))
             return cliLevel;
@@ -42,5 +42,21 @@ public static class EnvUtils
         if (!string.IsNullOrEmpty(env))
             return env;
         return "Information";
+    }
+
+    public static string? GetModelProviderId(string? cliVal = null)
+    {
+        if (!string.IsNullOrEmpty(cliVal))
+            return cliVal;
+        var env = Environment.GetEnvironmentVariable("CODEX_MODEL_PROVIDER");
+        return string.IsNullOrEmpty(env) ? null : env;
+    }
+
+    public static string? GetProviderBaseUrl(string? cliVal = null)
+    {
+        if (!string.IsNullOrEmpty(cliVal))
+            return cliVal;
+        var env = Environment.GetEnvironmentVariable("CODEX_MODEL_BASE_URL");
+        return string.IsNullOrEmpty(env) ? null : env;
     }
 }

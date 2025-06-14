@@ -57,4 +57,15 @@ public class SessionManagerTests
         Assert.Contains(list, i => i.Id == id);
         CodexCli.Util.SessionManager.DeleteSession(id);
     }
+
+    [Fact]
+    public void ReadsSpecificHistoryEntry()
+    {
+        var id = CodexCli.Util.SessionManager.CreateSession();
+        CodexCli.Util.SessionManager.AddEntry(id, "first");
+        CodexCli.Util.SessionManager.AddEntry(id, "second");
+        var entry = CodexCli.Util.SessionManager.GetHistoryEntry(id, 2);
+        Assert.Equal("second", entry);
+        CodexCli.Util.SessionManager.DeleteSession(id);
+    }
 }

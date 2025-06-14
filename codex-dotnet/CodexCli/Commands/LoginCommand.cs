@@ -11,11 +11,15 @@ public static class LoginCommand
         var overridesOpt = new Option<string[]>("-c") { AllowMultipleArgumentsPerToken = true, Description = "Config overrides" };
         var tokenOpt = new Option<string?>("--token", "Token to save");
         var apiOpt = new Option<string?>("--api-key", "API key to save");
+        var providerOpt = new Option<string?>("--provider", "Provider id for API key");
+        var chatgptOpt = new Option<bool>("--chatgpt", () => false, "Use ChatGPT browser login");
         var cmd = new Command("login", "Login with ChatGPT");
         cmd.AddOption(overridesOpt);
         cmd.AddOption(tokenOpt);
         cmd.AddOption(apiOpt);
-        cmd.SetHandler(async (string? cfgPath, string? cd, string[] ov, string? tokenArg, string? apiArg) =>
+        cmd.AddOption(providerOpt);
+        cmd.AddOption(chatgptOpt);
+        cmd.SetHandler(async (string? cfgPath, string? cd, string[] ov, string? tokenArg, string? apiArg, string? providerOptVal, bool chatgpt) =>
         {
             if (cd != null) Environment.CurrentDirectory = cd;
             AppConfig? cfg = null;
@@ -34,23 +38,41 @@ public static class LoginCommand
                 Console.WriteLine("Token saved.");
             }
 
+            var provider = EnvUtils.GetModelProviderId(providerOptVal) ?? "openai";
             var apiKey = apiArg;
             if (apiKey == null)
             {
-                Console.Write("OpenAI API key (optional): ");
+                Console.Write($"{provider} API key (optional): ");
                 apiKey = Console.ReadLine();
             }
-            apiKey ??= OpenAiKeyManager.GetKey();
+            var provInfo = cfg?.GetProvider(provider) ?? ModelProviderInfo.BuiltIns[provider];
+            apiKey ??= ApiKeyManager.GetKey(provInfo);
+            if (string.IsNullOrWhiteSpace(apiKey) && chatgpt)
+            {
+                Console.WriteLine("Launching browser login...");
+                try
+                {
+                    apiKey = await ChatGptLogin.LoginAsync(EnvUtils.FindCodexHome(), false);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
             if (!string.IsNullOrWhiteSpace(apiKey))
             {
-                OpenAiKeyManager.SetKey(apiKey);
-                Console.WriteLine("API key set.");
+                ApiKeyManager.SaveKey(provider, apiKey);
+                Console.WriteLine("API key saved.");
+            }
+            else if (!string.IsNullOrEmpty(provInfo.EnvKeyInstructions))
+            {
+                Console.WriteLine(provInfo.EnvKeyInstructions);
             }
             var overrides = ConfigOverrides.Parse(ov);
             if (overrides.Overrides.Count > 0)
                 Console.WriteLine($"{overrides.Overrides.Count} override(s) parsed");
             await Task.CompletedTask;
-        }, configOption, cdOption, overridesOpt, tokenOpt, apiOpt);
+        }, configOption, cdOption, overridesOpt, tokenOpt, apiOpt, providerOpt, chatgptOpt);
         return cmd;
     }
 }
