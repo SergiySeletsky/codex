@@ -8,8 +8,10 @@ public static class LoginCommand
 {
     public static Command Create(Option<string?> configOption, Option<string?> cdOption)
     {
+        var overridesOpt = new Option<string[]>("-c") { AllowMultipleArgumentsPerToken = true, Description = "Config overrides" };
         var cmd = new Command("login", "Login with ChatGPT");
-        cmd.SetHandler(async (string? cfgPath, string? cd) =>
+        cmd.AddOption(overridesOpt);
+        cmd.SetHandler(async (string? cfgPath, string? cd, string[] ov) =>
         {
             if (cd != null) Environment.CurrentDirectory = cd;
             AppConfig? cfg = null;
@@ -17,6 +19,7 @@ public static class LoginCommand
                 cfg = AppConfig.Load(cfgPath);
             Console.Write("Paste access token: ");
             var token = Console.ReadLine();
+            token ??= Environment.GetEnvironmentVariable("CODEX_TOKEN");
             if (!string.IsNullOrWhiteSpace(token))
             {
                 TokenManager.SaveToken(token);
@@ -26,8 +29,11 @@ public static class LoginCommand
             {
                 Console.WriteLine("No token provided.");
             }
+            var overrides = ConfigOverrides.Parse(ov);
+            if (overrides.Overrides.Count > 0)
+                Console.WriteLine($"{overrides.Overrides.Count} override(s) parsed");
             await Task.CompletedTask;
-        }, configOption, cdOption);
+        }, configOption, cdOption, overridesOpt);
         return cmd;
     }
 }

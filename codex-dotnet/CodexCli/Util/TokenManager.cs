@@ -14,4 +14,11 @@ public static class TokenManager
     {
         return File.Exists(TokenFile) ? File.ReadAllText(TokenFile).Trim() : null;
     }
+
+    public static string? LoadTokenOrEnv()
+    {
+        var env = Environment.GetEnvironmentVariable("CODEX_TOKEN");
+        if (!string.IsNullOrEmpty(env)) return env.Trim();
+        return LoadToken();
+    }
 }

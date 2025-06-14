@@ -13,8 +13,10 @@ public static class ExecCommand
         var imagesOpt = new Option<FileInfo[]>("--image", "Image attachments") { AllowMultipleArgumentsPerToken = true };
         var modelOpt = new Option<string?>("--model", "Model to use");
         var profileOpt = new Option<string?>("--profile", "Config profile");
+        var providerOpt = new Option<string?>("--model-provider", "Model provider");
         var fullAutoOpt = new Option<bool>("--full-auto", () => false, "Run in full-auto mode");
-        var colorOpt = new Option<string>("--color", () => "auto", "Output color mode (always, never, auto)");
+        var colorOpt = new Option<ColorMode>("--color", () => ColorMode.Auto, "Output color mode");
+        var cwdOpt = new Option<string?>(new[] {"--cwd", "-C"}, "Working directory for Codex");
         var lastMsgOpt = new Option<string?>("--output-last-message", "File to write last agent message");
         var skipGitOpt = new Option<bool>("--skip-git-repo-check", () => false, "Allow running outside git repo");
         var overridesOpt = new Option<string[]>("-c", description: "Config overrides") { AllowMultipleArgumentsPerToken = true };
@@ -24,14 +26,16 @@ public static class ExecCommand
         cmd.AddOption(imagesOpt);
         cmd.AddOption(modelOpt);
         cmd.AddOption(profileOpt);
+        cmd.AddOption(providerOpt);
         cmd.AddOption(fullAutoOpt);
+        cmd.AddOption(cwdOpt);
         cmd.AddOption(colorOpt);
         cmd.AddOption(lastMsgOpt);
         cmd.AddOption(skipGitOpt);
         cmd.AddOption(overridesOpt);
 
-        var binder = new ExecBinder(promptArg, imagesOpt, modelOpt, profileOpt, fullAutoOpt,
-            colorOpt, lastMsgOpt, skipGitOpt, overridesOpt);
+        var binder = new ExecBinder(promptArg, imagesOpt, modelOpt, profileOpt, providerOpt, fullAutoOpt,
+            colorOpt, cwdOpt, lastMsgOpt, skipGitOpt, overridesOpt);
 
         cmd.SetHandler(async (ExecOptions opts, string? cfgPath, string? cd) =>
         {
@@ -45,6 +49,8 @@ public static class ExecCommand
                 return;
             }
 
+            if (opts.Cwd != null) Environment.CurrentDirectory = opts.Cwd;
+
             var prompt = opts.Prompt;
             if (string.IsNullOrEmpty(prompt) || prompt == "-")
             {
@@ -55,9 +61,11 @@ public static class ExecCommand
             var ov = ConfigOverrides.Parse(opts.Overrides);
 
             Console.WriteLine($"Model: {opts.Model ?? cfg?.Model}");
+            Console.WriteLine($"Provider: {opts.ModelProvider ?? "default"}");
             Console.WriteLine($"Profile: {opts.Profile}");
             Console.WriteLine($"Full auto: {opts.FullAuto}");
             Console.WriteLine($"Color: {opts.Color}");
+            Console.WriteLine($"Cwd: {opts.Cwd}");
             Console.WriteLine($"Images: {string.Join(',', opts.Images.Select(i => i.FullName))}");
             Console.WriteLine($"Prompt: {prompt?.Trim()}");
             if (ov.Overrides.Count > 0)

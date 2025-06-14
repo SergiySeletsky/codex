@@ -30,6 +30,7 @@ public static class InteractiveCommand
     {
         var history = new List<string>();
         AnsiConsole.MarkupLine("[green]Codex interactive mode[/]");
+        AnsiConsole.MarkupLine("Type /help for commands");
         while (true)
         {
             var prompt = AnsiConsole.Ask<string>("cmd> ");
@@ -39,6 +40,11 @@ public static class InteractiveCommand
             {
                 foreach (var item in history)
                     AnsiConsole.MarkupLine($"[blue]{item}[/]");
+                continue;
+            }
+            if (prompt.Equals("/help", StringComparison.OrdinalIgnoreCase))
+            {
+                AnsiConsole.MarkupLine("Available commands: /history, /quit, /help");
                 continue;
             }
             history.Add(prompt);
