@@ -1,6 +1,7 @@
 using System.CommandLine;
 using System.CommandLine.Binding;
 using System.CommandLine.Parsing;
+using CodexCli.Config;
 
 namespace CodexCli.Commands;
 
@@ -28,6 +29,11 @@ public class ExecBinder : BinderBase<ExecOptions>
     private readonly Option<bool> _noProjectDoc;
     private readonly Option<bool> _json;
     private readonly Option<string?> _eventLog;
+    private readonly Option<ShellEnvironmentPolicyInherit?> _envInherit;
+    private readonly Option<bool?> _envIgnore;
+    private readonly Option<string[]> _envExclude;
+    private readonly Option<string[]> _envSet;
+    private readonly Option<string[]> _envInclude;
 
     public ExecBinder(Argument<string?> prompt, Option<FileInfo[]> images, Option<string?> model,
         Option<string?> profile, Option<string?> provider, Option<bool> fullAuto,
@@ -36,7 +42,9 @@ public class ExecBinder : BinderBase<ExecOptions>
         Option<string[]> notify, Option<string[]> overrides, Option<ReasoningEffort?> effort,
         Option<ReasoningSummary?> summary, Option<string?> instructions,
         Option<bool?> hideReasoning, Option<bool?> disableStorage,
-        Option<bool> noProjectDoc, Option<bool> json, Option<string?> eventLog)
+        Option<bool> noProjectDoc, Option<bool> json, Option<string?> eventLog,
+        Option<ShellEnvironmentPolicyInherit?> envInherit, Option<bool?> envIgnore,
+        Option<string[]> envExclude, Option<string[]> envSet, Option<string[]> envInclude)
     {
         _prompt = prompt;
         _images = images;
@@ -60,6 +68,11 @@ public class ExecBinder : BinderBase<ExecOptions>
         _noProjectDoc = noProjectDoc;
         _json = json;
         _eventLog = eventLog;
+        _envInherit = envInherit;
+        _envIgnore = envIgnore;
+        _envExclude = envExclude;
+        _envSet = envSet;
+        _envInclude = envInclude;
     }
 
     protected override ExecOptions GetBoundValue(BindingContext bindingContext)
@@ -90,7 +103,12 @@ public class ExecBinder : BinderBase<ExecOptions>
             bindingContext.ParseResult.GetValueForOption(_disableStorage),
             bindingContext.ParseResult.GetValueForOption(_noProjectDoc),
             bindingContext.ParseResult.GetValueForOption(_json),
-            bindingContext.ParseResult.GetValueForOption(_eventLog)
+            bindingContext.ParseResult.GetValueForOption(_eventLog),
+            bindingContext.ParseResult.GetValueForOption(_envInherit),
+            bindingContext.ParseResult.GetValueForOption(_envIgnore),
+            bindingContext.ParseResult.GetValueForOption(_envExclude) ?? Array.Empty<string>(),
+            bindingContext.ParseResult.GetValueForOption(_envSet) ?? Array.Empty<string>(),
+            bindingContext.ParseResult.GetValueForOption(_envInclude) ?? Array.Empty<string>()
         );
     }
 }

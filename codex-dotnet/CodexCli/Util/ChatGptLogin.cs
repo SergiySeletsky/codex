@@ -10,7 +10,7 @@ public static class ChatGptLogin
 
     public static string GetScriptPath() => ScriptPath;
 
-    public static async Task<string> LoginAsync(string codexHome, bool captureOutput)
+    public static async Task<string> LoginAsync(string codexHome, bool captureOutput, IDictionary<string,string>? env = null)
     {
         var psi = new ProcessStartInfo("python3", ScriptPath)
         {
@@ -19,6 +19,11 @@ public static class ChatGptLogin
             UseShellExecute = false,
         };
         psi.Environment["CODEX_HOME"] = codexHome;
+        if (env != null)
+        {
+            foreach (var (k,v) in env)
+                psi.Environment[k] = v;
+        }
         try
         {
             using var proc = Process.Start(psi) ?? throw new InvalidOperationException("python3 not found");

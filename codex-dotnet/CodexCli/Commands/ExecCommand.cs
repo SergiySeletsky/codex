@@ -34,6 +34,11 @@ public static class ExecCommand
         var noProjDocOpt = new Option<bool>("--no-project-doc", () => false, "Disable AGENTS.md project doc");
         var jsonOpt = new Option<bool>("--json", () => false, "Output raw JSON events");
         var eventLogOpt = new Option<string?>("--event-log", "Path to save JSON event log");
+        var envInheritOpt = new Option<ShellEnvironmentPolicyInherit?>("--env-inherit");
+        var envIgnoreOpt = new Option<bool?>("--env-ignore-default-excludes");
+        var envExcludeOpt = new Option<string[]>("--env-exclude") { AllowMultipleArgumentsPerToken = true };
+        var envSetOpt = new Option<string[]>("--env-set") { AllowMultipleArgumentsPerToken = true };
+        var envIncludeOpt = new Option<string[]>("--env-include-only") { AllowMultipleArgumentsPerToken = true };
 
         var cmd = new Command("exec", "Run Codex non-interactively");
         cmd.AddArgument(promptArg);
@@ -58,10 +63,16 @@ public static class ExecCommand
         cmd.AddOption(noProjDocOpt);
         cmd.AddOption(jsonOpt);
         cmd.AddOption(eventLogOpt);
+        cmd.AddOption(envInheritOpt);
+        cmd.AddOption(envIgnoreOpt);
+        cmd.AddOption(envExcludeOpt);
+        cmd.AddOption(envSetOpt);
+        cmd.AddOption(envIncludeOpt);
 
         var binder = new ExecBinder(promptArg, imagesOpt, modelOpt, profileOpt, providerOpt, fullAutoOpt,
             approvalOpt, sandboxOpt, colorOpt, cwdOpt, lastMsgOpt, skipGitOpt, notifyOpt, overridesOpt,
-            effortOpt, summaryOpt, instrOpt, hideReasonOpt, disableStorageOpt, noProjDocOpt, jsonOpt, eventLogOpt);
+            effortOpt, summaryOpt, instrOpt, hideReasonOpt, disableStorageOpt, noProjDocOpt, jsonOpt, eventLogOpt,
+            envInheritOpt, envIgnoreOpt, envExcludeOpt, envSetOpt, envIncludeOpt);
 
         cmd.SetHandler(async (ExecOptions opts, string? cfgPath, string? cd) =>
         {
@@ -77,8 +88,17 @@ public static class ExecCommand
                 logWriter = new StreamWriter(opts.EventLogFile, append: false);
             }
 
+            var policy = cfg?.ShellEnvironmentPolicy ?? new ShellEnvironmentPolicy();
+            if (opts.EnvInherit != null) policy.Inherit = opts.EnvInherit.Value;
+            if (opts.EnvIgnoreDefaultExcludes != null) policy.IgnoreDefaultExcludes = opts.EnvIgnoreDefaultExcludes.Value;
+            if (opts.EnvExclude.Length > 0) policy.Exclude = opts.EnvExclude.Select(EnvironmentVariablePattern.CaseInsensitive).ToList();
+            if (opts.EnvSet.Length > 0)
+                policy.Set = opts.EnvSet.Select(s => s.Split('=', 2)).ToDictionary(p => p[0], p => p.Length > 1 ? p[1] : string.Empty);
+            if (opts.EnvIncludeOnly.Length > 0) policy.IncludeOnly = opts.EnvIncludeOnly.Select(EnvironmentVariablePattern.CaseInsensitive).ToList();
+            var envMap = ExecEnv.Create(policy);
+
             if (opts.NotifyCommand.Length > 0)
-                NotifyUtils.RunNotify(opts.NotifyCommand, "session_started");
+                NotifyUtils.RunNotify(opts.NotifyCommand, "session_started", envMap);
 
             if (!opts.SkipGitRepoCheck && !GitUtils.IsInsideGitRepo(Environment.CurrentDirectory))
             {
@@ -313,7 +333,7 @@ public static class ExecCommand
                 Console.WriteLine($"History saved to {histPath}");
 
             if (opts.NotifyCommand.Length > 0)
-                NotifyUtils.RunNotify(opts.NotifyCommand, "session_complete");
+                NotifyUtils.RunNotify(opts.NotifyCommand, "session_complete", envMap);
         }, binder, configOption, cdOption);
         return cmd;
     }

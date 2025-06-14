@@ -1,5 +1,6 @@
 using System.CommandLine;
 using System.CommandLine.Binding;
+using CodexCli.Config;
 
 namespace CodexCli.Commands;
 
@@ -26,6 +27,11 @@ public class InteractiveBinder : BinderBase<InteractiveOptions>
     private readonly Option<string?> _lastMessage;
     private readonly Option<bool> _noProjectDoc;
     private readonly Option<string?> _eventLog;
+    private readonly Option<ShellEnvironmentPolicyInherit?> _envInherit;
+    private readonly Option<bool?> _envIgnore;
+    private readonly Option<string[]> _envExclude;
+    private readonly Option<string[]> _envSet;
+    private readonly Option<string[]> _envInclude;
 
     public InteractiveBinder(Argument<string?> prompt, Option<FileInfo[]> images, Option<string?> model,
         Option<string?> profile, Option<string?> provider, Option<bool> fullAuto, Option<ApprovalMode?> approval,
@@ -33,7 +39,9 @@ public class InteractiveBinder : BinderBase<InteractiveOptions>
         Option<string[]> notify, Option<string[]> overrides, Option<ReasoningEffort?> effort,
         Option<ReasoningSummary?> summary, Option<string?> instructions,
         Option<bool?> hideReasoning, Option<bool?> disableStorage,
-        Option<string?> lastMessage, Option<bool> noProjectDoc, Option<string?> eventLog)
+        Option<string?> lastMessage, Option<bool> noProjectDoc, Option<string?> eventLog,
+        Option<ShellEnvironmentPolicyInherit?> envInherit, Option<bool?> envIgnore,
+        Option<string[]> envExclude, Option<string[]> envSet, Option<string[]> envInclude)
     {
         _prompt = prompt;
         _images = images;
@@ -56,6 +64,11 @@ public class InteractiveBinder : BinderBase<InteractiveOptions>
         _lastMessage = lastMessage;
         _noProjectDoc = noProjectDoc;
         _eventLog = eventLog;
+        _envInherit = envInherit;
+        _envIgnore = envIgnore;
+        _envExclude = envExclude;
+        _envSet = envSet;
+        _envInclude = envInclude;
     }
 
     protected override InteractiveOptions GetBoundValue(BindingContext bindingContext)
@@ -82,7 +95,12 @@ public class InteractiveBinder : BinderBase<InteractiveOptions>
             bindingContext.ParseResult.GetValueForOption(_disableStorage),
             bindingContext.ParseResult.GetValueForOption(_lastMessage),
             bindingContext.ParseResult.GetValueForOption(_noProjectDoc),
-            bindingContext.ParseResult.GetValueForOption(_eventLog)
+            bindingContext.ParseResult.GetValueForOption(_eventLog),
+            bindingContext.ParseResult.GetValueForOption(_envInherit),
+            bindingContext.ParseResult.GetValueForOption(_envIgnore),
+            bindingContext.ParseResult.GetValueForOption(_envExclude) ?? Array.Empty<string>(),
+            bindingContext.ParseResult.GetValueForOption(_envSet) ?? Array.Empty<string>(),
+            bindingContext.ParseResult.GetValueForOption(_envInclude) ?? Array.Empty<string>()
         );
     }
 }

@@ -1,3 +1,5 @@
+using CodexCli.Config;
+
 namespace CodexCli.Commands;
 
 public record InteractiveOptions(
@@ -21,4 +23,9 @@ public record InteractiveOptions(
     bool? DisableResponseStorage,
     string? LastMessageFile,
     bool NoProjectDoc,
-    string? EventLogFile);
+    string? EventLogFile,
+    ShellEnvironmentPolicyInherit? EnvInherit,
+    bool? EnvIgnoreDefaultExcludes,
+    string[] EnvExclude,
+    string[] EnvSet,
+    string[] EnvIncludeOnly);

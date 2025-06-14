@@ -1,6 +1,7 @@
 using System.CommandLine;
 using CodexCli.Commands;
 using System.IO;
+using CodexCli.Config;
 
 namespace CodexCli.Tests;
 
@@ -31,11 +32,16 @@ public class ExecBinderTests
         var noProjDocOpt = new Option<bool>("--no-project-doc");
         var jsonOpt = new Option<bool>("--json");
         var logOpt = new Option<string?>("--event-log");
+        var envInheritOpt = new Option<ShellEnvironmentPolicyInherit?>("--env-inherit");
+        var envIgnoreOpt = new Option<bool?>("--env-ignore-default-excludes");
+        var envExcludeOpt = new Option<string[]>("--env-exclude") { AllowMultipleArgumentsPerToken = true };
+        var envSetOpt = new Option<string[]>("--env-set") { AllowMultipleArgumentsPerToken = true };
+        var envIncludeOpt = new Option<string[]>("--env-include-only") { AllowMultipleArgumentsPerToken = true };
 
         var binder = new ExecBinder(promptArg, imagesOpt, modelOpt, profileOpt, providerOpt,
             fullAutoOpt, approvalOpt, sandboxOpt, colorOpt, cwdOpt, lastOpt, skipGitOpt,
             notifyOpt, overridesOpt, effortOpt, summaryOpt, instrOpt, hideReasonOpt, disableStorageOpt,
-            noProjDocOpt, jsonOpt, logOpt);
+            noProjDocOpt, jsonOpt, logOpt, envInheritOpt, envIgnoreOpt, envExcludeOpt, envSetOpt, envIncludeOpt);
 
         var cmd = new Command("exec");
         cmd.AddArgument(promptArg);
@@ -46,12 +52,17 @@ public class ExecBinderTests
         cmd.AddOption(noProjDocOpt);
         cmd.AddOption(jsonOpt);
         cmd.AddOption(logOpt);
+        cmd.AddOption(envInheritOpt);
+        cmd.AddOption(envIgnoreOpt);
+        cmd.AddOption(envExcludeOpt);
+        cmd.AddOption(envSetOpt);
+        cmd.AddOption(envIncludeOpt);
         ExecOptions? captured = null;
         cmd.SetHandler((ExecOptions o) => captured = o, binder);
         var root = new RootCommand();
         root.AddCommand(cmd);
 
-        await root.InvokeAsync("exec hello --model gpt-4 --full-auto --hide-agent-reasoning --disable-response-storage --no-project-doc --json --event-log log.txt");
+        await root.InvokeAsync("exec hello --model gpt-4 --full-auto --hide-agent-reasoning --disable-response-storage --no-project-doc --json --event-log log.txt --env-inherit all --env-ignore-default-excludes --env-exclude FOO --env-set X=1 --env-include-only PATH");
 
         Assert.NotNull(captured);
         Assert.Equal("hello", captured!.Prompt);
@@ -62,5 +73,10 @@ public class ExecBinderTests
         Assert.True(captured.NoProjectDoc);
         Assert.True(captured.Json);
         Assert.Equal("log.txt", captured.EventLogFile);
+        Assert.Equal(ShellEnvironmentPolicyInherit.All, captured.EnvInherit);
+        Assert.True(captured.EnvIgnoreDefaultExcludes);
+        Assert.Contains("FOO", captured.EnvExclude);
+        Assert.Contains("X=1", captured.EnvSet);
+        Assert.Contains("PATH", captured.EnvIncludeOnly);
     }
 }

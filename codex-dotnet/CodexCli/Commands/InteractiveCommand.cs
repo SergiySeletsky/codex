@@ -33,6 +33,11 @@ public static class InteractiveCommand
         var noProjDocOpt = new Option<bool>("--no-project-doc", () => false);
         var lastMsgOpt = new Option<string?>("--output-last-message");
         var eventLogOpt = new Option<string?>("--event-log", "Path to save JSON event log");
+        var envInheritOpt = new Option<ShellEnvironmentPolicyInherit?>("--env-inherit");
+        var envIgnoreOpt = new Option<bool?>("--env-ignore-default-excludes");
+        var envExcludeOpt = new Option<string[]>("--env-exclude") { AllowMultipleArgumentsPerToken = true };
+        var envSetOpt = new Option<string[]>("--env-set") { AllowMultipleArgumentsPerToken = true };
+        var envIncludeOpt = new Option<string[]>("--env-include-only") { AllowMultipleArgumentsPerToken = true };
 
         var cmd = new Command("interactive", "Run interactive TUI session");
         cmd.AddArgument(promptArg);
@@ -56,10 +61,16 @@ public static class InteractiveCommand
         cmd.AddOption(noProjDocOpt);
         cmd.AddOption(lastMsgOpt);
         cmd.AddOption(eventLogOpt);
+        cmd.AddOption(envInheritOpt);
+        cmd.AddOption(envIgnoreOpt);
+        cmd.AddOption(envExcludeOpt);
+        cmd.AddOption(envSetOpt);
+        cmd.AddOption(envIncludeOpt);
 
         var binder = new InteractiveBinder(promptArg, imagesOpt, modelOpt, profileOpt, providerOpt,
             fullAutoOpt, approvalOpt, sandboxOpt, colorOpt, skipGitOpt, cwdOpt, notifyOpt, overridesOpt,
-            effortOpt, summaryOpt, instrOpt, hideReasonOpt, disableStorageOpt, lastMsgOpt, noProjDocOpt, eventLogOpt);
+            effortOpt, summaryOpt, instrOpt, hideReasonOpt, disableStorageOpt, lastMsgOpt, noProjDocOpt, eventLogOpt,
+            envInheritOpt, envIgnoreOpt, envExcludeOpt, envSetOpt, envIncludeOpt);
 
         cmd.SetHandler(async (InteractiveOptions opts, string? cfgPath, string? cd) =>
         {
@@ -84,8 +95,17 @@ public static class InteractiveCommand
 
             if (opts.Cwd != null) Environment.CurrentDirectory = opts.Cwd;
 
+            var policy = cfg?.ShellEnvironmentPolicy ?? new ShellEnvironmentPolicy();
+            if (opts.EnvInherit != null) policy.Inherit = opts.EnvInherit.Value;
+            if (opts.EnvIgnoreDefaultExcludes != null) policy.IgnoreDefaultExcludes = opts.EnvIgnoreDefaultExcludes.Value;
+            if (opts.EnvExclude.Length > 0) policy.Exclude = opts.EnvExclude.Select(EnvironmentVariablePattern.CaseInsensitive).ToList();
+            if (opts.EnvSet.Length > 0)
+                policy.Set = opts.EnvSet.Select(s => s.Split('=',2)).ToDictionary(p => p[0], p => p.Length>1?p[1]:string.Empty);
+            if (opts.EnvIncludeOnly.Length > 0) policy.IncludeOnly = opts.EnvIncludeOnly.Select(EnvironmentVariablePattern.CaseInsensitive).ToList();
+            var envMap = ExecEnv.Create(policy);
+
             if (opts.NotifyCommand.Length > 0)
-                NotifyUtils.RunNotify(opts.NotifyCommand, "session_started");
+                NotifyUtils.RunNotify(opts.NotifyCommand, "session_started", envMap);
 
             string? prompt = opts.Prompt;
             if (string.IsNullOrEmpty(prompt) || prompt == "-")
@@ -112,7 +132,7 @@ public static class InteractiveCommand
             var opts2 = opts with { Prompt = prompt };
             RunInteractive(opts2, cfg);
             if (opts.NotifyCommand.Length > 0)
-                NotifyUtils.RunNotify(opts.NotifyCommand, "session_complete");
+                NotifyUtils.RunNotify(opts.NotifyCommand, "session_complete", envMap);
             await Task.CompletedTask;
         }, binder, configOption, cdOption);
         return cmd;

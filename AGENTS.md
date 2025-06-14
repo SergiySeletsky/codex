@@ -225,7 +225,17 @@
 204. Added ExecEnvTests verifying default excludes are removed
 205. ExecEnvTests verify include_only filtering
 206. Created new test file ExecEnvTests.cs
+207. Added CLI options to override shell environment policy
+208. Created ShellEnvPolicy fields in ExecOptions and InteractiveOptions
+209. Extended ExecBinder and InteractiveBinder to bind env options
+210. ExecCommand and InteractiveCommand apply policy overrides and pass env to NotifyUtils
+211. NotifyUtils accepts environment dictionary
+212. ChatGptLogin accepts environment and LoginCommand uses policy overrides via new binder
+213. DebugCommand supports env policy options for seatbelt/landlock
+214. Added LoginBinder and LoginOptions classes
+215. Updated binder tests for new options
+216. Build and tests updated for .NET 8
 
 ## TODO Next Run
-- Implement shell environment policy overrides via CLI
-- Integrate ExecEnv into other commands that spawn processes
+- Verify new env policy features across all commands
+- Continue migrating remaining Rust features
