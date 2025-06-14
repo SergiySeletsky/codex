@@ -262,6 +262,18 @@
      messages-last and messages-count subcommands
 240. MessageHistoryTests cover new APIs
 
+241. Implemented minimal McpClient class for JSON-RPC communication
+242. Added mcp-client command running an MCP server and listing tools
+243. Added JsonToToml utility converting JSON values to TOML
+244. Introduced JsonToTomlTests verifying basic conversion
+245. Provider command now supports 'login' subcommand to store API keys
+246. Program registers new mcp-client command
+247. History messages-last subcommand accepts --json option
+248. Added unit tests for JsonToToml
+249. Created McpClientCommand options for timeout and JSON output
+250. Implemented provider login key saving via ApiKeyManager
+
 ## TODO Next Run
 - Port more Rust CLI features
 - Investigate hanging tests and fix
+- Expand MCP client functionality and add more protocol tests

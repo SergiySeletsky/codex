@@ -113,13 +113,22 @@ public static class HistoryCommand
 
         var msgLastCmd = new Command("messages-last", "Show last N history entries");
         var lastCountArg = new Argument<int>("n", getDefaultValue: () => 10);
+        var jsonOpt = new Option<bool>("--json", "Output JSON array");
         msgLastCmd.AddArgument(lastCountArg);
-        msgLastCmd.SetHandler(async (int n) =>
+        msgLastCmd.AddOption(jsonOpt);
+        msgLastCmd.SetHandler(async (int n, bool json) =>
         {
             var cfg = new AppConfig();
             var lines = await MessageHistory.LastEntriesAsync(n, cfg);
-            foreach (var l in lines) Console.WriteLine(l);
-        }, lastCountArg);
+            if (json)
+            {
+                Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(lines));
+            }
+            else
+            {
+                foreach (var l in lines) Console.WriteLine(l);
+            }
+        }, lastCountArg, jsonOpt);
 
         var msgCountCmd = new Command("messages-count", "Print number of history entries");
         msgCountCmd.SetHandler(async () =>
