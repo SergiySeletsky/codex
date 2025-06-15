@@ -33,3 +33,6 @@ public record GetHistoryEntryResponseEvent(string Id, string SessionId, int Offs
 
 public record ResourceUpdatedEvent(string Id, string Uri) : Event(Id);
 public record ResourceListChangedEvent(string Id) : Event(Id);
+public record PromptListChangedEvent(string Id) : Event(Id);
+public record ToolListChangedEvent(string Id) : Event(Id);
+public record LoggingMessageEvent(string Id, string Message) : Event(Id);

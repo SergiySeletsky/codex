@@ -331,6 +331,15 @@
 308. McpClientCommand supports subscribe and unsubscribe options
 309. McpServerTests verify initialization result fields
 310. Added subscription test using SSE events
+311. Introduced PromptListChangedEvent, ToolListChangedEvent and LoggingMessageEvent
+312. McpServer persists prompts to disk in mcp-prompts.json
+313. Added prompts/add request storing a new prompt
+314. McpServer emits PromptListChangedEvent when a prompt is added
+315. Added LoggingMessageEvent emission on logging/setLevel
+316. McpClient exposes AddPromptAsync and AddPromptRequestParams
+317. McpClientCommand supports --add-prompt-name and --add-prompt-message options
+318. Added unit test verifying prompts/add triggers SSE event
+319. Documented new progress and TODO items
 
 ## TODO Next Run
 - Continue porting remaining Rust CLI features

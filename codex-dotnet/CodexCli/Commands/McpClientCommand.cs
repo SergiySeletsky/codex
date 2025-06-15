@@ -26,6 +26,8 @@ public static class McpClientCommand
         var listTemplatesOpt = new Option<bool>("--list-templates", description: "List resource templates and exit");
         var setLevelOpt = new Option<string?>("--set-level", description: "Set server log level");
         var completeOpt = new Option<string?>("--complete", description: "Completion prefix");
+        var addPromptNameOpt = new Option<string?>("--add-prompt-name", description: "Name of prompt to add");
+        var addPromptMsgOpt = new Option<string?>("--add-prompt-message", description: "System message for prompt");
         var subscribeOpt = new Option<string?>("--subscribe", description: "Subscribe to resource URI");
         var unsubscribeOpt = new Option<string?>("--unsubscribe", description: "Unsubscribe from resource URI");
         cmd.AddOption(timeoutOpt);
@@ -43,6 +45,8 @@ public static class McpClientCommand
         cmd.AddOption(listTemplatesOpt);
         cmd.AddOption(setLevelOpt);
         cmd.AddOption(completeOpt);
+        cmd.AddOption(addPromptNameOpt);
+        cmd.AddOption(addPromptMsgOpt);
         cmd.AddOption(subscribeOpt);
         cmd.AddOption(unsubscribeOpt);
         var progArg = new Argument<string>("program");
@@ -68,6 +72,8 @@ public static class McpClientCommand
             bool listTemplates = ctx.ParseResult.GetValueForOption(listTemplatesOpt);
             string? setLevel = ctx.ParseResult.GetValueForOption(setLevelOpt);
             string? completePrefix = ctx.ParseResult.GetValueForOption(completeOpt);
+            string? addPromptName = ctx.ParseResult.GetValueForOption(addPromptNameOpt);
+            string? addPromptMsg = ctx.ParseResult.GetValueForOption(addPromptMsgOpt);
             string? subscribeUri = ctx.ParseResult.GetValueForOption(subscribeOpt);
             string? unsubscribeUri = ctx.ParseResult.GetValueForOption(unsubscribeOpt);
 
@@ -112,6 +118,11 @@ public static class McpClientCommand
             else if (writeUri != null)
             {
                 await client.WriteResourceAsync(new WriteResourceRequestParams(writeUri, writeText ?? string.Empty), timeout);
+                Console.WriteLine("ok");
+            }
+            else if (addPromptName != null && addPromptMsg != null)
+            {
+                await client.AddPromptAsync(new AddPromptRequestParams(addPromptName, addPromptMsg), timeout);
                 Console.WriteLine("ok");
             }
             else if (setLevel != null)

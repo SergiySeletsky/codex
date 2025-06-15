@@ -166,6 +166,9 @@ public class McpClient : IDisposable
         return SendRequestAsync<GetPromptResult>("prompts/get", p, timeoutSeconds);
     }
 
+    public Task<Result> AddPromptAsync(AddPromptRequestParams p, int timeoutSeconds = 10)
+        => SendRequestAsync<Result>("prompts/add", p, timeoutSeconds);
+
     public Task<Result> SetLevelAsync(string level, int timeoutSeconds = 10)
         => SendRequestAsync<Result>("logging/setLevel", new SetLevelRequestParams(level), timeoutSeconds);
 
@@ -218,6 +221,7 @@ public record ListPromptsResult(string? NextCursor, List<Prompt> Prompts);
 public record GetPromptRequestParams(string Name, JsonElement? Arguments);
 public record PromptMessage(string Role, string Content);
 public record GetPromptResult(List<PromptMessage> Messages, string? Description);
+public record AddPromptRequestParams(string Name, string Message);
 
 public record ReadResourceRequestParams(string Uri);
 public record WriteResourceRequestParams(string Uri, string Text);

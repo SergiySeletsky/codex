@@ -16,6 +16,7 @@ public class McpServer : IDisposable
     private readonly List<ResourceTemplate> _templates = new();
     private readonly string _root;
     private readonly string _storagePath;
+    private readonly string _promptsPath;
     private readonly HashSet<string> _subscriptions = new();
     private string _logLevel = "info";
 
@@ -24,6 +25,7 @@ public class McpServer : IDisposable
         _listener.Prefixes.Add($"http://localhost:{port}/");
         _root = Directory.GetCurrentDirectory();
         _storagePath = Path.Combine(_root, "mcp-resources.json");
+        _promptsPath = Path.Combine(_root, "mcp-prompts.json");
 
         // simple in-memory resource store for demo purposes
         _resources["mem:/demo.txt"] = "Hello from MCP";
@@ -42,9 +44,25 @@ public class McpServer : IDisposable
             catch { }
         }
 
-        _prompts["demo"] = new List<PromptMessage> { new("system", "Say hello") };
+        if (File.Exists(_promptsPath))
+        {
+            try
+            {
+                var json = File.ReadAllText(_promptsPath);
+                var loaded = JsonSerializer.Deserialize<Dictionary<string, List<PromptMessage>>>(json);
+                if (loaded != null)
+                {
+                    foreach (var kv in loaded)
+                        _prompts[kv.Key] = kv.Value;
+                }
+            }
+            catch { }
+        }
+
+        _prompts.TryAdd("demo", new List<PromptMessage> { new("system", "Say hello") });
         _templates.Add(new ResourceTemplate("mem:/template.txt", "Demo template"));
         SaveResources();
+        SavePrompts();
     }
 
     public async Task RunAsync(CancellationToken cancellationToken = default)
@@ -124,6 +142,7 @@ public class McpServer : IDisposable
             "resources/unsubscribe" => HandleUnsubscribeAsync(req),
             "prompts/list" => Task.FromResult(CreateResponse(id, new { prompts = _prompts.Keys.Select(n => new { name = n, description = (string?)null }), nextCursor = (string?)null })),
             "prompts/get" => HandleGetPromptAsync(req),
+            "prompts/add" => HandleAddPromptAsync(req),
             "logging/setLevel" => HandleSetLevelAsync(req),
             "completion/complete" => HandleCompleteAsync(req),
             _ => Task.FromResult(CreateResponse(id, new { }))
@@ -241,11 +260,31 @@ public class McpServer : IDisposable
         return Task.FromResult(CreateResponse(id, result));
     }
 
+    private Task<JsonRpcMessage> HandleAddPromptAsync(JsonRpcMessage req)
+    {
+        var id = req.Id ?? JsonDocument.Parse("0").RootElement;
+        if (req.Params == null) return Task.FromResult(CreateResponse(id, new { }));
+        var obj = req.Params.Value;
+        if (!obj.TryGetProperty("name", out var n) || !obj.TryGetProperty("message", out var m))
+            return Task.FromResult(CreateResponse(id, new { }));
+        var name = n.GetString();
+        var message = m.GetString();
+        if (string.IsNullOrEmpty(name) || message == null)
+            return Task.FromResult(CreateResponse(id, new { }));
+        _prompts[name] = new List<PromptMessage> { new("system", message) };
+        SavePrompts();
+        EmitEvent(new PromptListChangedEvent(Guid.NewGuid().ToString()));
+        return Task.FromResult(CreateResponse(id, new { }));
+    }
+
     private Task<JsonRpcMessage> HandleSetLevelAsync(JsonRpcMessage req)
     {
         var id = req.Id ?? JsonDocument.Parse("0").RootElement;
         if (req.Params != null && req.Params.Value.TryGetProperty("level", out var l))
+        {
             _logLevel = l.GetString() ?? _logLevel;
+            EmitEvent(new LoggingMessageEvent(Guid.NewGuid().ToString(), $"log level set to {_logLevel}"));
+        }
         return Task.FromResult(CreateResponse(id, new { }));
     }
 
@@ -265,6 +304,16 @@ public class McpServer : IDisposable
         {
             var json = JsonSerializer.Serialize(_resources);
             File.WriteAllText(_storagePath, json);
+        }
+        catch { }
+    }
+
+    private void SavePrompts()
+    {
+        try
+        {
+            var json = JsonSerializer.Serialize(_prompts);
+            File.WriteAllText(_promptsPath, json);
         }
         catch { }
     }
