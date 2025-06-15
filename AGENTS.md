@@ -604,3 +604,11 @@
 562. Enhanced McpManagerCommand with resources/templates/logging/complete/create-message subcommands and message add/get
 563. Added cross-language tests for resources list, templates list, logging set-level and message roundtrip
 564. TODO next run: review remaining Rust features for parity and enable compatibility tests
+565. Added JSON and event streaming options to `roots list` in McpManagerCommand
+566. Extended `messages list` with --json and event watch options
+567. Prompts list/get now support JSON output and event streaming
+568. Resources list includes JSON/events options
+569. Templates command supports JSON/events options
+570. Build succeeded with .NET 8 SDK
+571. Ran targeted unit tests for ExecRunnerTests
+572. TODO next run: update remaining commands for JSON/event options and stabilize full test suite
