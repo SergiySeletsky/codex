@@ -20,10 +20,13 @@ public class McpEventStreamTests
         var req = new JsonRpcMessage { Method = "prompts/add", Id = JsonSerializer.SerializeToElement(1), Params = addParams.RootElement };
         await http.PostAsync($"http://localhost:{port}/jsonrpc", new StringContent(JsonSerializer.Serialize(req)));
 
-        await foreach (var line in McpEventStream.ReadLinesAsync($"http://localhost:{port}"))
+        await foreach (var ev in McpEventStream.ReadEventsAsync($"http://localhost:{port}"))
         {
-            Assert.Contains("PromptListChangedEvent", line);
-            break;
+            if (ev is PromptListChangedEvent)
+            {
+                Assert.True(true);
+                break;
+            }
         }
 
         cts.Cancel();

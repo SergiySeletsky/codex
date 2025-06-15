@@ -3,6 +3,7 @@ using System.CommandLine.Invocation;
 using CodexCli.Util;
 using System.Text.Json;
 using System.Linq;
+using System;
 
 namespace CodexCli.Commands;
 
@@ -114,8 +115,8 @@ public static class McpClientCommand
 
             if (watchEvents && eventsUrl != null)
             {
-                await foreach (var line in McpEventStream.ReadLinesAsync(eventsUrl))
-                    Console.WriteLine(line);
+                await foreach (var ev in McpEventStream.ReadEventsAsync(eventsUrl))
+                    Console.WriteLine(JsonSerializer.Serialize(ev));
                 return;
             }
 

@@ -3,6 +3,7 @@ using System.CommandLine.Invocation;
 using CodexCli.Util;
 using CodexCli.Models;
 using Spectre.Console;
+using System;
 
 namespace CodexCli.Commands;
 

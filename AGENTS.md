@@ -548,3 +548,9 @@
 508. Build and tests executed (tests pass with many skipped)
 509. TODO next run: improve SSE event handling robustness
 510. TODO future: migrate remaining MCP utilities
+511. Improved McpEventStream.ReadLinesAsync to handle multiline events and HTTP streaming
+512. ExecCommand now streams events concurrently with tool call
+513. ReplayCommand, McpClientCommand and McpManagerCommand stream events via McpEventStream
+514. Updated tests for McpEventStream to use new parser
+515. Build and tests executed (tests pass with many skipped)
+516. TODO next run: implement additional MCP utilities

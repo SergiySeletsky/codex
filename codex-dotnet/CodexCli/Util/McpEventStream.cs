@@ -1,6 +1,10 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Text.Json;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using CodexCli.Protocol;
 using CodexCli.Models;
 
@@ -11,15 +15,27 @@ public static class McpEventStream
     public static async IAsyncEnumerable<string> ReadLinesAsync(string baseUrl, [EnumeratorCancellation] CancellationToken token = default)
     {
         using var http = new HttpClient();
-        using var stream = await http.GetStreamAsync($"{baseUrl.TrimEnd('/')}/events", token);
+        using var resp = await http.GetAsync($"{baseUrl.TrimEnd('/')}/events", HttpCompletionOption.ResponseHeadersRead, token);
+        resp.EnsureSuccessStatusCode();
+        await using var stream = await resp.Content.ReadAsStreamAsync(token);
         using var reader = new StreamReader(stream);
+        var buffer = new StringBuilder();
         while (!token.IsCancellationRequested)
         {
             var line = await reader.ReadLineAsync();
             if (line == null) break;
             if (line.StartsWith("data:"))
-                yield return line.Substring(5).Trim();
+            {
+                buffer.AppendLine(line.Substring(5).Trim());
+            }
+            else if (string.IsNullOrEmpty(line) && buffer.Length > 0)
+            {
+                yield return buffer.ToString().TrimEnd();
+                buffer.Clear();
+            }
         }
+        if (buffer.Length > 0)
+            yield return buffer.ToString().TrimEnd();
     }
 
 public static async IAsyncEnumerable<Event> ReadEventsAsync(string baseUrl, [EnumeratorCancellation] CancellationToken token = default)
@@ -41,5 +57,6 @@ public static async IAsyncEnumerable<Event> ReadEventsAsync(string baseUrl, [Enu
             if (item != null) yield return item;
         }
     }
+
 }
 

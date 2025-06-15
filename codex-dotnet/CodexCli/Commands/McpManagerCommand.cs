@@ -2,6 +2,7 @@ using System.CommandLine;
 using System.Text.Json;
 using CodexCli.Config;
 using CodexCli.Util;
+using System;
 
 namespace CodexCli.Commands;
 
@@ -36,8 +37,8 @@ public static class McpManagerCommand
             }
             if (watch && eventsUrl != null)
             {
-                await foreach (var line in McpEventStream.ReadLinesAsync(eventsUrl))
-                    Console.WriteLine(line);
+                await foreach (var ev in McpEventStream.ReadEventsAsync(eventsUrl))
+                    Console.WriteLine(JsonSerializer.Serialize(ev));
             }
         }, configOption, eventsUrlOpt, watchOpt, jsonOpt);
 

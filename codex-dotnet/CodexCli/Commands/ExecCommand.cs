@@ -2,6 +2,7 @@ using System.CommandLine;
 using CodexCli.Config;
 using CodexCli.Util;
 using CodexCli.Protocol;
+using System;
 using CodexCli.ApplyPatch;
 using CodexCli.Models;
 using System.Linq;
@@ -223,9 +224,9 @@ public static class ExecCommand
                             if (ev is TaskCompleteEvent && !opts.WatchEvents)
                                 break;
                         }
+                        await callTask;
                     }
                     events = Stream();
-                    await callTask;
                 }
                 else
                 {
