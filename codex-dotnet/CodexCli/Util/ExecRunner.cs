@@ -1,13 +1,15 @@
 using CodexCli.Models;
+using CodexCli.Protocol;
 
 namespace CodexCli.Util;
 
 public static class ExecRunner
 {
     private const int MaxOutputBytes = 10 * 1024;
+    private const string NetworkDisabledEnv = "CODEX_SANDBOX_NETWORK_DISABLED";
     private const int MaxOutputLines = 256;
 
-    public static async Task<ExecToolCallOutput> RunAsync(ExecParams p, CancellationToken token)
+    public static async Task<ExecToolCallOutput> RunAsync(ExecParams p, CancellationToken token, SandboxPolicy? policy = null)
     {
         var psi = new System.Diagnostics.ProcessStartInfo(p.Command[0])
         {
@@ -22,6 +24,8 @@ public static class ExecRunner
         foreach (var (k,v) in p.Env)
             psi.Environment[k] = v;
 
+        if (policy != null && !policy.HasFullNetworkAccess())
+            psi.Environment[NetworkDisabledEnv] = "1";
         using var proc = System.Diagnostics.Process.Start(psi)!;
         var cts = CancellationTokenSource.CreateLinkedTokenSource(token);
         if (p.TimeoutMs != null)

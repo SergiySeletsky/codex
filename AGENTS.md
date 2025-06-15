@@ -371,6 +371,10 @@
 348. Added unit test verifying RolloutRecorder output
 349. Installed .NET 8 SDK for building
 350. Documented new progress and updated TODO list
+351. Expanded SandboxPolicy with permissions and utility methods
+352. ExecRunner sets network-disabled env when sandbox restricts network
+353. ExecCommand passes sandbox policy to ExecRunner
+354. Added SandboxPolicy and ExecRunner tests
 
 ## TODO Next Run
 - Continue porting remaining Rust CLI features
@@ -380,3 +384,4 @@
 - Expand unit tests for new utilities
 - Continue integrating new utilities into commands
 - Add more MCP client features and tests
+- Implement remaining sandbox enforcement logic

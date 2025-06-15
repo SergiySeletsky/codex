@@ -179,6 +179,7 @@ public static class ExecCommand
                 ? "full-auto"
                 : (sandboxList.Count > 0 ? string.Join(',', sandboxList.Select(s => s.ToString())) : "default");
             var processor = new CodexCli.Protocol.EventProcessor(withAnsi, !hideReason, cfg?.FileOpener ?? UriBasedFileOpener.None, Environment.CurrentDirectory);
+            var sandboxPolicy = new SandboxPolicy { Permissions = sandboxList };
             processor.PrintConfigSummary(
                 opts.Model ?? cfg?.Model ?? "default",
                 opts.ModelProvider ?? cfg?.ModelProvider ?? string.Empty,
@@ -288,7 +289,7 @@ public static class ExecCommand
                         else
                         {
                             var execParams = new ExecParams(begin.Command.ToList(), begin.Cwd, null, envMap);
-                            var result = await ExecRunner.RunAsync(execParams, CancellationToken.None);
+                            var result = await ExecRunner.RunAsync(execParams, CancellationToken.None, sandboxPolicy);
                             var endEv = new ExecCommandEndEvent(Guid.NewGuid().ToString(), result.Stdout, result.Stderr, result.ExitCode);
                             if (opts.Json)
                                 Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(endEv));

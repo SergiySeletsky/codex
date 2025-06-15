@@ -1,4 +1,5 @@
 using System;
+using CodexCli.Protocol;
 
 namespace CodexCli.Commands;
 
