@@ -476,4 +476,9 @@
 437. RolloutRecorder exposes Count of recorded items
 438. ExecRunner exposes default output limits as constants
 439. Added unit test for default ExecRunner constants
-440. TODO next run: implement MCP event streaming helpers
+440. Implemented MCP event streaming helpers
+441. Added McpEventStream utility to parse SSE lines
+442. McpClientCommand supports --events-url and --watch-events options
+443. Added McpEventStreamTests verifying event output (skipped)
+444. Documented progress and updated TODO list
+445. TODO next run: improve event deserialization and integrate with replay
