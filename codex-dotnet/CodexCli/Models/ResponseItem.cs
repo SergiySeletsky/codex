@@ -2,6 +2,7 @@ namespace CodexCli.Models;
 
 using System.Text.Json.Serialization;
 using System.Linq;
+using System.Text.Json;
 
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "type")]
 [JsonDerivedType(typeof(MessageItem), typeDiscriminator: "message")]
@@ -29,8 +30,32 @@ public static class ResponseItemFactory
             CodexCli.Protocol.TaskStartedEvent ts => new OtherItem(),
             CodexCli.Protocol.TaskCompleteEvent tc => tc.LastAgentMessage != null ?
                 new MessageItem("assistant", new List<ContentItem>{ new("output_text", tc.LastAgentMessage) }) : new OtherItem(),
+            CodexCli.Protocol.ExecApprovalRequestEvent ea => new MessageItem("system", new List<ContentItem>{ new("output_text", $"Approve exec: {string.Join(' ', ea.Command)}") }),
+            CodexCli.Protocol.PatchApplyApprovalRequestEvent pa => new MessageItem("system", new List<ContentItem>{ new("output_text", $"Approve patch: {pa.PatchSummary}") }),
+            CodexCli.Protocol.PatchApplyBeginEvent pb => new MessageItem("system", new List<ContentItem>{ new("output_text", "Applying patch") }),
+            CodexCli.Protocol.PatchApplyEndEvent pe => new MessageItem("system", new List<ContentItem>{ new("output_text", pe.Success ? "Patch applied" : "Patch failed") }),
+            CodexCli.Protocol.ResourceUpdatedEvent ru => new MessageItem("system", new List<ContentItem>{ new("output_text", $"Resource updated {ru.Uri}") }),
+            CodexCli.Protocol.ResourceListChangedEvent => new OtherItem(),
+            CodexCli.Protocol.PromptListChangedEvent => new OtherItem(),
+            CodexCli.Protocol.ToolListChangedEvent => new OtherItem(),
+            CodexCli.Protocol.LoggingMessageEvent lm => new MessageItem("system", new List<ContentItem>{ new("output_text", lm.Message) }),
             _ => null
         };
+
+    public static ResponseItem? FromJson(string json)
+    {
+        ResponseItem? item = null;
+        try { item = JsonSerializer.Deserialize<ResponseItem>(json); }
+        catch { }
+        if (item != null) return item;
+        try
+        {
+            var ev = JsonSerializer.Deserialize<CodexCli.Protocol.Event>(json);
+            if (ev != null) return FromEvent(ev);
+        }
+        catch { }
+        return null;
+    }
 }
 
 public record ContentItem(

@@ -32,9 +32,7 @@ public static class RolloutReplayer
     {
         await foreach (var line in ReplayLinesAsync(path, follow))
         {
-            ResponseItem? item = null;
-            try { item = System.Text.Json.JsonSerializer.Deserialize<ResponseItem>(line); }
-            catch { }
+            var item = ResponseItemFactory.FromJson(line);
             if (item != null) yield return item;
         }
     }

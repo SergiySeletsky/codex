@@ -1,8 +1,33 @@
 
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace CodexCli.Protocol;
 
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "type")]
+[JsonDerivedType(typeof(AgentMessageEvent), "agent_message")]
+[JsonDerivedType(typeof(ErrorEvent), "error")]
+[JsonDerivedType(typeof(BackgroundEvent), "background_event")]
+[JsonDerivedType(typeof(ExecCommandBeginEvent), "exec_command_begin")]
+[JsonDerivedType(typeof(ExecCommandEndEvent), "exec_command_end")]
+[JsonDerivedType(typeof(TaskStartedEvent), "task_started")]
+[JsonDerivedType(typeof(TaskCompleteEvent), "task_complete")]
+[JsonDerivedType(typeof(ExecApprovalRequestEvent), "exec_approval_request")]
+[JsonDerivedType(typeof(PatchApplyApprovalRequestEvent), "apply_patch_approval_request")]
+[JsonDerivedType(typeof(PatchApplyBeginEvent), "patch_apply_begin")]
+[JsonDerivedType(typeof(PatchApplyEndEvent), "patch_apply_end")]
+[JsonDerivedType(typeof(McpToolCallBeginEvent), "mcp_tool_call_begin")]
+[JsonDerivedType(typeof(McpToolCallEndEvent), "mcp_tool_call_end")]
+[JsonDerivedType(typeof(AgentReasoningEvent), "agent_reasoning")]
+[JsonDerivedType(typeof(SessionConfiguredEvent), "session_configured")]
+[JsonDerivedType(typeof(AddToHistoryEvent), "add_to_history")]
+[JsonDerivedType(typeof(GetHistoryEntryRequestEvent), "get_history_entry_request")]
+[JsonDerivedType(typeof(GetHistoryEntryResponseEvent), "get_history_entry_response")]
+[JsonDerivedType(typeof(ResourceUpdatedEvent), "resource_updated")]
+[JsonDerivedType(typeof(ResourceListChangedEvent), "resource_list_changed")]
+[JsonDerivedType(typeof(PromptListChangedEvent), "prompt_list_changed")]
+[JsonDerivedType(typeof(ToolListChangedEvent), "tool_list_changed")]
+[JsonDerivedType(typeof(LoggingMessageEvent), "logging_message")]
 public abstract record Event(string Id);
 
 public record AgentMessageEvent(string Id, string Message) : Event(Id);

@@ -23,6 +23,8 @@ public static class ReplayCommand
         var sessionOpt = new Option<string?>("--session", "Session id to replay");
         var latestOpt = new Option<bool>("--latest", "Replay latest session");
         var followOpt = new Option<bool>("--follow", "Follow file for new lines");
+        var eventsUrlOpt = new Option<string?>("--events-url", description: "Stream events from MCP server");
+        var watchEventsOpt = new Option<bool>("--watch-events", description: "Watch events from server");
         var cmd = new Command("replay", "Replay a rollout conversation")
         {
             fileArg
@@ -39,6 +41,8 @@ public static class ReplayCommand
         cmd.AddOption(sessionOpt);
         cmd.AddOption(latestOpt);
         cmd.AddOption(followOpt);
+        cmd.AddOption(eventsUrlOpt);
+        cmd.AddOption(watchEventsOpt);
         cmd.SetHandler(async (InvocationContext ctx) =>
         {
             var file = ctx.ParseResult.GetValueForArgument(fileArg);
@@ -54,6 +58,8 @@ public static class ReplayCommand
             var session = ctx.ParseResult.GetValueForOption(sessionOpt);
             var latest = ctx.ParseResult.GetValueForOption(latestOpt);
             var follow = ctx.ParseResult.GetValueForOption(followOpt);
+            var eventsUrl = ctx.ParseResult.GetValueForOption(eventsUrlOpt);
+            var watchEvents = ctx.ParseResult.GetValueForOption(watchEventsOpt);
 
             var path = file?.FullName;
             if (path == null && session != null)
@@ -76,8 +82,32 @@ public static class ReplayCommand
                 }
             }
 
-            if (path == null) { Console.Error.WriteLine("File or --session/--latest required"); return; }
             int index = 0;
+            if (eventsUrl != null)
+            {
+                await foreach (var ev in McpEventStream.ReadEventsAsync(eventsUrl))
+                {
+                    var item = ResponseItemFactory.FromEvent(ev);
+                    if (item == null) continue;
+                    if (startIndex != null && index < startIndex.Value) { index++; continue; }
+                    if (endIndex != null && index > endIndex.Value) break;
+                    if (maxItems != null && index - (startIndex ?? 0) >= maxItems.Value) break;
+                    if (json)
+                    {
+                        Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(item, item.GetType()));
+                        index++; continue;
+                    }
+                    if (messagesOnly && item is not MessageItem) { index++; continue; }
+                    if (!showSystem && item is MessageItem mm2 && mm2.Role == "system") { index++; continue; }
+                    if (role != null && item is MessageItem mm && mm.Role != role) { index++; continue; }
+                    var prefix = compact ? string.Empty : $"{index}: ";
+                    PrintItem(item, prefix, plain);
+                    index++;
+                }
+                return;
+            }
+
+            if (path == null) { Console.Error.WriteLine("File or --session/--latest required"); return; }
             await foreach (var item in RolloutReplayer.ReplayAsync(path, follow))
             {
                 if (startIndex != null && index < startIndex.Value) { index++; continue; }
@@ -94,37 +124,42 @@ public static class ReplayCommand
                 if (role != null && item is MessageItem mm && mm.Role != role) { index++; continue; }
 
                 var prefix = compact ? string.Empty : $"{index}: ";
-                switch (item)
-                {
-                    case MessageItem m:
-                        var text = string.Join("", m.Content.Select(c => c.Text));
-                        if (plain)
-                            Console.WriteLine($"{prefix}{m.Role}: {text}");
-                        else
-                        {
-                            var color = m.Role switch { "assistant" => "green", "user" => "yellow", "system" => "grey" , _ => "white" };
-                            AnsiConsole.MarkupLine($"{prefix}[{color}]{m.Role}[/]: {Markup.Escape(text)}");
-                        }
-                        break;
-                    case FunctionCallItem fc:
-                        Console.WriteLine($"{prefix}Function {fc.Name} {fc.Arguments}");
-                        break;
-                    case FunctionCallOutputItem fo:
-                        Console.WriteLine($"{prefix}Function output {fo.CallId}: {fo.Output.Content}");
-                        break;
-                    case LocalShellCallItem ls:
-                        Console.WriteLine($"{prefix}Shell {string.Join(' ', ls.Action.Exec.Command)} -> {ls.Status}");
-                        break;
-                    case ReasoningItem ri:
-                        Console.WriteLine($"{prefix}Reasoning: {string.Join(" ", ri.Summary.Select(s => s.Text))}");
-                        break;
-                    default:
-                        Console.WriteLine($"{prefix}{item.GetType().Name}");
-                        break;
-                }
+                PrintItem(item, prefix, plain);
                 index++;
             }
         });
         return cmd;
+    }
+
+    private static void PrintItem(ResponseItem item, string prefix, bool plain)
+    {
+        switch (item)
+        {
+            case MessageItem m:
+                var text = string.Join("", m.Content.Select(c => c.Text));
+                if (plain)
+                    Console.WriteLine($"{prefix}{m.Role}: {text}");
+                else
+                {
+                    var color = m.Role switch { "assistant" => "green", "user" => "yellow", "system" => "grey", _ => "white" };
+                    AnsiConsole.MarkupLine($"{prefix}[{color}]{m.Role}[/]: {Markup.Escape(text)}");
+                }
+                break;
+            case FunctionCallItem fc:
+                Console.WriteLine($"{prefix}Function {fc.Name} {fc.Arguments}");
+                break;
+            case FunctionCallOutputItem fo:
+                Console.WriteLine($"{prefix}Function output {fo.CallId}: {fo.Output.Content}");
+                break;
+            case LocalShellCallItem ls:
+                Console.WriteLine($"{prefix}Shell {string.Join(' ', ls.Action.Exec.Command)} -> {ls.Status}");
+                break;
+            case ReasoningItem ri:
+                Console.WriteLine($"{prefix}Reasoning: {string.Join(" ", ri.Summary.Select(s => s.Text))}");
+                break;
+            default:
+                Console.WriteLine($"{prefix}{item.GetType().Name}");
+                break;
+        }
     }
 }

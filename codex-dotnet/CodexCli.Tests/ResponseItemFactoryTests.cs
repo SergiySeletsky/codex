@@ -40,4 +40,22 @@ public class ResponseItemFactoryTests
         var item = ResponseItemFactory.FromEvent(ev);
         Assert.IsType<OtherItem>(item);
     }
+
+    [Fact]
+    public void MapsApprovalRequest()
+    {
+        var ev = new ExecApprovalRequestEvent("id", new List<string>{"rm","-rf","/"});
+        var item = ResponseItemFactory.FromEvent(ev) as MessageItem;
+        Assert.NotNull(item);
+        Assert.Contains("Approve exec", item!.Content[0].Text);
+    }
+
+    [Fact]
+    public void MapsResourceUpdate()
+    {
+        var ev = new ResourceUpdatedEvent("id", "file.txt");
+        var item = ResponseItemFactory.FromEvent(ev) as MessageItem;
+        Assert.NotNull(item);
+        Assert.Contains("file.txt", item!.Content[0].Text);
+    }
 }
