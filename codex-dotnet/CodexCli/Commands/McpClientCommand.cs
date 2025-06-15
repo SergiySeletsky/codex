@@ -19,6 +19,7 @@ public static class McpClientCommand
         var envOpt = new Option<string[]>("--env", description: "Extra VAR=VAL pairs", getDefaultValue: () => Array.Empty<string>());
         var pingOpt = new Option<bool>("--ping", description: "Send ping request and exit");
         var listRootsOpt = new Option<bool>("--list-roots", description: "List server roots and exit");
+        var addRootOpt = new Option<string?>("--add-root", description: "Add root directory");
         var readResOpt = new Option<string?>("--read-resource", description: "URI to read from server");
         var writeResUriOpt = new Option<string?>("--write-resource-uri", description: "URI to write on server");
         var writeResTextOpt = new Option<string?>("--write-resource-text", description: "Text for resource");
@@ -52,6 +53,7 @@ public static class McpClientCommand
         cmd.AddOption(envOpt);
         cmd.AddOption(pingOpt);
         cmd.AddOption(listRootsOpt);
+        cmd.AddOption(addRootOpt);
         cmd.AddOption(readResOpt);
         cmd.AddOption(writeResUriOpt);
         cmd.AddOption(writeResTextOpt);
@@ -93,6 +95,7 @@ public static class McpClientCommand
             string[] env = ctx.ParseResult.GetValueForOption(envOpt) ?? Array.Empty<string>();
             bool ping = ctx.ParseResult.GetValueForOption(pingOpt);
             bool listRoots = ctx.ParseResult.GetValueForOption(listRootsOpt);
+            string? addRoot = ctx.ParseResult.GetValueForOption(addRootOpt);
             string? readResource = ctx.ParseResult.GetValueForOption(readResOpt);
             string? writeUri = ctx.ParseResult.GetValueForOption(writeResUriOpt);
             string? writeText = ctx.ParseResult.GetValueForOption(writeResTextOpt);
@@ -144,6 +147,11 @@ public static class McpClientCommand
             {
                 var roots = await client.ListRootsAsync(timeout);
                 Console.WriteLine(JsonSerializer.Serialize(roots, new JsonSerializerOptions { WriteIndented = json }));
+            }
+            else if (addRoot != null)
+            {
+                await client.AddRootAsync(addRoot, timeout);
+                Console.WriteLine("ok");
             }
             else if (listPrompts)
             {

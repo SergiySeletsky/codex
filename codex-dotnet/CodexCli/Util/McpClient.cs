@@ -199,6 +199,9 @@ public class McpClient : IDisposable, IAsyncDisposable
     public Task<MessagesResult> LastMessagesAsync(int count = 10, int timeoutSeconds = 10)
         => SendRequestAsync<MessagesResult>("messages/last", new LastMessagesRequestParams(count), timeoutSeconds);
 
+    public Task<Result> AddRootAsync(string uri, int timeoutSeconds = 10)
+        => SendRequestAsync<Result>("roots/add", new { uri }, timeoutSeconds);
+
     public Task<CallToolResult> CallCodexAsync(CodexToolCallParam param, int timeoutSeconds = 10)
     {
         var args = JsonSerializer.SerializeToElement(param);

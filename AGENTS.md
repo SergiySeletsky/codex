@@ -566,3 +566,11 @@
 525. Created unit tests covering message API endpoints
 526. Installed .NET 8 SDK during build and ran build/tests (tests aborted)
 527. Documented progress and updated TODO list
+528. Added RootsListChangedEvent model and mapping in ResponseItemFactory
+529. McpServer now stores roots and supports roots/add endpoint emitting event
+530. Extended McpClient with AddRootAsync helper
+531. McpClientCommand accepts --add-root option
+532. Added unit test verifying roots/add endpoint and event
+533. Created CrossCliCompatTests comparing .NET and Rust CLI versions (skipped)
+534. Updated docs with progress
+535. TODO next run: finalize remaining MCP features and stabilize cross-language tests
