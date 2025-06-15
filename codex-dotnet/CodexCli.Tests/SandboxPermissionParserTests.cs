@@ -1,4 +1,5 @@
 using CodexCli.Commands;
+using CodexCli.Protocol;
 using System.IO;
 using Xunit;
 

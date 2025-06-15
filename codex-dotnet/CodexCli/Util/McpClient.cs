@@ -6,7 +6,7 @@ using CodexCli.Protocol;
 
 namespace CodexCli.Util;
 
-public class McpClient : IDisposable
+public class McpClient : IDisposable, IAsyncDisposable
 {
     private readonly Process _process;
     private readonly StreamWriter _stdin;
@@ -187,6 +187,12 @@ public class McpClient : IDisposable
         _cts.Cancel();
         try { if (!_process.HasExited) _process.Kill(); } catch { }
         _process.Dispose();
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        Dispose();
+        return ValueTask.CompletedTask;
     }
 }
 

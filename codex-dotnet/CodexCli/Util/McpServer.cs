@@ -7,7 +7,7 @@ using CodexCli.Protocol;
 
 namespace CodexCli.Util;
 
-public class McpServer : IDisposable
+public class McpServer : IDisposable, IAsyncDisposable
 {
     private readonly HttpListener _listener = new();
     private readonly List<StreamWriter> _eventClients = new();
@@ -366,5 +366,11 @@ public class McpServer : IDisposable
             foreach (var w in _eventClients) w.Dispose();
             _eventClients.Clear();
         }
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        Dispose();
+        return ValueTask.CompletedTask;
     }
 }

@@ -31,4 +31,14 @@ public class ExecPolicyTests
         var policy = ExecPolicy.LoadDefault();
         Assert.False(policy.VerifyCommand("ls", new[] { "--foo" }));
     }
+    [Fact]
+    public void LoadDefault_UsesEnvVar()
+    {
+        var file = Path.GetTempFileName();
+        File.WriteAllText(file, "define_program( program=\"foo\" )");
+        Environment.SetEnvironmentVariable("CODEX_EXEC_POLICY_PATH", file);
+        var policy = ExecPolicy.LoadDefault();
+        Environment.SetEnvironmentVariable("CODEX_EXEC_POLICY_PATH", null);
+        Assert.True(policy.IsAllowed("foo"));
+    }
 }

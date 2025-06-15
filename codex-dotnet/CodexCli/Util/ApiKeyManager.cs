@@ -5,6 +5,7 @@ namespace CodexCli.Util;
 
 public static class ApiKeyManager
 {
+    public const string DefaultEnvKey = "OPENAI_API_KEY";
     private static readonly string AuthFile = Path.Combine(EnvUtils.FindCodexHome(), "auth.json");
 
     public static void SaveKey(string provider, string key)
@@ -25,11 +26,9 @@ public static class ApiKeyManager
 
     public static string? GetKey(ModelProviderInfo provider)
     {
-        if (provider.EnvKey != null)
-        {
-            var env = Environment.GetEnvironmentVariable(provider.EnvKey);
-            if (!string.IsNullOrEmpty(env)) return env;
-        }
+        var envVar = provider.EnvKey ?? DefaultEnvKey;
+        var env = Environment.GetEnvironmentVariable(envVar);
+        if (!string.IsNullOrEmpty(env)) return env;
         if (File.Exists(AuthFile))
         {
             try
@@ -42,4 +41,7 @@ public static class ApiKeyManager
         }
         return null;
     }
+
+    public static string? LoadDefaultKey()
+        => Environment.GetEnvironmentVariable(DefaultEnvKey);
 }

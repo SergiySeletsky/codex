@@ -3,6 +3,7 @@ using CodexCli.Config;
 using CodexCli.Util;
 using CodexCli.Protocol;
 using CodexCli.ApplyPatch;
+using CodexCli.Models;
 using System.Linq;
 using System.Collections.Generic;
 
@@ -87,11 +88,15 @@ public static class ExecCommand
 
             SessionManager.SetPersistence(cfg?.History.Persistence ?? HistoryPersistence.SaveAll);
             var sessionId = SessionManager.CreateSession();
+            var history = new ConversationHistory();
+            RolloutRecorder? recorder = null;
             StreamWriter? logWriter = null;
             if (opts.EventLogFile != null)
             {
                 logWriter = new StreamWriter(opts.EventLogFile, append: false);
             }
+            if (cfg != null)
+                recorder = await RolloutRecorder.CreateAsync(cfg, sessionId, null);
 
             var policy = cfg?.ShellEnvironmentPolicy ?? new ShellEnvironmentPolicy();
             if (opts.EnvInherit != null) policy.Inherit = opts.EnvInherit.Value;
@@ -174,6 +179,7 @@ public static class ExecCommand
                 ? "full-auto"
                 : (sandboxList.Count > 0 ? string.Join(',', sandboxList.Select(s => s.ToString())) : "default");
             var processor = new CodexCli.Protocol.EventProcessor(withAnsi, !hideReason, cfg?.FileOpener ?? UriBasedFileOpener.None, Environment.CurrentDirectory);
+            var sandboxPolicy = new SandboxPolicy { Permissions = sandboxList };
             processor.PrintConfigSummary(
                 opts.Model ?? cfg?.Model ?? "default",
                 opts.ModelProvider ?? cfg?.ModelProvider ?? string.Empty,
@@ -197,6 +203,11 @@ public static class ExecCommand
                     processor.ProcessEvent(ev);
                 if (logWriter != null)
                     await logWriter.WriteLineAsync(System.Text.Json.JsonSerializer.Serialize(ev));
+                if (ResponseItemFactory.FromEvent(ev) is { } ri)
+                {
+                    history.RecordItems(new[] { ri });
+                    if (recorder != null) await recorder.RecordItemsAsync(new[] { ri });
+                }
                 switch (ev)
                 {
                     case AgentMessageEvent am:
@@ -274,6 +285,18 @@ public static class ExecCommand
                                 if (logWriter != null)
                                     await logWriter.WriteLineAsync(System.Text.Json.JsonSerializer.Serialize(peEvent));
                             }
+                        }
+                        else
+                        {
+                            var execParams = new ExecParams(begin.Command.ToList(), begin.Cwd, null, envMap);
+                            var result = await ExecRunner.RunAsync(execParams, CancellationToken.None, sandboxPolicy);
+                            var endEv = new ExecCommandEndEvent(Guid.NewGuid().ToString(), result.Stdout, result.Stderr, result.ExitCode);
+                            if (opts.Json)
+                                Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(endEv));
+                            else
+                                processor.ProcessEvent(endEv);
+                            if (logWriter != null)
+                                await logWriter.WriteLineAsync(System.Text.Json.JsonSerializer.Serialize(endEv));
                         }
                         break;
                     case PatchApplyApprovalRequestEvent pr:

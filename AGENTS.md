@@ -340,8 +340,79 @@
 317. McpClientCommand supports --add-prompt-name and --add-prompt-message options
 318. Added unit test verifying prompts/add triggers SSE event
 319. Documented new progress and TODO items
+320. Ported ConversationHistory for transcript management
+321. Added ResponseItem model hierarchy
+322. Implemented IsSafeCommand utility
+323. Added RolloutRecorder for session JSONL logging
+324. Implemented McpConnectionManager with tool aggregation
+325. Added McpToolCall helper
+326. Added UserNotification records
+327. Implemented CodexWrapper wrapper for RealCodexAgent
+328. Added Backoff and SignalUtils helpers
+329. Implemented OpenAiTools helper
+330. Added ExecParams and ExecToolCallOutput models
+331. Implemented ExecRunner utility for running shell commands with timeout and output limits
+332. Added ShellToolCallParams model
+333. Implemented RolloutReplayer for conversation playback
+334. Created unit tests for ExecRunner
+335. Created unit tests for RolloutReplayer
+336. Added Prompt, ResponseEvent and ResponseStream models
+337. Implemented ReasoningUtils and OpenAI reasoning enums
+338. Created ModelClient for streaming responses
+339. Implemented Safety assessment helpers
+340. Integrated ExecRunner into ExecCommand
+341. Added ResponseItemFactory for converting protocol events to response items
+342. Added ConversationHistory tracking in ExecCommand
+343. Integrated RolloutRecorder persistence into ExecCommand
+344. Updated event loop to record response items
+345. Added CallToolAsync method in McpConnectionManager
+346. Introduced ReplayCommand for replaying rollout files
+347. Registered ReplayCommand in Program
+348. Added unit test verifying RolloutRecorder output
+349. Installed .NET 8 SDK for building
+350. Documented new progress and updated TODO list
+351. Expanded SandboxPolicy with permissions and utility methods
+352. ExecRunner sets network-disabled env when sandbox restricts network
+353. ExecCommand passes sandbox policy to ExecRunner
+354. Added SandboxPolicy and ExecRunner tests
+355. Implemented polymorphic JSON serialization for ResponseItem models
+356. RolloutRecorder now implements IAsyncDisposable with proper flushing
+357. Updated RolloutRecorderFileTests and SandboxPolicyTests
 
 ## TODO Next Run
 - Continue porting remaining Rust CLI features
 - Investigate hanging tests and fix missing API key issues
 - Flesh out CodexToolRunner with real Codex integration
+- Port remaining core utilities from Rust such as conversation replay
+- Expand unit tests for new utilities
+- Continue integrating new utilities into commands
+- Add more MCP client features and tests
+- Implement remaining sandbox enforcement logic
+- Finalize JSON serialization schema and update tests
+358. Exposed ExecRunner.NetworkDisabledEnv constant for external checks
+359. McpClient now implements IAsyncDisposable
+360. Extended IsSafeCommand to reject 'sudo'
+361. Added unit test verifying ExecRunner network constant
+362. Added BackoffTests covering retry delays
+363. Added test for IsSafeCommand 'sudo' rule
+364. Added ExecPolicy env override unit test
+365. Added NotifyOnSigTerm helper in SignalUtils
+366. Documented progress and updated TODO list
+367. Added Anthropic provider to ModelProviderInfo built-ins
+368. Extended ResponseItemFactory to map reasoning, background, error and exec events
+369. Added MCP tool call mapping to FunctionCallItem and FunctionCallOutputItem
+370. Added RolloutReplayer.ReplayAsync for deserializing rollout items
+371. Added unit test for RolloutReplayer item parsing
+372. Added ResponseItemFactoryTests verifying event mapping
+373. Updated ReplayCommand and utilities to use new parser (TODO future work)
+374. Added Perplexity provider to ModelProviderInfo built-ins
+375. Introduced ApiKeyManager.DefaultEnvKey constant and env fallback logic
+376. ResponseItemFactory now maps TaskStarted and TaskComplete events
+377. ReplayCommand prints parsed response items in human-readable form
+378. McpServer implements IAsyncDisposable for graceful shutdown
+379. Added ApiKeyManager.LoadDefaultKey helper
+380. Created ReplayCommandTests validating message output
+381. Added ApiKeyManagerTests covering env fallback
+382. Extended ResponseItemFactoryTests for new event types
+383. Documented progress and updated TODO list
+
