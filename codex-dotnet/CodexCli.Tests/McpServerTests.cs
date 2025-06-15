@@ -27,6 +27,13 @@ public class McpServerTests
         resp = await client.PostAsync($"http://localhost:{port}/jsonrpc", new StringContent(JsonSerializer.Serialize(req)));
         body = await resp.Content.ReadAsStringAsync();
         Assert.Contains("prompts", body);
+
+        var callJson = JsonDocument.Parse("{\"name\":\"codex\",\"arguments\":{\"prompt\":\"hi\"}}");
+        req = new JsonRpcMessage { Method = "tools/call", Id = JsonSerializer.SerializeToElement(4), Params = callJson.RootElement };
+        resp = await client.PostAsync($"http://localhost:{port}/jsonrpc", new StringContent(JsonSerializer.Serialize(req)));
+        body = await resp.Content.ReadAsStringAsync();
+        Assert.Contains("codex done", body);
+
         cts.Cancel();
         await serverTask;
     }

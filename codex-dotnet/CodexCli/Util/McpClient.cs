@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Collections.Concurrent;
 using CodexCli.Protocol;
 
@@ -165,6 +166,13 @@ public class McpClient : IDisposable
     public Task<CompleteResult> CompleteAsync(CompleteRequestParams p, int timeoutSeconds = 10)
         => SendRequestAsync<CompleteResult>("completion/complete", p, timeoutSeconds);
 
+    public Task<CallToolResult> CallCodexAsync(CodexToolCallParam param, int timeoutSeconds = 10)
+    {
+        var args = JsonSerializer.SerializeToElement(param);
+        var p = new CallToolRequestParams("codex", args);
+        return SendRequestAsync<CallToolResult>("tools/call", p, timeoutSeconds);
+    }
+
     public void Dispose()
     {
         _cts.Cancel();
@@ -181,7 +189,9 @@ public record ToolInputSchema(JsonElement? Properties, List<string>? Required, s
 public record ToolAnnotations(bool? DestructiveHint, bool? IdempotentHint, bool? OpenWorldHint, bool? ReadOnlyHint, string? Title);
 public record Tool(string Name, ToolInputSchema InputSchema, string? Description, ToolAnnotations? Annotations);
 public record ListToolsResult(string? NextCursor, List<Tool> Tools);
-public record CallToolRequestParams(string Name, JsonElement? Arguments);
+public record CallToolRequestParams(
+    [property: JsonPropertyName("name")] string Name,
+    [property: JsonPropertyName("arguments")] JsonElement? Arguments);
 public record CallToolResult(List<JsonElement> Content, bool? IsError);
 
 public record ListResourcesRequestParams(string? Cursor);

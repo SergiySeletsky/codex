@@ -294,10 +294,21 @@
 270. Extended McpClient with methods for new MCP requests
 271. Added record types for resources, prompts and completion results
 272. Added prompts/list test to McpServerTests
+273. Added CodexToolRunner placeholder with event emission
+274. McpServer now handles tools/call via CodexToolRunner
+275. Added CreateResponse helper and refactored request dispatch
+276. Implemented CallCodexAsync helper in McpClient
+277. Added codex tool-call test in McpServerTests
+278. Added CodexToolCallParam record for codex configuration
+279. McpServer returns structured responses for various requests
+280. Expanded AGENTS.md with new features and todo list
+281. Implemented stub Codex events streaming to /events clients
+282. Updated tests and build
 
 ## TODO Next Run
-- Port more Rust CLI features
-- Investigate hanging tests and fix
-- Expand MCP client functionality and add more protocol tests
-- Implement remaining MCP server features
+- Continue porting remaining Rust CLI features
+- Investigate hanging tests and fix missing API key issues
+- Expand MCP client functionality and protocol tests
+- Flesh out CodexToolRunner with real Codex integration
+- Implement resource management APIs in McpServer
 - Implement codex tool runner for tools/call

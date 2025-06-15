@@ -61,59 +61,74 @@ public class McpServer : IDisposable
     {
         if (req == null || req.Method == null)
         {
-            return Task.FromResult(new JsonRpcMessage{ Id = req?.Id });
+            return Task.FromResult(new JsonRpcMessage { Id = req?.Id });
         }
 
+        var id = req.Id ?? JsonDocument.Parse("0").RootElement;
         return req.Method switch
         {
-            "initialize" => Task.FromResult(new JsonRpcMessage
-            {
-                Id = req.Id,
-                Result = JsonSerializer.SerializeToElement(new { server = "codex-mcp" })
-            }),
-            "ping" => Task.FromResult(new JsonRpcMessage { Id = req.Id, Result = JsonSerializer.SerializeToElement(new { }) }),
-            "tools/list" => Task.FromResult(new JsonRpcMessage
-            {
-                Id = req.Id,
-                Result = JsonSerializer.SerializeToElement(new { tools = new[] { new { name = "codex" } } })
-            }),
-            "tools/call" => Task.FromResult(new JsonRpcMessage
-            {
-                Id = req.Id,
-                Result = JsonSerializer.SerializeToElement(new { content = new[] { JsonSerializer.SerializeToElement("ok") } })
-            }),
-            "resources/list" => Task.FromResult(new JsonRpcMessage
-            {
-                Id = req.Id,
-                Result = JsonSerializer.SerializeToElement(new { resources = Array.Empty<object>(), nextCursor = (string?)null })
-            }),
-            "resources/templates/list" => Task.FromResult(new JsonRpcMessage
-            {
-                Id = req.Id,
-                Result = JsonSerializer.SerializeToElement(new { resourceTemplates = Array.Empty<object>(), nextCursor = (string?)null })
-            }),
-            "resources/read" => Task.FromResult(new JsonRpcMessage { Id = req.Id, Result = JsonSerializer.SerializeToElement(new { }) }),
-            "resources/subscribe" => Task.FromResult(new JsonRpcMessage { Id = req.Id, Result = JsonSerializer.SerializeToElement(new { }) }),
-            "resources/unsubscribe" => Task.FromResult(new JsonRpcMessage { Id = req.Id, Result = JsonSerializer.SerializeToElement(new { }) }),
-            "prompts/list" => Task.FromResult(new JsonRpcMessage
-            {
-                Id = req.Id,
-                Result = JsonSerializer.SerializeToElement(new { prompts = Array.Empty<object>(), nextCursor = (string?)null })
-            }),
-            "prompts/get" => Task.FromResult(new JsonRpcMessage
-            {
-                Id = req.Id,
-                Result = JsonSerializer.SerializeToElement(new { messages = Array.Empty<object>(), description = (string?)null })
-            }),
-            "logging/setLevel" => Task.FromResult(new JsonRpcMessage { Id = req.Id, Result = JsonSerializer.SerializeToElement(new { }) }),
-            "completion/complete" => Task.FromResult(new JsonRpcMessage
-            {
-                Id = req.Id,
-                Result = JsonSerializer.SerializeToElement(new { completion = new { values = Array.Empty<string>(), hasMore = (bool?)null, total = (int?)null } })
-            }),
-            _ => Task.FromResult(new JsonRpcMessage { Id = req.Id, Result = JsonSerializer.SerializeToElement(new { }) })
+            "initialize" => Task.FromResult(CreateResponse(id, new { server = "codex-mcp" })),
+            "ping" => Task.FromResult(CreateResponse(id, new { })),
+            "tools/list" => Task.FromResult(CreateResponse(id, new { tools = new[] { new { name = "codex" } } })),
+            "tools/call" => HandleCallToolAsync(req),
+            "resources/list" => Task.FromResult(CreateResponse(id, new { resources = Array.Empty<object>(), nextCursor = (string?)null })),
+            "resources/templates/list" => Task.FromResult(CreateResponse(id, new { resourceTemplates = Array.Empty<object>(), nextCursor = (string?)null })),
+            "resources/read" => Task.FromResult(CreateResponse(id, new { })),
+            "resources/subscribe" => Task.FromResult(CreateResponse(id, new { })),
+            "resources/unsubscribe" => Task.FromResult(CreateResponse(id, new { })),
+            "prompts/list" => Task.FromResult(CreateResponse(id, new { prompts = Array.Empty<object>(), nextCursor = (string?)null })),
+            "prompts/get" => Task.FromResult(CreateResponse(id, new { messages = Array.Empty<object>(), description = (string?)null })),
+            "logging/setLevel" => Task.FromResult(CreateResponse(id, new { })),
+            "completion/complete" => Task.FromResult(CreateResponse(id, new { completion = new { values = Array.Empty<string>(), hasMore = (bool?)null, total = (int?)null } })),
+            _ => Task.FromResult(CreateResponse(id, new { }))
         };
     }
+
+    private async Task<JsonRpcMessage> HandleCallToolAsync(JsonRpcMessage req)
+    {
+        var id = req.Id ?? JsonDocument.Parse("0").RootElement;
+        if (req.Params == null)
+            return CreateResponse(id, new { });
+
+        var callObj = req.Params.Value;
+        string? name = null;
+        JsonElement? args = null;
+        if (callObj.TryGetProperty("name", out var n)) name = n.GetString();
+        if (callObj.TryGetProperty("arguments", out var a)) args = a;
+
+        if (name != "codex")
+        {
+            return CreateResponse(id, new
+            {
+                content = new[] { JsonSerializer.SerializeToElement($"Unknown tool '{name}'") },
+                isError = true
+            });
+        }
+
+        CodexToolCallParam? param = null;
+        if (args.HasValue)
+        {
+            try
+            {
+                param = args.Value.Deserialize<CodexToolCallParam>();
+            }
+            catch
+            {
+                // ignore
+            }
+        }
+
+        param ??= new CodexToolCallParam(string.Empty);
+        var result = await CodexToolRunner.RunCodexToolSessionAsync(param, EmitEvent);
+        return CreateResponse(id, result);
+    }
+
+    private static JsonRpcMessage CreateResponse(JsonElement id, object result) =>
+        new()
+        {
+            Id = id,
+            Result = JsonSerializer.SerializeToElement(result)
+        };
 
     public void EmitEvent(Event ev)
     {
