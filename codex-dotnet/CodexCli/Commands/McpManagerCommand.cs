@@ -94,6 +94,46 @@ public static class McpManagerCommand
         root.AddCommand(listCmd);
         root.AddCommand(callCmd);
         root.AddCommand(serversCmd);
+        var rootsCmd = new Command("roots", "Manage server roots");
+        var rootsServerOpt = new Option<string>("--server", description: "Server name");
+        var uriArg = new Argument<string>("uri", () => string.Empty);
+
+        var rootsList = new Command("list", "List roots");
+        rootsList.AddOption(rootsServerOpt);
+        rootsList.SetHandler(async (string? configPath, string server) =>
+        {
+            var cfg = configPath != null ? AppConfig.Load(configPath) : new AppConfig();
+            var (mgr, _) = await McpConnectionManager.CreateAsync(cfg.McpServers);
+            var res = await mgr.ListRootsAsync(server);
+            foreach (var r in res.Roots) Console.WriteLine(r.Uri);
+        }, configOption, rootsServerOpt);
+
+        var rootsAdd = new Command("add", "Add root");
+        rootsAdd.AddOption(rootsServerOpt);
+        rootsAdd.AddArgument(uriArg);
+        rootsAdd.SetHandler(async (string? configPath, string server, string uri) =>
+        {
+            var cfg = configPath != null ? AppConfig.Load(configPath) : new AppConfig();
+            var (mgr, _) = await McpConnectionManager.CreateAsync(cfg.McpServers);
+            await mgr.AddRootAsync(server, uri);
+            Console.WriteLine("ok");
+        }, configOption, rootsServerOpt, uriArg);
+
+        var rootsRemove = new Command("remove", "Remove root");
+        rootsRemove.AddOption(rootsServerOpt);
+        rootsRemove.AddArgument(uriArg);
+        rootsRemove.SetHandler(async (string? configPath, string server, string uri) =>
+        {
+            var cfg = configPath != null ? AppConfig.Load(configPath) : new AppConfig();
+            var (mgr, _) = await McpConnectionManager.CreateAsync(cfg.McpServers);
+            await mgr.RemoveRootAsync(server, uri);
+            Console.WriteLine("ok");
+        }, configOption, rootsServerOpt, uriArg);
+
+        rootsCmd.AddCommand(rootsList);
+        rootsCmd.AddCommand(rootsAdd);
+        rootsCmd.AddCommand(rootsRemove);
+        root.AddCommand(rootsCmd);
         return root;
     }
 }

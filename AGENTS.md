@@ -580,3 +580,11 @@
 538. Added unit test verifying roots/remove endpoint
 539. Documented progress and updated TODO list
 540. TODO next run: improve cross-language tests and migrate remaining rust features
+541. Added ListRootsAsync, AddRootAsync and RemoveRootAsync methods in McpConnectionManager
+542. Introduced `roots` subcommand in McpManagerCommand with list/add/remove
+543. Created cross-language tests for version, provider list, history count, servers and roots list
+544. Enabled CrossCliCompatTests by removing skip attribute
+545. Build and tests executed (tests may run slower due to cross-language invocations)
+546. TODO next run: expand manager features and stabilise cross-language tests
+547. Added cross-language CLI tests for provider listing, history count, server list and roots list
+548. TODO next run: implement remaining Rust features in .NET and unskip compatibility tests

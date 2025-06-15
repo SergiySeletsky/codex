@@ -89,6 +89,27 @@ public class McpConnectionManager
         return await client.CallToolAsync(tool, args, seconds);
     }
 
+    public async Task<ListRootsResult> ListRootsAsync(string server)
+    {
+        if(!_clients.TryGetValue(server, out var client))
+            throw new InvalidOperationException($"unknown MCP server '{server}'");
+        return await client.ListRootsAsync();
+    }
+
+    public async Task AddRootAsync(string server, string uri)
+    {
+        if(!_clients.TryGetValue(server, out var client))
+            throw new InvalidOperationException($"unknown MCP server '{server}'");
+        await client.AddRootAsync(uri);
+    }
+
+    public async Task RemoveRootAsync(string server, string uri)
+    {
+        if(!_clients.TryGetValue(server, out var client))
+            throw new InvalidOperationException($"unknown MCP server '{server}'");
+        await client.RemoveRootAsync(uri);
+    }
+
     public static string FullyQualifiedToolName(string server, string tool) => $"{server}{Delimiter}{tool}";
     public static bool TryParseFullyQualifiedToolName(string fq, out string server, out string tool)
     {
