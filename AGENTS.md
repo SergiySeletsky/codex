@@ -612,3 +612,12 @@
 570. Build succeeded with .NET 8 SDK
 571. Ran targeted unit tests for ExecRunnerTests
 572. TODO next run: update remaining commands for JSON/event options and stabilize full test suite
+
+573. Added JSON/event options to tool `call` subcommand in McpManagerCommand
+574. Extended messages subcommands (count, clear, search, last, add, get) with JSON output and event streaming
+575. Prompts add command now supports event watching
+576. Resources read/write/subscribe/unsubscribe enhanced with JSON/event options
+577. Logging set-level subcommand now accepts events options
+578. Completion request subcommand supports JSON and event streaming
+579. Sampling create-message command prints JSON and events
+580. TODO next run: port remaining CLI features and improve tests

@@ -78,7 +78,9 @@ public static class McpManagerCommand
         callCmd.AddOption(argsOpt);
         callCmd.AddOption(timeoutOpt);
         callCmd.AddOption(callJsonOpt);
-        callCmd.SetHandler(async (string? configPath, string name, string? argsJson, int timeout, bool json) =>
+        callCmd.AddOption(eventsUrlOpt);
+        callCmd.AddOption(watchOpt);
+        callCmd.SetHandler(async (string? configPath, string name, string? argsJson, int timeout, bool json, string? eventsUrl, bool watch) =>
         {
             var cfg = configPath != null ? AppConfig.Load(configPath) : new AppConfig();
             var (mgr, _) = await McpConnectionManager.CreateAsync(cfg.McpServers);
@@ -87,8 +89,14 @@ public static class McpManagerCommand
                 args = JsonDocument.Parse(argsJson).RootElement;
             var result = await mgr.CallToolAsync(name, args, TimeSpan.FromSeconds(timeout));
             var jsonStr = JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true });
-            if (json) Console.WriteLine(jsonStr); else Console.WriteLine(jsonStr);
-        }, configOption, nameArg, argsOpt, timeoutOpt, callJsonOpt);
+            if (json)
+                Console.WriteLine(jsonStr);
+            else
+                Console.WriteLine(jsonStr);
+            if (watch && eventsUrl != null)
+                await foreach (var ev in McpEventStream.ReadEventsAsync(eventsUrl))
+                    Console.WriteLine(JsonSerializer.Serialize(ev));
+        }, configOption, nameArg, argsOpt, timeoutOpt, callJsonOpt, eventsUrlOpt, watchOpt);
 
         root.AddOption(configOption);
         root.AddCommand(listCmd);
@@ -177,45 +185,74 @@ public static class McpManagerCommand
 
         var msgCount = new Command("count", "Count messages");
         msgCount.AddOption(msgServerOpt);
-        msgCount.SetHandler(async (string? cfgPath, string server) =>
+        msgCount.AddOption(msgJsonOpt);
+        msgCount.AddOption(msgEventsOpt);
+        msgCount.AddOption(msgWatchOpt);
+        msgCount.SetHandler(async (string? cfgPath, string server, bool json, string? eventsUrl, bool watch) =>
         {
             var cfg = cfgPath != null ? AppConfig.Load(cfgPath) : new AppConfig();
             var (mgr, _) = await McpConnectionManager.CreateAsync(cfg.McpServers);
             var res = await mgr.CountMessagesAsync(server);
-            Console.WriteLine(res.Count);
-        }, configOption, msgServerOpt);
+            if (json) Console.WriteLine(JsonSerializer.Serialize(res)); else Console.WriteLine(res.Count);
+            if (watch && eventsUrl != null)
+                await foreach (var ev in McpEventStream.ReadEventsAsync(eventsUrl))
+                    Console.WriteLine(JsonSerializer.Serialize(ev));
+        }, configOption, msgServerOpt, msgJsonOpt, msgEventsOpt, msgWatchOpt);
 
         var msgClear = new Command("clear", "Clear messages");
         msgClear.AddOption(msgServerOpt);
-        msgClear.SetHandler(async (string? cfgPath, string server) =>
+        msgClear.AddOption(msgEventsOpt);
+        msgClear.AddOption(msgWatchOpt);
+        msgClear.SetHandler(async (string? cfgPath, string server, string? eventsUrl, bool watch) =>
         {
             var cfg = cfgPath != null ? AppConfig.Load(cfgPath) : new AppConfig();
             var (mgr, _) = await McpConnectionManager.CreateAsync(cfg.McpServers);
             await mgr.ClearMessagesAsync(server);
             Console.WriteLine("ok");
-        }, configOption, msgServerOpt);
+            if (watch && eventsUrl != null)
+                await foreach (var ev in McpEventStream.ReadEventsAsync(eventsUrl))
+                    Console.WriteLine(JsonSerializer.Serialize(ev));
+        }, configOption, msgServerOpt, msgEventsOpt, msgWatchOpt);
 
         var msgSearch = new Command("search", "Search messages");
         msgSearch.AddOption(msgServerOpt);
+        msgSearch.AddOption(msgJsonOpt);
+        msgSearch.AddOption(msgEventsOpt);
+        msgSearch.AddOption(msgWatchOpt);
         msgSearch.AddArgument(termArg);
-        msgSearch.SetHandler(async (string? cfgPath, string server, string term) =>
+        msgSearch.SetHandler(async (string? cfgPath, string server, bool json, string? eventsUrl, bool watch, string term) =>
         {
             var cfg = cfgPath != null ? AppConfig.Load(cfgPath) : new AppConfig();
             var (mgr, _) = await McpConnectionManager.CreateAsync(cfg.McpServers);
             var res = await mgr.SearchMessagesAsync(server, term);
-            foreach (var m in res.Messages) Console.WriteLine(m);
-        }, configOption, msgServerOpt, termArg);
+            if (json)
+                Console.WriteLine(JsonSerializer.Serialize(res.Messages));
+            else
+                foreach (var m in res.Messages) Console.WriteLine(m);
+            if (watch && eventsUrl != null)
+                await foreach (var ev in McpEventStream.ReadEventsAsync(eventsUrl))
+                    Console.WriteLine(JsonSerializer.Serialize(ev));
+        }, configOption, msgServerOpt, msgJsonOpt, msgEventsOpt, msgWatchOpt, termArg);
 
         var msgLast = new Command("last", "Show last N messages");
         msgLast.AddOption(msgServerOpt);
+        msgLast.AddOption(msgJsonOpt);
+        msgLast.AddOption(msgEventsOpt);
+        msgLast.AddOption(msgWatchOpt);
         msgLast.AddArgument(countArg);
-        msgLast.SetHandler(async (string? cfgPath, string server, int n) =>
+        msgLast.SetHandler(async (string? cfgPath, string server, bool json, string? eventsUrl, bool watch, int n) =>
         {
             var cfg = cfgPath != null ? AppConfig.Load(cfgPath) : new AppConfig();
             var (mgr, _) = await McpConnectionManager.CreateAsync(cfg.McpServers);
             var res = await mgr.LastMessagesAsync(server, n);
-            foreach (var m in res.Messages) Console.WriteLine(m);
-        }, configOption, msgServerOpt, countArg);
+            if (json)
+                Console.WriteLine(JsonSerializer.Serialize(res.Messages));
+            else
+                foreach (var m in res.Messages) Console.WriteLine(m);
+            if (watch && eventsUrl != null)
+                await foreach (var ev in McpEventStream.ReadEventsAsync(eventsUrl))
+                    Console.WriteLine(JsonSerializer.Serialize(ev));
+        }, configOption, msgServerOpt, msgJsonOpt, msgEventsOpt, msgWatchOpt, countArg);
 
         msgCmd.AddCommand(msgList);
         msgCmd.AddCommand(msgCount);
@@ -224,27 +261,41 @@ public static class McpManagerCommand
         msgCmd.AddCommand(msgLast);
         var msgAdd = new Command("add", "Add message");
         msgAdd.AddOption(msgServerOpt);
+        msgAdd.AddOption(msgEventsOpt);
+        msgAdd.AddOption(msgWatchOpt);
         var msgTextArg = new Argument<string>("text");
         msgAdd.AddArgument(msgTextArg);
-        msgAdd.SetHandler(async (string? cfgPath, string server, string text) =>
+        msgAdd.SetHandler(async (string? cfgPath, string server, string? eventsUrl, bool watch, string text) =>
         {
             var cfg = cfgPath != null ? AppConfig.Load(cfgPath) : new AppConfig();
             var (mgr, _) = await McpConnectionManager.CreateAsync(cfg.McpServers);
             await mgr.AddMessageAsync(server, text);
             Console.WriteLine("ok");
-        }, configOption, msgServerOpt, msgTextArg);
+            if (watch && eventsUrl != null)
+                await foreach (var ev in McpEventStream.ReadEventsAsync(eventsUrl))
+                    Console.WriteLine(JsonSerializer.Serialize(ev));
+        }, configOption, msgServerOpt, msgEventsOpt, msgWatchOpt, msgTextArg);
 
         var msgGet = new Command("get", "Get message entry");
         msgGet.AddOption(msgServerOpt);
+        msgGet.AddOption(msgJsonOpt);
+        msgGet.AddOption(msgEventsOpt);
+        msgGet.AddOption(msgWatchOpt);
         var msgOffsetArg = new Argument<int>("offset");
         msgGet.AddArgument(msgOffsetArg);
-        msgGet.SetHandler(async (string? cfgPath, string server, int offset) =>
+        msgGet.SetHandler(async (string? cfgPath, string server, bool json, string? eventsUrl, bool watch, int offset) =>
         {
             var cfg = cfgPath != null ? AppConfig.Load(cfgPath) : new AppConfig();
             var (mgr, _) = await McpConnectionManager.CreateAsync(cfg.McpServers);
             var res = await mgr.GetMessageEntryAsync(server, offset);
-            Console.WriteLine(res.Entry ?? "");
-        }, configOption, msgServerOpt, msgOffsetArg);
+            if (json)
+                Console.WriteLine(JsonSerializer.Serialize(res));
+            else
+                Console.WriteLine(res.Entry ?? "");
+            if (watch && eventsUrl != null)
+                await foreach (var ev in McpEventStream.ReadEventsAsync(eventsUrl))
+                    Console.WriteLine(JsonSerializer.Serialize(ev));
+        }, configOption, msgServerOpt, msgJsonOpt, msgEventsOpt, msgWatchOpt, msgOffsetArg);
 
         msgCmd.AddCommand(msgAdd);
         msgCmd.AddCommand(msgGet);
@@ -300,15 +351,20 @@ public static class McpManagerCommand
 
         var prmAdd = new Command("add", "Add prompt");
         prmAdd.AddOption(prmServerOpt);
+        prmAdd.AddOption(prmEventsOpt);
+        prmAdd.AddOption(prmWatchOpt);
         prmAdd.AddArgument(prmNameArg);
         prmAdd.AddArgument(prmMsgArg);
-        prmAdd.SetHandler(async (string? cfgPath, string server, string name, string message) =>
+        prmAdd.SetHandler(async (string? cfgPath, string server, string? eventsUrl, bool watch, string name, string message) =>
         {
             var cfg = cfgPath != null ? AppConfig.Load(cfgPath) : new AppConfig();
             var (mgr, _) = await McpConnectionManager.CreateAsync(cfg.McpServers);
             await mgr.AddPromptAsync(server, name, message);
             Console.WriteLine("ok");
-        }, configOption, prmServerOpt, prmNameArg, prmMsgArg);
+            if (watch && eventsUrl != null)
+                await foreach (var ev in McpEventStream.ReadEventsAsync(eventsUrl))
+                    Console.WriteLine(JsonSerializer.Serialize(ev));
+        }, configOption, prmServerOpt, prmEventsOpt, prmWatchOpt, prmNameArg, prmMsgArg);
 
         prmCmd.AddCommand(prmList);
         prmCmd.AddCommand(prmGet);
@@ -345,48 +401,72 @@ public static class McpManagerCommand
 
         var resRead = new Command("read", "Read resource");
         resRead.AddOption(resServerOpt);
+        resRead.AddOption(resJsonOpt);
+        resRead.AddOption(resEventsOpt);
+        resRead.AddOption(resWatchOpt);
         resRead.AddArgument(resUriArg);
-        resRead.SetHandler(async (string? cfgPath, string server, string uri) =>
+        resRead.SetHandler(async (string? cfgPath, string server, bool json, string? eventsUrl, bool watch, string uri) =>
         {
             var cfg = cfgPath != null ? AppConfig.Load(cfgPath) : new AppConfig();
             var (mgr, _) = await McpConnectionManager.CreateAsync(cfg.McpServers);
             var elem = await mgr.ReadResourceAsync(server, uri);
-            Console.WriteLine(elem.ToString());
-        }, configOption, resServerOpt, resUriArg);
+            if (json)
+                Console.WriteLine(JsonSerializer.Serialize(elem));
+            else
+                Console.WriteLine(elem.ToString());
+            if (watch && eventsUrl != null)
+                await foreach (var ev in McpEventStream.ReadEventsAsync(eventsUrl))
+                    Console.WriteLine(JsonSerializer.Serialize(ev));
+        }, configOption, resServerOpt, resJsonOpt, resEventsOpt, resWatchOpt, resUriArg);
 
         var resWrite = new Command("write", "Write resource");
         resWrite.AddOption(resServerOpt);
+        resWrite.AddOption(resEventsOpt);
+        resWrite.AddOption(resWatchOpt);
         resWrite.AddArgument(resUriArg);
         resWrite.AddArgument(textArg);
-        resWrite.SetHandler(async (string? cfgPath, string server, string uri, string text) =>
+        resWrite.SetHandler(async (string? cfgPath, string server, string? eventsUrl, bool watch, string uri, string text) =>
         {
             var cfg = cfgPath != null ? AppConfig.Load(cfgPath) : new AppConfig();
             var (mgr, _) = await McpConnectionManager.CreateAsync(cfg.McpServers);
             await mgr.WriteResourceAsync(server, uri, text);
             Console.WriteLine("ok");
-        }, configOption, resServerOpt, resUriArg, textArg);
+            if (watch && eventsUrl != null)
+                await foreach (var ev in McpEventStream.ReadEventsAsync(eventsUrl))
+                    Console.WriteLine(JsonSerializer.Serialize(ev));
+        }, configOption, resServerOpt, resEventsOpt, resWatchOpt, resUriArg, textArg);
 
         var resSub = new Command("subscribe", "Subscribe to resource updates");
         resSub.AddOption(resServerOpt);
+        resSub.AddOption(resEventsOpt);
+        resSub.AddOption(resWatchOpt);
         resSub.AddArgument(resUriArg);
-        resSub.SetHandler(async (string? cfgPath, string server, string uri) =>
+        resSub.SetHandler(async (string? cfgPath, string server, string? eventsUrl, bool watch, string uri) =>
         {
             var cfg = cfgPath != null ? AppConfig.Load(cfgPath) : new AppConfig();
             var (mgr, _) = await McpConnectionManager.CreateAsync(cfg.McpServers);
             await mgr.SubscribeAsync(server, uri);
             Console.WriteLine("ok");
-        }, configOption, resServerOpt, resUriArg);
+            if (watch && eventsUrl != null)
+                await foreach (var ev in McpEventStream.ReadEventsAsync(eventsUrl))
+                    Console.WriteLine(JsonSerializer.Serialize(ev));
+        }, configOption, resServerOpt, resEventsOpt, resWatchOpt, resUriArg);
 
         var resUnsub = new Command("unsubscribe", "Unsubscribe from resource");
         resUnsub.AddOption(resServerOpt);
+        resUnsub.AddOption(resEventsOpt);
+        resUnsub.AddOption(resWatchOpt);
         resUnsub.AddArgument(resUriArg);
-        resUnsub.SetHandler(async (string? cfgPath, string server, string uri) =>
+        resUnsub.SetHandler(async (string? cfgPath, string server, string? eventsUrl, bool watch, string uri) =>
         {
             var cfg = cfgPath != null ? AppConfig.Load(cfgPath) : new AppConfig();
             var (mgr, _) = await McpConnectionManager.CreateAsync(cfg.McpServers);
             await mgr.UnsubscribeAsync(server, uri);
             Console.WriteLine("ok");
-        }, configOption, resServerOpt, resUriArg);
+            if (watch && eventsUrl != null)
+                await foreach (var ev in McpEventStream.ReadEventsAsync(eventsUrl))
+                    Console.WriteLine(JsonSerializer.Serialize(ev));
+        }, configOption, resServerOpt, resEventsOpt, resWatchOpt, resUriArg);
 
         resCmd.AddCommand(resList);
         resCmd.AddCommand(resRead);
@@ -425,14 +505,19 @@ public static class McpManagerCommand
         var logServerOpt = new Option<string>("--server", "Server name");
         var logArg = new Argument<string>("level");
         logCmd.AddOption(logServerOpt);
+        logCmd.AddOption(resEventsOpt);
+        logCmd.AddOption(resWatchOpt);
         logCmd.AddArgument(logArg);
-        logCmd.SetHandler(async (string? cfgPath, string server, string level) =>
+        logCmd.SetHandler(async (string? cfgPath, string server, string? eventsUrl, bool watch, string level) =>
         {
             var cfg = cfgPath != null ? AppConfig.Load(cfgPath) : new AppConfig();
             var (mgr, _) = await McpConnectionManager.CreateAsync(cfg.McpServers);
             await mgr.SetLevelAsync(server, level);
             Console.WriteLine("ok");
-        }, configOption, logServerOpt, logArg);
+            if (watch && eventsUrl != null)
+                await foreach (var ev in McpEventStream.ReadEventsAsync(eventsUrl))
+                    Console.WriteLine(JsonSerializer.Serialize(ev));
+        }, configOption, logServerOpt, resEventsOpt, resWatchOpt, logArg);
         root.AddCommand(logCmd);
 
         // complete subcommand
@@ -440,14 +525,23 @@ public static class McpManagerCommand
         var compServerOpt = new Option<string>("--server", "Server name");
         var prefixArg = new Argument<string>("prefix");
         completeCmd.AddOption(compServerOpt);
+        completeCmd.AddOption(resJsonOpt);
+        completeCmd.AddOption(resEventsOpt);
+        completeCmd.AddOption(resWatchOpt);
         completeCmd.AddArgument(prefixArg);
-        completeCmd.SetHandler(async (string? cfgPath, string server, string prefix) =>
+        completeCmd.SetHandler(async (string? cfgPath, string server, bool json, string? eventsUrl, bool watch, string prefix) =>
         {
             var cfg = cfgPath != null ? AppConfig.Load(cfgPath) : new AppConfig();
             var (mgr, _) = await McpConnectionManager.CreateAsync(cfg.McpServers);
             var res = await mgr.CompleteAsync(server, prefix);
-            Console.WriteLine(res.Completion.Values[0]);
-        }, configOption, compServerOpt, prefixArg);
+            if (json)
+                Console.WriteLine(JsonSerializer.Serialize(res));
+            else
+                Console.WriteLine(res.Completion.Values[0]);
+            if (watch && eventsUrl != null)
+                await foreach (var ev in McpEventStream.ReadEventsAsync(eventsUrl))
+                    Console.WriteLine(JsonSerializer.Serialize(ev));
+        }, configOption, compServerOpt, resJsonOpt, resEventsOpt, resWatchOpt, prefixArg);
         root.AddCommand(completeCmd);
 
         // sampling create-message
@@ -455,15 +549,23 @@ public static class McpManagerCommand
         var smpServerOpt = new Option<string>("--server", "Server name");
         var msgContentArg = new Argument<string>("text");
         sampleCmd.AddOption(smpServerOpt);
+        sampleCmd.AddOption(resJsonOpt);
+        sampleCmd.AddOption(resEventsOpt);
+        sampleCmd.AddOption(resWatchOpt);
         sampleCmd.AddArgument(msgContentArg);
-        sampleCmd.SetHandler(async (string? cfgPath, string server, string text) =>
+        sampleCmd.SetHandler(async (string? cfgPath, string server, bool json, string? eventsUrl, bool watch, string text) =>
         {
             var cfg = cfgPath != null ? AppConfig.Load(cfgPath) : new AppConfig();
             var (mgr, _) = await McpConnectionManager.CreateAsync(cfg.McpServers);
             var res = await mgr.CreateMessageAsync(server, text);
-            if (res.Content is CreateMessageTextContent txt)
+            if (json)
+                Console.WriteLine(JsonSerializer.Serialize(res));
+            else if (res.Content is CreateMessageTextContent txt)
                 Console.WriteLine(txt.Text);
-        }, configOption, smpServerOpt, msgContentArg);
+            if (watch && eventsUrl != null)
+                await foreach (var ev in McpEventStream.ReadEventsAsync(eventsUrl))
+                    Console.WriteLine(JsonSerializer.Serialize(ev));
+        }, configOption, smpServerOpt, resJsonOpt, resEventsOpt, resWatchOpt, msgContentArg);
         root.AddCommand(sampleCmd);
         return root;
     }
