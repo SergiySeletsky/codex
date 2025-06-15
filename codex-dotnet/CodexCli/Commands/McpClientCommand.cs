@@ -26,6 +26,8 @@ public static class McpClientCommand
         var listTemplatesOpt = new Option<bool>("--list-templates", description: "List resource templates and exit");
         var setLevelOpt = new Option<string?>("--set-level", description: "Set server log level");
         var completeOpt = new Option<string?>("--complete", description: "Completion prefix");
+        var subscribeOpt = new Option<string?>("--subscribe", description: "Subscribe to resource URI");
+        var unsubscribeOpt = new Option<string?>("--unsubscribe", description: "Unsubscribe from resource URI");
         cmd.AddOption(timeoutOpt);
         cmd.AddOption(jsonOpt);
         cmd.AddOption(callOpt);
@@ -41,6 +43,8 @@ public static class McpClientCommand
         cmd.AddOption(listTemplatesOpt);
         cmd.AddOption(setLevelOpt);
         cmd.AddOption(completeOpt);
+        cmd.AddOption(subscribeOpt);
+        cmd.AddOption(unsubscribeOpt);
         var progArg = new Argument<string>("program");
         var argsArg = new Argument<string[]>("args") { Arity = ArgumentArity.ZeroOrMore };
         cmd.AddArgument(progArg);
@@ -64,6 +68,8 @@ public static class McpClientCommand
             bool listTemplates = ctx.ParseResult.GetValueForOption(listTemplatesOpt);
             string? setLevel = ctx.ParseResult.GetValueForOption(setLevelOpt);
             string? completePrefix = ctx.ParseResult.GetValueForOption(completeOpt);
+            string? subscribeUri = ctx.ParseResult.GetValueForOption(subscribeOpt);
+            string? unsubscribeUri = ctx.ParseResult.GetValueForOption(unsubscribeOpt);
 
             var extraEnv = env.Select(e => e.Split('=', 2)).Where(p => p.Length == 2).ToDictionary(p => p[0], p => p[1]);
             using var client = await McpClient.StartAsync(program, args, extraEnv);
@@ -111,6 +117,16 @@ public static class McpClientCommand
             else if (setLevel != null)
             {
                 await client.SetLevelAsync(setLevel, timeout);
+                Console.WriteLine("ok");
+            }
+            else if (subscribeUri != null)
+            {
+                await client.SubscribeAsync(new SubscribeRequestParams(subscribeUri), timeout);
+                Console.WriteLine("ok");
+            }
+            else if (unsubscribeUri != null)
+            {
+                await client.UnsubscribeAsync(new UnsubscribeRequestParams(unsubscribeUri), timeout);
                 Console.WriteLine("ok");
             }
             else if (completePrefix != null)

@@ -324,12 +324,15 @@
 300. McpClientCommand supports prompts, templates, resource writing, log level and completion options
 301. Updated McpServerTests with coverage for new features
 302. Documented progress and updated TODO list
+304. Added resource list change and update events
+305. Implemented subscribe/unsubscribe tracking
+306. Initialization response now includes protocol version and capabilities
+307. McpClient exposes SubscribeAsync and UnsubscribeAsync
+308. McpClientCommand supports subscribe and unsubscribe options
+309. McpServerTests verify initialization result fields
+310. Added subscription test using SSE events
 
 ## TODO Next Run
 - Continue porting remaining Rust CLI features
 - Investigate hanging tests and fix missing API key issues
 - Flesh out CodexToolRunner with real Codex integration
-- Persist resources to disk and implement update APIs
-- Add more MCP protocol tests covering logging and completion
-- Improve initialization result with capabilities
-- Implement resource subscriptions and notifications

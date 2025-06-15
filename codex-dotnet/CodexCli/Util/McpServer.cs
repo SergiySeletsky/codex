@@ -15,16 +15,36 @@ public class McpServer : IDisposable
     private readonly Dictionary<string, List<PromptMessage>> _prompts = new();
     private readonly List<ResourceTemplate> _templates = new();
     private readonly string _root;
+    private readonly string _storagePath;
+    private readonly HashSet<string> _subscriptions = new();
     private string _logLevel = "info";
 
     public McpServer(int port)
     {
         _listener.Prefixes.Add($"http://localhost:{port}/");
         _root = Directory.GetCurrentDirectory();
+        _storagePath = Path.Combine(_root, "mcp-resources.json");
+
         // simple in-memory resource store for demo purposes
         _resources["mem:/demo.txt"] = "Hello from MCP";
+        if (File.Exists(_storagePath))
+        {
+            try
+            {
+                var json = File.ReadAllText(_storagePath);
+                var loaded = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
+                if (loaded != null)
+                {
+                    foreach (var kv in loaded)
+                        _resources[kv.Key] = kv.Value;
+                }
+            }
+            catch { }
+        }
+
         _prompts["demo"] = new List<PromptMessage> { new("system", "Say hello") };
         _templates.Add(new ResourceTemplate("mem:/template.txt", "Demo template"));
+        SaveResources();
     }
 
     public async Task RunAsync(CancellationToken cancellationToken = default)
@@ -80,7 +100,18 @@ public class McpServer : IDisposable
         var id = req.Id ?? JsonDocument.Parse("0").RootElement;
         return req.Method switch
         {
-            "initialize" => Task.FromResult(CreateResponse(id, new { server = "codex-mcp" })),
+            "initialize" => Task.FromResult(CreateResponse(id, new {
+                serverInfo = new { name = "codex-mcp", version = "1.0" },
+                protocolVersion = "2025-03-26",
+                capabilities = new {
+                    resources = new { subscribe = true, listChanged = (bool?)null },
+                    tools = new { listChanged = (bool?)null },
+                    prompts = new { listChanged = (bool?)null },
+                    logging = (object?)null,
+                    completions = (object?)null,
+                    experimental = (object?)null
+                }
+            })),
             "ping" => Task.FromResult(CreateResponse(id, new { })),
             "tools/list" => Task.FromResult(CreateResponse(id, new { tools = new[] { CreateCodexTool() } })),
             "tools/call" => HandleCallToolAsync(req),
@@ -89,8 +120,8 @@ public class McpServer : IDisposable
             "resources/templates/list" => Task.FromResult(CreateResponse(id, new { resourceTemplates = _templates.Select(t => new { uri = t.Uri, description = t.Description }), nextCursor = (string?)null })),
             "resources/read" => HandleReadResourceAsync(req),
             "resources/write" => HandleWriteResourceAsync(req),
-            "resources/subscribe" => Task.FromResult(CreateResponse(id, new { })),
-            "resources/unsubscribe" => Task.FromResult(CreateResponse(id, new { })),
+            "resources/subscribe" => HandleSubscribeAsync(req),
+            "resources/unsubscribe" => HandleUnsubscribeAsync(req),
             "prompts/list" => Task.FromResult(CreateResponse(id, new { prompts = _prompts.Keys.Select(n => new { name = n, description = (string?)null }), nextCursor = (string?)null })),
             "prompts/get" => HandleGetPromptAsync(req),
             "logging/setLevel" => HandleSetLevelAsync(req),
@@ -160,6 +191,7 @@ public class McpServer : IDisposable
         var uri = u.GetString();
         var text = t.GetString() ?? string.Empty;
         if (uri == null) return CreateResponse(id, new { });
+        bool added = !_resources.ContainsKey(uri);
         _resources[uri] = text;
         var path = UriToPath(uri);
         if (path != null)
@@ -167,7 +199,33 @@ public class McpServer : IDisposable
             Directory.CreateDirectory(Path.GetDirectoryName(path)!);
             await File.WriteAllTextAsync(path, text);
         }
+        SaveResources();
+        if (added) EmitEvent(new ResourceListChangedEvent(Guid.NewGuid().ToString()));
+        if (_subscriptions.Contains(uri))
+            EmitEvent(new ResourceUpdatedEvent(Guid.NewGuid().ToString(), uri));
         return CreateResponse(id, new { });
+    }
+
+    private Task<JsonRpcMessage> HandleSubscribeAsync(JsonRpcMessage req)
+    {
+        var id = req.Id ?? JsonDocument.Parse("0").RootElement;
+        if (req.Params != null && req.Params.Value.TryGetProperty("uri", out var u))
+        {
+            var uri = u.GetString();
+            if (uri != null) _subscriptions.Add(uri);
+        }
+        return Task.FromResult(CreateResponse(id, new { }));
+    }
+
+    private Task<JsonRpcMessage> HandleUnsubscribeAsync(JsonRpcMessage req)
+    {
+        var id = req.Id ?? JsonDocument.Parse("0").RootElement;
+        if (req.Params != null && req.Params.Value.TryGetProperty("uri", out var u))
+        {
+            var uri = u.GetString();
+            if (uri != null) _subscriptions.Remove(uri);
+        }
+        return Task.FromResult(CreateResponse(id, new { }));
     }
 
     private Task<JsonRpcMessage> HandleGetPromptAsync(JsonRpcMessage req)
@@ -200,6 +258,16 @@ public class McpServer : IDisposable
 
     private static string? UriToPath(string uri)
         => uri.StartsWith("file:/") ? uri.Substring(6) : null;
+
+    private void SaveResources()
+    {
+        try
+        {
+            var json = JsonSerializer.Serialize(_resources);
+            File.WriteAllText(_storagePath, json);
+        }
+        catch { }
+    }
 
     private static object CreateCodexTool() => new
     {

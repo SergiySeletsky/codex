@@ -30,3 +30,6 @@ public record AddToHistoryEvent(string Id, string Text) : Event(Id);
 public record GetHistoryEntryRequestEvent(string Id, string SessionId, int Offset) : Event(Id);
 public record GetHistoryEntryResponseEvent(string Id, string SessionId, int Offset, string? Entry) : Event(Id);
 
+
+public record ResourceUpdatedEvent(string Id, string Uri) : Event(Id);
+public record ResourceListChangedEvent(string Id) : Event(Id);
