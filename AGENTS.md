@@ -388,6 +388,7 @@
 - Add more MCP client features and tests
 - Implement remaining sandbox enforcement logic
 - Finalize JSON serialization schema and update tests
+- Stabilize new message server features
 358. Exposed ExecRunner.NetworkDisabledEnv constant for external checks
 359. McpClient now implements IAsyncDisposable
 360. Extended IsSafeCommand to reject 'sudo'
@@ -511,3 +512,10 @@
 472. Added unit tests for progress event emission and mapping
 473. Documented progress and updated TODO list
 474. TODO next run: port more MCP utilities and stabilise tests
+475. Added GetHistoryEntryResponseEvent mapping in ResponseItemFactory
+476. McpConnectionManager now starts clients concurrently
+477. Implemented messages/add and messages/getEntry in McpServer
+478. Added AddMessageAsync and GetMessageEntryAsync helpers in McpClient
+479. McpClientCommand gained --add-message and --get-message options
+480. Created tests for new event mapping, connection manager parsing and message server
+481. Documented progress and updated TODO list

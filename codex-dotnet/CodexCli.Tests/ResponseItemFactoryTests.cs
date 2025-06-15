@@ -69,4 +69,13 @@ public class ResponseItemFactoryTests
         Assert.NotNull(item);
         Assert.Contains("Progress", item!.Content[0].Text);
     }
+
+    [Fact]
+    public void MapsHistoryEntryResponse()
+    {
+        var ev = new GetHistoryEntryResponseEvent("id", "sess", 1, "hello");
+        var item = ResponseItemFactory.FromEvent(ev) as MessageItem;
+        Assert.NotNull(item);
+        Assert.Contains("hello", item!.Content[0].Text);
+    }
 }

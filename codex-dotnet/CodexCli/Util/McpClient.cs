@@ -178,6 +178,12 @@ public class McpClient : IDisposable, IAsyncDisposable
     public Task<CreateMessageResult> CreateMessageAsync(CreateMessageRequestParams p, int timeoutSeconds = 10)
         => SendRequestAsync<CreateMessageResult>("sampling/createMessage", p, timeoutSeconds);
 
+    public Task<Result> AddMessageAsync(string text, int timeoutSeconds = 10)
+        => SendRequestAsync<Result>("messages/add", new { text }, timeoutSeconds);
+
+    public Task<GetMessageEntryResult> GetMessageEntryAsync(int offset, int timeoutSeconds = 10)
+        => SendRequestAsync<GetMessageEntryResult>("messages/getEntry", new { offset }, timeoutSeconds);
+
     public Task<CallToolResult> CallCodexAsync(CodexToolCallParam param, int timeoutSeconds = 10)
     {
         var args = JsonSerializer.SerializeToElement(param);
@@ -272,4 +278,6 @@ public record CreateMessageResult(CreateMessageResultContent Content, string Mod
 [JsonDerivedType(typeof(CreateMessageTextContent), typeDiscriminator: "text")]
 public abstract record CreateMessageResultContent;
 public record CreateMessageTextContent(string Text) : CreateMessageResultContent;
+
+public record GetMessageEntryResult(string? Entry);
 

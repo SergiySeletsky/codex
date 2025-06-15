@@ -29,6 +29,8 @@ public static class McpClientCommand
         var createMsgOpt = new Option<string?>("--create-message", description: "Text for sampling/createMessage");
         var addPromptNameOpt = new Option<string?>("--add-prompt-name", description: "Name of prompt to add");
         var addPromptMsgOpt = new Option<string?>("--add-prompt-message", description: "System message for prompt");
+        var addMessageOpt = new Option<string?>("--add-message", description: "Message text to store");
+        var getMessageOpt = new Option<int?>("--get-message", description: "Fetch stored message by offset");
         var subscribeOpt = new Option<string?>("--subscribe", description: "Subscribe to resource URI");
         var unsubscribeOpt = new Option<string?>("--unsubscribe", description: "Unsubscribe from resource URI");
         var eventsUrlOpt = new Option<string?>("--events-url", description: "Stream events from server URL");
@@ -55,6 +57,8 @@ public static class McpClientCommand
         cmd.AddOption(createMsgOpt);
         cmd.AddOption(addPromptNameOpt);
         cmd.AddOption(addPromptMsgOpt);
+        cmd.AddOption(addMessageOpt);
+        cmd.AddOption(getMessageOpt);
         cmd.AddOption(subscribeOpt);
         cmd.AddOption(unsubscribeOpt);
         cmd.AddOption(eventsUrlOpt);
@@ -88,6 +92,8 @@ public static class McpClientCommand
             string? completePrefix = ctx.ParseResult.GetValueForOption(completeOpt);
             string? addPromptName = ctx.ParseResult.GetValueForOption(addPromptNameOpt);
             string? addPromptMsg = ctx.ParseResult.GetValueForOption(addPromptMsgOpt);
+            string? addMessage = ctx.ParseResult.GetValueForOption(addMessageOpt);
+            int? getMessage = ctx.ParseResult.GetValueForOption(getMessageOpt);
             string? subscribeUri = ctx.ParseResult.GetValueForOption(subscribeOpt);
             string? unsubscribeUri = ctx.ParseResult.GetValueForOption(unsubscribeOpt);
             string? eventsUrl = ctx.ParseResult.GetValueForOption(eventsUrlOpt);
@@ -157,6 +163,16 @@ public static class McpClientCommand
             {
                 await client.SetLevelAsync(setLevel, timeout);
                 Console.WriteLine("ok");
+            }
+            else if (addMessage != null)
+            {
+                await client.AddMessageAsync(addMessage, timeout);
+                Console.WriteLine("ok");
+            }
+            else if (getMessage != null)
+            {
+                var res = await client.GetMessageEntryAsync(getMessage.Value, timeout);
+                Console.WriteLine(JsonSerializer.Serialize(res, new JsonSerializerOptions { WriteIndented = json }));
             }
             else if (subscribeUri != null)
             {
