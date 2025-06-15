@@ -135,6 +135,36 @@ public class McpClient : IDisposable
     public Task PingAsync(int timeoutSeconds = 10)
         => SendRequestAsync("ping", null, timeoutSeconds);
 
+    public Task<ListResourcesResult> ListResourcesAsync(ListResourcesRequestParams? p = null, int timeoutSeconds = 10)
+        => SendRequestAsync<ListResourcesResult>("resources/list", p, timeoutSeconds);
+
+    public Task<ListResourceTemplatesResult> ListResourceTemplatesAsync(ListResourceTemplatesRequestParams? p = null, int timeoutSeconds = 10)
+        => SendRequestAsync<ListResourceTemplatesResult>("resources/templates/list", p, timeoutSeconds);
+
+    public Task<JsonElement> ReadResourceAsync(ReadResourceRequestParams p, int timeoutSeconds = 10)
+        => SendRequestAsync<JsonElement>("resources/read", p, timeoutSeconds);
+
+    public Task SubscribeAsync(SubscribeRequestParams p, int timeoutSeconds = 10)
+        => SendRequestAsync("resources/subscribe", p, timeoutSeconds);
+
+    public Task UnsubscribeAsync(UnsubscribeRequestParams p, int timeoutSeconds = 10)
+        => SendRequestAsync("resources/unsubscribe", p, timeoutSeconds);
+
+    public Task<ListPromptsResult> ListPromptsAsync(ListPromptsRequestParams? p = null, int timeoutSeconds = 10)
+        => SendRequestAsync<ListPromptsResult>("prompts/list", p, timeoutSeconds);
+
+    public Task<GetPromptResult> GetPromptAsync(string name, JsonElement? arguments = null, int timeoutSeconds = 10)
+    {
+        var p = new GetPromptRequestParams(name, arguments);
+        return SendRequestAsync<GetPromptResult>("prompts/get", p, timeoutSeconds);
+    }
+
+    public Task<Result> SetLevelAsync(string level, int timeoutSeconds = 10)
+        => SendRequestAsync<Result>("logging/setLevel", new SetLevelRequestParams(level), timeoutSeconds);
+
+    public Task<CompleteResult> CompleteAsync(CompleteRequestParams p, int timeoutSeconds = 10)
+        => SendRequestAsync<CompleteResult>("completion/complete", p, timeoutSeconds);
+
     public void Dispose()
     {
         _cts.Cancel();
@@ -153,4 +183,33 @@ public record Tool(string Name, ToolInputSchema InputSchema, string? Description
 public record ListToolsResult(string? NextCursor, List<Tool> Tools);
 public record CallToolRequestParams(string Name, JsonElement? Arguments);
 public record CallToolResult(List<JsonElement> Content, bool? IsError);
+
+public record ListResourcesRequestParams(string? Cursor);
+public record Resource(string Name, string Uri, string Kind);
+public record ListResourcesResult(string? NextCursor, List<Resource> Resources);
+
+public record ListResourceTemplatesRequestParams(string? Cursor);
+public record ResourceTemplate(string Uri, string? Description);
+public record ListResourceTemplatesResult(string? NextCursor, List<ResourceTemplate> ResourceTemplates);
+
+public record ListPromptsRequestParams(string? Cursor);
+public record Prompt(string Name, string? Description);
+public record ListPromptsResult(string? NextCursor, List<Prompt> Prompts);
+
+public record GetPromptRequestParams(string Name, JsonElement? Arguments);
+public record PromptMessage(string Role, string Content);
+public record GetPromptResult(List<PromptMessage> Messages, string? Description);
+
+public record ReadResourceRequestParams(string Uri);
+public record SubscribeRequestParams(string Uri);
+public record UnsubscribeRequestParams(string Uri);
+
+public record SetLevelRequestParams(string Level);
+public record Result();
+
+public record CompleteRequestParams(CompleteRequestParamsArgument Argument, CompleteRequestParamsRef Ref);
+public record CompleteRequestParamsArgument(string Name, string Value);
+public record CompleteRequestParamsRef(string Uri);
+public record CompleteResult(CompleteResultCompletion Completion);
+public record CompleteResultCompletion(List<string> Values, bool? HasMore, long? Total);
 

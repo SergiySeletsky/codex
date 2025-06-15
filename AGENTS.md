@@ -290,10 +290,14 @@
 266. Created McpServerTests verifying initialize and list tools
 267. Added TestUtils helper for free TCP port lookup
 268. Added minimal event broadcasting API in McpServer
+269. Added stub handlers for resources, prompts, subscribe and logging requests in McpServer
+270. Extended McpClient with methods for new MCP requests
+271. Added record types for resources, prompts and completion results
+272. Added prompts/list test to McpServerTests
 
 ## TODO Next Run
 - Port more Rust CLI features
 - Investigate hanging tests and fix
 - Expand MCP client functionality and add more protocol tests
 - Implement remaining MCP server features
-- Add more McpServer request handlers and server options
+- Implement codex tool runner for tools/call

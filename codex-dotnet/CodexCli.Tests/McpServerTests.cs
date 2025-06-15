@@ -1,6 +1,7 @@
 using System.Net.Http;
 using System.Text.Json;
 using CodexCli.Util;
+using CodexCli.Protocol;
 using Xunit;
 
 public class McpServerTests
@@ -22,6 +23,10 @@ public class McpServerTests
         resp = await client.PostAsync($"http://localhost:{port}/jsonrpc", new StringContent(JsonSerializer.Serialize(req)));
         body = await resp.Content.ReadAsStringAsync();
         Assert.Contains("codex", body);
+        req = new JsonRpcMessage { Method = "prompts/list", Id = JsonSerializer.SerializeToElement(3) };
+        resp = await client.PostAsync($"http://localhost:{port}/jsonrpc", new StringContent(JsonSerializer.Serialize(req)));
+        body = await resp.Content.ReadAsStringAsync();
+        Assert.Contains("prompts", body);
         cts.Cancel();
         await serverTask;
     }

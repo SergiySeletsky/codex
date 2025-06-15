@@ -71,18 +71,47 @@ public class McpServer : IDisposable
                 Id = req.Id,
                 Result = JsonSerializer.SerializeToElement(new { server = "codex-mcp" })
             }),
-            "ping" => Task.FromResult(new JsonRpcMessage{ Id = req.Id, Result = JsonSerializer.SerializeToElement(new { }) }),
+            "ping" => Task.FromResult(new JsonRpcMessage { Id = req.Id, Result = JsonSerializer.SerializeToElement(new { }) }),
             "tools/list" => Task.FromResult(new JsonRpcMessage
             {
                 Id = req.Id,
-                Result = JsonSerializer.SerializeToElement(new { tools = new[]{ new { name="codex" } } })
+                Result = JsonSerializer.SerializeToElement(new { tools = new[] { new { name = "codex" } } })
             }),
             "tools/call" => Task.FromResult(new JsonRpcMessage
             {
                 Id = req.Id,
-                Result = JsonSerializer.SerializeToElement(new { content = new[]{ JsonSerializer.SerializeToElement("ok") } })
+                Result = JsonSerializer.SerializeToElement(new { content = new[] { JsonSerializer.SerializeToElement("ok") } })
             }),
-            _ => Task.FromResult(new JsonRpcMessage{ Id = req.Id, Result = JsonSerializer.SerializeToElement(new { }) })
+            "resources/list" => Task.FromResult(new JsonRpcMessage
+            {
+                Id = req.Id,
+                Result = JsonSerializer.SerializeToElement(new { resources = Array.Empty<object>(), nextCursor = (string?)null })
+            }),
+            "resources/templates/list" => Task.FromResult(new JsonRpcMessage
+            {
+                Id = req.Id,
+                Result = JsonSerializer.SerializeToElement(new { resourceTemplates = Array.Empty<object>(), nextCursor = (string?)null })
+            }),
+            "resources/read" => Task.FromResult(new JsonRpcMessage { Id = req.Id, Result = JsonSerializer.SerializeToElement(new { }) }),
+            "resources/subscribe" => Task.FromResult(new JsonRpcMessage { Id = req.Id, Result = JsonSerializer.SerializeToElement(new { }) }),
+            "resources/unsubscribe" => Task.FromResult(new JsonRpcMessage { Id = req.Id, Result = JsonSerializer.SerializeToElement(new { }) }),
+            "prompts/list" => Task.FromResult(new JsonRpcMessage
+            {
+                Id = req.Id,
+                Result = JsonSerializer.SerializeToElement(new { prompts = Array.Empty<object>(), nextCursor = (string?)null })
+            }),
+            "prompts/get" => Task.FromResult(new JsonRpcMessage
+            {
+                Id = req.Id,
+                Result = JsonSerializer.SerializeToElement(new { messages = Array.Empty<object>(), description = (string?)null })
+            }),
+            "logging/setLevel" => Task.FromResult(new JsonRpcMessage { Id = req.Id, Result = JsonSerializer.SerializeToElement(new { }) }),
+            "completion/complete" => Task.FromResult(new JsonRpcMessage
+            {
+                Id = req.Id,
+                Result = JsonSerializer.SerializeToElement(new { completion = new { values = Array.Empty<string>(), hasMore = (bool?)null, total = (int?)null } })
+            }),
+            _ => Task.FromResult(new JsonRpcMessage { Id = req.Id, Result = JsonSerializer.SerializeToElement(new { }) })
         };
     }
 
