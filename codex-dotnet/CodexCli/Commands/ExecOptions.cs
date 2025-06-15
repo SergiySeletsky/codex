@@ -40,4 +40,5 @@ public record ExecOptions(
     string[] EnvSet,
     string[] EnvIncludeOnly,
     int? ProjectDocMaxBytes,
-    string? ProjectDocPath);
+    string? ProjectDocPath,
+    string? McpServer);

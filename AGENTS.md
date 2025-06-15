@@ -530,4 +530,11 @@
 490. Implemented new command and utilities using connection manager
 491. McpConnectionManager exposes HasServer helper
 492. Documented progress and updated TODO list
-493. TODO next run: integrate connection manager with ExecCommand and extend tests
+493. Added --mcp-server option to ExecCommand and ExecOptions
+494. Updated ExecBinder and tests to bind new option
+495. ExecCommand now uses McpConnectionManager when mcp-server specified
+496. Implemented basic Codex tool call via manager returning agent message
+497. Improved AppConfig parser to handle args arrays generically
+498. Build and tests executed (tests pass with many skipped)
+499. Documented progress and updated TODO list
+500. TODO next run: refine MCP integration and handle SSE events

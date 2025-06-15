@@ -6,6 +6,7 @@ using CodexCli.ApplyPatch;
 using CodexCli.Models;
 using System.Linq;
 using System.Collections.Generic;
+using System.Text.Json;
 
 namespace CodexCli.Commands;
 
@@ -43,6 +44,7 @@ public static class ExecCommand
         var envIncludeOpt = new Option<string[]>("--env-include-only") { AllowMultipleArgumentsPerToken = true };
         var docMaxOpt = new Option<int?>("--project-doc-max-bytes", "Limit size of AGENTS.md to read");
         var docPathOpt = new Option<string?>("--project-doc-path", "Explicit project doc path");
+        var mcpServerOpt = new Option<string?>("--mcp-server", "Run via MCP server from config");
 
         var cmd = new Command("exec", "Run Codex non-interactively");
         cmd.AddArgument(promptArg);
@@ -75,11 +77,12 @@ public static class ExecCommand
         cmd.AddOption(envIncludeOpt);
         cmd.AddOption(docMaxOpt);
         cmd.AddOption(docPathOpt);
+        cmd.AddOption(mcpServerOpt);
 
         var binder = new ExecBinder(promptArg, imagesOpt, modelOpt, profileOpt, providerOpt, fullAutoOpt,
             approvalOpt, sandboxOpt, colorOpt, cwdOpt, lastMsgOpt, sessionOpt, skipGitOpt, notifyOpt, overridesOpt,
             effortOpt, summaryOpt, instrOpt, hideReasonOpt, disableStorageOpt, noProjDocOpt, jsonOpt, eventLogOpt,
-            envInheritOpt, envIgnoreOpt, envExcludeOpt, envSetOpt, envIncludeOpt, docMaxOpt, docPathOpt);
+            envInheritOpt, envIgnoreOpt, envExcludeOpt, envSetOpt, envIncludeOpt, docMaxOpt, docPathOpt, mcpServerOpt);
 
         cmd.SetHandler(async (ExecOptions opts, string? cfgPath, string? cd) =>
         {
@@ -194,9 +197,32 @@ public static class ExecCommand
                 EnvUtils.GetLogLevel(null));
 
             var imagePaths = opts.Images.Select(i => i.FullName).ToArray();
-            IAsyncEnumerable<Event> events = providerId == "mock"
-                ? CodexCli.Protocol.MockCodexAgent.RunAsync(prompt, imagePaths)
-                : CodexCli.Protocol.RealCodexAgent.RunAsync(prompt, client, opts.Model ?? cfg?.Model ?? "default");
+            IAsyncEnumerable<Event> events;
+            if (!string.IsNullOrEmpty(opts.McpServer))
+            {
+                var (mgr, _) = await McpConnectionManager.CreateAsync(cfg ?? new AppConfig());
+                if (!mgr.HasServer(opts.McpServer))
+                {
+                    Console.Error.WriteLine($"Unknown MCP server '{opts.McpServer}'");
+                    return;
+                }
+                var param = new CodexToolCallParam(prompt ?? string.Empty, opts.Model ?? cfg?.Model, opts.Profile, Environment.CurrentDirectory, null, sandboxList.Select(s => s.ToString()).ToList(), null, providerId);
+                var paramJson = System.Text.Json.JsonSerializer.SerializeToElement(param);
+                var result = await mgr.CallToolAsync(McpConnectionManager.FullyQualifiedToolName(opts.McpServer, "codex"), paramJson);
+                async IAsyncEnumerable<Event> Enumerate()
+                {
+                    var msg = result.Content.FirstOrDefault().ToString();
+                    yield return new AgentMessageEvent(Guid.NewGuid().ToString(), msg);
+                    yield return new TaskCompleteEvent(Guid.NewGuid().ToString(), msg);
+                }
+                events = Enumerate();
+            }
+            else
+            {
+                events = providerId == "mock"
+                    ? CodexCli.Protocol.MockCodexAgent.RunAsync(prompt, imagePaths)
+                    : CodexCli.Protocol.RealCodexAgent.RunAsync(prompt, client, opts.Model ?? cfg?.Model ?? "default");
+            }
             await foreach (var ev in events)
             {
                 if (opts.Json)

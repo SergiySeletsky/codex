@@ -1,6 +1,7 @@
 using System.Net.Http;
 using System.Text.Json;
 using CodexCli.Util;
+using CodexCli.Protocol;
 using Xunit;
 
 public class McpServerMessageTests
