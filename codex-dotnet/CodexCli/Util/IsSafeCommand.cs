@@ -6,6 +6,7 @@ public static class IsSafeCommand
     {
         if (command.Count == 0) return false;
         var cmd0 = command[0];
+        if (cmd0 == "sudo") return false;
         return cmd0 switch
         {
             "cat" or "cd" or "echo" or "grep" or "head" or "ls" or "pwd" or "rg" or "tail" or "wc" or "which" => true,

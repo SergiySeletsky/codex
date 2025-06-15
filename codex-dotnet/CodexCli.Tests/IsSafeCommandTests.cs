@@ -7,5 +7,6 @@ public class IsSafeCommandTests
     {
         Assert.True(IsSafeCommand.Check(new[]{"echo","hello"}));
         Assert.False(IsSafeCommand.Check(new[]{"rm","-rf","/"}));
+        Assert.False(IsSafeCommand.Check(new[]{"sudo","ls"}));
     }
 }

@@ -389,3 +389,13 @@
 - Add more MCP client features and tests
 - Implement remaining sandbox enforcement logic
 - Finalize JSON serialization schema and update tests
+358. Exposed ExecRunner.NetworkDisabledEnv constant for external checks
+359. McpClient now implements IAsyncDisposable
+360. Extended IsSafeCommand to reject 'sudo'
+361. Added unit test verifying ExecRunner network constant
+362. Added BackoffTests covering retry delays
+363. Added test for IsSafeCommand 'sudo' rule
+364. Added ExecPolicy env override unit test
+365. Added NotifyOnSigTerm helper in SignalUtils
+366. Documented progress and updated TODO list
+

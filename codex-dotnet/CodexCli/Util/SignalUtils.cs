@@ -12,4 +12,11 @@ public static class SignalUtils
         };
         return cts;
     }
+
+    public static CancellationTokenSource NotifyOnSigTerm()
+    {
+        var cts = new CancellationTokenSource();
+        AppDomain.CurrentDomain.ProcessExit += (_, _) => cts.Cancel();
+        return cts;
+    }
 }

@@ -6,7 +6,7 @@ namespace CodexCli.Util;
 public static class ExecRunner
 {
     private const int MaxOutputBytes = 10 * 1024;
-    private const string NetworkDisabledEnv = "CODEX_SANDBOX_NETWORK_DISABLED";
+    public const string NetworkDisabledEnv = "CODEX_SANDBOX_NETWORK_DISABLED";
     private const int MaxOutputLines = 256;
 
     public static async Task<ExecToolCallOutput> RunAsync(ExecParams p, CancellationToken token, SandboxPolicy? policy = null)
