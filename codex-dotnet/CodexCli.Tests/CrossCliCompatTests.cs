@@ -64,6 +64,24 @@ public class CrossCliCompatTests
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 
+    [Fact(Skip="requires rust toolchain")]
+    public void PromptsListMatches()
+    {
+        var cfg = CreateTempConfig();
+        var dotnet = RunProcess("dotnet", $"run --project ../codex-dotnet/CodexCli --config {cfg} mcp-manager prompts list --server test");
+        var rust = RunProcess("cargo", $"run --quiet --manifest-path ../codex-rs/cli/Cargo.toml -- --config {cfg} mcp-manager prompts list --server test");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [Fact(Skip="requires rust toolchain")]
+    public void PromptGetMatches()
+    {
+        var cfg = CreateTempConfig();
+        var dotnet = RunProcess("dotnet", $"run --project ../codex-dotnet/CodexCli --config {cfg} mcp-manager prompts get --server test demo");
+        var rust = RunProcess("cargo", $"run --quiet --manifest-path ../codex-rs/cli/Cargo.toml -- --config {cfg} mcp-manager prompts get --server test demo");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
     private (string stdout, string stderr) RunProcess(string file, string args)
     {
         var psi = new ProcessStartInfo(file, args)

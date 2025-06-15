@@ -150,6 +150,29 @@ public class McpConnectionManager
         return await client.LastMessagesAsync(count);
     }
 
+    // Prompt helpers map to codex-rs MCP manager (C# version done)
+
+    public async Task<ListPromptsResult> ListPromptsAsync(string server)
+    {
+        if(!_clients.TryGetValue(server, out var client))
+            throw new InvalidOperationException($"unknown MCP server '{server}'");
+        return await client.ListPromptsAsync();
+    }
+
+    public async Task<GetPromptResult> GetPromptAsync(string server, string name)
+    {
+        if(!_clients.TryGetValue(server, out var client))
+            throw new InvalidOperationException($"unknown MCP server '{server}'");
+        return await client.GetPromptAsync(name);
+    }
+
+    public async Task AddPromptAsync(string server, string name, string message)
+    {
+        if(!_clients.TryGetValue(server, out var client))
+            throw new InvalidOperationException($"unknown MCP server '{server}'");
+        await client.AddPromptAsync(new AddPromptRequestParams(name, message));
+    }
+
     public static string FullyQualifiedToolName(string server, string tool) => $"{server}{Delimiter}{tool}";
     public static bool TryParseFullyQualifiedToolName(string fq, out string server, out string tool)
     {

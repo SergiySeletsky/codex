@@ -199,6 +199,50 @@ public static class McpManagerCommand
         msgCmd.AddCommand(msgSearch);
         msgCmd.AddCommand(msgLast);
         root.AddCommand(msgCmd);
+
+        // prompts subcommand derived from codex-rs mcp-cli (C# version done)
+        var prmCmd = new Command("prompts", "Manage prompts on a server");
+        var prmServerOpt = new Option<string>("--server", "Server name");
+        var prmNameArg = new Argument<string>("name", () => string.Empty);
+        var prmMsgArg = new Argument<string>("message", () => string.Empty);
+
+        var prmList = new Command("list", "List prompts");
+        prmList.AddOption(prmServerOpt);
+        prmList.SetHandler(async (string? cfgPath, string server) =>
+        {
+            var cfg = cfgPath != null ? AppConfig.Load(cfgPath) : new AppConfig();
+            var (mgr, _) = await McpConnectionManager.CreateAsync(cfg.McpServers);
+            var res = await mgr.ListPromptsAsync(server);
+            foreach (var p in res.Prompts) Console.WriteLine(p.Name);
+        }, configOption, prmServerOpt);
+
+        var prmGet = new Command("get", "Get prompt");
+        prmGet.AddOption(prmServerOpt);
+        prmGet.AddArgument(prmNameArg);
+        prmGet.SetHandler(async (string? cfgPath, string server, string name) =>
+        {
+            var cfg = cfgPath != null ? AppConfig.Load(cfgPath) : new AppConfig();
+            var (mgr, _) = await McpConnectionManager.CreateAsync(cfg.McpServers);
+            var res = await mgr.GetPromptAsync(server, name);
+            foreach (var m in res.Messages) Console.WriteLine(m.Content);
+        }, configOption, prmServerOpt, prmNameArg);
+
+        var prmAdd = new Command("add", "Add prompt");
+        prmAdd.AddOption(prmServerOpt);
+        prmAdd.AddArgument(prmNameArg);
+        prmAdd.AddArgument(prmMsgArg);
+        prmAdd.SetHandler(async (string? cfgPath, string server, string name, string message) =>
+        {
+            var cfg = cfgPath != null ? AppConfig.Load(cfgPath) : new AppConfig();
+            var (mgr, _) = await McpConnectionManager.CreateAsync(cfg.McpServers);
+            await mgr.AddPromptAsync(server, name, message);
+            Console.WriteLine("ok");
+        }, configOption, prmServerOpt, prmNameArg, prmMsgArg);
+
+        prmCmd.AddCommand(prmList);
+        prmCmd.AddCommand(prmGet);
+        prmCmd.AddCommand(prmAdd);
+        root.AddCommand(prmCmd);
         return root;
     }
 }

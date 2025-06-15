@@ -594,3 +594,8 @@
 552. Documented progress and updated TODO list
 553. TODO next run: port more CLI features from Rust such as prompt management
 554. TODO next run: enable cross-language tests once environment stable
+555. Added prompt management helpers in McpConnectionManager
+556. Introduced `prompts` subcommand in McpManagerCommand with list/get/add
+557. Created cross-language CLI tests for prompts list and get
+558. Added cross-reference comment in mcp-server message_processor.rs
+559. TODO next run: port remaining MCP CLI features and stabilise tests
