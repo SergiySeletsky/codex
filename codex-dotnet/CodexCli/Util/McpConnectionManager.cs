@@ -150,6 +150,88 @@ public class McpConnectionManager
         return await client.LastMessagesAsync(count);
     }
 
+    // Resource helpers (C# port done)
+
+    public async Task<ListResourcesResult> ListResourcesAsync(string server)
+    {
+        if(!_clients.TryGetValue(server, out var client))
+            throw new InvalidOperationException($"unknown MCP server '{server}'");
+        return await client.ListResourcesAsync();
+    }
+
+    public async Task<ListResourceTemplatesResult> ListTemplatesAsync(string server)
+    {
+        if(!_clients.TryGetValue(server, out var client))
+            throw new InvalidOperationException($"unknown MCP server '{server}'");
+        return await client.ListResourceTemplatesAsync();
+    }
+
+    public async Task<JsonElement> ReadResourceAsync(string server, string uri)
+    {
+        if(!_clients.TryGetValue(server, out var client))
+            throw new InvalidOperationException($"unknown MCP server '{server}'");
+        return await client.ReadResourceAsync(new ReadResourceRequestParams(uri));
+    }
+
+    public async Task WriteResourceAsync(string server, string uri, string text)
+    {
+        if(!_clients.TryGetValue(server, out var client))
+            throw new InvalidOperationException($"unknown MCP server '{server}'");
+        await client.WriteResourceAsync(new WriteResourceRequestParams(uri, text));
+    }
+
+    public async Task SubscribeAsync(string server, string uri)
+    {
+        if(!_clients.TryGetValue(server, out var client))
+            throw new InvalidOperationException($"unknown MCP server '{server}'");
+        await client.SubscribeAsync(new SubscribeRequestParams(uri));
+    }
+
+    public async Task UnsubscribeAsync(string server, string uri)
+    {
+        if(!_clients.TryGetValue(server, out var client))
+            throw new InvalidOperationException($"unknown MCP server '{server}'");
+        await client.UnsubscribeAsync(new UnsubscribeRequestParams(uri));
+    }
+
+    public async Task SetLevelAsync(string server, string level)
+    {
+        if(!_clients.TryGetValue(server, out var client))
+            throw new InvalidOperationException($"unknown MCP server '{server}'");
+        await client.SetLevelAsync(level);
+    }
+
+    public async Task<CompleteResult> CompleteAsync(string server, string prefix)
+    {
+        if(!_clients.TryGetValue(server, out var client))
+            throw new InvalidOperationException($"unknown MCP server '{server}'");
+        var p = new CompleteRequestParams(new CompleteRequestParamsArgument("text", prefix), new CompleteRequestParamsRef("mem:/"));
+        return await client.CompleteAsync(p);
+    }
+
+    public async Task<CreateMessageResult> CreateMessageAsync(string server, string text)
+    {
+        if(!_clients.TryGetValue(server, out var client))
+            throw new InvalidOperationException($"unknown MCP server '{server}'");
+        var msg = new SamplingMessage(new SamplingTextContent(text), "user");
+        var p = new CreateMessageRequestParams(new List<SamplingMessage>{ msg }, 100);
+        return await client.CreateMessageAsync(p);
+    }
+
+    public async Task AddMessageAsync(string server, string text)
+    {
+        if(!_clients.TryGetValue(server, out var client))
+            throw new InvalidOperationException($"unknown MCP server '{server}'");
+        await client.AddMessageAsync(text);
+    }
+
+    public async Task<GetMessageEntryResult> GetMessageEntryAsync(string server, int offset)
+    {
+        if(!_clients.TryGetValue(server, out var client))
+            throw new InvalidOperationException($"unknown MCP server '{server}'");
+        return await client.GetMessageEntryAsync(offset);
+    }
+
     // Prompt helpers map to codex-rs MCP manager (C# version done)
 
     public async Task<ListPromptsResult> ListPromptsAsync(string server)

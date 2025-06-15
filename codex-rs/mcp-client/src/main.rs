@@ -1,5 +1,7 @@
 //! Simple command-line utility to exercise `McpClient`.
 //!
+//! C# version implemented in `codex-dotnet/CodexCli/Commands/McpClientCommand.cs` (done)
+//!
 //! Example usage:
 //!
 //! ```bash

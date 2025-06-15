@@ -82,6 +82,42 @@ public class CrossCliCompatTests
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 
+    [Fact(Skip="requires rust toolchain")]
+    public void ResourcesListMatches()
+    {
+        var cfg = CreateTempConfig();
+        var dotnet = RunProcess("dotnet", $"run --project ../codex-dotnet/CodexCli --config {cfg} mcp-manager resources list --server test");
+        var rust = RunProcess("cargo", $"run --quiet --manifest-path ../codex-rs/cli/Cargo.toml -- --config {cfg} mcp-manager resources list --server test");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [Fact(Skip="requires rust toolchain")]
+    public void TemplatesListMatches()
+    {
+        var cfg = CreateTempConfig();
+        var dotnet = RunProcess("dotnet", $"run --project ../codex-dotnet/CodexCli --config {cfg} mcp-manager templates --server test");
+        var rust = RunProcess("cargo", $"run --quiet --manifest-path ../codex-rs/cli/Cargo.toml -- --config {cfg} mcp-manager templates --server test");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [Fact(Skip="requires rust toolchain")]
+    public void LoggingSetLevelMatches()
+    {
+        var cfg = CreateTempConfig();
+        var dotnet = RunProcess("dotnet", $"run --project ../codex-dotnet/CodexCli --config {cfg} mcp-manager set-level --server test debug");
+        var rust = RunProcess("cargo", $"run --quiet --manifest-path ../codex-rs/cli/Cargo.toml -- --config {cfg} mcp-manager set-level --server test debug");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [Fact(Skip="requires rust toolchain")]
+    public void AddAndGetMessageMatches()
+    {
+        var cfg = CreateTempConfig();
+        var dotnet = RunProcess("dotnet", $"run --project ../codex-dotnet/CodexCli --config {cfg} mcp-manager messages add --server test hi && dotnet run --project ../codex-dotnet/CodexCli --config {cfg} mcp-manager messages get --server test 0");
+        var rust = RunProcess("bash", $"-c 'cargo run --quiet --manifest-path ../codex-rs/cli/Cargo.toml -- --config {cfg} mcp-manager messages add --server test hi && cargo run --quiet --manifest-path ../codex-rs/cli/Cargo.toml -- --config {cfg} mcp-manager messages get --server test 0'");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
     private (string stdout, string stderr) RunProcess(string file, string args)
     {
         var psi = new ProcessStartInfo(file, args)

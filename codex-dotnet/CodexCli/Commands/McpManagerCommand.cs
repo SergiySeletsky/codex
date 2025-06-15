@@ -198,6 +198,32 @@ public static class McpManagerCommand
         msgCmd.AddCommand(msgClear);
         msgCmd.AddCommand(msgSearch);
         msgCmd.AddCommand(msgLast);
+        var msgAdd = new Command("add", "Add message");
+        msgAdd.AddOption(msgServerOpt);
+        var msgTextArg = new Argument<string>("text");
+        msgAdd.AddArgument(msgTextArg);
+        msgAdd.SetHandler(async (string? cfgPath, string server, string text) =>
+        {
+            var cfg = cfgPath != null ? AppConfig.Load(cfgPath) : new AppConfig();
+            var (mgr, _) = await McpConnectionManager.CreateAsync(cfg.McpServers);
+            await mgr.AddMessageAsync(server, text);
+            Console.WriteLine("ok");
+        }, configOption, msgServerOpt, msgTextArg);
+
+        var msgGet = new Command("get", "Get message entry");
+        msgGet.AddOption(msgServerOpt);
+        var msgOffsetArg = new Argument<int>("offset");
+        msgGet.AddArgument(msgOffsetArg);
+        msgGet.SetHandler(async (string? cfgPath, string server, int offset) =>
+        {
+            var cfg = cfgPath != null ? AppConfig.Load(cfgPath) : new AppConfig();
+            var (mgr, _) = await McpConnectionManager.CreateAsync(cfg.McpServers);
+            var res = await mgr.GetMessageEntryAsync(server, offset);
+            Console.WriteLine(res.Entry ?? "");
+        }, configOption, msgServerOpt, msgOffsetArg);
+
+        msgCmd.AddCommand(msgAdd);
+        msgCmd.AddCommand(msgGet);
         root.AddCommand(msgCmd);
 
         // prompts subcommand derived from codex-rs mcp-cli (C# version done)
@@ -243,6 +269,133 @@ public static class McpManagerCommand
         prmCmd.AddCommand(prmGet);
         prmCmd.AddCommand(prmAdd);
         root.AddCommand(prmCmd);
+
+        // resources subcommand
+        var resCmd = new Command("resources", "Manage server resources");
+        var resServerOpt = new Option<string>("--server", "Server name");
+        var resUriArg = new Argument<string>("uri", () => string.Empty);
+        var textArg = new Argument<string>("text", () => string.Empty);
+
+        var resList = new Command("list", "List resources");
+        resList.AddOption(resServerOpt);
+        resList.SetHandler(async (string? cfgPath, string server) =>
+        {
+            var cfg = cfgPath != null ? AppConfig.Load(cfgPath) : new AppConfig();
+            var (mgr, _) = await McpConnectionManager.CreateAsync(cfg.McpServers);
+            var res = await mgr.ListResourcesAsync(server);
+            foreach (var r in res.Resources) Console.WriteLine(r.Uri);
+        }, configOption, resServerOpt);
+
+        var resRead = new Command("read", "Read resource");
+        resRead.AddOption(resServerOpt);
+        resRead.AddArgument(resUriArg);
+        resRead.SetHandler(async (string? cfgPath, string server, string uri) =>
+        {
+            var cfg = cfgPath != null ? AppConfig.Load(cfgPath) : new AppConfig();
+            var (mgr, _) = await McpConnectionManager.CreateAsync(cfg.McpServers);
+            var elem = await mgr.ReadResourceAsync(server, uri);
+            Console.WriteLine(elem.ToString());
+        }, configOption, resServerOpt, resUriArg);
+
+        var resWrite = new Command("write", "Write resource");
+        resWrite.AddOption(resServerOpt);
+        resWrite.AddArgument(resUriArg);
+        resWrite.AddArgument(textArg);
+        resWrite.SetHandler(async (string? cfgPath, string server, string uri, string text) =>
+        {
+            var cfg = cfgPath != null ? AppConfig.Load(cfgPath) : new AppConfig();
+            var (mgr, _) = await McpConnectionManager.CreateAsync(cfg.McpServers);
+            await mgr.WriteResourceAsync(server, uri, text);
+            Console.WriteLine("ok");
+        }, configOption, resServerOpt, resUriArg, textArg);
+
+        var resSub = new Command("subscribe", "Subscribe to resource updates");
+        resSub.AddOption(resServerOpt);
+        resSub.AddArgument(resUriArg);
+        resSub.SetHandler(async (string? cfgPath, string server, string uri) =>
+        {
+            var cfg = cfgPath != null ? AppConfig.Load(cfgPath) : new AppConfig();
+            var (mgr, _) = await McpConnectionManager.CreateAsync(cfg.McpServers);
+            await mgr.SubscribeAsync(server, uri);
+            Console.WriteLine("ok");
+        }, configOption, resServerOpt, resUriArg);
+
+        var resUnsub = new Command("unsubscribe", "Unsubscribe from resource");
+        resUnsub.AddOption(resServerOpt);
+        resUnsub.AddArgument(resUriArg);
+        resUnsub.SetHandler(async (string? cfgPath, string server, string uri) =>
+        {
+            var cfg = cfgPath != null ? AppConfig.Load(cfgPath) : new AppConfig();
+            var (mgr, _) = await McpConnectionManager.CreateAsync(cfg.McpServers);
+            await mgr.UnsubscribeAsync(server, uri);
+            Console.WriteLine("ok");
+        }, configOption, resServerOpt, resUriArg);
+
+        resCmd.AddCommand(resList);
+        resCmd.AddCommand(resRead);
+        resCmd.AddCommand(resWrite);
+        resCmd.AddCommand(resSub);
+        resCmd.AddCommand(resUnsub);
+        root.AddCommand(resCmd);
+
+        // templates subcommand
+        var tmplCmd = new Command("templates", "List resource templates");
+        var tmplServerOpt = new Option<string>("--server", "Server name");
+        tmplCmd.AddOption(tmplServerOpt);
+        tmplCmd.SetHandler(async (string? cfgPath, string server) =>
+        {
+            var cfg = cfgPath != null ? AppConfig.Load(cfgPath) : new AppConfig();
+            var (mgr, _) = await McpConnectionManager.CreateAsync(cfg.McpServers);
+            var res = await mgr.ListTemplatesAsync(server);
+            foreach (var t in res.ResourceTemplates) Console.WriteLine(t.Uri);
+        }, configOption, tmplServerOpt);
+        root.AddCommand(tmplCmd);
+
+        // logging set-level
+        var logCmd = new Command("set-level", "Set log level");
+        var logServerOpt = new Option<string>("--server", "Server name");
+        var logArg = new Argument<string>("level");
+        logCmd.AddOption(logServerOpt);
+        logCmd.AddArgument(logArg);
+        logCmd.SetHandler(async (string? cfgPath, string server, string level) =>
+        {
+            var cfg = cfgPath != null ? AppConfig.Load(cfgPath) : new AppConfig();
+            var (mgr, _) = await McpConnectionManager.CreateAsync(cfg.McpServers);
+            await mgr.SetLevelAsync(server, level);
+            Console.WriteLine("ok");
+        }, configOption, logServerOpt, logArg);
+        root.AddCommand(logCmd);
+
+        // complete subcommand
+        var completeCmd = new Command("complete", "Request completion");
+        var compServerOpt = new Option<string>("--server", "Server name");
+        var prefixArg = new Argument<string>("prefix");
+        completeCmd.AddOption(compServerOpt);
+        completeCmd.AddArgument(prefixArg);
+        completeCmd.SetHandler(async (string? cfgPath, string server, string prefix) =>
+        {
+            var cfg = cfgPath != null ? AppConfig.Load(cfgPath) : new AppConfig();
+            var (mgr, _) = await McpConnectionManager.CreateAsync(cfg.McpServers);
+            var res = await mgr.CompleteAsync(server, prefix);
+            Console.WriteLine(res.Completion.Values[0]);
+        }, configOption, compServerOpt, prefixArg);
+        root.AddCommand(completeCmd);
+
+        // sampling create-message
+        var sampleCmd = new Command("create-message", "Create sampling message");
+        var smpServerOpt = new Option<string>("--server", "Server name");
+        var msgContentArg = new Argument<string>("text");
+        sampleCmd.AddOption(smpServerOpt);
+        sampleCmd.AddArgument(msgContentArg);
+        sampleCmd.SetHandler(async (string? cfgPath, string server, string text) =>
+        {
+            var cfg = cfgPath != null ? AppConfig.Load(cfgPath) : new AppConfig();
+            var (mgr, _) = await McpConnectionManager.CreateAsync(cfg.McpServers);
+            var res = await mgr.CreateMessageAsync(server, text);
+            if (res.Content is CreateMessageTextContent txt)
+                Console.WriteLine(txt.Text);
+        }, configOption, smpServerOpt, msgContentArg);
+        root.AddCommand(sampleCmd);
         return root;
     }
 }

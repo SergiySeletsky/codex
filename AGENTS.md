@@ -599,3 +599,8 @@
 557. Created cross-language CLI tests for prompts list and get
 558. Added cross-reference comment in mcp-server message_processor.rs
 559. TODO next run: port remaining MCP CLI features and stabilise tests
+560. Added comment referencing C# port in mcp-client main.rs
+561. Extended McpConnectionManager with resource, template, logging and sampling helpers
+562. Enhanced McpManagerCommand with resources/templates/logging/complete/create-message subcommands and message add/get
+563. Added cross-language tests for resources list, templates list, logging set-level and message roundtrip
+564. TODO next run: review remaining Rust features for parity and enable compatibility tests
