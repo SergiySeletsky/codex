@@ -22,6 +22,7 @@ public record ExecOptions(
     ColorMode Color,
     string? Cwd,
     string? LastMessageFile,
+    string? SessionId,
     bool SkipGitRepoCheck,
     string[] NotifyCommand,
     string[] Overrides,

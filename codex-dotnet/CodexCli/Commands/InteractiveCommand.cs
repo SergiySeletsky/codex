@@ -174,16 +174,18 @@ public static class InteractiveCommand
                     AnsiConsole.MarkupLine($"[blue]{item}[/]");
                 continue;
             }
-            if (prompt.Equals("/reset", StringComparison.OrdinalIgnoreCase))
+            if (prompt.Equals("/reset", StringComparison.OrdinalIgnoreCase) ||
+                prompt.Equals("/new", StringComparison.OrdinalIgnoreCase))
             {
                 history.Clear();
                 SessionManager.ClearHistory(sessionId);
-                AnsiConsole.MarkupLine("History cleared");
+                sessionId = SessionManager.CreateSession();
+                AnsiConsole.MarkupLine("Started new session");
                 continue;
             }
             if (prompt.Equals("/help", StringComparison.OrdinalIgnoreCase))
             {
-                AnsiConsole.MarkupLine("Available commands: /history, /reset, /quit, /help, /log, /config, /save <file>, /save-last <file>, /version, /sessions, /delete <id>");
+                AnsiConsole.MarkupLine("Available commands: /history, /new, /quit, /help, /log, /config, /save <file>, /save-last <file>, /version, /sessions, /delete <id>");
                 continue;
             }
             if (prompt.Equals("/log", StringComparison.OrdinalIgnoreCase))

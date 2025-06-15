@@ -424,4 +424,8 @@
 391. Added ExecRunnerOutputLimitTests verifying limits
 392. McpClientCommand uses ApiKeyManager when calling Codex
 393. Documented progress and updated TODO list
+394. Added --session option to ExecCommand and binder
+395. ExecBinderTests verify session option binding
+396. Interactive command gained /new alias for /reset and starts a new session
+397. Help output updated to mention /new command
 

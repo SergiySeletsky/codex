@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.CommandLine.Builder;
 using System.CommandLine.IO;
+using System.CommandLine.Parsing;
 using Xunit;
 
 public class ReplayCommandTests
@@ -25,12 +26,11 @@ public class ReplayCommandTests
         }
         var cmd = ReplayCommand.Create();
         var console = new System.CommandLine.IO.TestConsole();
-        var parser = new System.CommandLine.Builder.CommandLineBuilder(cmd).Build();
-        await parser.InvokeAsync(file, console);
+        var parser = new CommandLineBuilder(cmd).Build();
+        await parser.InvokeAsync(new[] { file }, console);
         Assert.Contains("assistant: hi", console.Out.ToString());
         File.Delete(file);
     }
-}
 
     [Fact]
     public async Task JsonOutput()
@@ -48,7 +48,7 @@ public class ReplayCommandTests
         var cmd = ReplayCommand.Create();
         var console = new TestConsole();
         var parser = new CommandLineBuilder(cmd).Build();
-        await parser.InvokeAsync($"--json {file}", console);
+        await parser.InvokeAsync(new[] { "--json", file }, console);
         Assert.Contains("\"assistant\"", console.Out.ToString());
         File.Delete(file);
     }

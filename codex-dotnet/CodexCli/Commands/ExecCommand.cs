@@ -24,6 +24,7 @@ public static class ExecCommand
         var colorOpt = new Option<ColorMode>("--color", () => ColorMode.Auto, "Output color mode");
         var cwdOpt = new Option<string?>(new[] {"--cwd", "-C"}, "Working directory for Codex");
         var lastMsgOpt = new Option<string?>("--output-last-message", "File to write last agent message");
+        var sessionOpt = new Option<string?>("--session", "Existing session id");
         var skipGitOpt = new Option<bool>("--skip-git-repo-check", () => false, "Allow running outside git repo");
         var notifyOpt = new Option<string[]>("--notify", description: "Notification command") { AllowMultipleArgumentsPerToken = true };
         var overridesOpt = new Option<string[]>("-c", description: "Config overrides") { AllowMultipleArgumentsPerToken = true };
@@ -55,6 +56,7 @@ public static class ExecCommand
         cmd.AddOption(sandboxOpt);
         cmd.AddOption(colorOpt);
         cmd.AddOption(lastMsgOpt);
+        cmd.AddOption(sessionOpt);
         cmd.AddOption(skipGitOpt);
         cmd.AddOption(notifyOpt);
         cmd.AddOption(overridesOpt);
@@ -75,7 +77,7 @@ public static class ExecCommand
         cmd.AddOption(docPathOpt);
 
         var binder = new ExecBinder(promptArg, imagesOpt, modelOpt, profileOpt, providerOpt, fullAutoOpt,
-            approvalOpt, sandboxOpt, colorOpt, cwdOpt, lastMsgOpt, skipGitOpt, notifyOpt, overridesOpt,
+            approvalOpt, sandboxOpt, colorOpt, cwdOpt, lastMsgOpt, sessionOpt, skipGitOpt, notifyOpt, overridesOpt,
             effortOpt, summaryOpt, instrOpt, hideReasonOpt, disableStorageOpt, noProjDocOpt, jsonOpt, eventLogOpt,
             envInheritOpt, envIgnoreOpt, envExcludeOpt, envSetOpt, envIncludeOpt, docMaxOpt, docPathOpt);
 
@@ -87,7 +89,7 @@ public static class ExecCommand
                 cfg = AppConfig.Load(cfgPath, opts.Profile);
 
             SessionManager.SetPersistence(cfg?.History.Persistence ?? HistoryPersistence.SaveAll);
-            var sessionId = SessionManager.CreateSession();
+            var sessionId = opts.SessionId ?? SessionManager.CreateSession();
             var history = new ConversationHistory();
             RolloutRecorder? recorder = null;
             StreamWriter? logWriter = null;
