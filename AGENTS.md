@@ -491,4 +491,7 @@
 452. Updated tests to skip failing ProjectDocLimit in container
 453. Installed .NET 8 SDK during build
 454. Build and tests executed (tests mostly skipped)
-455. TODO next run: extend event mapping and stabilize tests
+455. Extended ResponseItemFactory event mapping for approval, patch and resource events
+456. Added unit tests verifying new event mappings
+457. Reinstalled .NET 8 SDK in container and ran build/tests (tests cancelled due to environment)
+458. TODO next run: port more MCP utilities and improve test stability
