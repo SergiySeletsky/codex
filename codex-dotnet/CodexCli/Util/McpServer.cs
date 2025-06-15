@@ -2,6 +2,7 @@ using System.Net;
 using System.Text.Json;
 using System.IO;
 using System.Linq;
+using System.Collections.Generic;
 using CodexCli.Protocol;
 
 namespace CodexCli.Util;
@@ -11,7 +12,10 @@ public class McpServer : IDisposable
     private readonly HttpListener _listener = new();
     private readonly List<StreamWriter> _eventClients = new();
     private readonly Dictionary<string, string> _resources = new();
+    private readonly Dictionary<string, List<PromptMessage>> _prompts = new();
+    private readonly List<ResourceTemplate> _templates = new();
     private readonly string _root;
+    private string _logLevel = "info";
 
     public McpServer(int port)
     {
@@ -19,6 +23,8 @@ public class McpServer : IDisposable
         _root = Directory.GetCurrentDirectory();
         // simple in-memory resource store for demo purposes
         _resources["mem:/demo.txt"] = "Hello from MCP";
+        _prompts["demo"] = new List<PromptMessage> { new("system", "Say hello") };
+        _templates.Add(new ResourceTemplate("mem:/template.txt", "Demo template"));
     }
 
     public async Task RunAsync(CancellationToken cancellationToken = default)
@@ -80,14 +86,15 @@ public class McpServer : IDisposable
             "tools/call" => HandleCallToolAsync(req),
             "roots/list" => Task.FromResult(CreateResponse(id, new { roots = new[] { new { uri = _root } } })),
             "resources/list" => Task.FromResult(CreateResponse(id, new { resources = _resources.Keys.Select(u => new { name = Path.GetFileName(u), uri = u, kind = "file" }), nextCursor = (string?)null })),
-            "resources/templates/list" => Task.FromResult(CreateResponse(id, new { resourceTemplates = Array.Empty<object>(), nextCursor = (string?)null })),
+            "resources/templates/list" => Task.FromResult(CreateResponse(id, new { resourceTemplates = _templates.Select(t => new { uri = t.Uri, description = t.Description }), nextCursor = (string?)null })),
             "resources/read" => HandleReadResourceAsync(req),
+            "resources/write" => HandleWriteResourceAsync(req),
             "resources/subscribe" => Task.FromResult(CreateResponse(id, new { })),
             "resources/unsubscribe" => Task.FromResult(CreateResponse(id, new { })),
-            "prompts/list" => Task.FromResult(CreateResponse(id, new { prompts = Array.Empty<object>(), nextCursor = (string?)null })),
-            "prompts/get" => Task.FromResult(CreateResponse(id, new { messages = Array.Empty<object>(), description = (string?)null })),
-            "logging/setLevel" => Task.FromResult(CreateResponse(id, new { })),
-            "completion/complete" => Task.FromResult(CreateResponse(id, new { completion = new { values = Array.Empty<string>(), hasMore = (bool?)null, total = (int?)null } })),
+            "prompts/list" => Task.FromResult(CreateResponse(id, new { prompts = _prompts.Keys.Select(n => new { name = n, description = (string?)null }), nextCursor = (string?)null })),
+            "prompts/get" => HandleGetPromptAsync(req),
+            "logging/setLevel" => HandleSetLevelAsync(req),
+            "completion/complete" => HandleCompleteAsync(req),
             _ => Task.FromResult(CreateResponse(id, new { }))
         };
     }
@@ -142,6 +149,57 @@ public class McpServer : IDisposable
         var result = new { contents = new[] { new { text } } };
         return Task.FromResult(CreateResponse(id, result));
     }
+
+    private async Task<JsonRpcMessage> HandleWriteResourceAsync(JsonRpcMessage req)
+    {
+        var id = req.Id ?? JsonDocument.Parse("0").RootElement;
+        if (req.Params == null) return CreateResponse(id, new { });
+        var obj = req.Params.Value;
+        if (!obj.TryGetProperty("uri", out var u) || !obj.TryGetProperty("text", out var t))
+            return CreateResponse(id, new { });
+        var uri = u.GetString();
+        var text = t.GetString() ?? string.Empty;
+        if (uri == null) return CreateResponse(id, new { });
+        _resources[uri] = text;
+        var path = UriToPath(uri);
+        if (path != null)
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+            await File.WriteAllTextAsync(path, text);
+        }
+        return CreateResponse(id, new { });
+    }
+
+    private Task<JsonRpcMessage> HandleGetPromptAsync(JsonRpcMessage req)
+    {
+        var id = req.Id ?? JsonDocument.Parse("0").RootElement;
+        if (req.Params == null) return Task.FromResult(CreateResponse(id, new { messages = Array.Empty<object>(), description = (string?)null }));
+        if (!req.Params.Value.TryGetProperty("name", out var n))
+            return Task.FromResult(CreateResponse(id, new { messages = Array.Empty<object>(), description = (string?)null }));
+        var name = n.GetString();
+        if (name == null || !_prompts.TryGetValue(name, out var msgs))
+            return Task.FromResult(CreateResponse(id, new { messages = Array.Empty<object>(), description = (string?)null }));
+        var result = new { messages = msgs.Select(m => new { role = m.Role, content = m.Content }), description = (string?)null };
+        return Task.FromResult(CreateResponse(id, result));
+    }
+
+    private Task<JsonRpcMessage> HandleSetLevelAsync(JsonRpcMessage req)
+    {
+        var id = req.Id ?? JsonDocument.Parse("0").RootElement;
+        if (req.Params != null && req.Params.Value.TryGetProperty("level", out var l))
+            _logLevel = l.GetString() ?? _logLevel;
+        return Task.FromResult(CreateResponse(id, new { }));
+    }
+
+    private Task<JsonRpcMessage> HandleCompleteAsync(JsonRpcMessage req)
+    {
+        var id = req.Id ?? JsonDocument.Parse("0").RootElement;
+        var result = new { completion = new { values = new[] { "demo completion" }, hasMore = (bool?)null, total = (int?)null } };
+        return Task.FromResult(CreateResponse(id, result));
+    }
+
+    private static string? UriToPath(string uri)
+        => uri.StartsWith("file:/") ? uri.Substring(6) : null;
 
     private static object CreateCodexTool() => new
     {

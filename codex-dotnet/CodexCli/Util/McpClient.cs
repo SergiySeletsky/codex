@@ -148,6 +148,9 @@ public class McpClient : IDisposable
     public Task<JsonElement> ReadResourceAsync(ReadResourceRequestParams p, int timeoutSeconds = 10)
         => SendRequestAsync<JsonElement>("resources/read", p, timeoutSeconds);
 
+    public Task<Result> WriteResourceAsync(WriteResourceRequestParams p, int timeoutSeconds = 10)
+        => SendRequestAsync<Result>("resources/write", p, timeoutSeconds);
+
     public Task SubscribeAsync(SubscribeRequestParams p, int timeoutSeconds = 10)
         => SendRequestAsync("resources/subscribe", p, timeoutSeconds);
 
@@ -217,6 +220,7 @@ public record PromptMessage(string Role, string Content);
 public record GetPromptResult(List<PromptMessage> Messages, string? Description);
 
 public record ReadResourceRequestParams(string Uri);
+public record WriteResourceRequestParams(string Uri, string Text);
 public record SubscribeRequestParams(string Uri);
 public record UnsubscribeRequestParams(string Uri);
 

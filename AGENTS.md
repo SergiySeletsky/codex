@@ -314,6 +314,16 @@
 290. Updated McpServerTests to verify new endpoints
 291. Documented new progress and updated TODO list
 292. MCP server now emits demo resource for testing
+293. Added prompt storage with sample prompt
+294. Prompts/list and prompts/get now return stored data
+295. Resource templates listing implemented with demo template
+296. Added resources/write endpoint with disk persistence
+297. Implemented logging/setLevel handler storing value
+298. Added completion/complete handler returning stub completion
+299. McpClient exposes WriteResourceAsync and WriteResourceRequestParams
+300. McpClientCommand supports prompts, templates, resource writing, log level and completion options
+301. Updated McpServerTests with coverage for new features
+302. Documented progress and updated TODO list
 
 ## TODO Next Run
 - Continue porting remaining Rust CLI features
@@ -322,3 +332,4 @@
 - Persist resources to disk and implement update APIs
 - Add more MCP protocol tests covering logging and completion
 - Improve initialization result with capabilities
+- Implement resource subscriptions and notifications

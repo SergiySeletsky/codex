@@ -26,7 +26,13 @@ public class McpServerTests
         req = new JsonRpcMessage { Method = "prompts/list", Id = JsonSerializer.SerializeToElement(3) };
         resp = await client.PostAsync($"http://localhost:{port}/jsonrpc", new StringContent(JsonSerializer.Serialize(req)));
         body = await resp.Content.ReadAsStringAsync();
-        Assert.Contains("prompts", body);
+        Assert.Contains("demo", body);
+
+        var getPromptParams = JsonDocument.Parse("{\"name\":\"demo\"}");
+        req = new JsonRpcMessage { Method = "prompts/get", Id = JsonSerializer.SerializeToElement(4), Params = getPromptParams.RootElement };
+        resp = await client.PostAsync($"http://localhost:{port}/jsonrpc", new StringContent(JsonSerializer.Serialize(req)));
+        body = await resp.Content.ReadAsStringAsync();
+        Assert.Contains("Say hello", body);
 
         req = new JsonRpcMessage { Method = "roots/list", Id = JsonSerializer.SerializeToElement(30) };
         resp = await client.PostAsync($"http://localhost:{port}/jsonrpc", new StringContent(JsonSerializer.Serialize(req)));
@@ -45,10 +51,32 @@ public class McpServerTests
         Assert.Contains("Hello from MCP", body);
 
         var callJson = JsonDocument.Parse("{\"name\":\"codex\",\"arguments\":{\"prompt\":\"hi\"}}");
-        req = new JsonRpcMessage { Method = "tools/call", Id = JsonSerializer.SerializeToElement(4), Params = callJson.RootElement };
+        req = new JsonRpcMessage { Method = "tools/call", Id = JsonSerializer.SerializeToElement(5), Params = callJson.RootElement };
         resp = await client.PostAsync($"http://localhost:{port}/jsonrpc", new StringContent(JsonSerializer.Serialize(req)));
         body = await resp.Content.ReadAsStringAsync();
         Assert.Contains("codex done", body);
+
+        var writeParams = JsonDocument.Parse("{\"uri\":\"mem:/foo.txt\",\"text\":\"bar\"}");
+        req = new JsonRpcMessage { Method = "resources/write", Id = JsonSerializer.SerializeToElement(6), Params = writeParams.RootElement };
+        resp = await client.PostAsync($"http://localhost:{port}/jsonrpc", new StringContent(JsonSerializer.Serialize(req)));
+        body = await resp.Content.ReadAsStringAsync();
+
+        var readFooParams = JsonDocument.Parse("{\"uri\":\"mem:/foo.txt\"}");
+        req = new JsonRpcMessage { Method = "resources/read", Id = JsonSerializer.SerializeToElement(7), Params = readFooParams.RootElement };
+        resp = await client.PostAsync($"http://localhost:{port}/jsonrpc", new StringContent(JsonSerializer.Serialize(req)));
+        body = await resp.Content.ReadAsStringAsync();
+        Assert.Contains("bar", body);
+
+        var setLevelParams = JsonDocument.Parse("{\"level\":\"debug\"}");
+        req = new JsonRpcMessage { Method = "logging/setLevel", Id = JsonSerializer.SerializeToElement(8), Params = setLevelParams.RootElement };
+        resp = await client.PostAsync($"http://localhost:{port}/jsonrpc", new StringContent(JsonSerializer.Serialize(req)));
+        body = await resp.Content.ReadAsStringAsync();
+
+        var completeParams = JsonDocument.Parse("{\"argument\":{\"name\":\"text\",\"value\":\"hel\"},\"ref\":{\"uri\":\"mem:/\"}}");
+        req = new JsonRpcMessage { Method = "completion/complete", Id = JsonSerializer.SerializeToElement(9), Params = completeParams.RootElement };
+        resp = await client.PostAsync($"http://localhost:{port}/jsonrpc", new StringContent(JsonSerializer.Serialize(req)));
+        body = await resp.Content.ReadAsStringAsync();
+        Assert.Contains("demo completion", body);
 
         cts.Cancel();
         await serverTask;
