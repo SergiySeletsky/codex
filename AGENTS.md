@@ -340,8 +340,20 @@
 317. McpClientCommand supports --add-prompt-name and --add-prompt-message options
 318. Added unit test verifying prompts/add triggers SSE event
 319. Documented new progress and TODO items
+320. Ported ConversationHistory for transcript management
+321. Added ResponseItem model hierarchy
+322. Implemented IsSafeCommand utility
+323. Added RolloutRecorder for session JSONL logging
+324. Implemented McpConnectionManager with tool aggregation
+325. Added McpToolCall helper
+326. Added UserNotification records
+327. Implemented CodexWrapper wrapper for RealCodexAgent
+328. Added Backoff and SignalUtils helpers
+329. Implemented OpenAiTools helper
 
 ## TODO Next Run
 - Continue porting remaining Rust CLI features
 - Investigate hanging tests and fix missing API key issues
 - Flesh out CodexToolRunner with real Codex integration
+- Port remaining core utilities from Rust such as conversation replay
+- Expand unit tests for new utilities
