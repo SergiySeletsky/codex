@@ -2,6 +2,7 @@ using System.CommandLine;
 using System.CommandLine.Invocation;
 using CodexCli.Util;
 using CodexCli.Models;
+using Spectre.Console;
 
 namespace CodexCli.Commands;
 
@@ -12,6 +13,8 @@ public static class ReplayCommand
         var fileArg = new Argument<FileInfo?>("file", () => null, "Rollout JSONL file to replay");
         var jsonOpt = new Option<bool>("--json", description: "Output JSON lines");
         var messagesOpt = new Option<bool>("--messages-only", description: "Only print assistant and user messages");
+        var plainOpt = new Option<bool>("--plain", description: "Disable colored output");
+        var compactOpt = new Option<bool>("--compact", description: "Omit line numbers");
         var showSystemOpt = new Option<bool>("--show-system", () => false, "Include system messages");
         var maxItemsOpt = new Option<int?>("--max-items", "Maximum items to output");
         var startOpt = new Option<int?>("--start-index", "Start index of messages to replay");
@@ -27,6 +30,8 @@ public static class ReplayCommand
         cmd.AddOption(jsonOpt);
         cmd.AddOption(messagesOpt);
         cmd.AddOption(showSystemOpt);
+        cmd.AddOption(plainOpt);
+        cmd.AddOption(compactOpt);
         cmd.AddOption(maxItemsOpt);
         cmd.AddOption(startOpt);
         cmd.AddOption(endOpt);
@@ -40,6 +45,8 @@ public static class ReplayCommand
             var json = ctx.ParseResult.GetValueForOption(jsonOpt);
             var messagesOnly = ctx.ParseResult.GetValueForOption(messagesOpt);
             var showSystem = ctx.ParseResult.GetValueForOption(showSystemOpt);
+            var plain = ctx.ParseResult.GetValueForOption(plainOpt);
+            var compact = ctx.ParseResult.GetValueForOption(compactOpt);
             var maxItems = ctx.ParseResult.GetValueForOption(maxItemsOpt);
             var startIndex = ctx.ParseResult.GetValueForOption(startOpt);
             var endIndex = ctx.ParseResult.GetValueForOption(endOpt);
@@ -86,25 +93,33 @@ public static class ReplayCommand
                 if (!showSystem && item is MessageItem mm2 && mm2.Role == "system") { index++; continue; }
                 if (role != null && item is MessageItem mm && mm.Role != role) { index++; continue; }
 
+                var prefix = compact ? string.Empty : $"{index}: ";
                 switch (item)
                 {
                     case MessageItem m:
-                        Console.WriteLine($"{m.Role}: {string.Join("", m.Content.Select(c => c.Text))}");
+                        var text = string.Join("", m.Content.Select(c => c.Text));
+                        if (plain)
+                            Console.WriteLine($"{prefix}{m.Role}: {text}");
+                        else
+                        {
+                            var color = m.Role switch { "assistant" => "green", "user" => "yellow", "system" => "grey" , _ => "white" };
+                            AnsiConsole.MarkupLine($"{prefix}[{color}]{m.Role}[/]: {Markup.Escape(text)}");
+                        }
                         break;
                     case FunctionCallItem fc:
-                        Console.WriteLine($"Function {fc.Name} {fc.Arguments}");
+                        Console.WriteLine($"{prefix}Function {fc.Name} {fc.Arguments}");
                         break;
                     case FunctionCallOutputItem fo:
-                        Console.WriteLine($"Function output {fo.CallId}: {fo.Output.Content}");
+                        Console.WriteLine($"{prefix}Function output {fo.CallId}: {fo.Output.Content}");
                         break;
                     case LocalShellCallItem ls:
-                        Console.WriteLine($"Shell {string.Join(' ', ls.Action.Exec.Command)} -> {ls.Status}");
+                        Console.WriteLine($"{prefix}Shell {string.Join(' ', ls.Action.Exec.Command)} -> {ls.Status}");
                         break;
                     case ReasoningItem ri:
-                        Console.WriteLine($"Reasoning: {string.Join(" ", ri.Summary.Select(s => s.Text))}");
+                        Console.WriteLine($"{prefix}Reasoning: {string.Join(" ", ri.Summary.Select(s => s.Text))}");
                         break;
                     default:
-                        Console.WriteLine(item.GetType().Name);
+                        Console.WriteLine($"{prefix}{item.GetType().Name}");
                         break;
                 }
                 index++;

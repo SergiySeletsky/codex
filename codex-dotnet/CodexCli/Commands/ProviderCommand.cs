@@ -14,14 +14,26 @@ public static class ProviderCommand
         var list = new Command("list", "List available providers");
         var namesOnlyOpt = new Option<bool>("--names-only", () => false, "Print only provider ids");
         var verboseOpt = new Option<bool>("--verbose", () => false, "Include env key instructions");
+        var jsonListOpt = new Option<bool>("--json", description: "Output JSON list");
         list.AddOption(namesOnlyOpt);
         list.AddOption(verboseOpt);
-        list.SetHandler((string? cfgPath, bool namesOnly, bool verbose) =>
+        list.AddOption(jsonListOpt);
+        list.SetHandler((string? cfgPath, bool namesOnly, bool verbose, bool json) =>
         {
             AppConfig? cfg = null;
             if (!string.IsNullOrEmpty(cfgPath) && File.Exists(cfgPath))
                 cfg = AppConfig.Load(cfgPath);
             var providers = cfg?.ModelProviders ?? ModelProviderInfo.BuiltIns;
+            if (json)
+            {
+                if (namesOnly)
+                    Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(providers.Keys));
+                else
+                    Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(
+                        providers.Select(p => new { id = p.Key, p.Value.Name, p.Value.BaseUrl, env_key = p.Value.EnvKey }),
+                        new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
+                return;
+            }
             foreach (var (id, info) in providers)
             {
                 if (namesOnly)
@@ -38,7 +50,7 @@ public static class ProviderCommand
                     }
                 }
             }
-        }, configOption, namesOnlyOpt, verboseOpt);
+        }, configOption, namesOnlyOpt, verboseOpt, jsonListOpt);
 
         var infoCmd = new Command("info", "Show provider details");
         var idArg = new Argument<string>("id");
@@ -163,6 +175,38 @@ public static class ProviderCommand
                 Console.WriteLine($"No stored API key for {id}");
         }, logoutId);
 
+        var keysCmd = new Command("keys", "List stored API keys");
+        keysCmd.SetHandler(() =>
+        {
+            foreach (var k in ApiKeyManager.ListKeys())
+                Console.WriteLine(k);
+        });
+
+        var updateCmd = new Command("update", "Update provider details");
+        var updId = new Argument<string>("id");
+        var updNameOpt = new Option<string?>("--name");
+        var updBaseOpt = new Option<string?>("--base-url");
+        var updEnvOpt = new Option<string?>("--env-key");
+        updateCmd.AddArgument(updId);
+        updateCmd.AddOption(updNameOpt);
+        updateCmd.AddOption(updBaseOpt);
+        updateCmd.AddOption(updEnvOpt);
+        updateCmd.AddOption(configOption);
+        updateCmd.SetHandler((string id, string? name, string? baseUrl, string? envKey, string? cfgPath) =>
+        {
+            if (string.IsNullOrEmpty(cfgPath) || !File.Exists(cfgPath)) return;
+            var model = Toml.ToModel(File.ReadAllText(cfgPath)) as IDictionary<string, object?> ?? new Dictionary<string, object?>();
+            if (!model.TryGetValue("model_providers", out var mpObj) || mpObj is not IDictionary<string, object?> mp)
+                return;
+            if (mp.TryGetValue(id, out var obj) && obj is IDictionary<string, object?> prov)
+            {
+                if (name != null) prov["name"] = name;
+                if (baseUrl != null) prov["base_url"] = baseUrl;
+                if (envKey != null) prov["env_key"] = envKey;
+                File.WriteAllText(cfgPath, Toml.FromModel(model));
+            }
+        }, updId, updNameOpt, updBaseOpt, updEnvOpt, configOption);
+
         var cmd = new Command("provider", "Provider utilities");
         cmd.AddCommand(list);
         cmd.AddCommand(infoCmd);
@@ -172,6 +216,8 @@ public static class ProviderCommand
         cmd.AddCommand(setCmd);
         cmd.AddCommand(loginCmd);
         cmd.AddCommand(logoutCmd);
+        cmd.AddCommand(keysCmd);
+        cmd.AddCommand(updateCmd);
         return cmd;
     }
 }

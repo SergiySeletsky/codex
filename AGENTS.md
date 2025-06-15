@@ -466,3 +466,14 @@
 428. Added unit tests for new provider commands, replay options and stats (skipped)
 429. Documented progress and updated TODO list
 430. TODO next run: refine replay output formatting and migrate remaining MCP utilities
+
+431. ReplayCommand prints colored messages with line numbers
+432. Added --plain and --compact options to ReplayCommand
+433. Provider list supports --json output
+434. Added provider keys and update subcommands
+435. ApiKeyManager.ListKeys implemented
+436. HistoryCommand summary subcommand shows counts with start time
+437. RolloutRecorder exposes Count of recorded items
+438. ExecRunner exposes default output limits as constants
+439. Added unit test for default ExecRunner constants
+440. TODO next run: implement MCP event streaming helpers

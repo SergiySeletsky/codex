@@ -65,4 +65,19 @@ public static class ApiKeyManager
         }
         catch { return false; }
     }
+
+    public static IEnumerable<string> ListKeys()
+    {
+        if (!File.Exists(AuthFile)) yield break;
+        Dictionary<string,string>? map = null;
+        try
+        {
+            map = JsonSerializer.Deserialize<Dictionary<string,string>>(File.ReadAllText(AuthFile));
+        }
+        catch { }
+        if (map != null)
+        {
+            foreach (var k in map.Keys) yield return k;
+        }
+    }
 }

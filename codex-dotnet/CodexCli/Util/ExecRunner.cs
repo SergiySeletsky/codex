@@ -7,8 +7,8 @@ public static class ExecRunner
 {
     public const string NetworkDisabledEnv = "CODEX_SANDBOX_NETWORK_DISABLED";
     public const string SessionEnv = "CODEX_SESSION_ID";
-    private const int DefaultMaxOutputBytes = 10 * 1024;
-    private const int DefaultMaxOutputLines = 256;
+    public const int DefaultMaxOutputBytes = 10 * 1024;
+    public const int DefaultMaxOutputLines = 256;
 
     public static async Task<ExecToolCallOutput> RunAsync(ExecParams p, CancellationToken token, SandboxPolicy? policy = null)
     {

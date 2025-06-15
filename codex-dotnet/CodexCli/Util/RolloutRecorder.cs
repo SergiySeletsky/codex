@@ -9,12 +9,14 @@ public class RolloutRecorder : IAsyncDisposable
     private readonly StreamWriter _writer;
     public string FilePath { get; }
     public string SessionId { get; }
+    public int Count { get; private set; }
 
     private RolloutRecorder(StreamWriter writer, string filePath, string sessionId)
     {
         _writer = writer;
         FilePath = filePath;
         SessionId = sessionId;
+        Count = 0;
     }
 
     public static async Task<RolloutRecorder> CreateAsync(AppConfig cfg, string sessionId, string? instructions)
@@ -35,6 +37,7 @@ public class RolloutRecorder : IAsyncDisposable
         {
             var json = JsonSerializer.Serialize(item, item.GetType());
             await _writer.WriteLineAsync(json);
+            Count++;
         }
         await _writer.FlushAsync();
     }
