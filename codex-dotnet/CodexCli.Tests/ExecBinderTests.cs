@@ -41,11 +41,13 @@ public class ExecBinderTests
         var docMaxOpt = new Option<int?>("--project-doc-max-bytes");
         var docPathOpt = new Option<string?>("--project-doc-path");
         var mcpServerOpt = new Option<string?>("--mcp-server");
+        var eventsUrlOpt = new Option<string?>("--events-url");
+        var watchEventsOpt = new Option<bool>("--watch-events");
 
         var binder = new ExecBinder(promptArg, imagesOpt, modelOpt, profileOpt, providerOpt,
             fullAutoOpt, approvalOpt, sandboxOpt, colorOpt, cwdOpt, lastOpt, sessionOpt, skipGitOpt,
             notifyOpt, overridesOpt, effortOpt, summaryOpt, instrOpt, hideReasonOpt, disableStorageOpt,
-            noProjDocOpt, jsonOpt, logOpt, envInheritOpt, envIgnoreOpt, envExcludeOpt, envSetOpt, envIncludeOpt, docMaxOpt, docPathOpt, mcpServerOpt);
+            noProjDocOpt, jsonOpt, logOpt, envInheritOpt, envIgnoreOpt, envExcludeOpt, envSetOpt, envIncludeOpt, docMaxOpt, docPathOpt, mcpServerOpt, eventsUrlOpt, watchEventsOpt);
 
         var cmd = new Command("exec");
         cmd.AddArgument(promptArg);
@@ -63,12 +65,14 @@ public class ExecBinderTests
         cmd.AddOption(envSetOpt);
         cmd.AddOption(envIncludeOpt);
         cmd.AddOption(mcpServerOpt);
+        cmd.AddOption(eventsUrlOpt);
+        cmd.AddOption(watchEventsOpt);
         ExecOptions? captured = null;
         cmd.SetHandler((ExecOptions o) => captured = o, binder);
         var root = new RootCommand();
         root.AddCommand(cmd);
 
-        await root.InvokeAsync("exec hello --model gpt-4 --full-auto --session abc --hide-agent-reasoning --disable-response-storage --no-project-doc --json --event-log log.txt --env-inherit all --env-ignore-default-excludes --env-exclude FOO --env-set X=1 --env-include-only PATH --mcp-server demo");
+        await root.InvokeAsync("exec hello --model gpt-4 --full-auto --session abc --hide-agent-reasoning --disable-response-storage --no-project-doc --json --event-log log.txt --env-inherit all --env-ignore-default-excludes --env-exclude FOO --env-set X=1 --env-include-only PATH --mcp-server demo --events-url http://localhost --watch-events");
 
         Assert.NotNull(captured);
         Assert.Equal("hello", captured!.Prompt);
@@ -86,5 +90,7 @@ public class ExecBinderTests
         Assert.Contains("PATH", captured.EnvIncludeOnly);
         Assert.Equal("abc", captured.SessionId);
         Assert.Equal("demo", captured.McpServer);
+        Assert.Equal("http://localhost", captured.EventsUrl);
+        Assert.True(captured.WatchEvents);
     }
 }

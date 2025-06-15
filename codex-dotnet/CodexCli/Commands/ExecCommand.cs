@@ -45,6 +45,8 @@ public static class ExecCommand
         var docMaxOpt = new Option<int?>("--project-doc-max-bytes", "Limit size of AGENTS.md to read");
         var docPathOpt = new Option<string?>("--project-doc-path", "Explicit project doc path");
         var mcpServerOpt = new Option<string?>("--mcp-server", "Run via MCP server from config");
+        var eventsUrlOpt = new Option<string?>("--events-url", description: "Stream events from MCP server");
+        var watchEventsOpt = new Option<bool>("--watch-events", description: "Keep watching events after completion");
 
         var cmd = new Command("exec", "Run Codex non-interactively");
         cmd.AddArgument(promptArg);
@@ -78,11 +80,13 @@ public static class ExecCommand
         cmd.AddOption(docMaxOpt);
         cmd.AddOption(docPathOpt);
         cmd.AddOption(mcpServerOpt);
+        cmd.AddOption(eventsUrlOpt);
+        cmd.AddOption(watchEventsOpt);
 
         var binder = new ExecBinder(promptArg, imagesOpt, modelOpt, profileOpt, providerOpt, fullAutoOpt,
             approvalOpt, sandboxOpt, colorOpt, cwdOpt, lastMsgOpt, sessionOpt, skipGitOpt, notifyOpt, overridesOpt,
             effortOpt, summaryOpt, instrOpt, hideReasonOpt, disableStorageOpt, noProjDocOpt, jsonOpt, eventLogOpt,
-            envInheritOpt, envIgnoreOpt, envExcludeOpt, envSetOpt, envIncludeOpt, docMaxOpt, docPathOpt, mcpServerOpt);
+            envInheritOpt, envIgnoreOpt, envExcludeOpt, envSetOpt, envIncludeOpt, docMaxOpt, docPathOpt, mcpServerOpt, eventsUrlOpt, watchEventsOpt);
 
         cmd.SetHandler(async (ExecOptions opts, string? cfgPath, string? cd) =>
         {
@@ -208,14 +212,32 @@ public static class ExecCommand
                 }
                 var param = new CodexToolCallParam(prompt ?? string.Empty, opts.Model ?? cfg?.Model, opts.Profile, Environment.CurrentDirectory, null, sandboxList.Select(s => s.ToString()).ToList(), null, providerId);
                 var paramJson = System.Text.Json.JsonSerializer.SerializeToElement(param);
-                var result = await mgr.CallToolAsync(McpConnectionManager.FullyQualifiedToolName(opts.McpServer, "codex"), paramJson);
-                async IAsyncEnumerable<Event> Enumerate()
+                var callTask = mgr.CallToolAsync(McpConnectionManager.FullyQualifiedToolName(opts.McpServer, "codex"), paramJson);
+                if (!string.IsNullOrEmpty(opts.EventsUrl))
                 {
-                    var msg = result.Content.FirstOrDefault().ToString();
-                    yield return new AgentMessageEvent(Guid.NewGuid().ToString(), msg);
-                    yield return new TaskCompleteEvent(Guid.NewGuid().ToString(), msg);
+                    async IAsyncEnumerable<Event> Stream()
+                    {
+                        await foreach (var ev in McpEventStream.ReadEventsAsync(opts.EventsUrl))
+                        {
+                            yield return ev;
+                            if (ev is TaskCompleteEvent && !opts.WatchEvents)
+                                break;
+                        }
+                    }
+                    events = Stream();
+                    await callTask;
                 }
-                events = Enumerate();
+                else
+                {
+                    var result = await callTask;
+                    async IAsyncEnumerable<Event> Enumerate()
+                    {
+                        var msg = result.Content.FirstOrDefault().ToString();
+                        yield return new AgentMessageEvent(Guid.NewGuid().ToString(), msg);
+                        yield return new TaskCompleteEvent(Guid.NewGuid().ToString(), msg);
+                    }
+                    events = Enumerate();
+                }
             }
             else
             {

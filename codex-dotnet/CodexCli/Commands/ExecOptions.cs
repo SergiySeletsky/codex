@@ -41,4 +41,6 @@ public record ExecOptions(
     string[] EnvIncludeOnly,
     int? ProjectDocMaxBytes,
     string? ProjectDocPath,
-    string? McpServer);
+    string? McpServer,
+    string? EventsUrl,
+    bool WatchEvents);

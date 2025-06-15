@@ -538,3 +538,13 @@
 498. Build and tests executed (tests pass with many skipped)
 499. Documented progress and updated TODO list
 500. TODO next run: refine MCP integration and handle SSE events
+501. Added --events-url and --watch-events options to ExecCommand
+502. ExecOptions extended with EventsUrl and WatchEvents
+503. ExecBinder binds new options with tests
+504. ExecCommand streams events via McpEventStream when events-url provided
+505. CallTool executed concurrently while streaming events
+506. ExecBinderTests verify events-url and watch-events binding
+507. Updated docs with progress
+508. Build and tests executed (tests pass with many skipped)
+509. TODO next run: improve SSE event handling robustness
+510. TODO future: migrate remaining MCP utilities
