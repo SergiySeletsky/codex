@@ -7,7 +7,7 @@ public class ExecRunnerTests
     [Fact]
     public async Task RunEchoCommand()
     {
-        var p = new ExecParams(new List<string>{"echo","hello"}, Directory.GetCurrentDirectory(), 1000, new());
+        var p = new ExecParams(new List<string>{"echo","hello"}, Directory.GetCurrentDirectory(), 1000, new(), null, null, null);
         var result = await ExecRunner.RunAsync(p, CancellationToken.None);
         Assert.Equal(0, result.ExitCode);
         Assert.Contains("hello", result.Stdout);

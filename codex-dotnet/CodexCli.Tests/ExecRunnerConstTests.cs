@@ -8,4 +8,17 @@ public class ExecRunnerConstTests
     {
         Assert.Equal("CODEX_SANDBOX_NETWORK_DISABLED", ExecRunner.NetworkDisabledEnv);
     }
+
+    [Fact]
+    public void SessionEnvConstantSet()
+    {
+        Assert.Equal("CODEX_SESSION_ID", ExecRunner.SessionEnv);
+    }
+
+    [Fact]
+    public void DefaultOutputConstantsSet()
+    {
+        Assert.Equal(10 * 1024, ExecRunner.DefaultMaxOutputBytes);
+        Assert.Equal(256, ExecRunner.DefaultMaxOutputLines);
+    }
 }

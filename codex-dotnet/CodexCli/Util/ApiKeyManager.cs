@@ -42,6 +42,42 @@ public static class ApiKeyManager
         return null;
     }
 
+    public static void PrintEnvInstructions(ModelProviderInfo provider)
+    {
+        if (!string.IsNullOrEmpty(provider.EnvKeyInstructions))
+            Console.WriteLine(provider.EnvKeyInstructions);
+        else if (provider.EnvKey != null)
+            Console.WriteLine($"Set {provider.EnvKey} environment variable with your API key.");
+    }
+
     public static string? LoadDefaultKey()
         => Environment.GetEnvironmentVariable(DefaultEnvKey);
+
+    public static bool DeleteKey(string provider)
+    {
+        if (!File.Exists(AuthFile)) return false;
+        try
+        {
+            var map = JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(AuthFile)) ?? new();
+            var removed = map.Remove(provider);
+            File.WriteAllText(AuthFile, JsonSerializer.Serialize(map));
+            return removed;
+        }
+        catch { return false; }
+    }
+
+    public static IEnumerable<string> ListKeys()
+    {
+        if (!File.Exists(AuthFile)) yield break;
+        Dictionary<string,string>? map = null;
+        try
+        {
+            map = JsonSerializer.Deserialize<Dictionary<string,string>>(File.ReadAllText(AuthFile));
+        }
+        catch { }
+        if (map != null)
+        {
+            foreach (var k in map.Keys) yield return k;
+        }
+    }
 }

@@ -9,7 +9,7 @@ public class ExecRunnerNetworkTests
     public async Task SetsNetworkDisabledVariable()
     {
         var policy = SandboxPolicy.NewReadOnlyPolicy();
-        var p = new ExecParams(new List<string>{"bash","-c","echo -n $CODEX_SANDBOX_NETWORK_DISABLED"}, Directory.GetCurrentDirectory(), 1000, new());
+        var p = new ExecParams(new List<string>{"bash","-c","echo -n $CODEX_SANDBOX_NETWORK_DISABLED"}, Directory.GetCurrentDirectory(), 1000, new(), null, null, null);
         var result = await ExecRunner.RunAsync(p, CancellationToken.None, policy);
         Assert.Equal("1", result.Stdout.Trim());
     }

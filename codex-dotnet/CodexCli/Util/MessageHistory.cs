@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Collections.Generic;
 using CodexCli.Config;
 
 namespace CodexCli.Util;
@@ -102,6 +103,27 @@ public static class MessageHistory
     {
         var path = GetHistoryPath(cfg);
         if (File.Exists(path)) File.Delete(path);
+    }
+
+    public static async Task<Dictionary<string,int>> SessionStatsAsync(AppConfig cfg)
+    {
+        var path = GetHistoryPath(cfg);
+        var dict = new Dictionary<string,int>();
+        if (!File.Exists(path)) return dict;
+        await foreach (var line in File.ReadLinesAsync(path))
+        {
+            try
+            {
+                var entry = JsonSerializer.Deserialize<HistoryEntry>(line);
+                if (entry != null)
+                {
+                    dict.TryGetValue(entry.SessionId, out var c);
+                    dict[entry.SessionId] = c + 1;
+                }
+            }
+            catch { }
+        }
+        return dict;
     }
 
     public static string? LookupEntry(ulong logId, int offset, AppConfig cfg)

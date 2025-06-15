@@ -18,6 +18,7 @@ public class ExecBinder : BinderBase<ExecOptions>
     private readonly Option<ColorMode> _color;
     private readonly Option<string?> _cwd;
     private readonly Option<string?> _lastMessage;
+    private readonly Option<string?> _sessionId;
     private readonly Option<bool> _skipGit;
     private readonly Option<string[]> _notify;
     private readonly Option<string[]> _overrides;
@@ -40,7 +41,7 @@ public class ExecBinder : BinderBase<ExecOptions>
     public ExecBinder(Argument<string?> prompt, Option<FileInfo[]> images, Option<string?> model,
         Option<string?> profile, Option<string?> provider, Option<bool> fullAuto,
         Option<ApprovalMode?> approval, Option<string[]> sandbox, Option<ColorMode> color,
-        Option<string?> cwd, Option<string?> lastMessage, Option<bool> skipGit,
+        Option<string?> cwd, Option<string?> lastMessage, Option<string?> sessionId, Option<bool> skipGit,
         Option<string[]> notify, Option<string[]> overrides, Option<ReasoningEffort?> effort,
         Option<ReasoningSummary?> summary, Option<string?> instructions,
         Option<bool?> hideReasoning, Option<bool?> disableStorage,
@@ -60,6 +61,7 @@ public class ExecBinder : BinderBase<ExecOptions>
         _color = color;
         _cwd = cwd;
         _lastMessage = lastMessage;
+        _sessionId = sessionId;
         _skipGit = skipGit;
         _notify = notify;
         _overrides = overrides;
@@ -98,6 +100,7 @@ public class ExecBinder : BinderBase<ExecOptions>
             bindingContext.ParseResult.GetValueForOption(_color),
             bindingContext.ParseResult.GetValueForOption(_cwd),
             bindingContext.ParseResult.GetValueForOption(_lastMessage),
+            bindingContext.ParseResult.GetValueForOption(_sessionId),
             bindingContext.ParseResult.GetValueForOption(_skipGit),
             bindingContext.ParseResult.GetValueForOption(_notify) ?? Array.Empty<string>(),
             bindingContext.ParseResult.GetValueForOption(_overrides) ?? Array.Empty<string>(),

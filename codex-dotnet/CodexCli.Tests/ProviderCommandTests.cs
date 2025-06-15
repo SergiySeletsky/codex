@@ -1,5 +1,6 @@
 using CodexCli.Commands;
 using CodexCli.Config;
+using CodexCli.Util;
 using System.CommandLine;
 using System.CommandLine.Parsing;
 using System.IO;
@@ -21,6 +22,22 @@ public class ProviderCommandTests
         var text = output.ToString();
         Assert.Contains("openai", text);
         Assert.Contains("openrouter", text);
+    }
+
+    [Fact]
+    public void ListNamesOnly()
+    {
+        var root = new RootCommand();
+        var cfgOpt = new Option<string?>("--config");
+        root.AddOption(cfgOpt);
+        root.AddCommand(ProviderCommand.Create(cfgOpt));
+        var parser = new Parser(root);
+        var output = new StringWriter();
+        Console.SetOut(output);
+        parser.Invoke("provider list --names-only");
+        var text = output.ToString();
+        Assert.DoesNotContain("OpenAI", text);
+        Assert.Contains("openai", text);
     }
 
     [Fact]
@@ -60,5 +77,49 @@ public class ProviderCommandTests
         Assert.NotNull(cfg);
         }
         finally { File.Delete(tmp); }
+    }
+
+    [Fact]
+    public void LoginPrintsInstructionsWhenMissingKey()
+    {
+        var root = new RootCommand();
+        var cfgOpt = new Option<string?>("--config");
+        root.AddOption(cfgOpt);
+        root.AddCommand(ProviderCommand.Create(cfgOpt));
+        var parser = new Parser(root);
+        var sw = new StringWriter();
+        Console.SetOut(sw);
+        parser.Invoke("provider login openai");
+        var text = sw.ToString();
+        Assert.Contains("OPENAI_API_KEY", text);
+    }
+
+    [Fact]
+    public void ListVerboseIncludesEnv()
+    {
+        var root = new RootCommand();
+        var cfgOpt = new Option<string?>("--config");
+        root.AddOption(cfgOpt);
+        root.AddCommand(ProviderCommand.Create(cfgOpt));
+        var parser = new Parser(root);
+        var sw = new StringWriter();
+        Console.SetOut(sw);
+        parser.Invoke("provider list --verbose");
+        var text = sw.ToString();
+        Assert.Contains("OPENAI_API_KEY", text);
+    }
+
+    [Fact]
+    public void LogoutRemovesKey()
+    {
+        var root = new RootCommand();
+        var cfgOpt = new Option<string?>("--config");
+        root.AddOption(cfgOpt);
+        root.AddCommand(ProviderCommand.Create(cfgOpt));
+        var parser = new Parser(root);
+        ApiKeyManager.SaveKey("openai", "x");
+        parser.Invoke("provider logout openai");
+        var key = ApiKeyManager.GetKey(ModelProviderInfo.BuiltIns["openai"]);
+        Assert.Null(key);
     }
 }

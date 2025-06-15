@@ -21,6 +21,7 @@ public class ExecBinderTests
         var colorOpt = new Option<ColorMode>("--color", () => ColorMode.Auto);
         var cwdOpt = new Option<string?>("--cwd");
         var lastOpt = new Option<string?>("--output-last-message");
+        var sessionOpt = new Option<string?>("--session");
         var skipGitOpt = new Option<bool>("--skip-git-repo-check");
         var notifyOpt = new Option<string[]>("--notify") { AllowMultipleArgumentsPerToken = true };
         var overridesOpt = new Option<string[]>("-c") { AllowMultipleArgumentsPerToken = true };
@@ -41,7 +42,7 @@ public class ExecBinderTests
         var docPathOpt = new Option<string?>("--project-doc-path");
 
         var binder = new ExecBinder(promptArg, imagesOpt, modelOpt, profileOpt, providerOpt,
-            fullAutoOpt, approvalOpt, sandboxOpt, colorOpt, cwdOpt, lastOpt, skipGitOpt,
+            fullAutoOpt, approvalOpt, sandboxOpt, colorOpt, cwdOpt, lastOpt, sessionOpt, skipGitOpt,
             notifyOpt, overridesOpt, effortOpt, summaryOpt, instrOpt, hideReasonOpt, disableStorageOpt,
             noProjDocOpt, jsonOpt, logOpt, envInheritOpt, envIgnoreOpt, envExcludeOpt, envSetOpt, envIncludeOpt, docMaxOpt, docPathOpt);
 
@@ -56,6 +57,7 @@ public class ExecBinderTests
         cmd.AddOption(logOpt);
         cmd.AddOption(envInheritOpt);
         cmd.AddOption(envIgnoreOpt);
+        cmd.AddOption(sessionOpt);
         cmd.AddOption(envExcludeOpt);
         cmd.AddOption(envSetOpt);
         cmd.AddOption(envIncludeOpt);
@@ -64,7 +66,7 @@ public class ExecBinderTests
         var root = new RootCommand();
         root.AddCommand(cmd);
 
-        await root.InvokeAsync("exec hello --model gpt-4 --full-auto --hide-agent-reasoning --disable-response-storage --no-project-doc --json --event-log log.txt --env-inherit all --env-ignore-default-excludes --env-exclude FOO --env-set X=1 --env-include-only PATH");
+        await root.InvokeAsync("exec hello --model gpt-4 --full-auto --session abc --hide-agent-reasoning --disable-response-storage --no-project-doc --json --event-log log.txt --env-inherit all --env-ignore-default-excludes --env-exclude FOO --env-set X=1 --env-include-only PATH");
 
         Assert.NotNull(captured);
         Assert.Equal("hello", captured!.Prompt);
@@ -80,5 +82,6 @@ public class ExecBinderTests
         Assert.Contains("FOO", captured.EnvExclude);
         Assert.Contains("X=1", captured.EnvSet);
         Assert.Contains("PATH", captured.EnvIncludeOnly);
+        Assert.Equal("abc", captured.SessionId);
     }
 }
