@@ -184,6 +184,21 @@ public class McpClient : IDisposable, IAsyncDisposable
     public Task<GetMessageEntryResult> GetMessageEntryAsync(int offset, int timeoutSeconds = 10)
         => SendRequestAsync<GetMessageEntryResult>("messages/getEntry", new { offset }, timeoutSeconds);
 
+    public Task<MessagesResult> ListMessagesAsync(int timeoutSeconds = 10)
+        => SendRequestAsync<MessagesResult>("messages/list", null, timeoutSeconds);
+
+    public Task<CountMessagesResult> CountMessagesAsync(int timeoutSeconds = 10)
+        => SendRequestAsync<CountMessagesResult>("messages/count", null, timeoutSeconds);
+
+    public Task<Result> ClearMessagesAsync(int timeoutSeconds = 10)
+        => SendRequestAsync<Result>("messages/clear", null, timeoutSeconds);
+
+    public Task<MessagesResult> SearchMessagesAsync(string term, int limit = 10, int timeoutSeconds = 10)
+        => SendRequestAsync<MessagesResult>("messages/search", new SearchMessagesRequestParams(term, limit), timeoutSeconds);
+
+    public Task<MessagesResult> LastMessagesAsync(int count = 10, int timeoutSeconds = 10)
+        => SendRequestAsync<MessagesResult>("messages/last", new LastMessagesRequestParams(count), timeoutSeconds);
+
     public Task<CallToolResult> CallCodexAsync(CodexToolCallParam param, int timeoutSeconds = 10)
     {
         var args = JsonSerializer.SerializeToElement(param);
@@ -280,4 +295,9 @@ public abstract record CreateMessageResultContent;
 public record CreateMessageTextContent(string Text) : CreateMessageResultContent;
 
 public record GetMessageEntryResult(string? Entry);
+
+public record MessagesResult(List<string> Messages);
+public record CountMessagesResult(int Count);
+public record SearchMessagesRequestParams(string Term, int Limit);
+public record LastMessagesRequestParams(int Count);
 

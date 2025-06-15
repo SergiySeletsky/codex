@@ -560,3 +560,9 @@
 519. McpEventStream.ReadLinesAsync now ignores comments and id/event fields
 520. Added unit tests for new manager utilities and SSE parser
 521. Documented progress and updated TODO list
+522. Implemented message listing, counting, clearing, searching and tailing endpoints in McpServer
+523. Extended McpClient with ListMessagesAsync, CountMessagesAsync, ClearMessagesAsync, SearchMessagesAsync and LastMessagesAsync
+524. Added CLI options in McpClientCommand for new message APIs
+525. Created unit tests covering message API endpoints
+526. Installed .NET 8 SDK during build and ran build/tests (tests aborted)
+527. Documented progress and updated TODO list

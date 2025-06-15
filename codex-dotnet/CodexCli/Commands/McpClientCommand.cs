@@ -32,6 +32,11 @@ public static class McpClientCommand
         var addPromptMsgOpt = new Option<string?>("--add-prompt-message", description: "System message for prompt");
         var addMessageOpt = new Option<string?>("--add-message", description: "Message text to store");
         var getMessageOpt = new Option<int?>("--get-message", description: "Fetch stored message by offset");
+        var listMessagesOpt = new Option<bool>("--list-messages", description: "List all stored messages");
+        var countMessagesOpt = new Option<bool>("--count-messages", description: "Print number of stored messages");
+        var clearMessagesOpt = new Option<bool>("--clear-messages", description: "Delete all stored messages");
+        var searchMessagesOpt = new Option<string?>("--search-messages", description: "Search messages for term");
+        var lastMessagesOpt = new Option<int?>("--last-messages", description: "Show last N messages");
         var subscribeOpt = new Option<string?>("--subscribe", description: "Subscribe to resource URI");
         var unsubscribeOpt = new Option<string?>("--unsubscribe", description: "Unsubscribe from resource URI");
         var eventsUrlOpt = new Option<string?>("--events-url", description: "Stream events from server URL");
@@ -60,6 +65,11 @@ public static class McpClientCommand
         cmd.AddOption(addPromptMsgOpt);
         cmd.AddOption(addMessageOpt);
         cmd.AddOption(getMessageOpt);
+        cmd.AddOption(listMessagesOpt);
+        cmd.AddOption(countMessagesOpt);
+        cmd.AddOption(clearMessagesOpt);
+        cmd.AddOption(searchMessagesOpt);
+        cmd.AddOption(lastMessagesOpt);
         cmd.AddOption(subscribeOpt);
         cmd.AddOption(unsubscribeOpt);
         cmd.AddOption(eventsUrlOpt);
@@ -95,6 +105,11 @@ public static class McpClientCommand
             string? addPromptMsg = ctx.ParseResult.GetValueForOption(addPromptMsgOpt);
             string? addMessage = ctx.ParseResult.GetValueForOption(addMessageOpt);
             int? getMessage = ctx.ParseResult.GetValueForOption(getMessageOpt);
+            bool listMessages = ctx.ParseResult.GetValueForOption(listMessagesOpt);
+            bool countMessages = ctx.ParseResult.GetValueForOption(countMessagesOpt);
+            bool clearMessages = ctx.ParseResult.GetValueForOption(clearMessagesOpt);
+            string? searchMessages = ctx.ParseResult.GetValueForOption(searchMessagesOpt);
+            int? lastMessages = ctx.ParseResult.GetValueForOption(lastMessagesOpt);
             string? subscribeUri = ctx.ParseResult.GetValueForOption(subscribeOpt);
             string? unsubscribeUri = ctx.ParseResult.GetValueForOption(unsubscribeOpt);
             string? eventsUrl = ctx.ParseResult.GetValueForOption(eventsUrlOpt);
@@ -173,6 +188,31 @@ public static class McpClientCommand
             else if (getMessage != null)
             {
                 var res = await client.GetMessageEntryAsync(getMessage.Value, timeout);
+                Console.WriteLine(JsonSerializer.Serialize(res, new JsonSerializerOptions { WriteIndented = json }));
+            }
+            else if (listMessages)
+            {
+                var res = await client.ListMessagesAsync(timeout);
+                Console.WriteLine(JsonSerializer.Serialize(res, new JsonSerializerOptions { WriteIndented = json }));
+            }
+            else if (countMessages)
+            {
+                var res = await client.CountMessagesAsync(timeout);
+                Console.WriteLine(JsonSerializer.Serialize(res, new JsonSerializerOptions { WriteIndented = json }));
+            }
+            else if (clearMessages)
+            {
+                await client.ClearMessagesAsync(timeout);
+                Console.WriteLine("ok");
+            }
+            else if (searchMessages != null)
+            {
+                var res = await client.SearchMessagesAsync(searchMessages, 10, timeout);
+                Console.WriteLine(JsonSerializer.Serialize(res, new JsonSerializerOptions { WriteIndented = json }));
+            }
+            else if (lastMessages != null)
+            {
+                var res = await client.LastMessagesAsync(lastMessages.Value, timeout);
                 Console.WriteLine(JsonSerializer.Serialize(res, new JsonSerializerOptions { WriteIndented = json }));
             }
             else if (subscribeUri != null)

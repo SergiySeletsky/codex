@@ -163,6 +163,11 @@ public class McpServer : IDisposable, IAsyncDisposable
             "sampling/createMessage" => HandleCreateMessageAsync(req),
             "messages/add" => HandleAddMessageAsync(req),
             "messages/getEntry" => HandleGetMessageAsync(req),
+            "messages/list" => HandleListMessagesAsync(req),
+            "messages/count" => HandleCountMessagesAsync(req),
+            "messages/clear" => HandleClearMessagesAsync(req),
+            "messages/search" => HandleSearchMessagesAsync(req),
+            "messages/last" => HandleLastMessagesAsync(req),
             _ => Task.FromResult(CreateResponse(id, new { }))
         };
     }
@@ -353,6 +358,54 @@ public class McpServer : IDisposable, IAsyncDisposable
         string? entry = offset >=0 && offset < _messages.Count ? _messages[offset] : null;
         EmitEvent(new GetHistoryEntryResponseEvent(Guid.NewGuid().ToString(), "default", offset, entry));
         var result = new { entry };
+        return Task.FromResult(CreateResponse(id, result));
+    }
+
+    private Task<JsonRpcMessage> HandleListMessagesAsync(JsonRpcMessage req)
+    {
+        var id = req.Id ?? JsonDocument.Parse("0").RootElement;
+        var result = new { messages = _messages.ToList(), nextCursor = (string?)null };
+        return Task.FromResult(CreateResponse(id, result));
+    }
+
+    private Task<JsonRpcMessage> HandleCountMessagesAsync(JsonRpcMessage req)
+    {
+        var id = req.Id ?? JsonDocument.Parse("0").RootElement;
+        var result = new { count = _messages.Count };
+        return Task.FromResult(CreateResponse(id, result));
+    }
+
+    private Task<JsonRpcMessage> HandleClearMessagesAsync(JsonRpcMessage req)
+    {
+        var id = req.Id ?? JsonDocument.Parse("0").RootElement;
+        _messages.Clear();
+        SaveMessages();
+        return Task.FromResult(CreateResponse(id, new { }));
+    }
+
+    private Task<JsonRpcMessage> HandleSearchMessagesAsync(JsonRpcMessage req)
+    {
+        var id = req.Id ?? JsonDocument.Parse("0").RootElement;
+        string term = string.Empty;
+        int limit = 10;
+        if (req.Params != null)
+        {
+            if (req.Params.Value.TryGetProperty("term", out var t)) term = t.GetString() ?? string.Empty;
+            if (req.Params.Value.TryGetProperty("limit", out var l)) limit = l.GetInt32();
+        }
+        var resultLines = _messages.Where(m => m.Contains(term, StringComparison.OrdinalIgnoreCase)).Take(limit).ToList();
+        var result = new { messages = resultLines };
+        return Task.FromResult(CreateResponse(id, result));
+    }
+
+    private Task<JsonRpcMessage> HandleLastMessagesAsync(JsonRpcMessage req)
+    {
+        var id = req.Id ?? JsonDocument.Parse("0").RootElement;
+        int count = 10;
+        if (req.Params != null && req.Params.Value.TryGetProperty("count", out var c))
+            count = c.GetInt32();
+        var last = _messages.TakeLast(count).ToList();
+        var result = new { messages = last };
         return Task.FromResult(CreateResponse(id, result));
     }
 
