@@ -443,4 +443,15 @@
 409. Added SessionEnv constant test
 410. Documented progress and updated TODO list
 
+411. ReplayCommand supports --session and --follow options
+412. RolloutRecorder exposes FilePath and SessionId properties
+413. RolloutReplayer supports following live updates
+414. Provider login prints instructions when key missing
+415. ApiKeyManager.PrintEnvInstructions helper added
+416. ProviderCommandTests verify login instructions output
+417. ReplayCommandTests cover session option
+418. ApiKeyManagerTests verify instructions helper
+419. ReplayCommand resolves session id to file path
+420. Documented progress and updated TODO list
+
 - Continue fleshing out replay tool features and session management

@@ -125,11 +125,18 @@ public static class ProviderCommand
 
         var loginCmd = new Command("login", "Store API key for a provider");
         var loginId = new Argument<string>("id");
-        var keyOpt = new Option<string>("--api-key") { IsRequired = true };
+        var keyOpt = new Option<string?>("--api-key", "API key to save");
         loginCmd.AddArgument(loginId);
         loginCmd.AddOption(keyOpt);
-        loginCmd.SetHandler((string id, string key) =>
+        loginCmd.SetHandler((string id, string? key) =>
         {
+            var info = ModelProviderInfo.BuiltIns.TryGetValue(id, out var p) ? p : null;
+            if (string.IsNullOrWhiteSpace(key))
+            {
+                if (info != null) ApiKeyManager.PrintEnvInstructions(info);
+                else Console.WriteLine($"Provide API key via --api-key for {id}");
+                return;
+            }
             ApiKeyManager.SaveKey(id, key);
             Console.WriteLine($"Saved API key for {id}");
         }, loginId, keyOpt);

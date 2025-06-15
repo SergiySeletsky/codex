@@ -77,4 +77,19 @@ public class ProviderCommandTests
         }
         finally { File.Delete(tmp); }
     }
+
+    [Fact]
+    public void LoginPrintsInstructionsWhenMissingKey()
+    {
+        var root = new RootCommand();
+        var cfgOpt = new Option<string?>("--config");
+        root.AddOption(cfgOpt);
+        root.AddCommand(ProviderCommand.Create(cfgOpt));
+        var parser = new Parser(root);
+        var sw = new StringWriter();
+        Console.SetOut(sw);
+        parser.Invoke("provider login openai");
+        var text = sw.ToString();
+        Assert.Contains("OPENAI_API_KEY", text);
+    }
 }

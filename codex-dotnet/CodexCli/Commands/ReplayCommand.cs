@@ -8,12 +8,14 @@ public static class ReplayCommand
 {
     public static Command Create()
     {
-        var fileArg = new Argument<FileInfo>("file", "Rollout JSONL file to replay");
+        var fileArg = new Argument<FileInfo?>("file", () => null, "Rollout JSONL file to replay");
         var jsonOpt = new Option<bool>("--json", description: "Output JSON lines");
         var messagesOpt = new Option<bool>("--messages-only", description: "Only print assistant and user messages");
         var startOpt = new Option<int?>("--start-index", "Start index of messages to replay");
         var endOpt = new Option<int?>("--end-index", "End index of messages to replay (inclusive)");
         var roleOpt = new Option<string?>("--role", "Filter messages by role");
+        var sessionOpt = new Option<string?>("--session", "Session id to replay");
+        var followOpt = new Option<bool>("--follow", "Follow file for new lines");
         var cmd = new Command("replay", "Replay a rollout conversation")
         {
             fileArg
@@ -23,10 +25,24 @@ public static class ReplayCommand
         cmd.AddOption(startOpt);
         cmd.AddOption(endOpt);
         cmd.AddOption(roleOpt);
-        cmd.SetHandler(async (FileInfo file, bool json, bool messagesOnly, int? startIndex, int? endIndex, string? role) =>
+        cmd.AddOption(sessionOpt);
+        cmd.AddOption(followOpt);
+        cmd.SetHandler(async (FileInfo? file, bool json, bool messagesOnly, int? startIndex, int? endIndex, string? role, string? session, bool follow) =>
         {
+            var path = file?.FullName;
+            if (path == null && session != null)
+            {
+                var dir = Path.Combine(EnvUtils.FindCodexHome(), "sessions");
+                path = Directory.GetFiles(dir, $"rollout-*-{session}.jsonl").FirstOrDefault();
+                if (path == null)
+                {
+                    Console.Error.WriteLine($"Session {session} not found");
+                    return;
+                }
+            }
+            if (path == null) { Console.Error.WriteLine("File or --session required"); return; }
             int index = 0;
-            await foreach (var item in RolloutReplayer.ReplayAsync(file.FullName))
+            await foreach (var item in RolloutReplayer.ReplayAsync(path, follow))
             {
                 if (startIndex != null && index < startIndex.Value) { index++; continue; }
                 if (endIndex != null && index > endIndex.Value) break;
@@ -62,7 +78,7 @@ public static class ReplayCommand
                 }
                 index++;
             }
-        }, fileArg, jsonOpt, messagesOpt, startOpt, endOpt, roleOpt);
+        }, fileArg, jsonOpt, messagesOpt, startOpt, endOpt, roleOpt, sessionOpt, followOpt);
         return cmd;
     }
 }

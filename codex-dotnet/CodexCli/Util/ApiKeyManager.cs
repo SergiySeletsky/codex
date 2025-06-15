@@ -42,6 +42,14 @@ public static class ApiKeyManager
         return null;
     }
 
+    public static void PrintEnvInstructions(ModelProviderInfo provider)
+    {
+        if (!string.IsNullOrEmpty(provider.EnvKeyInstructions))
+            Console.WriteLine(provider.EnvKeyInstructions);
+        else if (provider.EnvKey != null)
+            Console.WriteLine($"Set {provider.EnvKey} environment variable with your API key.");
+    }
+
     public static string? LoadDefaultKey()
         => Environment.GetEnvironmentVariable(DefaultEnvKey);
 }

@@ -13,4 +13,16 @@ public class ApiKeyManagerTests
         Environment.SetEnvironmentVariable(ApiKeyManager.DefaultEnvKey, null);
         Assert.Equal("abc", key);
     }
+
+    [Fact]
+    public void PrintEnvInstructionsPrefersProvider()
+    {
+        var provider = new ModelProviderInfo { EnvKeyInstructions = "set FOO" };
+        using var sw = new StringWriter();
+        var orig = Console.Out;
+        Console.SetOut(sw);
+        ApiKeyManager.PrintEnvInstructions(provider);
+        Console.SetOut(orig);
+        Assert.Contains("FOO", sw.ToString());
+    }
 }
