@@ -25,6 +25,7 @@ class Program
         root.AddCommand(InteractiveCommand.Create(configOption, cdOption));
         root.AddCommand(CompletionCommand.Create(root, configOption, cdOption));
         root.AddCommand(HistoryCommand.Create());
+        root.AddCommand(ReplayCommand.Create());
         root.AddCommand(ProviderCommand.Create(configOption));
         root.AddCommand(McpClientCommand.Create());
         root.AddCommand(ApplyPatchCommand.Create());

@@ -88,11 +88,15 @@ public static class ExecCommand
 
             SessionManager.SetPersistence(cfg?.History.Persistence ?? HistoryPersistence.SaveAll);
             var sessionId = SessionManager.CreateSession();
+            var history = new ConversationHistory();
+            RolloutRecorder? recorder = null;
             StreamWriter? logWriter = null;
             if (opts.EventLogFile != null)
             {
                 logWriter = new StreamWriter(opts.EventLogFile, append: false);
             }
+            if (cfg != null)
+                recorder = await RolloutRecorder.CreateAsync(cfg, sessionId, null);
 
             var policy = cfg?.ShellEnvironmentPolicy ?? new ShellEnvironmentPolicy();
             if (opts.EnvInherit != null) policy.Inherit = opts.EnvInherit.Value;
@@ -198,6 +202,11 @@ public static class ExecCommand
                     processor.ProcessEvent(ev);
                 if (logWriter != null)
                     await logWriter.WriteLineAsync(System.Text.Json.JsonSerializer.Serialize(ev));
+                if (ResponseItemFactory.FromEvent(ev) is { } ri)
+                {
+                    history.RecordItems(new[] { ri });
+                    if (recorder != null) await recorder.RecordItemsAsync(new[] { ri });
+                }
                 switch (ev)
                 {
                     case AgentMessageEvent am:

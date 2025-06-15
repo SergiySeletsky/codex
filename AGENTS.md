@@ -361,6 +361,16 @@
 338. Created ModelClient for streaming responses
 339. Implemented Safety assessment helpers
 340. Integrated ExecRunner into ExecCommand
+341. Added ResponseItemFactory for converting protocol events to response items
+342. Added ConversationHistory tracking in ExecCommand
+343. Integrated RolloutRecorder persistence into ExecCommand
+344. Updated event loop to record response items
+345. Added CallToolAsync method in McpConnectionManager
+346. Introduced ReplayCommand for replaying rollout files
+347. Registered ReplayCommand in Program
+348. Added unit test verifying RolloutRecorder output
+349. Installed .NET 8 SDK for building
+350. Documented new progress and updated TODO list
 
 ## TODO Next Run
 - Continue porting remaining Rust CLI features
@@ -369,3 +379,4 @@
 - Port remaining core utilities from Rust such as conversation replay
 - Expand unit tests for new utilities
 - Continue integrating new utilities into commands
+- Add more MCP client features and tests

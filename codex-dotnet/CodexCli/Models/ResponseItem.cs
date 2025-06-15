@@ -4,6 +4,17 @@ using System.Text.Json.Serialization;
 
 public abstract record ResponseItem;
 
+public static class ResponseItemFactory
+{
+    public static ResponseItem? FromEvent(CodexCli.Protocol.Event ev)
+        => ev switch
+        {
+            CodexCli.Protocol.AgentMessageEvent am => new MessageItem("assistant", new List<ContentItem>{ new("output_text", am.Message) }),
+            CodexCli.Protocol.AddToHistoryEvent ah => new MessageItem("user", new List<ContentItem>{ new("output_text", ah.Text) }),
+            _ => null
+        };
+}
+
 public record ContentItem([property: JsonPropertyName("type")] string Type, string Text);
 
 public record MessageItem(string Role, List<ContentItem> Content) : ResponseItem;

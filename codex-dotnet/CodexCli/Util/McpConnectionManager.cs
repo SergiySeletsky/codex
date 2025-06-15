@@ -1,3 +1,6 @@
+using System.Text.Json;
+using CodexCli.Protocol;
+
 using CodexCli.Config;
 
 namespace CodexCli.Util;
@@ -37,6 +40,16 @@ public class McpConnectionManager
     }
 
     public Dictionary<string, Tool> ListAllTools() => new(_tools);
+
+    public async Task<CallToolResult> CallToolAsync(string fqName, JsonElement? args = null, TimeSpan? timeout = null)
+    {
+        if(!TryParseFullyQualifiedToolName(fqName, out var server, out var tool))
+            throw new ArgumentException("invalid tool name", nameof(fqName));
+        if(!_clients.TryGetValue(server, out var client))
+            throw new InvalidOperationException($"unknown MCP server '{server}'");
+        int seconds = (int)(timeout?.TotalSeconds ?? 10);
+        return await client.CallToolAsync(tool, args, seconds);
+    }
 
     public static string FullyQualifiedToolName(string server, string tool) => $"{server}{Delimiter}{tool}";
     public static bool TryParseFullyQualifiedToolName(string fq, out string server, out string tool)
