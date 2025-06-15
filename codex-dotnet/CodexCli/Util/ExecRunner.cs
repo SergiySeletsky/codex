@@ -5,9 +5,9 @@ namespace CodexCli.Util;
 
 public static class ExecRunner
 {
-    private const int MaxOutputBytes = 10 * 1024;
     public const string NetworkDisabledEnv = "CODEX_SANDBOX_NETWORK_DISABLED";
-    private const int MaxOutputLines = 256;
+    private const int DefaultMaxOutputBytes = 10 * 1024;
+    private const int DefaultMaxOutputLines = 256;
 
     public static async Task<ExecToolCallOutput> RunAsync(ExecParams p, CancellationToken token, SandboxPolicy? policy = null)
     {
@@ -31,22 +31,22 @@ public static class ExecRunner
         if (p.TimeoutMs != null)
             cts.CancelAfter(p.TimeoutMs.Value);
         var start = DateTime.UtcNow;
-        var stdoutTask = ReadCappedAsync(proc.StandardOutput, cts.Token);
-        var stderrTask = ReadCappedAsync(proc.StandardError, cts.Token);
+        var stdoutTask = ReadCappedAsync(proc.StandardOutput, cts.Token, p.MaxOutputBytes ?? DefaultMaxOutputBytes, p.MaxOutputLines ?? DefaultMaxOutputLines);
+        var stderrTask = ReadCappedAsync(proc.StandardError, cts.Token, p.MaxOutputBytes ?? DefaultMaxOutputBytes, p.MaxOutputLines ?? DefaultMaxOutputLines);
         await proc.WaitForExitAsync(cts.Token).ConfigureAwait(false);
         var stdout = await stdoutTask;
         var stderr = await stderrTask;
         return new ExecToolCallOutput(proc.ExitCode, stdout, stderr, DateTime.UtcNow-start);
     }
 
-    private static async Task<string> ReadCappedAsync(StreamReader reader, CancellationToken token)
+    private static async Task<string> ReadCappedAsync(StreamReader reader, CancellationToken token, int maxBytes, int maxLines)
     {
         var sb = new System.Text.StringBuilder();
         int lines = 0;
         char[] buf = new char[1024];
-        while (!reader.EndOfStream && sb.Length < MaxOutputBytes && lines < MaxOutputLines)
+        while (!reader.EndOfStream && sb.Length < maxBytes && lines < maxLines)
         {
-            int n = await reader.ReadAsync(buf.AsMemory(0, Math.Min(buf.Length, MaxOutputBytes - sb.Length)), token);
+            int n = await reader.ReadAsync(buf.AsMemory(0, Math.Min(buf.Length, maxBytes - sb.Length)), token);
             if (n == 0) break;
             for (int i=0;i<n;i++) if (buf[i]=='\n') lines++; 
             sb.Append(buf,0,n);

@@ -382,7 +382,6 @@
 ## TODO Next Run
 - Continue porting remaining Rust CLI features
 - Investigate hanging tests and fix missing API key issues
-- Flesh out CodexToolRunner with real Codex integration
 - Port remaining core utilities from Rust such as conversation replay
 - Expand unit tests for new utilities
 - Continue integrating new utilities into commands
@@ -415,4 +414,14 @@
 381. Added ApiKeyManagerTests covering env fallback
 382. Extended ResponseItemFactoryTests for new event types
 383. Documented progress and updated TODO list
+384. CodexToolRunner now runs RealCodexAgent using OpenAIClient
+385. CodexToolCallParam gained Provider field
+386. McpClientCommand supports --call-codex, --codex-prompt, --codex-model and --codex-provider
+387. ReplayCommand now supports --json and --messages-only options
+388. Added ReplayCommandTests for basic output and JSON mode
+389. ExecParams extended with output limit fields
+390. ExecRunner respects per-call output limits
+391. Added ExecRunnerOutputLimitTests verifying limits
+392. McpClientCommand uses ApiKeyManager when calling Codex
+393. Documented progress and updated TODO list
 

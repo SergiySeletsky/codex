@@ -1,5 +1,6 @@
 using System.Text.Json;
 using CodexCli.Protocol;
+using CodexCli.Config;
 
 namespace CodexCli.Util;
 
@@ -10,18 +11,25 @@ namespace CodexCli.Util;
 /// </summary>
 public static class CodexToolRunner
 {
-    public static Task<CallToolResult> RunCodexToolSessionAsync(
+    public static async Task<CallToolResult> RunCodexToolSessionAsync(
         CodexToolCallParam param,
         Action<Event> emit)
     {
-        emit(new SessionConfiguredEvent(Guid.NewGuid().ToString(), "session", param.Model ?? "model"));
-        emit(new AgentMessageEvent(Guid.NewGuid().ToString(), $"Echo: {param.Prompt}"));
-        emit(new TaskCompleteEvent(Guid.NewGuid().ToString(), "done"));
+        var providerId = param.Provider ?? "openai";
+        var providerInfo = ModelProviderInfo.BuiltIns.TryGetValue(providerId, out var info)
+            ? info
+            : ModelProviderInfo.BuiltIns["openai"];
+        var apiKey = ApiKeyManager.GetKey(providerInfo);
+        var client = new OpenAIClient(apiKey, providerInfo.BaseUrl);
 
-        var result = new CallToolResult(
+        await foreach (var ev in RealCodexAgent.RunAsync(param.Prompt, client, param.Model ?? "gpt-3.5-turbo"))
+        {
+            emit(ev);
+        }
+
+        return new CallToolResult(
             new List<JsonElement> { JsonSerializer.SerializeToElement("codex done") },
             false);
-        return Task.FromResult(result);
     }
 }
 
@@ -32,4 +40,5 @@ public record CodexToolCallParam(
     string? Cwd = null,
     string? ApprovalPolicy = null,
     IReadOnlyList<string>? SandboxPermissions = null,
-    Dictionary<string, JsonElement>? Config = null);
+    Dictionary<string, JsonElement>? Config = null,
+    string? Provider = null);

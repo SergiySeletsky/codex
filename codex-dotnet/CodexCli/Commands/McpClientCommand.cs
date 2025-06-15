@@ -30,6 +30,10 @@ public static class McpClientCommand
         var addPromptMsgOpt = new Option<string?>("--add-prompt-message", description: "System message for prompt");
         var subscribeOpt = new Option<string?>("--subscribe", description: "Subscribe to resource URI");
         var unsubscribeOpt = new Option<string?>("--unsubscribe", description: "Unsubscribe from resource URI");
+        var codexOpt = new Option<bool>("--call-codex", description: "Call codex tool");
+        var codexPromptOpt = new Option<string?>("--codex-prompt", description: "Prompt for codex tool");
+        var codexModelOpt = new Option<string?>("--codex-model");
+        var codexProviderOpt = new Option<string?>("--codex-provider");
         cmd.AddOption(timeoutOpt);
         cmd.AddOption(jsonOpt);
         cmd.AddOption(callOpt);
@@ -49,6 +53,10 @@ public static class McpClientCommand
         cmd.AddOption(addPromptMsgOpt);
         cmd.AddOption(subscribeOpt);
         cmd.AddOption(unsubscribeOpt);
+        cmd.AddOption(codexOpt);
+        cmd.AddOption(codexPromptOpt);
+        cmd.AddOption(codexModelOpt);
+        cmd.AddOption(codexProviderOpt);
         var progArg = new Argument<string>("program");
         var argsArg = new Argument<string[]>("args") { Arity = ArgumentArity.ZeroOrMore };
         cmd.AddArgument(progArg);
@@ -76,6 +84,10 @@ public static class McpClientCommand
             string? addPromptMsg = ctx.ParseResult.GetValueForOption(addPromptMsgOpt);
             string? subscribeUri = ctx.ParseResult.GetValueForOption(subscribeOpt);
             string? unsubscribeUri = ctx.ParseResult.GetValueForOption(unsubscribeOpt);
+            bool callCodex = ctx.ParseResult.GetValueForOption(codexOpt);
+            string? codexPrompt = ctx.ParseResult.GetValueForOption(codexPromptOpt);
+            string? codexModel = ctx.ParseResult.GetValueForOption(codexModelOpt);
+            string? codexProvider = ctx.ParseResult.GetValueForOption(codexProviderOpt);
 
             var extraEnv = env.Select(e => e.Split('=', 2)).Where(p => p.Length == 2).ToDictionary(p => p[0], p => p[1]);
             using var client = await McpClient.StartAsync(program, args, extraEnv);
@@ -139,6 +151,12 @@ public static class McpClientCommand
             {
                 await client.UnsubscribeAsync(new UnsubscribeRequestParams(unsubscribeUri), timeout);
                 Console.WriteLine("ok");
+            }
+            else if (callCodex)
+            {
+                var param = new CodexToolCallParam(codexPrompt ?? string.Empty, codexModel, null, null, null, null, null, codexProvider);
+                var result = await client.CallCodexAsync(param, timeout);
+                Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = json }));
             }
             else if (completePrefix != null)
             {

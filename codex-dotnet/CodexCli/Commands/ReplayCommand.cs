@@ -9,14 +9,27 @@ public static class ReplayCommand
     public static Command Create()
     {
         var fileArg = new Argument<FileInfo>("file", "Rollout JSONL file to replay");
+        var jsonOpt = new Option<bool>("--json", description: "Output JSON lines");
+        var messagesOpt = new Option<bool>("--messages-only", description: "Only print assistant and user messages");
         var cmd = new Command("replay", "Replay a rollout conversation")
         {
             fileArg
         };
-        cmd.SetHandler(async (FileInfo file) =>
+        cmd.AddOption(jsonOpt);
+        cmd.AddOption(messagesOpt);
+        cmd.SetHandler(async (FileInfo file, bool json, bool messagesOnly) =>
         {
             await foreach (var item in RolloutReplayer.ReplayAsync(file.FullName))
             {
+                if (json)
+                {
+                    Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(item, item.GetType()));
+                    continue;
+                }
+
+                if (messagesOnly && item is not MessageItem)
+                    continue;
+
                 switch (item)
                 {
                     case MessageItem m:
@@ -39,7 +52,7 @@ public static class ReplayCommand
                         break;
                 }
             }
-        }, fileArg);
+        }, fileArg, jsonOpt, messagesOpt);
         return cmd;
     }
 }
