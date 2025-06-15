@@ -356,6 +356,11 @@
 333. Implemented RolloutReplayer for conversation playback
 334. Created unit tests for ExecRunner
 335. Created unit tests for RolloutReplayer
+336. Added Prompt, ResponseEvent and ResponseStream models
+337. Implemented ReasoningUtils and OpenAI reasoning enums
+338. Created ModelClient for streaming responses
+339. Implemented Safety assessment helpers
+340. Integrated ExecRunner into ExecCommand
 
 ## TODO Next Run
 - Continue porting remaining Rust CLI features
@@ -363,4 +368,4 @@
 - Flesh out CodexToolRunner with real Codex integration
 - Port remaining core utilities from Rust such as conversation replay
 - Expand unit tests for new utilities
-- Integrate ExecRunner into commands and continue porting CLI features
+- Continue integrating new utilities into commands

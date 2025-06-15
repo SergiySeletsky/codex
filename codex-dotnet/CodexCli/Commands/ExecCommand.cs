@@ -3,6 +3,7 @@ using CodexCli.Config;
 using CodexCli.Util;
 using CodexCli.Protocol;
 using CodexCli.ApplyPatch;
+using CodexCli.Models;
 using System.Linq;
 using System.Collections.Generic;
 
@@ -274,6 +275,18 @@ public static class ExecCommand
                                 if (logWriter != null)
                                     await logWriter.WriteLineAsync(System.Text.Json.JsonSerializer.Serialize(peEvent));
                             }
+                        }
+                        else
+                        {
+                            var execParams = new ExecParams(begin.Command.ToList(), begin.Cwd, null, envMap);
+                            var result = await ExecRunner.RunAsync(execParams, CancellationToken.None);
+                            var endEv = new ExecCommandEndEvent(Guid.NewGuid().ToString(), result.Stdout, result.Stderr, result.ExitCode);
+                            if (opts.Json)
+                                Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(endEv));
+                            else
+                                processor.ProcessEvent(endEv);
+                            if (logWriter != null)
+                                await logWriter.WriteLineAsync(System.Text.Json.JsonSerializer.Serialize(endEv));
                         }
                         break;
                     case PatchApplyApprovalRequestEvent pr:
