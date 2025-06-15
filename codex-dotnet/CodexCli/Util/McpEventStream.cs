@@ -24,14 +24,30 @@ public static class McpEventStream
         {
             var line = await reader.ReadLineAsync();
             if (line == null) break;
+            if (line.StartsWith(":"))
+            {
+                // comment line - ignore
+                continue;
+            }
             if (line.StartsWith("data:"))
             {
                 buffer.AppendLine(line.Substring(5).Trim());
             }
-            else if (string.IsNullOrEmpty(line) && buffer.Length > 0)
+            else if (line.StartsWith("id:"))
             {
-                yield return buffer.ToString().TrimEnd();
-                buffer.Clear();
+                // we currently ignore the id value
+            }
+            else if (line.StartsWith("event:"))
+            {
+                // event type is ignored for now
+            }
+            else if (string.IsNullOrEmpty(line))
+            {
+                if (buffer.Length > 0)
+                {
+                    yield return buffer.ToString().TrimEnd();
+                    buffer.Clear();
+                }
             }
         }
         if (buffer.Length > 0)

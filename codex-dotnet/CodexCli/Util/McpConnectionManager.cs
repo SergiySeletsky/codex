@@ -67,6 +67,16 @@ public class McpConnectionManager
 
     public IEnumerable<string> GetToolNames() => _tools.Keys.ToList();
 
+    public IEnumerable<string> ListServers() => _clients.Keys.ToList();
+
+    public async Task<List<Tool>> ListToolsAsync(string server)
+    {
+        if (!_clients.TryGetValue(server, out var client))
+            throw new InvalidOperationException($"unknown MCP server '{server}'");
+        var res = await client.ListToolsAsync();
+        return res.Tools;
+    }
+
     public bool HasServer(string name) => _clients.ContainsKey(name);
 
     public async Task<CallToolResult> CallToolAsync(string fqName, JsonElement? args = null, TimeSpan? timeout = null)

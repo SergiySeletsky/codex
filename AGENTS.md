@@ -554,3 +554,9 @@
 514. Updated tests for McpEventStream to use new parser
 515. Build and tests executed (tests pass with many skipped)
 516. TODO next run: implement additional MCP utilities
+522. TODO next run: port more MCP server endpoints and improve tests
+517. Added ListServers and ListToolsAsync helpers in McpConnectionManager
+518. McpManagerCommand list command accepts --server and new servers subcommand
+519. McpEventStream.ReadLinesAsync now ignores comments and id/event fields
+520. Added unit tests for new manager utilities and SSE parser
+521. Documented progress and updated TODO list

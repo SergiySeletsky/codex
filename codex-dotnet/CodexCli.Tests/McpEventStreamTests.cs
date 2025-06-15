@@ -2,6 +2,8 @@ using CodexCli.Util;
 using CodexCli.Protocol;
 using System.Text.Json;
 using CodexCli.Models;
+using System.Net;
+using System.IO;
 using Xunit;
 
 public class McpEventStreamTests
@@ -63,6 +65,33 @@ public class McpEventStreamTests
         Assert.Equal(2, progressCount);
 
         cts.Cancel();
+        await serverTask;
+    }
+
+    [Fact]
+    public async Task ReadLinesHandlesCommentsAndIds()
+    {
+        int port = TestUtils.GetFreeTcpPort();
+        using var listener = new HttpListener();
+        listener.Prefixes.Add($"http://localhost:{port}/");
+        listener.Start();
+        var serverTask = Task.Run(async () =>
+        {
+            var ctx = await listener.GetContextAsync();
+            ctx.Response.ContentType = "text/event-stream";
+            using var w = new StreamWriter(ctx.Response.OutputStream);
+            await w.WriteAsync(": comment\nid:1\nevent:foo\ndata: {\"type\":\"noop\"}\n\n");
+            await w.FlushAsync();
+            ctx.Response.Close();
+        });
+
+        var lines = new List<string>();
+        await foreach (var line in McpEventStream.ReadLinesAsync($"http://localhost:{port}"))
+        {
+            lines.Add(line);
+        }
+        Assert.Contains("{\"type\":\"noop\"}", lines[0]);
+        listener.Close();
         await serverTask;
     }
 }
