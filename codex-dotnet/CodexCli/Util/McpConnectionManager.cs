@@ -46,7 +46,28 @@ public class McpConnectionManager
         return (mgr, errors);
     }
 
+    public async Task RefreshToolsAsync()
+    {
+        var local = _clients.ToArray();
+        var join = local.Select(async kv => (kv.Key, await kv.Value.ListToolsAsync()));
+        var results = await Task.WhenAll(join);
+        lock (this)
+        {
+            _tools.Clear();
+            foreach (var (server, res) in results)
+                foreach (var t in res.Tools)
+                    _tools[FullyQualifiedToolName(server, t.Name)] = t;
+        }
+    }
+
+    public static Task<(McpConnectionManager, Dictionary<string,Exception>)> CreateAsync(AppConfig cfg)
+        => CreateAsync(cfg.McpServers);
+
     public Dictionary<string, Tool> ListAllTools() => new(_tools);
+
+    public IEnumerable<string> GetToolNames() => _tools.Keys.ToList();
+
+    public bool HasServer(string name) => _clients.ContainsKey(name);
 
     public async Task<CallToolResult> CallToolAsync(string fqName, JsonElement? args = null, TimeSpan? timeout = null)
     {

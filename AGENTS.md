@@ -519,3 +519,15 @@
 479. McpClientCommand gained --add-message and --get-message options
 480. Created tests for new event mapping, connection manager parsing and message server
 481. Documented progress and updated TODO list
+482. Added McpServers dictionary to AppConfig and TOML parser
+483. Introduced CreateAsync(AppConfig) helper in McpConnectionManager
+484. Created McpManagerCommand for listing and calling tools via config
+485. Registered McpManagerCommand in Program
+486. Added unit test verifying MCP server config parsing
+487. Implemented RefreshToolsAsync in McpConnectionManager
+488. Added invalid name test for fully-qualified tool parsing
+489. McpManagerCommand supports --json, --events-url and --watch-events options
+490. Implemented new command and utilities using connection manager
+491. McpConnectionManager exposes HasServer helper
+492. Documented progress and updated TODO list
+493. TODO next run: integrate connection manager with ExecCommand and extend tests

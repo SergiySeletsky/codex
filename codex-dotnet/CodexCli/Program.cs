@@ -28,6 +28,7 @@ class Program
         root.AddCommand(ReplayCommand.Create());
         root.AddCommand(ProviderCommand.Create(configOption));
         root.AddCommand(McpClientCommand.Create());
+        root.AddCommand(McpManagerCommand.Create(configOption));
         root.AddCommand(ApplyPatchCommand.Create());
         var verCmd = new Command("version", "Print version");
         verCmd.SetHandler(() =>

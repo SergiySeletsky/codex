@@ -2,6 +2,7 @@ using CodexCli.Commands;
 using Tomlyn;
 using System.Linq;
 using System.Collections.Generic;
+using CodexCli.Util;
 
 namespace CodexCli.Config;
 
@@ -23,6 +24,7 @@ public class AppConfig
     public Tui Tui { get; set; } = new();
     public Dictionary<string, ModelProviderInfo> ModelProviders { get; set; } = new();
     public Dictionary<string, ConfigProfile> Profiles { get; set; } = new();
+    public Dictionary<string, McpServerConfig> McpServers { get; set; } = new();
 
     public static AppConfig Load(string path, string? profile = null)
     {
@@ -110,6 +112,20 @@ public class AppConfig
                     if (pm.TryGetValue("project_doc_max_bytes", out var pdm2) && int.TryParse(pdm2?.ToString(), out var pdmv2))
                         cp.ProjectDocMaxBytes = pdmv2;
                     cfg.Profiles[k] = cp;
+                }
+            }
+        }
+        if (model.TryGetValue("mcp_servers", out var mcpVal) && mcpVal is IDictionary<string, object?> mcpMap)
+        {
+            foreach (var (name, sv) in mcpMap)
+            {
+                if (sv is IDictionary<string, object?> sd)
+                {
+                    var sc = new McpServerConfig(
+                        sd.TryGetValue("command", out var c) ? c?.ToString() ?? string.Empty : string.Empty,
+                        sd.TryGetValue("args", out var a) && a is object[] argArr ? argArr.Select(o => o?.ToString() ?? string.Empty).ToList() : new List<string>(),
+                        sd.TryGetValue("env", out var e) && e is IDictionary<string, object?> envd ? envd.ToDictionary(kv => kv.Key, kv => kv.Value?.ToString() ?? string.Empty) : null);
+                    cfg.McpServers[name] = sc;
                 }
             }
         }

@@ -11,4 +11,10 @@ public class McpConnectionManagerTests
         Assert.Equal("srv", s);
         Assert.Equal("tool", t);
     }
+
+    [Fact]
+    public void ParseFqNameInvalid()
+    {
+        Assert.False(McpConnectionManager.TryParseFullyQualifiedToolName("badname", out _, out _));
+    }
 }
