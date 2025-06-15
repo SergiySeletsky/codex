@@ -495,3 +495,14 @@
 456. Added unit tests verifying new event mappings
 457. Reinstalled .NET 8 SDK in container and ran build/tests (tests cancelled due to environment)
 458. TODO next run: port more MCP utilities and improve test stability
+459. Added CreateMessageResult types and CreateMessageAsync method in McpClient
+460. Added SamplingMessage and ModelPreferences models
+461. McpClientCommand supports --create-message option
+462. Implemented CLI logic to call sampling/createMessage
+463. McpServer handles sampling/createMessage request
+464. Added HandleCreateMessageAsync method returning echo result
+465. Added test case in McpServerTests for sampling/createMessage
+466. McpEventStream now exposes ReadItemsAsync producing ResponseItems
+467. Added test for ReadItemsAsync (skipped)
+468. Installed .NET SDK and attempted build/tests (tests timed out)
+- Continue porting remaining MCP utilities and stabilising tests

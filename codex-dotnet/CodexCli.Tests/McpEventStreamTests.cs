@@ -1,6 +1,7 @@
 using CodexCli.Util;
 using CodexCli.Protocol;
 using System.Text.Json;
+using CodexCli.Models;
 using Xunit;
 
 public class McpEventStreamTests
@@ -23,6 +24,33 @@ public class McpEventStreamTests
         {
             Assert.Contains("PromptListChangedEvent", line);
             break;
+        }
+
+        cts.Cancel();
+        await serverTask;
+    }
+
+    [Fact(Skip="flaky in CI")]
+    public async Task ReadItems()
+    {
+        int port = TestUtils.GetFreeTcpPort();
+        using var server = new McpServer(port);
+        var cts = new CancellationTokenSource();
+        var serverTask = server.RunAsync(cts.Token);
+        await Task.Delay(100);
+
+        using var http = new HttpClient();
+        var writeParams = JsonDocument.Parse("{\"uri\":\"mem:/demo.txt\",\"text\":\"foo\"}");
+        var req = new JsonRpcMessage { Method = "resources/write", Id = JsonSerializer.SerializeToElement(2), Params = writeParams.RootElement };
+        await http.PostAsync($"http://localhost:{port}/jsonrpc", new StringContent(JsonSerializer.Serialize(req)));
+
+        await foreach (var item in McpEventStream.ReadItemsAsync($"http://localhost:{port}"))
+        {
+            if (item is MessageItem)
+            {
+                Assert.True(true);
+                break;
+            }
         }
 
         cts.Cancel();

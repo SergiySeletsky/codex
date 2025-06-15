@@ -145,6 +145,7 @@ public class McpServer : IDisposable, IAsyncDisposable
             "prompts/add" => HandleAddPromptAsync(req),
             "logging/setLevel" => HandleSetLevelAsync(req),
             "completion/complete" => HandleCompleteAsync(req),
+            "sampling/createMessage" => HandleCreateMessageAsync(req),
             _ => Task.FromResult(CreateResponse(id, new { }))
         };
     }
@@ -292,6 +293,22 @@ public class McpServer : IDisposable, IAsyncDisposable
     {
         var id = req.Id ?? JsonDocument.Parse("0").RootElement;
         var result = new { completion = new { values = new[] { "demo completion" }, hasMore = (bool?)null, total = (int?)null } };
+        return Task.FromResult(CreateResponse(id, result));
+    }
+
+    private Task<JsonRpcMessage> HandleCreateMessageAsync(JsonRpcMessage req)
+    {
+        var id = req.Id ?? JsonDocument.Parse("0").RootElement;
+        if (req.Params == null)
+            return Task.FromResult(CreateResponse(id, new { content = new { text = string.Empty }, model = "demo", role = "assistant" }));
+        string text = "";
+        if (req.Params.Value.TryGetProperty("messages", out var msgs) && msgs.ValueKind == JsonValueKind.Array && msgs.GetArrayLength() > 0)
+        {
+            var msg0 = msgs[0];
+            if (msg0.TryGetProperty("content", out var c) && c.TryGetProperty("text", out var t))
+                text = t.GetString() ?? "";
+        }
+        var result = new { content = new { text = $"echo {text}" }, model = "demo", role = "assistant", stopReason = (string?)null };
         return Task.FromResult(CreateResponse(id, result));
     }
 

@@ -175,6 +175,9 @@ public class McpClient : IDisposable, IAsyncDisposable
     public Task<CompleteResult> CompleteAsync(CompleteRequestParams p, int timeoutSeconds = 10)
         => SendRequestAsync<CompleteResult>("completion/complete", p, timeoutSeconds);
 
+    public Task<CreateMessageResult> CreateMessageAsync(CreateMessageRequestParams p, int timeoutSeconds = 10)
+        => SendRequestAsync<CreateMessageResult>("sampling/createMessage", p, timeoutSeconds);
+
     public Task<CallToolResult> CallCodexAsync(CodexToolCallParam param, int timeoutSeconds = 10)
     {
         var args = JsonSerializer.SerializeToElement(param);
@@ -242,4 +245,31 @@ public record CompleteRequestParamsArgument(string Name, string Value);
 public record CompleteRequestParamsRef(string Uri);
 public record CompleteResult(CompleteResultCompletion Completion);
 public record CompleteResultCompletion(List<string> Values, bool? HasMore, long? Total);
+
+public record ModelHint(string? Name);
+public record ModelPreferences(double? CostPriority, List<ModelHint>? Hints, double? IntelligencePriority, double? SpeedPriority);
+
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "type")]
+[JsonDerivedType(typeof(SamplingTextContent), typeDiscriminator: "text")]
+public abstract record SamplingMessageContent;
+public record SamplingTextContent(string Text) : SamplingMessageContent;
+
+public record SamplingMessage(SamplingMessageContent Content, string Role);
+
+public record CreateMessageRequestParams(
+    List<SamplingMessage> Messages,
+    int MaxTokens,
+    string? IncludeContext = null,
+    JsonElement? Metadata = null,
+    ModelPreferences? ModelPreferences = null,
+    List<string>? StopSequences = null,
+    string? SystemPrompt = null,
+    double? Temperature = null);
+
+public record CreateMessageResult(CreateMessageResultContent Content, string Model, string Role, string? StopReason);
+
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "type")]
+[JsonDerivedType(typeof(CreateMessageTextContent), typeDiscriminator: "text")]
+public abstract record CreateMessageResultContent;
+public record CreateMessageTextContent(string Text) : CreateMessageResultContent;
 

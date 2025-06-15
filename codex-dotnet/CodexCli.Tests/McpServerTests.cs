@@ -80,6 +80,12 @@ public class McpServerTests
         body = await resp.Content.ReadAsStringAsync();
         Assert.Contains("demo completion", body);
 
+        var createMsgParams = JsonDocument.Parse("{\"messages\":[{\"role\":\"user\",\"content\":{\"text\":\"hi\",\"type\":\"text\"}}],\"maxTokens\":5}");
+        req = new JsonRpcMessage { Method = "sampling/createMessage", Id = JsonSerializer.SerializeToElement(10), Params = createMsgParams.RootElement };
+        resp = await client.PostAsync($"http://localhost:{port}/jsonrpc", new StringContent(JsonSerializer.Serialize(req)));
+        body = await resp.Content.ReadAsStringAsync();
+        Assert.Contains("echo hi", body);
+
         cts.Cancel();
         await serverTask;
     }

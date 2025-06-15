@@ -26,6 +26,7 @@ public static class McpClientCommand
         var listTemplatesOpt = new Option<bool>("--list-templates", description: "List resource templates and exit");
         var setLevelOpt = new Option<string?>("--set-level", description: "Set server log level");
         var completeOpt = new Option<string?>("--complete", description: "Completion prefix");
+        var createMsgOpt = new Option<string?>("--create-message", description: "Text for sampling/createMessage");
         var addPromptNameOpt = new Option<string?>("--add-prompt-name", description: "Name of prompt to add");
         var addPromptMsgOpt = new Option<string?>("--add-prompt-message", description: "System message for prompt");
         var subscribeOpt = new Option<string?>("--subscribe", description: "Subscribe to resource URI");
@@ -51,6 +52,7 @@ public static class McpClientCommand
         cmd.AddOption(listTemplatesOpt);
         cmd.AddOption(setLevelOpt);
         cmd.AddOption(completeOpt);
+        cmd.AddOption(createMsgOpt);
         cmd.AddOption(addPromptNameOpt);
         cmd.AddOption(addPromptMsgOpt);
         cmd.AddOption(subscribeOpt);
@@ -94,6 +96,7 @@ public static class McpClientCommand
             string? codexPrompt = ctx.ParseResult.GetValueForOption(codexPromptOpt);
             string? codexModel = ctx.ParseResult.GetValueForOption(codexModelOpt);
             string? codexProvider = ctx.ParseResult.GetValueForOption(codexProviderOpt);
+            string? createMessageText = ctx.ParseResult.GetValueForOption(createMsgOpt);
 
             var extraEnv = env.Select(e => e.Split('=', 2)).Where(p => p.Length == 2).ToDictionary(p => p[0], p => p[1]);
             using var client = await McpClient.StartAsync(program, args, extraEnv);
@@ -175,6 +178,13 @@ public static class McpClientCommand
             {
                 var p = new CompleteRequestParams(new CompleteRequestParamsArgument("text", completePrefix), new CompleteRequestParamsRef("mem:/"));
                 var res = await client.CompleteAsync(p, timeout);
+                Console.WriteLine(JsonSerializer.Serialize(res, new JsonSerializerOptions { WriteIndented = json }));
+            }
+            else if (createMessageText != null)
+            {
+                var msg = new SamplingMessage(new SamplingTextContent(createMessageText), "user");
+                var p = new CreateMessageRequestParams(new List<SamplingMessage> { msg }, 100);
+                var res = await client.CreateMessageAsync(p, timeout);
                 Console.WriteLine(JsonSerializer.Serialize(res, new JsonSerializerOptions { WriteIndented = json }));
             }
             else if (call == null)
