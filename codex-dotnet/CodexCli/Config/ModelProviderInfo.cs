@@ -75,6 +75,13 @@ public class ModelProviderInfo
             EnvKey = "GROQ_API_KEY",
             WireApi = WireApi.Chat,
         },
+        ["cohere"] = new ModelProviderInfo
+        {
+            Name = "Cohere",
+            BaseUrl = "https://api.cohere.ai/v1",
+            EnvKey = "COHERE_API_KEY",
+            WireApi = WireApi.Chat,
+        },
         ["perplexity"] = new ModelProviderInfo
         {
             Name = "Perplexity",

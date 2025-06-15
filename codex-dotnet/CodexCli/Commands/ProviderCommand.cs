@@ -12,7 +12,9 @@ public static class ProviderCommand
     public static Command Create(Option<string?> configOption)
     {
         var list = new Command("list", "List available providers");
-        list.SetHandler((string? cfgPath) =>
+        var namesOnlyOpt = new Option<bool>("--names-only", () => false, "Print only provider ids");
+        list.AddOption(namesOnlyOpt);
+        list.SetHandler((string? cfgPath, bool namesOnly) =>
         {
             AppConfig? cfg = null;
             if (!string.IsNullOrEmpty(cfgPath) && File.Exists(cfgPath))
@@ -20,9 +22,12 @@ public static class ProviderCommand
             var providers = cfg?.ModelProviders ?? ModelProviderInfo.BuiltIns;
             foreach (var (id, info) in providers)
             {
-                Console.WriteLine($"{id}\t{info.Name}\t{info.BaseUrl}");
+                if (namesOnly)
+                    Console.WriteLine(id);
+                else
+                    Console.WriteLine($"{id}\t{info.Name}\t{info.BaseUrl}");
             }
-        }, configOption);
+        }, configOption, namesOnlyOpt);
 
         var infoCmd = new Command("info", "Show provider details");
         var idArg = new Argument<string>("id");

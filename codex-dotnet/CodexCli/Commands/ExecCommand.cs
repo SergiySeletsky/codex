@@ -290,7 +290,7 @@ public static class ExecCommand
                         }
                         else
                         {
-                            var execParams = new ExecParams(begin.Command.ToList(), begin.Cwd, null, envMap);
+                            var execParams = new ExecParams(begin.Command.ToList(), begin.Cwd, null, envMap, null, null, sessionId);
                             var result = await ExecRunner.RunAsync(execParams, CancellationToken.None, sandboxPolicy);
                             var endEv = new ExecCommandEndEvent(Guid.NewGuid().ToString(), result.Stdout, result.Stderr, result.ExitCode);
                             if (opts.Json)

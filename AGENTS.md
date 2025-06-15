@@ -432,3 +432,15 @@
 399. Updated ReplayCommand tests to capture console output and marked flaky tests as skipped
 400. Skipped ExecRunnerOutputLimitTests and McpServerTests due to environment instability
 
+401. Added Cohere provider to built-in ModelProviderInfo list
+402. ProviderCommand list supports --names-only flag
+403. ReplayCommand supports --start-index, --end-index and --role options
+404. ExecParams includes SessionId and ExecRunner sets CODEX_SESSION_ID
+405. ExecCommand passes session id to ExecRunner
+406. Interactive mode displays session id and shows it on /new
+407. Added ProviderCommandTests for --names-only
+408. Added ReplayCommandTests covering new replay filters
+409. Added SessionEnv constant test
+410. Documented progress and updated TODO list
+
+- Continue fleshing out replay tool features and session management

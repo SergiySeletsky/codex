@@ -156,6 +156,7 @@ public static class InteractiveCommand
         if (opts.EventLogFile != null)
             logWriter = new StreamWriter(opts.EventLogFile, append: false);
         AnsiConsole.MarkupLine("[green]Codex interactive mode[/]");
+        AnsiConsole.MarkupLine($"Session ID: [yellow]{sessionId}[/]");
         AnsiConsole.MarkupLine("Type /help for commands");
         if (!string.IsNullOrEmpty(opts.Prompt))
         {
@@ -180,7 +181,7 @@ public static class InteractiveCommand
                 history.Clear();
                 SessionManager.ClearHistory(sessionId);
                 sessionId = SessionManager.CreateSession();
-                AnsiConsole.MarkupLine("Started new session");
+                AnsiConsole.MarkupLine($"Started new session [yellow]{sessionId}[/]");
                 continue;
             }
             if (prompt.Equals("/help", StringComparison.OrdinalIgnoreCase))

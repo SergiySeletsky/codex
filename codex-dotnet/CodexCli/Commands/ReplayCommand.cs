@@ -11,24 +11,33 @@ public static class ReplayCommand
         var fileArg = new Argument<FileInfo>("file", "Rollout JSONL file to replay");
         var jsonOpt = new Option<bool>("--json", description: "Output JSON lines");
         var messagesOpt = new Option<bool>("--messages-only", description: "Only print assistant and user messages");
+        var startOpt = new Option<int?>("--start-index", "Start index of messages to replay");
+        var endOpt = new Option<int?>("--end-index", "End index of messages to replay (inclusive)");
+        var roleOpt = new Option<string?>("--role", "Filter messages by role");
         var cmd = new Command("replay", "Replay a rollout conversation")
         {
             fileArg
         };
         cmd.AddOption(jsonOpt);
         cmd.AddOption(messagesOpt);
-        cmd.SetHandler(async (FileInfo file, bool json, bool messagesOnly) =>
+        cmd.AddOption(startOpt);
+        cmd.AddOption(endOpt);
+        cmd.AddOption(roleOpt);
+        cmd.SetHandler(async (FileInfo file, bool json, bool messagesOnly, int? startIndex, int? endIndex, string? role) =>
         {
+            int index = 0;
             await foreach (var item in RolloutReplayer.ReplayAsync(file.FullName))
             {
+                if (startIndex != null && index < startIndex.Value) { index++; continue; }
+                if (endIndex != null && index > endIndex.Value) break;
                 if (json)
                 {
                     Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(item, item.GetType()));
-                    continue;
+                    index++; continue;
                 }
 
-                if (messagesOnly && item is not MessageItem)
-                    continue;
+                if (messagesOnly && item is not MessageItem) { index++; continue; }
+                if (role != null && item is MessageItem mm && mm.Role != role) { index++; continue; }
 
                 switch (item)
                 {
@@ -51,8 +60,9 @@ public static class ReplayCommand
                         Console.WriteLine(item.GetType().Name);
                         break;
                 }
+                index++;
             }
-        }, fileArg, jsonOpt, messagesOpt);
+        }, fileArg, jsonOpt, messagesOpt, startOpt, endOpt, roleOpt);
         return cmd;
     }
 }

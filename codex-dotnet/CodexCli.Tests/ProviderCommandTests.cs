@@ -24,6 +24,22 @@ public class ProviderCommandTests
     }
 
     [Fact]
+    public void ListNamesOnly()
+    {
+        var root = new RootCommand();
+        var cfgOpt = new Option<string?>("--config");
+        root.AddOption(cfgOpt);
+        root.AddCommand(ProviderCommand.Create(cfgOpt));
+        var parser = new Parser(root);
+        var output = new StringWriter();
+        Console.SetOut(output);
+        parser.Invoke("provider list --names-only");
+        var text = output.ToString();
+        Assert.DoesNotContain("OpenAI", text);
+        Assert.Contains("openai", text);
+    }
+
+    [Fact]
     public void AddRemoveProvider()
     {
         var tmp = Path.GetTempFileName();

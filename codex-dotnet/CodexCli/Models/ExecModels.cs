@@ -6,7 +6,8 @@ public record ExecParams(
     int? TimeoutMs,
     Dictionary<string,string> Env,
     int? MaxOutputBytes = null,
-    int? MaxOutputLines = null);
+    int? MaxOutputLines = null,
+    string? SessionId = null);
 
 public record ExecToolCallOutput(int ExitCode, string Stdout, string Stderr, TimeSpan Duration);
 

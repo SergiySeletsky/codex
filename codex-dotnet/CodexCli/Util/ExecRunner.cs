@@ -6,6 +6,7 @@ namespace CodexCli.Util;
 public static class ExecRunner
 {
     public const string NetworkDisabledEnv = "CODEX_SANDBOX_NETWORK_DISABLED";
+    public const string SessionEnv = "CODEX_SESSION_ID";
     private const int DefaultMaxOutputBytes = 10 * 1024;
     private const int DefaultMaxOutputLines = 256;
 
@@ -23,6 +24,8 @@ public static class ExecRunner
             psi.ArgumentList.Add(p.Command[i]);
         foreach (var (k,v) in p.Env)
             psi.Environment[k] = v;
+        if (p.SessionId != null)
+            psi.Environment[SessionEnv] = p.SessionId;
 
         if (policy != null && !policy.HasFullNetworkAccess())
             psi.Environment[NetworkDisabledEnv] = "1";
