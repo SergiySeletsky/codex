@@ -3,6 +3,7 @@ using System.CommandLine.Invocation;
 using CodexCli.Util;
 using System.Text.Json;
 using System.Linq;
+using System;
 
 namespace CodexCli.Commands;
 
@@ -18,6 +19,8 @@ public static class McpClientCommand
         var envOpt = new Option<string[]>("--env", description: "Extra VAR=VAL pairs", getDefaultValue: () => Array.Empty<string>());
         var pingOpt = new Option<bool>("--ping", description: "Send ping request and exit");
         var listRootsOpt = new Option<bool>("--list-roots", description: "List server roots and exit");
+        var addRootOpt = new Option<string?>("--add-root", description: "Add root directory");
+        var removeRootOpt = new Option<string?>("--remove-root", description: "Remove root directory");
         var readResOpt = new Option<string?>("--read-resource", description: "URI to read from server");
         var writeResUriOpt = new Option<string?>("--write-resource-uri", description: "URI to write on server");
         var writeResTextOpt = new Option<string?>("--write-resource-text", description: "Text for resource");
@@ -31,6 +34,11 @@ public static class McpClientCommand
         var addPromptMsgOpt = new Option<string?>("--add-prompt-message", description: "System message for prompt");
         var addMessageOpt = new Option<string?>("--add-message", description: "Message text to store");
         var getMessageOpt = new Option<int?>("--get-message", description: "Fetch stored message by offset");
+        var listMessagesOpt = new Option<bool>("--list-messages", description: "List all stored messages");
+        var countMessagesOpt = new Option<bool>("--count-messages", description: "Print number of stored messages");
+        var clearMessagesOpt = new Option<bool>("--clear-messages", description: "Delete all stored messages");
+        var searchMessagesOpt = new Option<string?>("--search-messages", description: "Search messages for term");
+        var lastMessagesOpt = new Option<int?>("--last-messages", description: "Show last N messages");
         var subscribeOpt = new Option<string?>("--subscribe", description: "Subscribe to resource URI");
         var unsubscribeOpt = new Option<string?>("--unsubscribe", description: "Unsubscribe from resource URI");
         var eventsUrlOpt = new Option<string?>("--events-url", description: "Stream events from server URL");
@@ -46,6 +54,8 @@ public static class McpClientCommand
         cmd.AddOption(envOpt);
         cmd.AddOption(pingOpt);
         cmd.AddOption(listRootsOpt);
+        cmd.AddOption(addRootOpt);
+        cmd.AddOption(removeRootOpt);
         cmd.AddOption(readResOpt);
         cmd.AddOption(writeResUriOpt);
         cmd.AddOption(writeResTextOpt);
@@ -59,6 +69,11 @@ public static class McpClientCommand
         cmd.AddOption(addPromptMsgOpt);
         cmd.AddOption(addMessageOpt);
         cmd.AddOption(getMessageOpt);
+        cmd.AddOption(listMessagesOpt);
+        cmd.AddOption(countMessagesOpt);
+        cmd.AddOption(clearMessagesOpt);
+        cmd.AddOption(searchMessagesOpt);
+        cmd.AddOption(lastMessagesOpt);
         cmd.AddOption(subscribeOpt);
         cmd.AddOption(unsubscribeOpt);
         cmd.AddOption(eventsUrlOpt);
@@ -82,6 +97,8 @@ public static class McpClientCommand
             string[] env = ctx.ParseResult.GetValueForOption(envOpt) ?? Array.Empty<string>();
             bool ping = ctx.ParseResult.GetValueForOption(pingOpt);
             bool listRoots = ctx.ParseResult.GetValueForOption(listRootsOpt);
+            string? addRoot = ctx.ParseResult.GetValueForOption(addRootOpt);
+            string? removeRoot = ctx.ParseResult.GetValueForOption(removeRootOpt);
             string? readResource = ctx.ParseResult.GetValueForOption(readResOpt);
             string? writeUri = ctx.ParseResult.GetValueForOption(writeResUriOpt);
             string? writeText = ctx.ParseResult.GetValueForOption(writeResTextOpt);
@@ -94,6 +111,11 @@ public static class McpClientCommand
             string? addPromptMsg = ctx.ParseResult.GetValueForOption(addPromptMsgOpt);
             string? addMessage = ctx.ParseResult.GetValueForOption(addMessageOpt);
             int? getMessage = ctx.ParseResult.GetValueForOption(getMessageOpt);
+            bool listMessages = ctx.ParseResult.GetValueForOption(listMessagesOpt);
+            bool countMessages = ctx.ParseResult.GetValueForOption(countMessagesOpt);
+            bool clearMessages = ctx.ParseResult.GetValueForOption(clearMessagesOpt);
+            string? searchMessages = ctx.ParseResult.GetValueForOption(searchMessagesOpt);
+            int? lastMessages = ctx.ParseResult.GetValueForOption(lastMessagesOpt);
             string? subscribeUri = ctx.ParseResult.GetValueForOption(subscribeOpt);
             string? unsubscribeUri = ctx.ParseResult.GetValueForOption(unsubscribeOpt);
             string? eventsUrl = ctx.ParseResult.GetValueForOption(eventsUrlOpt);
@@ -114,8 +136,8 @@ public static class McpClientCommand
 
             if (watchEvents && eventsUrl != null)
             {
-                await foreach (var line in McpEventStream.ReadLinesAsync(eventsUrl))
-                    Console.WriteLine(line);
+                await foreach (var ev in McpEventStream.ReadEventsAsync(eventsUrl))
+                    Console.WriteLine(JsonSerializer.Serialize(ev));
                 return;
             }
 
@@ -128,6 +150,16 @@ public static class McpClientCommand
             {
                 var roots = await client.ListRootsAsync(timeout);
                 Console.WriteLine(JsonSerializer.Serialize(roots, new JsonSerializerOptions { WriteIndented = json }));
+            }
+            else if (addRoot != null)
+            {
+                await client.AddRootAsync(addRoot, timeout);
+                Console.WriteLine("ok");
+            }
+            else if (removeRoot != null)
+            {
+                await client.RemoveRootAsync(removeRoot, timeout);
+                Console.WriteLine("ok");
             }
             else if (listPrompts)
             {
@@ -172,6 +204,31 @@ public static class McpClientCommand
             else if (getMessage != null)
             {
                 var res = await client.GetMessageEntryAsync(getMessage.Value, timeout);
+                Console.WriteLine(JsonSerializer.Serialize(res, new JsonSerializerOptions { WriteIndented = json }));
+            }
+            else if (listMessages)
+            {
+                var res = await client.ListMessagesAsync(timeout);
+                Console.WriteLine(JsonSerializer.Serialize(res, new JsonSerializerOptions { WriteIndented = json }));
+            }
+            else if (countMessages)
+            {
+                var res = await client.CountMessagesAsync(timeout);
+                Console.WriteLine(JsonSerializer.Serialize(res, new JsonSerializerOptions { WriteIndented = json }));
+            }
+            else if (clearMessages)
+            {
+                await client.ClearMessagesAsync(timeout);
+                Console.WriteLine("ok");
+            }
+            else if (searchMessages != null)
+            {
+                var res = await client.SearchMessagesAsync(searchMessages, 10, timeout);
+                Console.WriteLine(JsonSerializer.Serialize(res, new JsonSerializerOptions { WriteIndented = json }));
+            }
+            else if (lastMessages != null)
+            {
+                var res = await client.LastMessagesAsync(lastMessages.Value, timeout);
                 Console.WriteLine(JsonSerializer.Serialize(res, new JsonSerializerOptions { WriteIndented = json }));
             }
             else if (subscribeUri != null)

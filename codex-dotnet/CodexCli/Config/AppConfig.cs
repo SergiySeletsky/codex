@@ -123,7 +123,7 @@ public class AppConfig
                 {
                     var sc = new McpServerConfig(
                         sd.TryGetValue("command", out var c) ? c?.ToString() ?? string.Empty : string.Empty,
-                        sd.TryGetValue("args", out var a) && a is object[] argArr ? argArr.Select(o => o?.ToString() ?? string.Empty).ToList() : new List<string>(),
+                        sd.TryGetValue("args", out var a) && a is IEnumerable<object> argsArr ? argsArr.Select(o => o?.ToString() ?? string.Empty).ToList() : new List<string>(),
                         sd.TryGetValue("env", out var e) && e is IDictionary<string, object?> envd ? envd.ToDictionary(kv => kv.Key, kv => kv.Value?.ToString() ?? string.Empty) : null);
                     cfg.McpServers[name] = sc;
                 }

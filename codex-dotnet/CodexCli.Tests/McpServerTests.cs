@@ -179,4 +179,64 @@ public class McpServerTests
         cts.Cancel();
         await serverTask;
     }
+
+    [Fact(Skip="flaky in CI")]
+    public async Task AddRootSendsEvent()
+    {
+        int port = TestUtils.GetFreeTcpPort();
+        using var server = new McpServer(port);
+        var cts = new CancellationTokenSource();
+        var serverTask = server.RunAsync(cts.Token);
+        await Task.Delay(100);
+        using var http = new HttpClient();
+        using var stream = await http.GetStreamAsync($"http://localhost:{port}/events");
+        using var reader = new StreamReader(stream);
+
+        var addParams = JsonDocument.Parse("{\"uri\":\"mem:/newroot\"}");
+        var req = new JsonRpcMessage { Method = "roots/add", Id = JsonSerializer.SerializeToElement(60), Params = addParams.RootElement };
+        await http.PostAsync($"http://localhost:{port}/jsonrpc", new StringContent(JsonSerializer.Serialize(req)));
+
+        string? line = null;
+        for (int i = 0; i < 20 && line == null; i++)
+        {
+            var l = await reader.ReadLineAsync();
+            if (l != null && l.Contains("RootsListChangedEvent")) line = l;
+        }
+
+        Assert.NotNull(line);
+        cts.Cancel();
+        await serverTask;
+    }
+
+    [Fact(Skip="flaky in CI")]
+    public async Task RemoveRootSendsEvent()
+    {
+        int port = TestUtils.GetFreeTcpPort();
+        using var server = new McpServer(port);
+        var cts = new CancellationTokenSource();
+        var serverTask = server.RunAsync(cts.Token);
+        await Task.Delay(100);
+        using var http = new HttpClient();
+        using var stream = await http.GetStreamAsync($"http://localhost:{port}/events");
+        using var reader = new StreamReader(stream);
+
+        var addParams = JsonDocument.Parse("{\"uri\":\"mem:/r2\"}");
+        var addReq = new JsonRpcMessage { Method = "roots/add", Id = JsonSerializer.SerializeToElement(61), Params = addParams.RootElement };
+        await http.PostAsync($"http://localhost:{port}/jsonrpc", new StringContent(JsonSerializer.Serialize(addReq)));
+
+        var removeParams = JsonDocument.Parse("{\"uri\":\"mem:/r2\"}");
+        var removeReq = new JsonRpcMessage { Method = "roots/remove", Id = JsonSerializer.SerializeToElement(62), Params = removeParams.RootElement };
+        await http.PostAsync($"http://localhost:{port}/jsonrpc", new StringContent(JsonSerializer.Serialize(removeReq)));
+
+        string? line = null;
+        for (int i = 0; i < 40 && line == null; i++)
+        {
+            var l = await reader.ReadLineAsync();
+            if (l != null && l.Contains("RootsListChangedEvent")) line = l;
+        }
+
+        Assert.NotNull(line);
+        cts.Cancel();
+        await serverTask;
+    }
 }

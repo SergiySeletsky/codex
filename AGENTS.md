@@ -530,4 +530,53 @@
 490. Implemented new command and utilities using connection manager
 491. McpConnectionManager exposes HasServer helper
 492. Documented progress and updated TODO list
-493. TODO next run: integrate connection manager with ExecCommand and extend tests
+493. Added --mcp-server option to ExecCommand and ExecOptions
+494. Updated ExecBinder and tests to bind new option
+495. ExecCommand now uses McpConnectionManager when mcp-server specified
+496. Implemented basic Codex tool call via manager returning agent message
+497. Improved AppConfig parser to handle args arrays generically
+498. Build and tests executed (tests pass with many skipped)
+499. Documented progress and updated TODO list
+500. TODO next run: refine MCP integration and handle SSE events
+501. Added --events-url and --watch-events options to ExecCommand
+502. ExecOptions extended with EventsUrl and WatchEvents
+503. ExecBinder binds new options with tests
+504. ExecCommand streams events via McpEventStream when events-url provided
+505. CallTool executed concurrently while streaming events
+506. ExecBinderTests verify events-url and watch-events binding
+507. Updated docs with progress
+508. Build and tests executed (tests pass with many skipped)
+509. TODO next run: improve SSE event handling robustness
+510. TODO future: migrate remaining MCP utilities
+511. Improved McpEventStream.ReadLinesAsync to handle multiline events and HTTP streaming
+512. ExecCommand now streams events concurrently with tool call
+513. ReplayCommand, McpClientCommand and McpManagerCommand stream events via McpEventStream
+514. Updated tests for McpEventStream to use new parser
+515. Build and tests executed (tests pass with many skipped)
+516. TODO next run: implement additional MCP utilities
+522. TODO next run: port more MCP server endpoints and improve tests
+517. Added ListServers and ListToolsAsync helpers in McpConnectionManager
+518. McpManagerCommand list command accepts --server and new servers subcommand
+519. McpEventStream.ReadLinesAsync now ignores comments and id/event fields
+520. Added unit tests for new manager utilities and SSE parser
+521. Documented progress and updated TODO list
+522. Implemented message listing, counting, clearing, searching and tailing endpoints in McpServer
+523. Extended McpClient with ListMessagesAsync, CountMessagesAsync, ClearMessagesAsync, SearchMessagesAsync and LastMessagesAsync
+524. Added CLI options in McpClientCommand for new message APIs
+525. Created unit tests covering message API endpoints
+526. Installed .NET 8 SDK during build and ran build/tests (tests aborted)
+527. Documented progress and updated TODO list
+528. Added RootsListChangedEvent model and mapping in ResponseItemFactory
+529. McpServer now stores roots and supports roots/add endpoint emitting event
+530. Extended McpClient with AddRootAsync helper
+531. McpClientCommand accepts --add-root option
+532. Added unit test verifying roots/add endpoint and event
+533. Created CrossCliCompatTests comparing .NET and Rust CLI versions (skipped)
+534. Updated docs with progress
+535. TODO next run: finalize remaining MCP features and stabilize cross-language tests
+
+536. Added roots/remove endpoint and RemoveRootAsync client helper
+537. McpClientCommand supports --remove-root option
+538. Added unit test verifying roots/remove endpoint
+539. Documented progress and updated TODO list
+540. TODO next run: improve cross-language tests and migrate remaining rust features

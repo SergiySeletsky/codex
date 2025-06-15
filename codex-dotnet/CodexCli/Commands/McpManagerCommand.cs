@@ -2,6 +2,7 @@ using System.CommandLine;
 using System.Text.Json;
 using CodexCli.Config;
 using CodexCli.Util;
+using System;
 
 namespace CodexCli.Commands;
 
@@ -15,16 +16,30 @@ public static class McpManagerCommand
 
         var jsonOpt = new Option<bool>("--json", "Output JSON");
 
-        var listCmd = new Command("list", "List all tools from configured servers");
+        var serverOpt = new Option<string?>("--server", "Only list tools from the specified server");
+
+        var listCmd = new Command("list", "List tools from configured servers");
         listCmd.AddOption(eventsUrlOpt);
         listCmd.AddOption(watchOpt);
         listCmd.AddOption(jsonOpt);
-        listCmd.SetHandler(async (string? configPath, string? eventsUrl, bool watch, bool json) =>
+        listCmd.AddOption(serverOpt);
+        listCmd.SetHandler(async (string? configPath, string? eventsUrl, bool watch, bool json, string? server) =>
         {
             var cfg = configPath != null ? AppConfig.Load(configPath) : new AppConfig();
             var (mgr, _) = await McpConnectionManager.CreateAsync(cfg.McpServers);
             await mgr.RefreshToolsAsync();
-            var tools = mgr.ListAllTools();
+            Dictionary<string, Tool> tools;
+            if (server != null)
+            {
+                tools = new();
+                foreach (var t in await mgr.ListToolsAsync(server))
+                    tools[McpConnectionManager.FullyQualifiedToolName(server, t.Name)] = t;
+            }
+            else
+            {
+                tools = mgr.ListAllTools();
+            }
+
             if (json)
             {
                 Console.WriteLine(JsonSerializer.Serialize(tools.Keys));
@@ -36,10 +51,23 @@ public static class McpManagerCommand
             }
             if (watch && eventsUrl != null)
             {
-                await foreach (var line in McpEventStream.ReadLinesAsync(eventsUrl))
-                    Console.WriteLine(line);
+                await foreach (var ev in McpEventStream.ReadEventsAsync(eventsUrl))
+                    Console.WriteLine(JsonSerializer.Serialize(ev));
             }
-        }, configOption, eventsUrlOpt, watchOpt, jsonOpt);
+            if (watch && eventsUrl != null)
+            {
+                await foreach (var ev in McpEventStream.ReadEventsAsync(eventsUrl))
+                    Console.WriteLine(JsonSerializer.Serialize(ev));
+            }
+        }, configOption, eventsUrlOpt, watchOpt, jsonOpt, serverOpt);
+
+        var serversCmd = new Command("servers", "List configured server names");
+        serversCmd.SetHandler((string? configPath) =>
+        {
+            var cfg = configPath != null ? AppConfig.Load(configPath) : new AppConfig();
+            var (mgr, _) = McpConnectionManager.CreateAsync(cfg.McpServers).Result;
+            foreach (var s in mgr.ListServers()) Console.WriteLine(s);
+        }, configOption);
 
         var callCmd = new Command("call", "Call a tool using fully-qualified name");
         var nameArg = new Argument<string>("name");
@@ -65,6 +93,7 @@ public static class McpManagerCommand
         root.AddOption(configOption);
         root.AddCommand(listCmd);
         root.AddCommand(callCmd);
+        root.AddCommand(serversCmd);
         return root;
     }
 }

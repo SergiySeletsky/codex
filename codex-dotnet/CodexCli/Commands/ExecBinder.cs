@@ -37,6 +37,9 @@ public class ExecBinder : BinderBase<ExecOptions>
     private readonly Option<string[]> _envInclude;
     private readonly Option<int?> _docMaxBytes;
     private readonly Option<string?> _docPath;
+    private readonly Option<string?> _mcpServer;
+    private readonly Option<string?> _eventsUrl;
+    private readonly Option<bool> _watchEvents;
 
     public ExecBinder(Argument<string?> prompt, Option<FileInfo[]> images, Option<string?> model,
         Option<string?> profile, Option<string?> provider, Option<bool> fullAuto,
@@ -48,7 +51,8 @@ public class ExecBinder : BinderBase<ExecOptions>
         Option<bool> noProjectDoc, Option<bool> json, Option<string?> eventLog,
         Option<ShellEnvironmentPolicyInherit?> envInherit, Option<bool?> envIgnore,
         Option<string[]> envExclude, Option<string[]> envSet, Option<string[]> envInclude,
-        Option<int?> docMaxBytes, Option<string?> docPath)
+        Option<int?> docMaxBytes, Option<string?> docPath, Option<string?> mcpServer,
+        Option<string?> eventsUrl, Option<bool> watchEvents)
     {
         _prompt = prompt;
         _images = images;
@@ -80,6 +84,9 @@ public class ExecBinder : BinderBase<ExecOptions>
         _envInclude = envInclude;
         _docMaxBytes = docMaxBytes;
         _docPath = docPath;
+        _mcpServer = mcpServer;
+        _eventsUrl = eventsUrl;
+        _watchEvents = watchEvents;
     }
 
     protected override ExecOptions GetBoundValue(BindingContext bindingContext)
@@ -118,7 +125,10 @@ public class ExecBinder : BinderBase<ExecOptions>
             bindingContext.ParseResult.GetValueForOption(_envSet) ?? Array.Empty<string>(),
             bindingContext.ParseResult.GetValueForOption(_envInclude) ?? Array.Empty<string>(),
             bindingContext.ParseResult.GetValueForOption(_docMaxBytes),
-            bindingContext.ParseResult.GetValueForOption(_docPath)
+            bindingContext.ParseResult.GetValueForOption(_docPath),
+            bindingContext.ParseResult.GetValueForOption(_mcpServer),
+            bindingContext.ParseResult.GetValueForOption(_eventsUrl),
+            bindingContext.ParseResult.GetValueForOption(_watchEvents)
         );
     }
 }
