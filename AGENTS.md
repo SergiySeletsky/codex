@@ -375,6 +375,9 @@
 352. ExecRunner sets network-disabled env when sandbox restricts network
 353. ExecCommand passes sandbox policy to ExecRunner
 354. Added SandboxPolicy and ExecRunner tests
+355. Implemented polymorphic JSON serialization for ResponseItem models
+356. RolloutRecorder now implements IAsyncDisposable with proper flushing
+357. Updated RolloutRecorderFileTests and SandboxPolicyTests
 
 ## TODO Next Run
 - Continue porting remaining Rust CLI features
@@ -385,3 +388,4 @@
 - Continue integrating new utilities into commands
 - Add more MCP client features and tests
 - Implement remaining sandbox enforcement logic
+- Finalize JSON serialization schema and update tests

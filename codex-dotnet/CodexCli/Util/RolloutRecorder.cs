@@ -4,7 +4,7 @@ using CodexCli.Models;
 
 namespace CodexCli.Util;
 
-public class RolloutRecorder
+public class RolloutRecorder : IAsyncDisposable
 {
     private readonly StreamWriter _writer;
 
@@ -29,9 +29,15 @@ public class RolloutRecorder
     {
         foreach (var item in items)
         {
-            var json = JsonSerializer.Serialize(item);
+            var json = JsonSerializer.Serialize(item, item.GetType());
             await _writer.WriteLineAsync(json);
         }
         await _writer.FlushAsync();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await _writer.FlushAsync();
+        await _writer.DisposeAsync();
     }
 }
