@@ -2,6 +2,7 @@ namespace CodexCli.Models;
 
 using System.Text.Json.Serialization;
 using System.Linq;
+using System.Text.Json;
 
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "type")]
 [JsonDerivedType(typeof(MessageItem), typeDiscriminator: "message")]
@@ -31,6 +32,21 @@ public static class ResponseItemFactory
                 new MessageItem("assistant", new List<ContentItem>{ new("output_text", tc.LastAgentMessage) }) : new OtherItem(),
             _ => null
         };
+
+    public static ResponseItem? FromJson(string json)
+    {
+        ResponseItem? item = null;
+        try { item = JsonSerializer.Deserialize<ResponseItem>(json); }
+        catch { }
+        if (item != null) return item;
+        try
+        {
+            var ev = JsonSerializer.Deserialize<CodexCli.Protocol.Event>(json);
+            if (ev != null) return FromEvent(ev);
+        }
+        catch { }
+        return null;
+    }
 }
 
 public record ContentItem(
