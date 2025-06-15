@@ -1,4 +1,5 @@
 using System.CommandLine;
+using System.CommandLine.Invocation;
 using CodexCli.Util;
 using CodexCli.Models;
 
@@ -11,10 +12,13 @@ public static class ReplayCommand
         var fileArg = new Argument<FileInfo?>("file", () => null, "Rollout JSONL file to replay");
         var jsonOpt = new Option<bool>("--json", description: "Output JSON lines");
         var messagesOpt = new Option<bool>("--messages-only", description: "Only print assistant and user messages");
+        var showSystemOpt = new Option<bool>("--show-system", () => false, "Include system messages");
+        var maxItemsOpt = new Option<int?>("--max-items", "Maximum items to output");
         var startOpt = new Option<int?>("--start-index", "Start index of messages to replay");
         var endOpt = new Option<int?>("--end-index", "End index of messages to replay (inclusive)");
         var roleOpt = new Option<string?>("--role", "Filter messages by role");
         var sessionOpt = new Option<string?>("--session", "Session id to replay");
+        var latestOpt = new Option<bool>("--latest", "Replay latest session");
         var followOpt = new Option<bool>("--follow", "Follow file for new lines");
         var cmd = new Command("replay", "Replay a rollout conversation")
         {
@@ -22,13 +26,28 @@ public static class ReplayCommand
         };
         cmd.AddOption(jsonOpt);
         cmd.AddOption(messagesOpt);
+        cmd.AddOption(showSystemOpt);
+        cmd.AddOption(maxItemsOpt);
         cmd.AddOption(startOpt);
         cmd.AddOption(endOpt);
         cmd.AddOption(roleOpt);
         cmd.AddOption(sessionOpt);
+        cmd.AddOption(latestOpt);
         cmd.AddOption(followOpt);
-        cmd.SetHandler(async (FileInfo? file, bool json, bool messagesOnly, int? startIndex, int? endIndex, string? role, string? session, bool follow) =>
+        cmd.SetHandler(async (InvocationContext ctx) =>
         {
+            var file = ctx.ParseResult.GetValueForArgument(fileArg);
+            var json = ctx.ParseResult.GetValueForOption(jsonOpt);
+            var messagesOnly = ctx.ParseResult.GetValueForOption(messagesOpt);
+            var showSystem = ctx.ParseResult.GetValueForOption(showSystemOpt);
+            var maxItems = ctx.ParseResult.GetValueForOption(maxItemsOpt);
+            var startIndex = ctx.ParseResult.GetValueForOption(startOpt);
+            var endIndex = ctx.ParseResult.GetValueForOption(endOpt);
+            var role = ctx.ParseResult.GetValueForOption(roleOpt);
+            var session = ctx.ParseResult.GetValueForOption(sessionOpt);
+            var latest = ctx.ParseResult.GetValueForOption(latestOpt);
+            var follow = ctx.ParseResult.GetValueForOption(followOpt);
+
             var path = file?.FullName;
             if (path == null && session != null)
             {
@@ -40,12 +59,23 @@ public static class ReplayCommand
                     return;
                 }
             }
-            if (path == null) { Console.Error.WriteLine("File or --session required"); return; }
+            if (path == null && latest)
+            {
+                var latestId = SessionManager.GetLatestSessionId();
+                if (latestId != null)
+                {
+                    var dir = Path.Combine(EnvUtils.FindCodexHome(), "sessions");
+                    path = Directory.GetFiles(dir, $"rollout-*-{latestId}.jsonl").FirstOrDefault();
+                }
+            }
+
+            if (path == null) { Console.Error.WriteLine("File or --session/--latest required"); return; }
             int index = 0;
             await foreach (var item in RolloutReplayer.ReplayAsync(path, follow))
             {
                 if (startIndex != null && index < startIndex.Value) { index++; continue; }
                 if (endIndex != null && index > endIndex.Value) break;
+                if (maxItems != null && index - (startIndex ?? 0) >= maxItems.Value) break;
                 if (json)
                 {
                     Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(item, item.GetType()));
@@ -53,6 +83,7 @@ public static class ReplayCommand
                 }
 
                 if (messagesOnly && item is not MessageItem) { index++; continue; }
+                if (!showSystem && item is MessageItem mm2 && mm2.Role == "system") { index++; continue; }
                 if (role != null && item is MessageItem mm && mm.Role != role) { index++; continue; }
 
                 switch (item)
@@ -78,7 +109,7 @@ public static class ReplayCommand
                 }
                 index++;
             }
-        }, fileArg, jsonOpt, messagesOpt, startOpt, endOpt, roleOpt, sessionOpt, followOpt);
+        });
         return cmd;
     }
 }

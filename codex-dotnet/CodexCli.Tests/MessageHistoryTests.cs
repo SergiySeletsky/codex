@@ -29,4 +29,19 @@ public class MessageHistoryTests
         Assert.Equal(0, meta2.Count);
         Directory.Delete(dir, true);
     }
+
+    [Fact]
+    public async Task SessionStats()
+    {
+        var dir = Path.Combine(Path.GetTempPath(), "mh" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(dir);
+        var cfg = new AppConfig { CodexHome = dir };
+        await MessageHistory.AppendEntryAsync("a", "s1", cfg);
+        await MessageHistory.AppendEntryAsync("b", "s2", cfg);
+        await MessageHistory.AppendEntryAsync("c", "s1", cfg);
+        var stats = await MessageHistory.SessionStatsAsync(cfg);
+        Assert.Equal(2, stats["s1"]);
+        Assert.Equal(1, stats["s2"]);
+        Directory.Delete(dir, true);
+    }
 }

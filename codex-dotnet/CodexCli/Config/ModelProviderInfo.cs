@@ -82,6 +82,13 @@ public class ModelProviderInfo
             EnvKey = "COHERE_API_KEY",
             WireApi = WireApi.Chat,
         },
+        ["lmstudio"] = new ModelProviderInfo
+        {
+            Name = "LM Studio",
+            BaseUrl = "http://localhost:1234/v1",
+            EnvKey = null,
+            WireApi = WireApi.Chat,
+        },
         ["perplexity"] = new ModelProviderInfo
         {
             Name = "Perplexity",

@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System;
+using System.Linq;
 using System.IO;
 using CodexCli.Config;
 
@@ -84,6 +85,11 @@ public static class SessionManager
             var start = GetStartTime(id) ?? File.GetCreationTimeUtc(GetHistoryFile(id)!);
             yield return (id, start);
         }
+    }
+
+    public static string? GetLatestSessionId()
+    {
+        return ListSessionsWithInfo().OrderByDescending(t => t.Start).Select(t => t.Id).FirstOrDefault();
     }
 
     public static string? GetHistoryEntry(string id, int offset)

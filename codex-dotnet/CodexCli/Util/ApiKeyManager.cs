@@ -52,4 +52,17 @@ public static class ApiKeyManager
 
     public static string? LoadDefaultKey()
         => Environment.GetEnvironmentVariable(DefaultEnvKey);
+
+    public static bool DeleteKey(string provider)
+    {
+        if (!File.Exists(AuthFile)) return false;
+        try
+        {
+            var map = JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(AuthFile)) ?? new();
+            var removed = map.Remove(provider);
+            File.WriteAllText(AuthFile, JsonSerializer.Serialize(map));
+            return removed;
+        }
+        catch { return false; }
+    }
 }

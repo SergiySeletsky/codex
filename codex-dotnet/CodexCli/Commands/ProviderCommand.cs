@@ -13,8 +13,10 @@ public static class ProviderCommand
     {
         var list = new Command("list", "List available providers");
         var namesOnlyOpt = new Option<bool>("--names-only", () => false, "Print only provider ids");
+        var verboseOpt = new Option<bool>("--verbose", () => false, "Include env key instructions");
         list.AddOption(namesOnlyOpt);
-        list.SetHandler((string? cfgPath, bool namesOnly) =>
+        list.AddOption(verboseOpt);
+        list.SetHandler((string? cfgPath, bool namesOnly, bool verbose) =>
         {
             AppConfig? cfg = null;
             if (!string.IsNullOrEmpty(cfgPath) && File.Exists(cfgPath))
@@ -25,9 +27,18 @@ public static class ProviderCommand
                 if (namesOnly)
                     Console.WriteLine(id);
                 else
+                {
                     Console.WriteLine($"{id}\t{info.Name}\t{info.BaseUrl}");
+                    if (verbose)
+                    {
+                        if (!string.IsNullOrEmpty(info.EnvKey))
+                            Console.WriteLine($"  env: {info.EnvKey}");
+                        if (!string.IsNullOrEmpty(info.EnvKeyInstructions))
+                            Console.WriteLine($"  {info.EnvKeyInstructions}");
+                    }
+                }
             }
-        }, configOption, namesOnlyOpt);
+        }, configOption, namesOnlyOpt, verboseOpt);
 
         var infoCmd = new Command("info", "Show provider details");
         var idArg = new Argument<string>("id");
@@ -141,6 +152,17 @@ public static class ProviderCommand
             Console.WriteLine($"Saved API key for {id}");
         }, loginId, keyOpt);
 
+        var logoutCmd = new Command("logout", "Remove API key for a provider");
+        var logoutId = new Argument<string>("id");
+        logoutCmd.AddArgument(logoutId);
+        logoutCmd.SetHandler((string id) =>
+        {
+            if (ApiKeyManager.DeleteKey(id))
+                Console.WriteLine($"Removed API key for {id}");
+            else
+                Console.WriteLine($"No stored API key for {id}");
+        }, logoutId);
+
         var cmd = new Command("provider", "Provider utilities");
         cmd.AddCommand(list);
         cmd.AddCommand(infoCmd);
@@ -149,6 +171,7 @@ public static class ProviderCommand
         cmd.AddCommand(removeCmd);
         cmd.AddCommand(setCmd);
         cmd.AddCommand(loginCmd);
+        cmd.AddCommand(logoutCmd);
         return cmd;
     }
 }

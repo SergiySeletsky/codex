@@ -146,6 +146,15 @@ public static class HistoryCommand
                 Console.WriteLine(line);
         });
 
+        var statsCmd = new Command("stats", "Show message counts per session");
+        statsCmd.SetHandler(async () =>
+        {
+            var cfg = new AppConfig();
+            var stats = await MessageHistory.SessionStatsAsync(cfg);
+            foreach (var kv in stats)
+                Console.WriteLine($"{kv.Key} {kv.Value}");
+        });
+
         var root = new Command("history", "Manage session history");
         root.AddCommand(listCmd);
         root.AddCommand(showCmd);
@@ -162,6 +171,7 @@ public static class HistoryCommand
         root.AddCommand(msgLastCmd);
         root.AddCommand(msgCountCmd);
         root.AddCommand(msgWatchCmd);
+        root.AddCommand(statsCmd);
         return root;
     }
 }

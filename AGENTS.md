@@ -455,3 +455,14 @@
 420. Documented progress and updated TODO list
 
 - Continue fleshing out replay tool features and session management
+
+421. Added "lmstudio" to ModelProviderInfo built-ins
+422. Provider list gains --verbose and new logout subcommand
+423. Implemented ApiKeyManager.DeleteKey helper
+424. ReplayCommand supports --latest, --show-system and --max-items options
+425. SessionManager exposes GetLatestSessionId
+426. MessageHistory.SessionStatsAsync returns per-session counts
+427. HistoryCommand stats subcommand prints message counts
+428. Added unit tests for new provider commands, replay options and stats (skipped)
+429. Documented progress and updated TODO list
+430. TODO next run: refine replay output formatting and migrate remaining MCP utilities
