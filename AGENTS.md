@@ -350,6 +350,12 @@
 327. Implemented CodexWrapper wrapper for RealCodexAgent
 328. Added Backoff and SignalUtils helpers
 329. Implemented OpenAiTools helper
+330. Added ExecParams and ExecToolCallOutput models
+331. Implemented ExecRunner utility for running shell commands with timeout and output limits
+332. Added ShellToolCallParams model
+333. Implemented RolloutReplayer for conversation playback
+334. Created unit tests for ExecRunner
+335. Created unit tests for RolloutReplayer
 
 ## TODO Next Run
 - Continue porting remaining Rust CLI features
@@ -357,3 +363,4 @@
 - Flesh out CodexToolRunner with real Codex integration
 - Port remaining core utilities from Rust such as conversation replay
 - Expand unit tests for new utilities
+- Integrate ExecRunner into commands and continue porting CLI features
