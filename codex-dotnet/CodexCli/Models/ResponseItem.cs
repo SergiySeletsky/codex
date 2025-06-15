@@ -26,6 +26,9 @@ public static class ResponseItemFactory
             CodexCli.Protocol.ExecCommandEndEvent ec => new LocalShellCallItem(null, ec.Id, LocalShellStatus.Completed, new LocalShellAction(new LocalShellExecAction(new List<string>(), null, string.Empty))),
             CodexCli.Protocol.McpToolCallBeginEvent mb => new FunctionCallItem(mb.Tool, mb.ArgumentsJson ?? string.Empty, mb.Id),
             CodexCli.Protocol.McpToolCallEndEvent me => new FunctionCallOutputItem(me.Id, new FunctionCallOutputPayload(me.ResultJson, me.IsSuccess)),
+            CodexCli.Protocol.TaskStartedEvent ts => new OtherItem(),
+            CodexCli.Protocol.TaskCompleteEvent tc => tc.LastAgentMessage != null ?
+                new MessageItem("assistant", new List<ContentItem>{ new("output_text", tc.LastAgentMessage) }) : new OtherItem(),
             _ => null
         };
 }

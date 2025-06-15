@@ -22,4 +22,22 @@ public class ResponseItemFactoryTests
         Assert.NotNull(item);
         Assert.Equal(LocalShellStatus.InProgress, item!.Status);
     }
+
+    [Fact]
+    public void MapsTaskComplete()
+    {
+        var ev = new TaskCompleteEvent("id", "done");
+        var item = ResponseItemFactory.FromEvent(ev) as MessageItem;
+        Assert.NotNull(item);
+        Assert.Equal("assistant", item!.Role);
+        Assert.Contains("done", item.Content[0].Text);
+    }
+
+    [Fact]
+    public void MapsTaskStarted()
+    {
+        var ev = new TaskStartedEvent("id");
+        var item = ResponseItemFactory.FromEvent(ev);
+        Assert.IsType<OtherItem>(item);
+    }
 }

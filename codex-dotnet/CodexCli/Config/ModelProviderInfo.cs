@@ -75,6 +75,13 @@ public class ModelProviderInfo
             EnvKey = "GROQ_API_KEY",
             WireApi = WireApi.Chat,
         },
+        ["perplexity"] = new ModelProviderInfo
+        {
+            Name = "Perplexity",
+            BaseUrl = "https://api.perplexity.ai",
+            EnvKey = "PERPLEXITY_API_KEY",
+            WireApi = WireApi.Chat,
+        },
         ["anthropic"] = new ModelProviderInfo
         {
             Name = "Anthropic",

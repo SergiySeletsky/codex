@@ -405,4 +405,14 @@
 371. Added unit test for RolloutReplayer item parsing
 372. Added ResponseItemFactoryTests verifying event mapping
 373. Updated ReplayCommand and utilities to use new parser (TODO future work)
+374. Added Perplexity provider to ModelProviderInfo built-ins
+375. Introduced ApiKeyManager.DefaultEnvKey constant and env fallback logic
+376. ResponseItemFactory now maps TaskStarted and TaskComplete events
+377. ReplayCommand prints parsed response items in human-readable form
+378. McpServer implements IAsyncDisposable for graceful shutdown
+379. Added ApiKeyManager.LoadDefaultKey helper
+380. Created ReplayCommandTests validating message output
+381. Added ApiKeyManagerTests covering env fallback
+382. Extended ResponseItemFactoryTests for new event types
+383. Documented progress and updated TODO list
 
