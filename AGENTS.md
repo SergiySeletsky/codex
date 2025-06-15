@@ -284,9 +284,64 @@
 260. Added messages-watch subcommand to history command
 261. Implemented MessageHistory.WatchEntriesAsync API
 262. Added unit tests for project doc limit and message watching
+263. Introduced McpServer handling JSON-RPC over HTTP with initialize, ping, tools/list and tools/call
+264. McpCommand now runs McpServer instance
+265. Added PingAsync to McpClient and --ping option to mcp-client command
+266. Created McpServerTests verifying initialize and list tools
+267. Added TestUtils helper for free TCP port lookup
+268. Added minimal event broadcasting API in McpServer
+269. Added stub handlers for resources, prompts, subscribe and logging requests in McpServer
+270. Extended McpClient with methods for new MCP requests
+271. Added record types for resources, prompts and completion results
+272. Added prompts/list test to McpServerTests
+273. Added CodexToolRunner placeholder with event emission
+274. McpServer now handles tools/call via CodexToolRunner
+275. Added CreateResponse helper and refactored request dispatch
+276. Implemented CallCodexAsync helper in McpClient
+277. Added codex tool-call test in McpServerTests
+278. Added CodexToolCallParam record for codex configuration
+279. McpServer returns structured responses for various requests
+280. Expanded AGENTS.md with new features and todo list
+281. Implemented stub Codex events streaming to /events clients
+282. Updated tests and build
+283. Added roots/list handler in McpServer with default root
+284. Implemented simple in-memory resource store and resources/list & resources/read handlers
+285. Tools/list now returns basic schema for codex tool
+286. SSE events are now JSON serialized for clients
+287. Added Root and ListRootsResult records and ListRootsAsync in McpClient
+288. McpClientCommand gained --list-roots and --read-resource options
+289. Added unit tests covering roots/list and resource APIs
+290. Updated McpServerTests to verify new endpoints
+291. Documented new progress and updated TODO list
+292. MCP server now emits demo resource for testing
+293. Added prompt storage with sample prompt
+294. Prompts/list and prompts/get now return stored data
+295. Resource templates listing implemented with demo template
+296. Added resources/write endpoint with disk persistence
+297. Implemented logging/setLevel handler storing value
+298. Added completion/complete handler returning stub completion
+299. McpClient exposes WriteResourceAsync and WriteResourceRequestParams
+300. McpClientCommand supports prompts, templates, resource writing, log level and completion options
+301. Updated McpServerTests with coverage for new features
+302. Documented progress and updated TODO list
+304. Added resource list change and update events
+305. Implemented subscribe/unsubscribe tracking
+306. Initialization response now includes protocol version and capabilities
+307. McpClient exposes SubscribeAsync and UnsubscribeAsync
+308. McpClientCommand supports subscribe and unsubscribe options
+309. McpServerTests verify initialization result fields
+310. Added subscription test using SSE events
+311. Introduced PromptListChangedEvent, ToolListChangedEvent and LoggingMessageEvent
+312. McpServer persists prompts to disk in mcp-prompts.json
+313. Added prompts/add request storing a new prompt
+314. McpServer emits PromptListChangedEvent when a prompt is added
+315. Added LoggingMessageEvent emission on logging/setLevel
+316. McpClient exposes AddPromptAsync and AddPromptRequestParams
+317. McpClientCommand supports --add-prompt-name and --add-prompt-message options
+318. Added unit test verifying prompts/add triggers SSE event
+319. Documented new progress and TODO items
 
 ## TODO Next Run
-- Port more Rust CLI features
-- Investigate hanging tests and fix
-- Expand MCP client functionality and add more protocol tests
-- Implement remaining MCP server features
+- Continue porting remaining Rust CLI features
+- Investigate hanging tests and fix missing API key issues
+- Flesh out CodexToolRunner with real Codex integration
