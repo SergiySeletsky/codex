@@ -1,5 +1,6 @@
 
 using System.Collections.Generic;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace CodexCli.Protocol;
@@ -28,6 +29,8 @@ namespace CodexCli.Protocol;
 [JsonDerivedType(typeof(PromptListChangedEvent), "prompt_list_changed")]
 [JsonDerivedType(typeof(ToolListChangedEvent), "tool_list_changed")]
 [JsonDerivedType(typeof(LoggingMessageEvent), "logging_message")]
+[JsonDerivedType(typeof(CancelledNotificationEvent), "cancelled")]
+[JsonDerivedType(typeof(ProgressNotificationEvent), "progress")]
 public abstract record Event(string Id);
 
 public record AgentMessageEvent(string Id, string Message) : Event(Id);
@@ -61,3 +64,5 @@ public record ResourceListChangedEvent(string Id) : Event(Id);
 public record PromptListChangedEvent(string Id) : Event(Id);
 public record ToolListChangedEvent(string Id) : Event(Id);
 public record LoggingMessageEvent(string Id, string Message) : Event(Id);
+public record CancelledNotificationEvent(string Id, string? Reason, JsonElement RequestId) : Event(Id);
+public record ProgressNotificationEvent(string Id, string? Message, double Progress, JsonElement ProgressToken, double? Total) : Event(Id);

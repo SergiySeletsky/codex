@@ -505,4 +505,9 @@
 466. McpEventStream now exposes ReadItemsAsync producing ResponseItems
 467. Added test for ReadItemsAsync (skipped)
 468. Installed .NET SDK and attempted build/tests (tests timed out)
-- Continue porting remaining MCP utilities and stabilising tests
+469. Added CancelledNotificationEvent and ProgressNotificationEvent models
+470. ResponseItemFactory maps new events to MessageItem
+471. McpServer emits progress notifications during resource writes
+472. Added unit tests for progress event emission and mapping
+473. Documented progress and updated TODO list
+474. TODO next run: port more MCP utilities and stabilise tests

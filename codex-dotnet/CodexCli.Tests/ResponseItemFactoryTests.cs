@@ -1,6 +1,7 @@
 using CodexCli.Models;
 using CodexCli.Protocol;
 using System.Collections.Generic;
+using System.Text.Json;
 using Xunit;
 
 public class ResponseItemFactoryTests
@@ -57,5 +58,15 @@ public class ResponseItemFactoryTests
         var item = ResponseItemFactory.FromEvent(ev) as MessageItem;
         Assert.NotNull(item);
         Assert.Contains("file.txt", item!.Content[0].Text);
+    }
+
+    [Fact]
+    public void MapsProgressNotification()
+    {
+        var token = JsonDocument.Parse("0").RootElement;
+        var ev = new ProgressNotificationEvent("id", "half", 0.5, token, 1.0);
+        var item = ResponseItemFactory.FromEvent(ev) as MessageItem;
+        Assert.NotNull(item);
+        Assert.Contains("Progress", item!.Content[0].Text);
     }
 }

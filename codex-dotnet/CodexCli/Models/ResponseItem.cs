@@ -39,6 +39,8 @@ public static class ResponseItemFactory
             CodexCli.Protocol.PromptListChangedEvent => new OtherItem(),
             CodexCli.Protocol.ToolListChangedEvent => new OtherItem(),
             CodexCli.Protocol.LoggingMessageEvent lm => new MessageItem("system", new List<ContentItem>{ new("output_text", lm.Message) }),
+            CodexCli.Protocol.CancelledNotificationEvent cn => new MessageItem("system", new List<ContentItem>{ new("output_text", $"Request {cn.RequestId} cancelled: {cn.Reason}") }),
+            CodexCli.Protocol.ProgressNotificationEvent pn => new MessageItem("system", new List<ContentItem>{ new("output_text", $"Progress {pn.Progress}") }),
             _ => null
         };
 

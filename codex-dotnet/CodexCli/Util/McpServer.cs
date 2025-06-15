@@ -212,6 +212,7 @@ public class McpServer : IDisposable, IAsyncDisposable
         var text = t.GetString() ?? string.Empty;
         if (uri == null) return CreateResponse(id, new { });
         bool added = !_resources.ContainsKey(uri);
+        EmitEvent(new ProgressNotificationEvent(Guid.NewGuid().ToString(), "write", 0.0, JsonDocument.Parse("0").RootElement, 1.0));
         _resources[uri] = text;
         var path = UriToPath(uri);
         if (path != null)
@@ -220,6 +221,7 @@ public class McpServer : IDisposable, IAsyncDisposable
             await File.WriteAllTextAsync(path, text);
         }
         SaveResources();
+        EmitEvent(new ProgressNotificationEvent(Guid.NewGuid().ToString(), "write", 1.0, JsonDocument.Parse("0").RootElement, 1.0));
         if (added) EmitEvent(new ResourceListChangedEvent(Guid.NewGuid().ToString()));
         if (_subscriptions.Contains(uri))
             EmitEvent(new ResourceUpdatedEvent(Guid.NewGuid().ToString(), uri));
