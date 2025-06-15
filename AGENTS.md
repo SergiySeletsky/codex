@@ -304,11 +304,21 @@
 280. Expanded AGENTS.md with new features and todo list
 281. Implemented stub Codex events streaming to /events clients
 282. Updated tests and build
+283. Added roots/list handler in McpServer with default root
+284. Implemented simple in-memory resource store and resources/list & resources/read handlers
+285. Tools/list now returns basic schema for codex tool
+286. SSE events are now JSON serialized for clients
+287. Added Root and ListRootsResult records and ListRootsAsync in McpClient
+288. McpClientCommand gained --list-roots and --read-resource options
+289. Added unit tests covering roots/list and resource APIs
+290. Updated McpServerTests to verify new endpoints
+291. Documented new progress and updated TODO list
+292. MCP server now emits demo resource for testing
 
 ## TODO Next Run
 - Continue porting remaining Rust CLI features
 - Investigate hanging tests and fix missing API key issues
-- Expand MCP client functionality and protocol tests
 - Flesh out CodexToolRunner with real Codex integration
-- Implement resource management APIs in McpServer
-- Implement codex tool runner for tools/call
+- Persist resources to disk and implement update APIs
+- Add more MCP protocol tests covering logging and completion
+- Improve initialization result with capabilities

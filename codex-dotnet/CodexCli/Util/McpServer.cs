@@ -1,5 +1,7 @@
 using System.Net;
 using System.Text.Json;
+using System.IO;
+using System.Linq;
 using CodexCli.Protocol;
 
 namespace CodexCli.Util;
@@ -8,10 +10,15 @@ public class McpServer : IDisposable
 {
     private readonly HttpListener _listener = new();
     private readonly List<StreamWriter> _eventClients = new();
+    private readonly Dictionary<string, string> _resources = new();
+    private readonly string _root;
 
     public McpServer(int port)
     {
         _listener.Prefixes.Add($"http://localhost:{port}/");
+        _root = Directory.GetCurrentDirectory();
+        // simple in-memory resource store for demo purposes
+        _resources["mem:/demo.txt"] = "Hello from MCP";
     }
 
     public async Task RunAsync(CancellationToken cancellationToken = default)
@@ -69,11 +76,12 @@ public class McpServer : IDisposable
         {
             "initialize" => Task.FromResult(CreateResponse(id, new { server = "codex-mcp" })),
             "ping" => Task.FromResult(CreateResponse(id, new { })),
-            "tools/list" => Task.FromResult(CreateResponse(id, new { tools = new[] { new { name = "codex" } } })),
+            "tools/list" => Task.FromResult(CreateResponse(id, new { tools = new[] { CreateCodexTool() } })),
             "tools/call" => HandleCallToolAsync(req),
-            "resources/list" => Task.FromResult(CreateResponse(id, new { resources = Array.Empty<object>(), nextCursor = (string?)null })),
+            "roots/list" => Task.FromResult(CreateResponse(id, new { roots = new[] { new { uri = _root } } })),
+            "resources/list" => Task.FromResult(CreateResponse(id, new { resources = _resources.Keys.Select(u => new { name = Path.GetFileName(u), uri = u, kind = "file" }), nextCursor = (string?)null })),
             "resources/templates/list" => Task.FromResult(CreateResponse(id, new { resourceTemplates = Array.Empty<object>(), nextCursor = (string?)null })),
-            "resources/read" => Task.FromResult(CreateResponse(id, new { })),
+            "resources/read" => HandleReadResourceAsync(req),
             "resources/subscribe" => Task.FromResult(CreateResponse(id, new { })),
             "resources/unsubscribe" => Task.FromResult(CreateResponse(id, new { })),
             "prompts/list" => Task.FromResult(CreateResponse(id, new { prompts = Array.Empty<object>(), nextCursor = (string?)null })),
@@ -123,6 +131,30 @@ public class McpServer : IDisposable
         return CreateResponse(id, result);
     }
 
+    private Task<JsonRpcMessage> HandleReadResourceAsync(JsonRpcMessage req)
+    {
+        var id = req.Id ?? JsonDocument.Parse("0").RootElement;
+        if (req.Params == null) return Task.FromResult(CreateResponse(id, new { contents = Array.Empty<object>() }));
+        string? uri = null;
+        if (req.Params.Value.TryGetProperty("uri", out var u)) uri = u.GetString();
+        if (uri == null || !_resources.TryGetValue(uri, out var text))
+            return Task.FromResult(CreateResponse(id, new { contents = Array.Empty<object>() }));
+        var result = new { contents = new[] { new { text } } };
+        return Task.FromResult(CreateResponse(id, result));
+    }
+
+    private static object CreateCodexTool() => new
+    {
+        name = "codex",
+        inputSchema = new
+        {
+            type = "object",
+            properties = new { prompt = new { type = "string" } },
+            required = new[] { "prompt" }
+        },
+        description = "Run a Codex session."
+    };
+
     private static JsonRpcMessage CreateResponse(JsonElement id, object result) =>
         new()
         {
@@ -132,7 +164,8 @@ public class McpServer : IDisposable
 
     public void EmitEvent(Event ev)
     {
-        var line = $"data: {ev.GetType().Name}\n\n";
+        var json = JsonSerializer.Serialize(ev);
+        var line = $"data: {json}\n\n";
         lock (_eventClients)
         {
             foreach (var w in _eventClients.ToList())

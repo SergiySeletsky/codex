@@ -127,6 +127,9 @@ public class McpClient : IDisposable
     public Task<ListToolsResult> ListToolsAsync(ListToolsRequestParams? p = null, int timeoutSeconds = 10)
         => SendRequestAsync<ListToolsResult>("tools/list", p, timeoutSeconds);
 
+    public Task<ListRootsResult> ListRootsAsync(int timeoutSeconds = 10)
+        => SendRequestAsync<ListRootsResult>("roots/list", null, timeoutSeconds);
+
     public Task<CallToolResult> CallToolAsync(string name, JsonElement? arguments = null, int timeoutSeconds = 10)
     {
         var p = new CallToolRequestParams(name, arguments);
@@ -189,6 +192,9 @@ public record ToolInputSchema(JsonElement? Properties, List<string>? Required, s
 public record ToolAnnotations(bool? DestructiveHint, bool? IdempotentHint, bool? OpenWorldHint, bool? ReadOnlyHint, string? Title);
 public record Tool(string Name, ToolInputSchema InputSchema, string? Description, ToolAnnotations? Annotations);
 public record ListToolsResult(string? NextCursor, List<Tool> Tools);
+
+public record Root(string? Name, string Uri);
+public record ListRootsResult(List<Root> Roots);
 public record CallToolRequestParams(
     [property: JsonPropertyName("name")] string Name,
     [property: JsonPropertyName("arguments")] JsonElement? Arguments);

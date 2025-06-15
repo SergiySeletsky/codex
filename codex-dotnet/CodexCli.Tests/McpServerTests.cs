@@ -28,6 +28,22 @@ public class McpServerTests
         body = await resp.Content.ReadAsStringAsync();
         Assert.Contains("prompts", body);
 
+        req = new JsonRpcMessage { Method = "roots/list", Id = JsonSerializer.SerializeToElement(30) };
+        resp = await client.PostAsync($"http://localhost:{port}/jsonrpc", new StringContent(JsonSerializer.Serialize(req)));
+        body = await resp.Content.ReadAsStringAsync();
+        Assert.Contains("roots", body);
+
+        req = new JsonRpcMessage { Method = "resources/list", Id = JsonSerializer.SerializeToElement(31) };
+        resp = await client.PostAsync($"http://localhost:{port}/jsonrpc", new StringContent(JsonSerializer.Serialize(req)));
+        body = await resp.Content.ReadAsStringAsync();
+        Assert.Contains("demo.txt", body);
+
+        var readParams = JsonDocument.Parse("{\"uri\":\"mem:/demo.txt\"}");
+        req = new JsonRpcMessage { Method = "resources/read", Id = JsonSerializer.SerializeToElement(32), Params = readParams.RootElement };
+        resp = await client.PostAsync($"http://localhost:{port}/jsonrpc", new StringContent(JsonSerializer.Serialize(req)));
+        body = await resp.Content.ReadAsStringAsync();
+        Assert.Contains("Hello from MCP", body);
+
         var callJson = JsonDocument.Parse("{\"name\":\"codex\",\"arguments\":{\"prompt\":\"hi\"}}");
         req = new JsonRpcMessage { Method = "tools/call", Id = JsonSerializer.SerializeToElement(4), Params = callJson.RootElement };
         resp = await client.PostAsync($"http://localhost:{port}/jsonrpc", new StringContent(JsonSerializer.Serialize(req)));
