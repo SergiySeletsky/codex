@@ -3,6 +3,8 @@ using CodexCli.Protocol;
 
 using CodexCli.Config;
 
+// Port of codex-rs/core/src/mcp_connection_manager.rs (done)
+
 namespace CodexCli.Util;
 
 public record McpServerConfig(string Command, List<string> Args, Dictionary<string,string>? Env);
@@ -108,6 +110,44 @@ public class McpConnectionManager
         if(!_clients.TryGetValue(server, out var client))
             throw new InvalidOperationException($"unknown MCP server '{server}'");
         await client.RemoveRootAsync(uri);
+    }
+
+    // Methods below map to codex-rs/core/src/mcp_connection_manager.rs message helpers
+    // (C# version done)
+
+    public async Task<MessagesResult> ListMessagesAsync(string server)
+    {
+        if(!_clients.TryGetValue(server, out var client))
+            throw new InvalidOperationException($"unknown MCP server '{server}'");
+        return await client.ListMessagesAsync();
+    }
+
+    public async Task<CountMessagesResult> CountMessagesAsync(string server)
+    {
+        if(!_clients.TryGetValue(server, out var client))
+            throw new InvalidOperationException($"unknown MCP server '{server}'");
+        return await client.CountMessagesAsync();
+    }
+
+    public async Task ClearMessagesAsync(string server)
+    {
+        if(!_clients.TryGetValue(server, out var client))
+            throw new InvalidOperationException($"unknown MCP server '{server}'");
+        await client.ClearMessagesAsync();
+    }
+
+    public async Task<MessagesResult> SearchMessagesAsync(string server, string term)
+    {
+        if(!_clients.TryGetValue(server, out var client))
+            throw new InvalidOperationException($"unknown MCP server '{server}'");
+        return await client.SearchMessagesAsync(term);
+    }
+
+    public async Task<MessagesResult> LastMessagesAsync(string server, int count)
+    {
+        if(!_clients.TryGetValue(server, out var client))
+            throw new InvalidOperationException($"unknown MCP server '{server}'");
+        return await client.LastMessagesAsync(count);
     }
 
     public static string FullyQualifiedToolName(string server, string tool) => $"{server}{Delimiter}{tool}";

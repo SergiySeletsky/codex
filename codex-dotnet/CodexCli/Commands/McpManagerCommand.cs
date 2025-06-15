@@ -134,6 +134,71 @@ public static class McpManagerCommand
         rootsCmd.AddCommand(rootsAdd);
         rootsCmd.AddCommand(rootsRemove);
         root.AddCommand(rootsCmd);
+
+        // messages subcommand derived from codex-rs mcp-cli (C# version done)
+        var msgCmd = new Command("messages", "Manage messages on a server");
+        var msgServerOpt = new Option<string>("--server", "Server name");
+        var termArg = new Argument<string>("term", () => string.Empty);
+        var countArg = new Argument<int>("n", () => 10);
+
+        var msgList = new Command("list", "List messages");
+        msgList.AddOption(msgServerOpt);
+        msgList.SetHandler(async (string? cfgPath, string server) =>
+        {
+            var cfg = cfgPath != null ? AppConfig.Load(cfgPath) : new AppConfig();
+            var (mgr, _) = await McpConnectionManager.CreateAsync(cfg.McpServers);
+            var res = await mgr.ListMessagesAsync(server);
+            foreach (var m in res.Messages) Console.WriteLine(m);
+        }, configOption, msgServerOpt);
+
+        var msgCount = new Command("count", "Count messages");
+        msgCount.AddOption(msgServerOpt);
+        msgCount.SetHandler(async (string? cfgPath, string server) =>
+        {
+            var cfg = cfgPath != null ? AppConfig.Load(cfgPath) : new AppConfig();
+            var (mgr, _) = await McpConnectionManager.CreateAsync(cfg.McpServers);
+            var res = await mgr.CountMessagesAsync(server);
+            Console.WriteLine(res.Count);
+        }, configOption, msgServerOpt);
+
+        var msgClear = new Command("clear", "Clear messages");
+        msgClear.AddOption(msgServerOpt);
+        msgClear.SetHandler(async (string? cfgPath, string server) =>
+        {
+            var cfg = cfgPath != null ? AppConfig.Load(cfgPath) : new AppConfig();
+            var (mgr, _) = await McpConnectionManager.CreateAsync(cfg.McpServers);
+            await mgr.ClearMessagesAsync(server);
+            Console.WriteLine("ok");
+        }, configOption, msgServerOpt);
+
+        var msgSearch = new Command("search", "Search messages");
+        msgSearch.AddOption(msgServerOpt);
+        msgSearch.AddArgument(termArg);
+        msgSearch.SetHandler(async (string? cfgPath, string server, string term) =>
+        {
+            var cfg = cfgPath != null ? AppConfig.Load(cfgPath) : new AppConfig();
+            var (mgr, _) = await McpConnectionManager.CreateAsync(cfg.McpServers);
+            var res = await mgr.SearchMessagesAsync(server, term);
+            foreach (var m in res.Messages) Console.WriteLine(m);
+        }, configOption, msgServerOpt, termArg);
+
+        var msgLast = new Command("last", "Show last N messages");
+        msgLast.AddOption(msgServerOpt);
+        msgLast.AddArgument(countArg);
+        msgLast.SetHandler(async (string? cfgPath, string server, int n) =>
+        {
+            var cfg = cfgPath != null ? AppConfig.Load(cfgPath) : new AppConfig();
+            var (mgr, _) = await McpConnectionManager.CreateAsync(cfg.McpServers);
+            var res = await mgr.LastMessagesAsync(server, n);
+            foreach (var m in res.Messages) Console.WriteLine(m);
+        }, configOption, msgServerOpt, countArg);
+
+        msgCmd.AddCommand(msgList);
+        msgCmd.AddCommand(msgCount);
+        msgCmd.AddCommand(msgClear);
+        msgCmd.AddCommand(msgSearch);
+        msgCmd.AddCommand(msgLast);
+        root.AddCommand(msgCmd);
         return root;
     }
 }

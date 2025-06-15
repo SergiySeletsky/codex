@@ -588,3 +588,9 @@
 546. TODO next run: expand manager features and stabilise cross-language tests
 547. Added cross-language CLI tests for provider listing, history count, server list and roots list
 548. TODO next run: implement remaining Rust features in .NET and unskip compatibility tests
+549. Added message management helpers in McpConnectionManager
+550. Introduced `messages` subcommand in McpManagerCommand with list/count/clear/search/last
+551. Created cross-language CLI tests for message count and list
+552. Documented progress and updated TODO list
+553. TODO next run: port more CLI features from Rust such as prompt management
+554. TODO next run: enable cross-language tests once environment stable
