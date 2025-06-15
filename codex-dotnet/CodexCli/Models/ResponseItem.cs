@@ -1,6 +1,7 @@
 namespace CodexCli.Models;
 
 using System.Text.Json.Serialization;
+using System.Linq;
 
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "type")]
 [JsonDerivedType(typeof(MessageItem), typeDiscriminator: "message")]
@@ -18,6 +19,13 @@ public static class ResponseItemFactory
         {
             CodexCli.Protocol.AgentMessageEvent am => new MessageItem("assistant", new List<ContentItem>{ new("output_text", am.Message) }),
             CodexCli.Protocol.AddToHistoryEvent ah => new MessageItem("user", new List<ContentItem>{ new("output_text", ah.Text) }),
+            CodexCli.Protocol.AgentReasoningEvent ar => new ReasoningItem(Guid.NewGuid().ToString(), new List<ReasoningItemReasoningSummary>{ new(ar.Text) }),
+            CodexCli.Protocol.BackgroundEvent be => new MessageItem("system", new List<ContentItem>{ new("output_text", be.Message) }),
+            CodexCli.Protocol.ErrorEvent ee => new MessageItem("system", new List<ContentItem>{ new("output_text", ee.Message) }),
+            CodexCli.Protocol.ExecCommandBeginEvent eb => new LocalShellCallItem(null, eb.Id, LocalShellStatus.InProgress, new LocalShellAction(new LocalShellExecAction(eb.Command.ToList(), null, eb.Cwd))),
+            CodexCli.Protocol.ExecCommandEndEvent ec => new LocalShellCallItem(null, ec.Id, LocalShellStatus.Completed, new LocalShellAction(new LocalShellExecAction(new List<string>(), null, string.Empty))),
+            CodexCli.Protocol.McpToolCallBeginEvent mb => new FunctionCallItem(mb.Tool, mb.ArgumentsJson ?? string.Empty, mb.Id),
+            CodexCli.Protocol.McpToolCallEndEvent me => new FunctionCallOutputItem(me.Id, new FunctionCallOutputPayload(me.ResultJson, me.IsSuccess)),
             _ => null
         };
 }

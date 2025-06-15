@@ -398,4 +398,11 @@
 364. Added ExecPolicy env override unit test
 365. Added NotifyOnSigTerm helper in SignalUtils
 366. Documented progress and updated TODO list
+367. Added Anthropic provider to ModelProviderInfo built-ins
+368. Extended ResponseItemFactory to map reasoning, background, error and exec events
+369. Added MCP tool call mapping to FunctionCallItem and FunctionCallOutputItem
+370. Added RolloutReplayer.ReplayAsync for deserializing rollout items
+371. Added unit test for RolloutReplayer item parsing
+372. Added ResponseItemFactoryTests verifying event mapping
+373. Updated ReplayCommand and utilities to use new parser (TODO future work)
 
