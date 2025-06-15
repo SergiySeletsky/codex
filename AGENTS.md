@@ -621,3 +621,10 @@
 578. Completion request subcommand supports JSON and event streaming
 579. Sampling create-message command prints JSON and events
 580. TODO next run: port remaining CLI features and improve tests
+581. Added --json and event options to `mcp-manager servers` command
+582. Roots add/remove now support JSON output and event watching
+583. Messages add command prints JSON and streams events
+584. Prompts add command outputs JSON and streams events
+585. Resource write/subscribe/unsubscribe return JSON and events
+586. Logging set-level command supports JSON output
+587. TODO next run: stabilize tests and enable cross-language suite
