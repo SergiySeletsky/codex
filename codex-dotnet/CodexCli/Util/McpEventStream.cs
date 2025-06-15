@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using CodexCli.Protocol;
+using CodexCli.Models;
 
 namespace CodexCli.Util;
 
@@ -21,7 +22,7 @@ public static class McpEventStream
         }
     }
 
-    public static async IAsyncEnumerable<Event> ReadEventsAsync(string baseUrl, [EnumeratorCancellation] CancellationToken token = default)
+public static async IAsyncEnumerable<Event> ReadEventsAsync(string baseUrl, [EnumeratorCancellation] CancellationToken token = default)
     {
         await foreach (var json in ReadLinesAsync(baseUrl, token))
         {
@@ -29,6 +30,15 @@ public static class McpEventStream
             try { ev = JsonSerializer.Deserialize<Event>(json); }
             catch { }
             if (ev != null) yield return ev;
+        }
+    }
+
+    public static async IAsyncEnumerable<ResponseItem> ReadItemsAsync(string baseUrl, [EnumeratorCancellation] CancellationToken token = default)
+    {
+        await foreach (var ev in ReadEventsAsync(baseUrl, token))
+        {
+            var item = ResponseItemFactory.FromEvent(ev);
+            if (item != null) yield return item;
         }
     }
 }

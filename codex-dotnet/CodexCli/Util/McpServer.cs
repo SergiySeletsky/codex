@@ -17,6 +17,8 @@ public class McpServer : IDisposable, IAsyncDisposable
     private readonly string _root;
     private readonly string _storagePath;
     private readonly string _promptsPath;
+    private readonly string _messagesPath;
+    private readonly List<string> _messages = new();
     private readonly HashSet<string> _subscriptions = new();
     private string _logLevel = "info";
 
@@ -26,6 +28,7 @@ public class McpServer : IDisposable, IAsyncDisposable
         _root = Directory.GetCurrentDirectory();
         _storagePath = Path.Combine(_root, "mcp-resources.json");
         _promptsPath = Path.Combine(_root, "mcp-prompts.json");
+        _messagesPath = Path.Combine(_root, "mcp-messages.json");
 
         // simple in-memory resource store for demo purposes
         _resources["mem:/demo.txt"] = "Hello from MCP";
@@ -59,10 +62,22 @@ public class McpServer : IDisposable, IAsyncDisposable
             catch { }
         }
 
+        if (File.Exists(_messagesPath))
+        {
+            try
+            {
+                var json = File.ReadAllText(_messagesPath);
+                var loaded = JsonSerializer.Deserialize<List<string>>(json);
+                if (loaded != null) _messages.AddRange(loaded);
+            }
+            catch { }
+        }
+
         _prompts.TryAdd("demo", new List<PromptMessage> { new("system", "Say hello") });
         _templates.Add(new ResourceTemplate("mem:/template.txt", "Demo template"));
         SaveResources();
         SavePrompts();
+        SaveMessages();
     }
 
     public async Task RunAsync(CancellationToken cancellationToken = default)
@@ -145,6 +160,9 @@ public class McpServer : IDisposable, IAsyncDisposable
             "prompts/add" => HandleAddPromptAsync(req),
             "logging/setLevel" => HandleSetLevelAsync(req),
             "completion/complete" => HandleCompleteAsync(req),
+            "sampling/createMessage" => HandleCreateMessageAsync(req),
+            "messages/add" => HandleAddMessageAsync(req),
+            "messages/getEntry" => HandleGetMessageAsync(req),
             _ => Task.FromResult(CreateResponse(id, new { }))
         };
     }
@@ -211,6 +229,7 @@ public class McpServer : IDisposable, IAsyncDisposable
         var text = t.GetString() ?? string.Empty;
         if (uri == null) return CreateResponse(id, new { });
         bool added = !_resources.ContainsKey(uri);
+        EmitEvent(new ProgressNotificationEvent(Guid.NewGuid().ToString(), "write", 0.0, JsonDocument.Parse("0").RootElement, 1.0));
         _resources[uri] = text;
         var path = UriToPath(uri);
         if (path != null)
@@ -219,6 +238,7 @@ public class McpServer : IDisposable, IAsyncDisposable
             await File.WriteAllTextAsync(path, text);
         }
         SaveResources();
+        EmitEvent(new ProgressNotificationEvent(Guid.NewGuid().ToString(), "write", 1.0, JsonDocument.Parse("0").RootElement, 1.0));
         if (added) EmitEvent(new ResourceListChangedEvent(Guid.NewGuid().ToString()));
         if (_subscriptions.Contains(uri))
             EmitEvent(new ResourceUpdatedEvent(Guid.NewGuid().ToString(), uri));
@@ -295,6 +315,47 @@ public class McpServer : IDisposable, IAsyncDisposable
         return Task.FromResult(CreateResponse(id, result));
     }
 
+    private Task<JsonRpcMessage> HandleCreateMessageAsync(JsonRpcMessage req)
+    {
+        var id = req.Id ?? JsonDocument.Parse("0").RootElement;
+        if (req.Params == null)
+            return Task.FromResult(CreateResponse(id, new { content = new { text = string.Empty }, model = "demo", role = "assistant" }));
+        string text = "";
+        if (req.Params.Value.TryGetProperty("messages", out var msgs) && msgs.ValueKind == JsonValueKind.Array && msgs.GetArrayLength() > 0)
+        {
+            var msg0 = msgs[0];
+            if (msg0.TryGetProperty("content", out var c) && c.TryGetProperty("text", out var t))
+                text = t.GetString() ?? "";
+        }
+        var result = new { content = new { text = $"echo {text}" }, model = "demo", role = "assistant", stopReason = (string?)null };
+        return Task.FromResult(CreateResponse(id, result));
+    }
+
+    private Task<JsonRpcMessage> HandleAddMessageAsync(JsonRpcMessage req)
+    {
+        var id = req.Id ?? JsonDocument.Parse("0").RootElement;
+        if (req.Params != null && req.Params.Value.TryGetProperty("text", out var t))
+        {
+            var text = t.GetString() ?? string.Empty;
+            _messages.Add(text);
+            SaveMessages();
+            EmitEvent(new AddToHistoryEvent(Guid.NewGuid().ToString(), text));
+        }
+        return Task.FromResult(CreateResponse(id, new { }));
+    }
+
+    private Task<JsonRpcMessage> HandleGetMessageAsync(JsonRpcMessage req)
+    {
+        var id = req.Id ?? JsonDocument.Parse("0").RootElement;
+        int offset = 0;
+        if (req.Params != null && req.Params.Value.TryGetProperty("offset", out var o))
+            offset = o.GetInt32();
+        string? entry = offset >=0 && offset < _messages.Count ? _messages[offset] : null;
+        EmitEvent(new GetHistoryEntryResponseEvent(Guid.NewGuid().ToString(), "default", offset, entry));
+        var result = new { entry };
+        return Task.FromResult(CreateResponse(id, result));
+    }
+
     private static string? UriToPath(string uri)
         => uri.StartsWith("file:/") ? uri.Substring(6) : null;
 
@@ -314,6 +375,16 @@ public class McpServer : IDisposable, IAsyncDisposable
         {
             var json = JsonSerializer.Serialize(_prompts);
             File.WriteAllText(_promptsPath, json);
+        }
+        catch { }
+    }
+
+    private void SaveMessages()
+    {
+        try
+        {
+            var json = JsonSerializer.Serialize(_messages);
+            File.WriteAllText(_messagesPath, json);
         }
         catch { }
     }

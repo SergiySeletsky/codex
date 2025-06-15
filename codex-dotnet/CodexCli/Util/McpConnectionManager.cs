@@ -18,28 +18,56 @@ public class McpConnectionManager
     {
         var mgr = new McpConnectionManager();
         var errors = new Dictionary<string,Exception>();
-        foreach (var kv in servers)
+        var tasks = servers.Select(async kv =>
         {
             try
             {
                 var client = await McpClient.StartAsync(kv.Value.Command, kv.Value.Args, kv.Value.Env);
-                mgr._clients[kv.Key] = client;
-                var tools = await client.ListToolsAsync();
-                foreach (var t in tools.Tools)
+                lock (mgr)
                 {
-                    var fq = FullyQualifiedToolName(kv.Key, t.Name);
-                    mgr._tools[fq] = t;
+                    mgr._clients[kv.Key] = client;
+                }
+                var tools = await client.ListToolsAsync();
+                lock (mgr)
+                {
+                    foreach (var t in tools.Tools)
+                    {
+                        var fq = FullyQualifiedToolName(kv.Key, t.Name);
+                        mgr._tools[fq] = t;
+                    }
                 }
             }
             catch (Exception ex)
             {
-                errors[kv.Key] = ex;
+                lock (errors) { errors[kv.Key] = ex; }
             }
-        }
+        }).ToList();
+        await Task.WhenAll(tasks);
         return (mgr, errors);
     }
 
+    public async Task RefreshToolsAsync()
+    {
+        var local = _clients.ToArray();
+        var join = local.Select(async kv => (kv.Key, await kv.Value.ListToolsAsync()));
+        var results = await Task.WhenAll(join);
+        lock (this)
+        {
+            _tools.Clear();
+            foreach (var (server, res) in results)
+                foreach (var t in res.Tools)
+                    _tools[FullyQualifiedToolName(server, t.Name)] = t;
+        }
+    }
+
+    public static Task<(McpConnectionManager, Dictionary<string,Exception>)> CreateAsync(AppConfig cfg)
+        => CreateAsync(cfg.McpServers);
+
     public Dictionary<string, Tool> ListAllTools() => new(_tools);
+
+    public IEnumerable<string> GetToolNames() => _tools.Keys.ToList();
+
+    public bool HasServer(string name) => _clients.ContainsKey(name);
 
     public async Task<CallToolResult> CallToolAsync(string fqName, JsonElement? args = null, TimeSpan? timeout = null)
     {

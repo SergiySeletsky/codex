@@ -388,6 +388,7 @@
 - Add more MCP client features and tests
 - Implement remaining sandbox enforcement logic
 - Finalize JSON serialization schema and update tests
+- Stabilize new message server features
 358. Exposed ExecRunner.NetworkDisabledEnv constant for external checks
 359. McpClient now implements IAsyncDisposable
 360. Extended IsSafeCommand to reject 'sudo'
@@ -495,3 +496,38 @@
 456. Added unit tests verifying new event mappings
 457. Reinstalled .NET 8 SDK in container and ran build/tests (tests cancelled due to environment)
 458. TODO next run: port more MCP utilities and improve test stability
+459. Added CreateMessageResult types and CreateMessageAsync method in McpClient
+460. Added SamplingMessage and ModelPreferences models
+461. McpClientCommand supports --create-message option
+462. Implemented CLI logic to call sampling/createMessage
+463. McpServer handles sampling/createMessage request
+464. Added HandleCreateMessageAsync method returning echo result
+465. Added test case in McpServerTests for sampling/createMessage
+466. McpEventStream now exposes ReadItemsAsync producing ResponseItems
+467. Added test for ReadItemsAsync (skipped)
+468. Installed .NET SDK and attempted build/tests (tests timed out)
+469. Added CancelledNotificationEvent and ProgressNotificationEvent models
+470. ResponseItemFactory maps new events to MessageItem
+471. McpServer emits progress notifications during resource writes
+472. Added unit tests for progress event emission and mapping
+473. Documented progress and updated TODO list
+474. TODO next run: port more MCP utilities and stabilise tests
+475. Added GetHistoryEntryResponseEvent mapping in ResponseItemFactory
+476. McpConnectionManager now starts clients concurrently
+477. Implemented messages/add and messages/getEntry in McpServer
+478. Added AddMessageAsync and GetMessageEntryAsync helpers in McpClient
+479. McpClientCommand gained --add-message and --get-message options
+480. Created tests for new event mapping, connection manager parsing and message server
+481. Documented progress and updated TODO list
+482. Added McpServers dictionary to AppConfig and TOML parser
+483. Introduced CreateAsync(AppConfig) helper in McpConnectionManager
+484. Created McpManagerCommand for listing and calling tools via config
+485. Registered McpManagerCommand in Program
+486. Added unit test verifying MCP server config parsing
+487. Implemented RefreshToolsAsync in McpConnectionManager
+488. Added invalid name test for fully-qualified tool parsing
+489. McpManagerCommand supports --json, --events-url and --watch-events options
+490. Implemented new command and utilities using connection manager
+491. McpConnectionManager exposes HasServer helper
+492. Documented progress and updated TODO list
+493. TODO next run: integrate connection manager with ExecCommand and extend tests

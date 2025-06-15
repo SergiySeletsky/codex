@@ -26,8 +26,11 @@ public static class McpClientCommand
         var listTemplatesOpt = new Option<bool>("--list-templates", description: "List resource templates and exit");
         var setLevelOpt = new Option<string?>("--set-level", description: "Set server log level");
         var completeOpt = new Option<string?>("--complete", description: "Completion prefix");
+        var createMsgOpt = new Option<string?>("--create-message", description: "Text for sampling/createMessage");
         var addPromptNameOpt = new Option<string?>("--add-prompt-name", description: "Name of prompt to add");
         var addPromptMsgOpt = new Option<string?>("--add-prompt-message", description: "System message for prompt");
+        var addMessageOpt = new Option<string?>("--add-message", description: "Message text to store");
+        var getMessageOpt = new Option<int?>("--get-message", description: "Fetch stored message by offset");
         var subscribeOpt = new Option<string?>("--subscribe", description: "Subscribe to resource URI");
         var unsubscribeOpt = new Option<string?>("--unsubscribe", description: "Unsubscribe from resource URI");
         var eventsUrlOpt = new Option<string?>("--events-url", description: "Stream events from server URL");
@@ -51,8 +54,11 @@ public static class McpClientCommand
         cmd.AddOption(listTemplatesOpt);
         cmd.AddOption(setLevelOpt);
         cmd.AddOption(completeOpt);
+        cmd.AddOption(createMsgOpt);
         cmd.AddOption(addPromptNameOpt);
         cmd.AddOption(addPromptMsgOpt);
+        cmd.AddOption(addMessageOpt);
+        cmd.AddOption(getMessageOpt);
         cmd.AddOption(subscribeOpt);
         cmd.AddOption(unsubscribeOpt);
         cmd.AddOption(eventsUrlOpt);
@@ -86,6 +92,8 @@ public static class McpClientCommand
             string? completePrefix = ctx.ParseResult.GetValueForOption(completeOpt);
             string? addPromptName = ctx.ParseResult.GetValueForOption(addPromptNameOpt);
             string? addPromptMsg = ctx.ParseResult.GetValueForOption(addPromptMsgOpt);
+            string? addMessage = ctx.ParseResult.GetValueForOption(addMessageOpt);
+            int? getMessage = ctx.ParseResult.GetValueForOption(getMessageOpt);
             string? subscribeUri = ctx.ParseResult.GetValueForOption(subscribeOpt);
             string? unsubscribeUri = ctx.ParseResult.GetValueForOption(unsubscribeOpt);
             string? eventsUrl = ctx.ParseResult.GetValueForOption(eventsUrlOpt);
@@ -94,6 +102,7 @@ public static class McpClientCommand
             string? codexPrompt = ctx.ParseResult.GetValueForOption(codexPromptOpt);
             string? codexModel = ctx.ParseResult.GetValueForOption(codexModelOpt);
             string? codexProvider = ctx.ParseResult.GetValueForOption(codexProviderOpt);
+            string? createMessageText = ctx.ParseResult.GetValueForOption(createMsgOpt);
 
             var extraEnv = env.Select(e => e.Split('=', 2)).Where(p => p.Length == 2).ToDictionary(p => p[0], p => p[1]);
             using var client = await McpClient.StartAsync(program, args, extraEnv);
@@ -155,6 +164,16 @@ public static class McpClientCommand
                 await client.SetLevelAsync(setLevel, timeout);
                 Console.WriteLine("ok");
             }
+            else if (addMessage != null)
+            {
+                await client.AddMessageAsync(addMessage, timeout);
+                Console.WriteLine("ok");
+            }
+            else if (getMessage != null)
+            {
+                var res = await client.GetMessageEntryAsync(getMessage.Value, timeout);
+                Console.WriteLine(JsonSerializer.Serialize(res, new JsonSerializerOptions { WriteIndented = json }));
+            }
             else if (subscribeUri != null)
             {
                 await client.SubscribeAsync(new SubscribeRequestParams(subscribeUri), timeout);
@@ -175,6 +194,13 @@ public static class McpClientCommand
             {
                 var p = new CompleteRequestParams(new CompleteRequestParamsArgument("text", completePrefix), new CompleteRequestParamsRef("mem:/"));
                 var res = await client.CompleteAsync(p, timeout);
+                Console.WriteLine(JsonSerializer.Serialize(res, new JsonSerializerOptions { WriteIndented = json }));
+            }
+            else if (createMessageText != null)
+            {
+                var msg = new SamplingMessage(new SamplingTextContent(createMessageText), "user");
+                var p = new CreateMessageRequestParams(new List<SamplingMessage> { msg }, 100);
+                var res = await client.CreateMessageAsync(p, timeout);
                 Console.WriteLine(JsonSerializer.Serialize(res, new JsonSerializerOptions { WriteIndented = json }));
             }
             else if (call == null)

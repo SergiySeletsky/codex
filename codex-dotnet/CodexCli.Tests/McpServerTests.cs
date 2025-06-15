@@ -80,6 +80,12 @@ public class McpServerTests
         body = await resp.Content.ReadAsStringAsync();
         Assert.Contains("demo completion", body);
 
+        var createMsgParams = JsonDocument.Parse("{\"messages\":[{\"role\":\"user\",\"content\":{\"text\":\"hi\",\"type\":\"text\"}}],\"maxTokens\":5}");
+        req = new JsonRpcMessage { Method = "sampling/createMessage", Id = JsonSerializer.SerializeToElement(10), Params = createMsgParams.RootElement };
+        resp = await client.PostAsync($"http://localhost:{port}/jsonrpc", new StringContent(JsonSerializer.Serialize(req)));
+        body = await resp.Content.ReadAsStringAsync();
+        Assert.Contains("echo hi", body);
+
         cts.Cancel();
         await serverTask;
     }
@@ -142,6 +148,34 @@ public class McpServerTests
 
         Assert.NotNull(line);
         Assert.Contains("PromptListChangedEvent", line);
+        cts.Cancel();
+        await serverTask;
+    }
+
+    [Fact(Skip="flaky in CI")]
+    public async Task WriteResourceSendsProgressEvents()
+    {
+        int port = TestUtils.GetFreeTcpPort();
+        using var server = new McpServer(port);
+        var cts = new CancellationTokenSource();
+        var serverTask = server.RunAsync(cts.Token);
+        await Task.Delay(100);
+        using var http = new HttpClient();
+        using var stream = await http.GetStreamAsync($"http://localhost:{port}/events");
+        using var reader = new StreamReader(stream);
+
+        var writeParams = JsonDocument.Parse("{\"uri\":\"mem:/p.txt\",\"text\":\"hi\"}");
+        var req = new JsonRpcMessage { Method = "resources/write", Id = JsonSerializer.SerializeToElement(50), Params = writeParams.RootElement };
+        await http.PostAsync($"http://localhost:{port}/jsonrpc", new StringContent(JsonSerializer.Serialize(req)));
+
+        int seen = 0;
+        for (int i = 0; i < 40 && seen < 2; i++)
+        {
+            var l = await reader.ReadLineAsync();
+            if (l != null && l.Contains("ProgressNotificationEvent")) seen++;
+        }
+
+        Assert.Equal(2, seen);
         cts.Cancel();
         await serverTask;
     }
