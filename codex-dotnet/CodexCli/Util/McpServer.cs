@@ -166,6 +166,7 @@ public class McpServer : IDisposable, IAsyncDisposable
             "tools/call" => HandleCallToolAsync(req),
             "roots/list" => Task.FromResult(CreateResponse(id, new { roots = _roots.Select(r => new { uri = r }) })),
             "roots/add" => HandleAddRootAsync(req),
+            "roots/remove" => HandleRemoveRootAsync(req),
             "resources/list" => Task.FromResult(CreateResponse(id, new { resources = _resources.Keys.Select(u => new { name = Path.GetFileName(u), uri = u, kind = "file" }), nextCursor = (string?)null })),
             "resources/templates/list" => Task.FromResult(CreateResponse(id, new { resourceTemplates = _templates.Select(t => new { uri = t.Uri, description = t.Description }), nextCursor = (string?)null })),
             "resources/read" => HandleReadResourceAsync(req),
@@ -331,6 +332,23 @@ public class McpServer : IDisposable, IAsyncDisposable
         if (!_roots.Contains(uri))
         {
             _roots.Add(uri);
+            SaveRoots();
+            EmitEvent(new RootsListChangedEvent(Guid.NewGuid().ToString()));
+        }
+        return Task.FromResult(CreateResponse(id, new { }));
+    }
+
+    private Task<JsonRpcMessage> HandleRemoveRootAsync(JsonRpcMessage req)
+    {
+        var id = req.Id ?? JsonDocument.Parse("0").RootElement;
+        if (req.Params == null) return Task.FromResult(CreateResponse(id, new { }));
+        if (!req.Params.Value.TryGetProperty("uri", out var u))
+            return Task.FromResult(CreateResponse(id, new { }));
+        var uri = u.GetString();
+        if (string.IsNullOrEmpty(uri))
+            return Task.FromResult(CreateResponse(id, new { }));
+        if (_roots.Remove(uri))
+        {
             SaveRoots();
             EmitEvent(new RootsListChangedEvent(Guid.NewGuid().ToString()));
         }

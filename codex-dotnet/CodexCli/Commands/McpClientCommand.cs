@@ -20,6 +20,7 @@ public static class McpClientCommand
         var pingOpt = new Option<bool>("--ping", description: "Send ping request and exit");
         var listRootsOpt = new Option<bool>("--list-roots", description: "List server roots and exit");
         var addRootOpt = new Option<string?>("--add-root", description: "Add root directory");
+        var removeRootOpt = new Option<string?>("--remove-root", description: "Remove root directory");
         var readResOpt = new Option<string?>("--read-resource", description: "URI to read from server");
         var writeResUriOpt = new Option<string?>("--write-resource-uri", description: "URI to write on server");
         var writeResTextOpt = new Option<string?>("--write-resource-text", description: "Text for resource");
@@ -54,6 +55,7 @@ public static class McpClientCommand
         cmd.AddOption(pingOpt);
         cmd.AddOption(listRootsOpt);
         cmd.AddOption(addRootOpt);
+        cmd.AddOption(removeRootOpt);
         cmd.AddOption(readResOpt);
         cmd.AddOption(writeResUriOpt);
         cmd.AddOption(writeResTextOpt);
@@ -96,6 +98,7 @@ public static class McpClientCommand
             bool ping = ctx.ParseResult.GetValueForOption(pingOpt);
             bool listRoots = ctx.ParseResult.GetValueForOption(listRootsOpt);
             string? addRoot = ctx.ParseResult.GetValueForOption(addRootOpt);
+            string? removeRoot = ctx.ParseResult.GetValueForOption(removeRootOpt);
             string? readResource = ctx.ParseResult.GetValueForOption(readResOpt);
             string? writeUri = ctx.ParseResult.GetValueForOption(writeResUriOpt);
             string? writeText = ctx.ParseResult.GetValueForOption(writeResTextOpt);
@@ -151,6 +154,11 @@ public static class McpClientCommand
             else if (addRoot != null)
             {
                 await client.AddRootAsync(addRoot, timeout);
+                Console.WriteLine("ok");
+            }
+            else if (removeRoot != null)
+            {
+                await client.RemoveRootAsync(removeRoot, timeout);
                 Console.WriteLine("ok");
             }
             else if (listPrompts)

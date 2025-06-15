@@ -574,3 +574,9 @@
 533. Created CrossCliCompatTests comparing .NET and Rust CLI versions (skipped)
 534. Updated docs with progress
 535. TODO next run: finalize remaining MCP features and stabilize cross-language tests
+
+536. Added roots/remove endpoint and RemoveRootAsync client helper
+537. McpClientCommand supports --remove-root option
+538. Added unit test verifying roots/remove endpoint
+539. Documented progress and updated TODO list
+540. TODO next run: improve cross-language tests and migrate remaining rust features
