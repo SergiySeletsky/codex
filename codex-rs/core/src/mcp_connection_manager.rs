@@ -1,5 +1,7 @@
 //! Connection manager for Model Context Protocol (MCP) servers.
 //!
+//! C# port implemented in `codex-dotnet/CodexCli/Util/McpConnectionManager.cs` (done)
+//!
 //! The [`McpConnectionManager`] owns one [`codex_mcp_client::McpClient`] per
 //! configured server (keyed by the *server name*). It offers convenience
 //! helpers to query the available tools across *all* servers and returns them
