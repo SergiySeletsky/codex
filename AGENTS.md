@@ -686,3 +686,7 @@
 641. Verified dotnet 8 installation again and built CLI/tests
 642. Ran targeted tests including CrossCliFact-guarded suite
 643. TODO next run: continue porting TUI widgets and stabilize compatibility tests
+644. Implemented `LoginScreen.cs` and `GitWarningScreen.cs` mirroring Rust widgets
+645. Refactored `CodexTui` Program to use these screens
+646. Added cross-reference comments in `login_screen.rs` and `git_warning_screen.rs`
+647. TODO next run: port chat widgets and status indicator, then extend tests

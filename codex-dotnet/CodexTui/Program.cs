@@ -2,6 +2,7 @@ using CodexCli;
 using CodexCli.Config;
 using CodexCli.Util;
 using Spectre.Console;
+using CodexTui;
 
 class Program
 {
@@ -28,10 +29,7 @@ class Program
 
         if (!skipGit && !GitUtils.IsInsideGitRepo(Environment.CurrentDirectory))
         {
-            AnsiConsole.MarkupLine("We recommend running codex inside a git repository. This helps ensure that changes can be tracked and easily rolled back if necessary.");
-            AnsiConsole.Markup("Do you wish to proceed? [yellow](y/n)[/] ");
-            var key = Console.ReadKey(true);
-            if (key.KeyChar != 'y' && key.KeyChar != 'Y')
+            if (!GitWarningScreen.ShowAndAsk())
                 return 1;
         }
 
@@ -39,8 +37,7 @@ class Program
         {
             if (ApiKeyManager.GetKey(info) == null && info.EnvKey != null)
             {
-                Console.WriteLine("Login using `codex login` and then run this command again. 'q' to quit.");
-                while (Console.ReadKey(true).KeyChar != 'q') { }
+                LoginScreen.Show();
                 return 1;
             }
         }

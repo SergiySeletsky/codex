@@ -7,5 +7,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../CodexCli/CodexCli.csproj" />
+    <Compile Include="LoginScreen.cs" />
+    <Compile Include="GitWarningScreen.cs" />
   </ItemGroup>
 </Project>

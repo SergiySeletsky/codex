@@ -1,3 +1,4 @@
+// C# version implemented in codex-dotnet/CodexTui/LoginScreen.cs (done)
 use std::path::PathBuf;
 
 use crossterm::event::KeyCode;
