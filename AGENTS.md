@@ -713,3 +713,10 @@
      `InteractiveApp` and updated `/history` to use the widget.
 664. Added unit tests for `ConversationHistoryWidget`.
 665. TODO next run: port event streaming and integrate remaining TUI widgets.
+666. Ported basic event streaming in `InteractiveApp` using `MockCodexAgent` or
+     `RealCodexAgent` to process user prompts asynchronously.
+667. `InteractiveApp.Run` renamed to `RunAsync` and `InteractiveCommand` updated
+     accordingly.
+668. Added unit test `MockCodexAgentTests` verifying agent output.
+669. Marked `conversation_history_widget.rs` comment as done.
+670. TODO next run: expand event handling and integrate more TUI widgets.

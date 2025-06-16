@@ -135,10 +135,9 @@ public static class InteractiveCommand
             }
 
             var opts2 = opts with { Prompt = prompt };
-            InteractiveApp.Run(opts2, cfg);
+            await InteractiveApp.RunAsync(opts2, cfg);
             if (opts.NotifyCommand.Length > 0)
                 NotifyUtils.RunNotify(opts.NotifyCommand, "session_complete", envMap);
-            await Task.CompletedTask;
         }, binder, configOption, cdOption);
         return cmd;
     }

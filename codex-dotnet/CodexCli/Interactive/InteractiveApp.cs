@@ -1,6 +1,8 @@
 using Spectre.Console;
 using CodexCli.Config;
 using CodexCli.Util;
+using CodexCli.Protocol;
+using System.Threading.Tasks;
 using System.IO;
 using System.Linq;
 using CodexCli.Commands;
@@ -13,7 +15,7 @@ namespace CodexCli.Interactive;
 /// </summary>
 public static class InteractiveApp
 {
-    public static void Run(InteractiveOptions opts, AppConfig? cfg)
+    public static async Task RunAsync(InteractiveOptions opts, AppConfig? cfg)
     {
         bool enableMouse = !(cfg?.Tui.DisableMouseCapture ?? false);
         Console.Write(enableMouse ? "\u001b[?1000h" : "\u001b[?1000l");
@@ -90,8 +92,8 @@ public static class InteractiveApp
                 }
                 if (prompt.Equals("/sessions", StringComparison.OrdinalIgnoreCase))
                 {
-                    foreach (var info in SessionManager.ListSessionsWithInfo())
-                        chat.AddAgentMessage($"{info.Id} {info.Start:o}");
+                    foreach (var s in SessionManager.ListSessionsWithInfo())
+                        chat.AddAgentMessage($"{s.Id} {s.Start:o}");
                     continue;
                 }
                 if (prompt.StartsWith("/scroll-up", StringComparison.OrdinalIgnoreCase))
@@ -175,11 +177,37 @@ public static class InteractiveApp
                 history.Add(prompt);
                 SessionManager.AddEntry(sessionId, prompt);
                 if (logWriter != null)
-                    logWriter.WriteLine(prompt);
+                    await logWriter.WriteLineAsync(prompt);
                 lastMessage = prompt;
                 chat.AddUserMessage(prompt);
-                status.UpdateText(prompt);
-            }
+                status.UpdateText("thinking...");
+
+                var info = cfg?.GetProvider(providerId ?? "openai") ?? ModelProviderInfo.BuiltIns[providerId ?? "openai"];
+                var client = new OpenAIClient(ApiKeyManager.GetKey(info), info.BaseUrl);
+                var events = (info.Name == "Mock")
+                    ? CodexCli.Protocol.MockCodexAgent.RunAsync(prompt, Array.Empty<string>())
+                    : CodexCli.Protocol.RealCodexAgent.RunAsync(prompt, client, opts.Model ?? cfg?.Model ?? "default");
+                await foreach (var ev in events)
+                {
+                    switch (ev)
+                    {
+                        case AgentMessageEvent am:
+                            chat.AddAgentMessage(am.Message);
+                            lastMessage = am.Message;
+                            break;
+                        case TaskCompleteEvent tc:
+                            if (tc.LastAgentMessage != null)
+                            {
+                                chat.AddAgentMessage(tc.LastAgentMessage);
+                                lastMessage = tc.LastAgentMessage;
+                            }
+                            status.UpdateText("ready");
+                            break;
+                    }
+                    if (logWriter != null)
+                        await logWriter.WriteLineAsync(System.Text.Json.JsonSerializer.Serialize(ev));
+                }
+                }
             if (logWriter != null)
             {
                 logWriter.Flush();
