@@ -804,3 +804,7 @@
      async fetch.
 721. TODO next run: integrate BottomPane into `CodexTui` and add more parity tests
      for interactive editing and slash commands.
+722. Added cross-language test `InteractiveScrollMatches` verifying `/scroll-up`
+     and `/scroll-down` work the same between Rust and .NET CLIs.
+723. TODO next run: begin wiring `BottomPane` into `CodexTui` and expand
+     interactive parity coverage.
