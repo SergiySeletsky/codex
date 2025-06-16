@@ -1,3 +1,4 @@
+// C# equivalent implemented under codex-dotnet/CodexCli/Commands (in progress)
 pub mod debug_sandbox;
 mod exit_status;
 pub mod login;

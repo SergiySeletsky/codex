@@ -1,3 +1,4 @@
+// C# port implemented in `codex-dotnet/CodexCli/Commands/ProtoCommand.cs` (done)
 use std::io::IsTerminal;
 use std::sync::Arc;
 
