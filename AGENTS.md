@@ -668,3 +668,7 @@
 624. ProviderCommandTests pass
 625. ExecRunnerTests pass
 626. TODO next run: enable compatibility tests and port remaining features
+627. Verified project builds with .NET 8 and targeted tests pass
+628. Updated rust `cli/lib.rs` comment to mark C# command module port as done
+629. Reviewed feature parity across Rust and .NET implementations - no further functionality gaps found
+630. TODO next run: enable cross-language compatibility tests if environment permits
