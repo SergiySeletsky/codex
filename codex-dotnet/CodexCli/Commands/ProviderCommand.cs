@@ -4,6 +4,7 @@ using CodexCli.Util;
 using System.Collections.Generic;
 using System.IO;
 using Tomlyn;
+using CodexCli.Protocol;
 
 namespace CodexCli.Commands;
 
@@ -11,6 +12,9 @@ public static class ProviderCommand
 {
     public static Command Create(Option<string?> configOption)
     {
+        var eventsUrlOpt = new Option<string?>("--events-url");
+        var watchOpt = new Option<bool>("--watch-events", () => false);
+
         var list = new Command("list", "List available providers");
         var namesOnlyOpt = new Option<bool>("--names-only", () => false, "Print only provider ids");
         var verboseOpt = new Option<bool>("--verbose", () => false, "Include env key instructions");
@@ -18,7 +22,9 @@ public static class ProviderCommand
         list.AddOption(namesOnlyOpt);
         list.AddOption(verboseOpt);
         list.AddOption(jsonListOpt);
-        list.SetHandler((string? cfgPath, bool namesOnly, bool verbose, bool json) =>
+        list.AddOption(eventsUrlOpt);
+        list.AddOption(watchOpt);
+        list.SetHandler(async (string? cfgPath, bool namesOnly, bool verbose, bool json, string? eventsUrl, bool watch) =>
         {
             AppConfig? cfg = null;
             if (!string.IsNullOrEmpty(cfgPath) && File.Exists(cfgPath))
@@ -50,14 +56,19 @@ public static class ProviderCommand
                     }
                 }
             }
-        }, configOption, namesOnlyOpt, verboseOpt, jsonListOpt);
+            if (watch && eventsUrl != null)
+                await foreach (var ev in McpEventStream.ReadEventsAsync(eventsUrl))
+                    Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(ev));
+        }, configOption, namesOnlyOpt, verboseOpt, jsonListOpt, eventsUrlOpt, watchOpt);
 
         var infoCmd = new Command("info", "Show provider details");
         var idArg = new Argument<string>("id");
         var infoJsonOpt = new Option<bool>("--json", () => false, "Output JSON");
         infoCmd.AddArgument(idArg);
         infoCmd.AddOption(infoJsonOpt);
-        infoCmd.SetHandler((string id, bool json, string? cfgPath) =>
+        infoCmd.AddOption(eventsUrlOpt);
+        infoCmd.AddOption(watchOpt);
+        infoCmd.SetHandler(async (string id, bool json, string? cfgPath, string? eventsUrl, bool watch) =>
         {
             AppConfig? cfg = null;
             if (!string.IsNullOrEmpty(cfgPath) && File.Exists(cfgPath))
@@ -80,12 +91,17 @@ public static class ProviderCommand
             {
                 Console.WriteLine($"Provider {id} not found");
             }
-        }, idArg, infoJsonOpt, configOption);
+            if (watch && eventsUrl != null)
+                await foreach (var ev in McpEventStream.ReadEventsAsync(eventsUrl))
+                    Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(ev));
+        }, idArg, infoJsonOpt, configOption, eventsUrlOpt, watchOpt);
 
         var currentCmd = new Command("current", "Show current provider");
         var currentJsonOpt = new Option<bool>("--json", () => false, "Output JSON string");
         currentCmd.AddOption(currentJsonOpt);
-        currentCmd.SetHandler((bool json, string? cfgPath) =>
+        currentCmd.AddOption(eventsUrlOpt);
+        currentCmd.AddOption(watchOpt);
+        currentCmd.SetHandler(async (bool json, string? cfgPath, string? eventsUrl, bool watch) =>
         {
             AppConfig? cfg = null;
             if (!string.IsNullOrEmpty(cfgPath) && File.Exists(cfgPath))
@@ -95,7 +111,10 @@ public static class ProviderCommand
                 Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(id));
             else
                 Console.WriteLine(id);
-        }, currentJsonOpt, configOption);
+            if (watch && eventsUrl != null)
+                await foreach (var ev in McpEventStream.ReadEventsAsync(eventsUrl))
+                    Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(ev));
+        }, currentJsonOpt, configOption, eventsUrlOpt, watchOpt);
 
         var addCmd = new Command("add", "Add a provider");
         var addId = new Argument<string>("id");
@@ -220,6 +239,8 @@ public static class ProviderCommand
         }, updId, updNameOpt, updBaseOpt, updEnvOpt, configOption);
 
         var cmd = new Command("provider", "Provider utilities");
+        cmd.AddOption(eventsUrlOpt);
+        cmd.AddOption(watchOpt);
         cmd.AddCommand(list);
         cmd.AddCommand(infoCmd);
         cmd.AddCommand(currentCmd);

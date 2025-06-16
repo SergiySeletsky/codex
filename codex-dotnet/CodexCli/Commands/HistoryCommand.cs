@@ -1,6 +1,7 @@
 using System.CommandLine;
 using CodexCli.Util;
 using CodexCli.Config;
+using CodexCli.Protocol;
 
 namespace CodexCli.Commands;
 
@@ -8,6 +9,8 @@ public static class HistoryCommand
 {
     public static Command Create()
     {
+        var eventsUrlOpt = new Option<string?>("--events-url");
+        var watchOpt = new Option<bool>("--watch-events", () => false);
         var listCmd = new Command("list", "List saved session IDs");
         listCmd.SetHandler(() =>
         {
@@ -69,23 +72,33 @@ public static class HistoryCommand
         }, idArg, offsetArg);
 
         var msgMetaCmd = new Command("messages-meta", "Show message history metadata");
-        msgMetaCmd.SetHandler(async () =>
+        msgMetaCmd.AddOption(eventsUrlOpt);
+        msgMetaCmd.AddOption(watchOpt);
+        msgMetaCmd.SetHandler(async (string? eventsUrl, bool watch) =>
         {
             var cfg = new AppConfig();
             var meta = await MessageHistory.HistoryMetadataAsync(cfg);
             Console.WriteLine($"log {meta.LogId} count {meta.Count}");
-        });
+            if (watch && eventsUrl != null)
+                await foreach (var ev in McpEventStream.ReadEventsAsync(eventsUrl))
+                    Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(ev));
+        }, eventsUrlOpt, watchOpt);
 
         var msgEntryCmd = new Command("messages-entry", "Show message history entry by offset");
         var msgOffsetArg = new Argument<int>("offset", "Entry offset");
         msgEntryCmd.AddArgument(msgOffsetArg);
-        msgEntryCmd.SetHandler((int offset) =>
+        msgEntryCmd.AddOption(eventsUrlOpt);
+        msgEntryCmd.AddOption(watchOpt);
+        msgEntryCmd.SetHandler(async (int offset, string? eventsUrl, bool watch) =>
         {
             var cfg = new AppConfig();
             var text = MessageHistory.LookupEntry(0, offset, cfg);
             if (text != null) Console.WriteLine(text);
             else Console.WriteLine("not found");
-        }, msgOffsetArg);
+            if (watch && eventsUrl != null)
+                await foreach (var ev in McpEventStream.ReadEventsAsync(eventsUrl))
+                    Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(ev));
+        }, msgOffsetArg, eventsUrlOpt, watchOpt);
 
         var msgPathCmd = new Command("messages-path", "Print message history file path");
         msgPathCmd.SetHandler(() =>
@@ -106,7 +119,9 @@ public static class HistoryCommand
         var searchJsonOpt = new Option<bool>("--json", () => false, "Output JSON array");
         msgSearchCmd.AddArgument(termArg);
         msgSearchCmd.AddOption(searchJsonOpt);
-        msgSearchCmd.SetHandler(async (string term, bool json) =>
+        msgSearchCmd.AddOption(eventsUrlOpt);
+        msgSearchCmd.AddOption(watchOpt);
+        msgSearchCmd.SetHandler(async (string term, bool json, string? eventsUrl, bool watch) =>
         {
             var cfg = new AppConfig();
             var results = await MessageHistory.SearchEntriesAsync(term, cfg);
@@ -114,14 +129,19 @@ public static class HistoryCommand
                 Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(results));
             else
                 foreach (var r in results) Console.WriteLine(r);
-        }, termArg, searchJsonOpt);
+            if (watch && eventsUrl != null)
+                await foreach (var ev in McpEventStream.ReadEventsAsync(eventsUrl))
+                    Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(ev));
+        }, termArg, searchJsonOpt, eventsUrlOpt, watchOpt);
 
         var msgLastCmd = new Command("messages-last", "Show last N history entries");
         var lastCountArg = new Argument<int>("n", getDefaultValue: () => 10);
         var jsonOpt = new Option<bool>("--json", "Output JSON array");
         msgLastCmd.AddArgument(lastCountArg);
         msgLastCmd.AddOption(jsonOpt);
-        msgLastCmd.SetHandler(async (int n, bool json) =>
+        msgLastCmd.AddOption(eventsUrlOpt);
+        msgLastCmd.AddOption(watchOpt);
+        msgLastCmd.SetHandler(async (int n, bool json, string? eventsUrl, bool watch) =>
         {
             var cfg = new AppConfig();
             var lines = await MessageHistory.LastEntriesAsync(n, cfg);
@@ -133,12 +153,17 @@ public static class HistoryCommand
             {
                 foreach (var l in lines) Console.WriteLine(l);
             }
-        }, lastCountArg, jsonOpt);
+            if (watch && eventsUrl != null)
+                await foreach (var ev in McpEventStream.ReadEventsAsync(eventsUrl))
+                    Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(ev));
+        }, lastCountArg, jsonOpt, eventsUrlOpt, watchOpt);
 
         var msgCountCmd = new Command("messages-count", "Print number of history entries");
         var countJsonOpt = new Option<bool>("--json", () => false, "Output JSON object");
         msgCountCmd.AddOption(countJsonOpt);
-        msgCountCmd.SetHandler(async (bool json) =>
+        msgCountCmd.AddOption(eventsUrlOpt);
+        msgCountCmd.AddOption(watchOpt);
+        msgCountCmd.SetHandler(async (bool json, string? eventsUrl, bool watch) =>
         {
             var cfg = new AppConfig();
             var count = await MessageHistory.CountEntriesAsync(cfg);
@@ -146,7 +171,10 @@ public static class HistoryCommand
                 Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(new { count }));
             else
                 Console.WriteLine(count);
-        }, countJsonOpt);
+            if (watch && eventsUrl != null)
+                await foreach (var ev in McpEventStream.ReadEventsAsync(eventsUrl))
+                    Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(ev));
+        }, countJsonOpt, eventsUrlOpt, watchOpt);
 
         var msgWatchCmd = new Command("messages-watch", "Watch for new history entries");
         msgWatchCmd.SetHandler(async () =>
@@ -159,7 +187,9 @@ public static class HistoryCommand
         var statsCmd = new Command("stats", "Show message counts per session");
         var statsJsonOpt = new Option<bool>("--json", () => false, "Output JSON map");
         statsCmd.AddOption(statsJsonOpt);
-        statsCmd.SetHandler(async (bool json) =>
+        statsCmd.AddOption(eventsUrlOpt);
+        statsCmd.AddOption(watchOpt);
+        statsCmd.SetHandler(async (bool json, string? eventsUrl, bool watch) =>
         {
             var cfg = new AppConfig();
             var stats = await MessageHistory.SessionStatsAsync(cfg);
@@ -168,12 +198,17 @@ public static class HistoryCommand
             else
                 foreach (var kv in stats)
                     Console.WriteLine($"{kv.Key} {kv.Value}");
-        }, statsJsonOpt);
+            if (watch && eventsUrl != null)
+                await foreach (var ev in McpEventStream.ReadEventsAsync(eventsUrl))
+                    Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(ev));
+        }, statsJsonOpt, eventsUrlOpt, watchOpt);
 
         var summaryCmd = new Command("summary", "List sessions with start time and message count");
         var summaryJsonOpt = new Option<bool>("--json", () => false, "Output JSON list");
         summaryCmd.AddOption(summaryJsonOpt);
-        summaryCmd.SetHandler(async (bool json) =>
+        summaryCmd.AddOption(eventsUrlOpt);
+        summaryCmd.AddOption(watchOpt);
+        summaryCmd.SetHandler(async (bool json, string? eventsUrl, bool watch) =>
         {
             var cfg = new AppConfig();
             var stats = await MessageHistory.SessionStatsAsync(cfg);
@@ -192,9 +227,14 @@ public static class HistoryCommand
                     Console.WriteLine($"{info.Id} {info.Start:o} {c}");
                 }
             }
-        }, summaryJsonOpt);
+            if (watch && eventsUrl != null)
+                await foreach (var ev in McpEventStream.ReadEventsAsync(eventsUrl))
+                    Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(ev));
+        }, summaryJsonOpt, eventsUrlOpt, watchOpt);
 
         var root = new Command("history", "Manage session history");
+        root.AddOption(eventsUrlOpt);
+        root.AddOption(watchOpt);
         root.AddCommand(listCmd);
         root.AddCommand(showCmd);
         root.AddCommand(clearCmd);

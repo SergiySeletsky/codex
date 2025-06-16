@@ -642,3 +642,13 @@
 599. Added comment referencing C# port in exit_status.rs
 600. Added comment in cli/lib.rs pointing to C# command modules
 601. TODO next run: expand history event options and enable compatibility tests
+602. Added C# port reference in conversation_history.rs
+603. History messages-meta command supports --events-url and --watch-events
+604. History messages-entry command supports --events-url and --watch-events
+605. History messages-search command supports --events-url and --watch-events
+606. History messages-last command supports --events-url and --watch-events
+607. History messages-count command supports --events-url and --watch-events
+608. History stats command supports --events-url and --watch-events
+609. History summary command supports --events-url and --watch-events
+610. Provider list/info/current subcommands support --events-url and --watch-events
+611. TODO next run: enable compatibility tests once environment stable
