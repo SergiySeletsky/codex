@@ -1,5 +1,6 @@
 //! A modal widget that prompts the user to approve or deny an action
 //! requested by the agent.
+// C# version implemented in codex-dotnet/CodexCli/Interactive/Widgets/UserApprovalWidget.cs (in progress)
 //!
 //! This is a (very) rough port of
 //! `src/components/chat/terminal-chat-command-review.tsx` from the TypeScript
