@@ -9,25 +9,28 @@ namespace CodexCli.Interactive;
 /// </summary>
 internal class ChatWidget
 {
-    private readonly List<string> _history = new();
+    private readonly ConversationHistoryWidget _history = new();
 
     public void AddUserMessage(string text)
     {
         var clean = AnsiEscape.StripAnsi(text);
-        _history.Add($"You: {clean}");
+        _history.Add($"[bold cyan]You:[/] {clean}");
         AnsiConsole.MarkupLine($"[bold cyan]You:[/] {clean}");
     }
 
     public void AddAgentMessage(string text)
     {
         var clean = AnsiEscape.StripAnsi(text);
-        _history.Add($"Codex: {clean}");
+        _history.Add($"[bold green]Codex:[/] {clean}");
         AnsiConsole.MarkupLine($"[bold green]Codex:[/] {clean}");
     }
 
-    public void Render()
+    public void ScrollUp(int lines) => _history.ScrollUp(lines);
+    public void ScrollDown(int lines) => _history.ScrollDown(lines);
+
+    public void Render(int height = 10)
     {
-        foreach (var line in _history)
+        foreach (var line in _history.GetVisibleLines(height))
             AnsiConsole.MarkupLine(line);
     }
 }

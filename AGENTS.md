@@ -708,4 +708,8 @@
 660. Updated `CodexTui` project to reference widget sources from `CodexCli`
 661. Added status updates and message sanitizing in the interactive loop
 662. Build and tests run on .NET 8; cross-CLI tests remain skipped by default
-663. TODO next run: port scrolling, history widget and event streaming from Rust
+663. Implemented `ConversationHistoryWidget` in C# and hooked it into
+     `ChatWidget`. Added `/scroll-up` and `/scroll-down` commands in
+     `InteractiveApp` and updated `/history` to use the widget.
+664. Added unit tests for `ConversationHistoryWidget`.
+665. TODO next run: port event streaming and integrate remaining TUI widgets.

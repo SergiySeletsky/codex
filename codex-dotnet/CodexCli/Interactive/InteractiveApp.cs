@@ -58,8 +58,7 @@ public static class InteractiveApp
                     break;
                 if (prompt.Equals("/history", StringComparison.OrdinalIgnoreCase))
                 {
-                    foreach (var item in history)
-                        chat.AddAgentMessage(item);
+                    chat.Render(20);
                     continue;
                 }
                 if (prompt.Equals("/reset", StringComparison.OrdinalIgnoreCase) ||
@@ -74,7 +73,7 @@ public static class InteractiveApp
                 }
                 if (prompt.Equals("/help", StringComparison.OrdinalIgnoreCase))
                 {
-                    chat.AddAgentMessage("Available commands: /history, /new, /quit, /help, /log, /config, /save <file>, /save-last <file>, /version, /sessions, /delete <id>");
+                    chat.AddAgentMessage("Available commands: /history, /scroll-up, /scroll-down, /new, /quit, /help, /log, /config, /save <file>, /save-last <file>, /version, /sessions, /delete <id>");
                     continue;
                 }
                 if (prompt.Equals("/log", StringComparison.OrdinalIgnoreCase))
@@ -93,6 +92,22 @@ public static class InteractiveApp
                 {
                     foreach (var info in SessionManager.ListSessionsWithInfo())
                         chat.AddAgentMessage($"{info.Id} {info.Start:o}");
+                    continue;
+                }
+                if (prompt.StartsWith("/scroll-up", StringComparison.OrdinalIgnoreCase))
+                {
+                    var parts = prompt.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+                    int n = parts.Length > 1 && int.TryParse(parts[1], out var val) ? val : 1;
+                    chat.ScrollUp(n);
+                    chat.Render(20);
+                    continue;
+                }
+                if (prompt.StartsWith("/scroll-down", StringComparison.OrdinalIgnoreCase))
+                {
+                    var parts = prompt.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+                    int n = parts.Length > 1 && int.TryParse(parts[1], out var val) ? val : 1;
+                    chat.ScrollDown(n);
+                    chat.Render(20);
                     continue;
                 }
                 if (prompt.StartsWith("/delete", StringComparison.OrdinalIgnoreCase))
