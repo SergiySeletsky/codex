@@ -652,3 +652,8 @@
 609. History summary command supports --events-url and --watch-events
 610. Provider list/info/current subcommands support --events-url and --watch-events
 611. TODO next run: enable compatibility tests once environment stable
+
+612. Installed .NET 8 SDK and built project successfully
+613. Fixed test execution by building tests before running
+614. ExecRunnerTests and ProviderCommandTests pass on .NET 8
+615. TODO next run: enable compatibility tests and verify remaining features
