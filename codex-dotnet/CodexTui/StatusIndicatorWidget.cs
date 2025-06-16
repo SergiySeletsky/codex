@@ -1,4 +1,5 @@
 using Spectre.Console;
+using CodexCli.Util;
 
 namespace CodexTui;
 
@@ -20,7 +21,8 @@ internal sealed class StatusIndicatorWidget : IDisposable
             var frames = new[] { ".", "..", "..." };
             while (!_cts.Token.IsCancellationRequested)
             {
-                AnsiConsole.MarkupLine($"[grey]{_text} {frames[idx]}[/]");
+                var clean = AnsiEscape.StripAnsi(_text);
+                AnsiConsole.MarkupLine($"[grey]{clean} {frames[idx]}[/]");
                 idx = (idx + 1) % frames.Length;
                 await Task.Delay(200);
             }

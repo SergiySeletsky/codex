@@ -696,3 +696,8 @@
 651. Integrated placeholder `ChatWidget` and `StatusIndicatorWidget` into `CodexTui` Program
 652. Marked chat widget and status indicator comments as done in Rust sources
 653. TODO next run: flesh out widget functionality and extend compatibility tests
+
+654. Introduced `AnsiEscape` helper in CodexCli.Util mirroring Rust `ansi-escape` crate
+655. Updated `StatusIndicatorWidget` and `ChatWidget` to sanitize text via `AnsiEscape`
+656. Added unit test `AnsiEscapeUtilsTests` verifying escape stripping
+657. TODO next run: enhance interactive display using the widgets and port additional TUI components

@@ -1,4 +1,5 @@
 using Spectre.Console;
+using CodexCli.Util;
 
 namespace CodexTui;
 
@@ -12,12 +13,16 @@ internal class ChatWidget
 
     public void AddUserMessage(string text)
     {
-        _history.Add($"You: {text}");
+        var clean = AnsiEscape.StripAnsi(text);
+        _history.Add($"You: {clean}");
+        AnsiConsole.MarkupLine($"[bold cyan]You:[/] {clean}");
     }
 
     public void AddAgentMessage(string text)
     {
-        _history.Add($"Codex: {text}");
+        var clean = AnsiEscape.StripAnsi(text);
+        _history.Add($"Codex: {clean}");
+        AnsiConsole.MarkupLine($"[bold green]Codex:[/] {clean}");
     }
 
     public void Render()
