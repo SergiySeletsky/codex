@@ -195,6 +195,42 @@ public static class InteractiveApp
                             chat.AddAgentMessage(am.Message);
                             lastMessage = am.Message;
                             break;
+                        case BackgroundEvent bg:
+                            chat.AddAgentMessage($"{bg.Message}");
+                            break;
+                        case ErrorEvent err:
+                            chat.AddAgentMessage($"ERROR: {err.Message}");
+                            break;
+                        case ExecCommandBeginEvent begin:
+                            chat.AddAgentMessage($"exec {string.Join(' ', begin.Command)} in {begin.Cwd}");
+                            break;
+                        case ExecCommandEndEvent end:
+                            chat.AddAgentMessage(end.ExitCode == 0 ? "exec succeeded" : $"exec exited {end.ExitCode}");
+                            break;
+                        case ExecApprovalRequestEvent ar:
+                            chat.AddAgentMessage($"approval required for {string.Join(' ', ar.Command)} (auto-approving)");
+                            break;
+                        case PatchApplyApprovalRequestEvent pr:
+                            chat.AddAgentMessage($"patch approval required: {pr.PatchSummary} (auto-approving)");
+                            break;
+                        case PatchApplyBeginEvent pb:
+                            chat.AddAgentMessage($"apply_patch auto_approved={pb.AutoApproved}");
+                            foreach (var pathKey in pb.Changes.Keys)
+                                chat.AddAgentMessage(pathKey);
+                            break;
+                        case PatchApplyEndEvent pe:
+                            chat.AddAgentMessage(pe.Success ? "apply_patch succeeded" : "apply_patch failed");
+                            break;
+                        case McpToolCallBeginEvent mc:
+                            var inv = $"{mc.Server}.{mc.Tool}" + (string.IsNullOrEmpty(mc.ArgumentsJson) ? "()" : $"({mc.ArgumentsJson})");
+                            chat.AddAgentMessage($"tool {inv}");
+                            break;
+                        case McpToolCallEndEvent me:
+                            chat.AddAgentMessage(me.IsSuccess ? "tool success" : "tool failed");
+                            break;
+                        case AgentReasoningEvent ar2:
+                            chat.AddAgentMessage(ar2.Text);
+                            break;
                         case TaskCompleteEvent tc:
                             if (tc.LastAgentMessage != null)
                             {

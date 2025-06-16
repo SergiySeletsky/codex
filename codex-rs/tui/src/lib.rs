@@ -1,4 +1,5 @@
-// C# version partially implemented in `codex-dotnet/CodexCli/Interactive/InteractiveApp.cs` (in progress)
+// C# version partially implemented in `codex-dotnet/CodexCli/Interactive/InteractiveApp.cs`
+// Basic event streaming and widgets ported; further UI work pending.
 // Forbid accidental stdout/stderr writes in the *library* portion of the TUI.
 // The standalone `codex-tui` binary prints a short help message before the
 // alternate‑screen mode starts; that file opts‑out locally via `allow`.

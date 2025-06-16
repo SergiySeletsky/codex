@@ -719,4 +719,10 @@
      accordingly.
 668. Added unit test `MockCodexAgentTests` verifying agent output.
 669. Marked `conversation_history_widget.rs` comment as done.
-670. TODO next run: expand event handling and integrate more TUI widgets.
+670. Expanded event handling in `InteractiveApp` to display exec, patch, tool
+     and approval events. Messages are logged to the chat widget and status
+     indicator.
+671. Extended `MockCodexAgentTests` to verify all event types emitted by the
+     mock agent.
+672. TODO next run: integrate `EventProcessor` for richer formatting and add
+     user approval logic. Continue porting remaining TUI widgets.

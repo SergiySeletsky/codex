@@ -13,5 +13,13 @@ public class MockCodexAgentTests
             list.Add(ev);
         Assert.Contains(list, e => e is AgentMessageEvent am && am.Message.Contains("hi"));
         Assert.Contains(list, e => e is TaskCompleteEvent);
+        Assert.Contains(list, e => e is ExecCommandBeginEvent);
+        Assert.Contains(list, e => e is ExecCommandEndEvent);
+        Assert.Contains(list, e => e is PatchApplyBeginEvent);
+        Assert.Contains(list, e => e is PatchApplyEndEvent);
+        Assert.Contains(list, e => e is McpToolCallBeginEvent);
+        Assert.Contains(list, e => e is McpToolCallEndEvent);
+        Assert.Contains(list, e => e is ExecApprovalRequestEvent);
+        Assert.Contains(list, e => e is PatchApplyApprovalRequestEvent);
     }
 }
