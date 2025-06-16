@@ -808,3 +808,9 @@
      and `/scroll-down` work the same between Rust and .NET CLIs.
 723. TODO next run: begin wiring `BottomPane` into `CodexTui` and expand
      interactive parity coverage.
+724. Created `TuiApp` stub hosting `BottomPane` for keyboard input and linked
+     bottom pane sources into `CodexTui.csproj`.
+725. Added cross-language test `InteractiveSessionsMatches` covering `/sessions`
+     command parity.
+726. TODO next run: hook `TuiApp` into `Program.cs` and stream events through
+     the bottom pane for a minimal interactive UI.
