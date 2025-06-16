@@ -1,3 +1,4 @@
+// C# version implemented in codex-dotnet/CodexCli/Interactive/Widgets/ChatComposerHistory.cs (done)
 use std::collections::HashMap;
 
 use tui_textarea::CursorMove;

@@ -794,3 +794,13 @@
 714. Marked bottom pane view files in Rust as done and added BottomPane placeholder in C#.
 715. Added InteractiveConfigMatches cross-CLI test verifying /config output parity.
 716. TODO next run: implement ChatComposer and integrate BottomPane; extend interactive parity tests.
+717. Implemented `ChatComposerHistory` and `ChatComposer` classes in C# referencing
+     Rust sources.
+718. Added `AppEventSender` helper and ported `BottomPane` skeleton to use the new
+     composer.
+719. Marked `chat_composer.rs` and `chat_composer_history.rs` with cross-reference
+     comments.
+720. Added unit test `ChatComposerHistoryTests` covering history navigation with
+     async fetch.
+721. TODO next run: integrate BottomPane into `CodexTui` and add more parity tests
+     for interactive editing and slash commands.
