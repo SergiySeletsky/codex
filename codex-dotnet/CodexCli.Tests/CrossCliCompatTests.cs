@@ -54,6 +54,14 @@ public class CrossCliCompatTests
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 
+    [CrossCliFact]
+    public void InteractiveHelpMatches()
+    {
+        var dotnet = RunProcess("dotnet", "run --project ../codex-dotnet/CodexCli interactive --help");
+        var rust = RunProcess("cargo", "run --quiet --manifest-path ../codex-rs/tui/Cargo.toml -- --help");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
 
     [CrossCliFact]
     public void ProviderListMatches()

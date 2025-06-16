@@ -759,3 +759,7 @@
 696. Fixed `CodexTui` namespace and csproj items so the project builds.
 697. TODO next run: add cross-language interactive tests and continue refining
      TUI widgets.
+698. Added cross-language test `InteractiveHelpMatches` verifying CLI
+     interactive help output matches the Rust `codex-tui` binary.
+699. TODO next run: attempt end-to-end interactive session parity and polish
+     remaining widgets.
