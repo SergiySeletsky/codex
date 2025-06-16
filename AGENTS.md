@@ -670,3 +670,9 @@
 625. Introduced `CrossCliFact` attribute and replaced `[Fact]` usages
 626. Added cross-language test verifying `--help` output parity
 627. TODO next run: start porting TUI CLI to .NET and extend compatibility tests
+628. Created CodexTui project wrapping CodexCli interactive command
+629. Factored interactive logic into InteractiveApp and updated InteractiveCommand
+630. Made Program.Main public so CodexTui can reuse it
+631. Added cross-language test verifying `codex-tui --help` output parity
+632. Added comment referencing C# port in `codex-rs/tui/src/main.rs`
+633. TODO next run: flesh out TUI features and extend compatibility tests

@@ -4,9 +4,9 @@ using CodexCli.Util;
 
 namespace CodexCli;
 
-class Program
+public class Program
 {
-    static async Task<int> Main(string[] args)
+    public static async Task<int> Main(string[] args)
     {
         var configOption = new Option<string?>("--config", "Path to config file");
         var cdOption = new Option<string?>("--cd", "Change working directory");
