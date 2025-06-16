@@ -1,12 +1,15 @@
 using CodexCli.Protocol;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace CodexCli.Protocol;
 
 public static class MockCodexAgent
 {
-public static async IAsyncEnumerable<Event> RunAsync(string prompt, IReadOnlyList<string> images)
+public static async IAsyncEnumerable<Event> RunAsync(string prompt, IReadOnlyList<string> images,
+    Func<Event, Task<ReviewDecision>>? approvalResponder = null)
 {
     await Task.Delay(50);
     foreach (var img in images)
@@ -34,9 +37,21 @@ public static async IAsyncEnumerable<Event> RunAsync(string prompt, IReadOnlyLis
         await Task.Delay(50);
         yield return new PatchApplyEndEvent(Guid.NewGuid().ToString(), "patched", "", true);
         await Task.Delay(50);
-        yield return new ExecApprovalRequestEvent(Guid.NewGuid().ToString(), new[]{"rm","-rf","/"});
+        var execReq = new ExecApprovalRequestEvent(Guid.NewGuid().ToString(), new[]{"rm","-rf","/"});
+        yield return execReq;
+        if (approvalResponder != null)
+        {
+            var dec = await approvalResponder(execReq);
+            yield return new BackgroundEvent(Guid.NewGuid().ToString(), $"exec_approval:{dec}");
+        }
         await Task.Delay(50);
-        yield return new PatchApplyApprovalRequestEvent(Guid.NewGuid().ToString(), "patch diff");
+        var patchReq = new PatchApplyApprovalRequestEvent(Guid.NewGuid().ToString(), "patch diff");
+        yield return patchReq;
+        if (approvalResponder != null)
+        {
+            var dec = await approvalResponder(patchReq);
+            yield return new BackgroundEvent(Guid.NewGuid().ToString(), $"patch_approval:{dec}");
+        }
         await Task.Delay(50);
         yield return new AgentReasoningEvent(Guid.NewGuid().ToString(), "thinking...");
         await Task.Delay(50);

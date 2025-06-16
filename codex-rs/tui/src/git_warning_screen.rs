@@ -2,6 +2,7 @@
 //! repository (unless the user passed `--allow-no-git-exec`). The screen
 //! blocks all input until the user explicitly decides whether to continue or
 //! quit.
+// C# version implemented in codex-dotnet/CodexTui/GitWarningScreen.cs (done)
 
 use crossterm::event::KeyCode;
 use crossterm::event::KeyEvent;

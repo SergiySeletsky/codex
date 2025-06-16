@@ -1,3 +1,4 @@
+// C# version implemented in codex-dotnet/CodexCli/Interactive/Widgets/ConversationHistoryWidget.cs (done)
 use crate::cell_widget::CellWidget;
 use crate::history_cell::CommandOutput;
 use crate::history_cell::HistoryCell;

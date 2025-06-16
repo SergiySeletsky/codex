@@ -4,7 +4,7 @@ using Xunit;
 
 public class CrossCliCompatTests
 {
-    [Fact(Skip="requires rust toolchain")]
+    [CrossCliFact]
     public void VersionMatches()
     {
         var dotnet = RunProcess("dotnet", "run --project ../codex-dotnet/CodexCli --version");
@@ -12,7 +12,58 @@ public class CrossCliCompatTests
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 
-    [Fact(Skip="requires rust toolchain")]
+    [CrossCliFact]
+    public void HelpMatches()
+    {
+        var dotnet = RunProcess("dotnet", "run --project ../codex-dotnet/CodexCli --help");
+        var rust = RunProcess("cargo", "run --quiet --manifest-path ../codex-rs/cli/Cargo.toml -- --help");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+    [CrossCliFact]
+    public void TuiHelpMatches()
+    {
+        var dotnet = RunProcess("dotnet", "run --project ../codex-dotnet/CodexTui --help");
+        var rust = RunProcess("cargo", "run --quiet --manifest-path ../codex-rs/tui/Cargo.toml -- --help");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [CrossCliFact]
+    public void TuiVersionMatches()
+    {
+        var dotnet = RunProcess("dotnet", "run --project ../codex-dotnet/CodexTui --version");
+        var rust = RunProcess("cargo", "run --quiet --manifest-path ../codex-rs/tui/Cargo.toml -- --version");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [CrossCliFact]
+    public void TuiLoginScreenMatches()
+    {
+        var dotnet = RunProcess("bash", "-c 'printf q | dotnet run --project ../codex-dotnet/CodexTui --skip-git-repo-check'");
+        var rust = RunProcess("bash", "-c 'printf q | cargo run --quiet --manifest-path ../codex-rs/tui/Cargo.toml -- --skip-git-repo-check'");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [CrossCliFact]
+    public void TuiGitWarningMatches()
+    {
+        var tmp = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+        Directory.CreateDirectory(tmp);
+        var dotnet = RunProcess("bash", $"-c 'cd {tmp} && printf n | dotnet run --project ../../codex-dotnet/CodexTui'");
+        var rust = RunProcess("bash", $"-c 'cd {tmp} && printf n | cargo run --quiet --manifest-path ../../codex-rs/tui/Cargo.toml'");
+        Directory.Delete(tmp, true);
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [CrossCliFact]
+    public void InteractiveHelpMatches()
+    {
+        var dotnet = RunProcess("dotnet", "run --project ../codex-dotnet/CodexCli interactive --help");
+        var rust = RunProcess("cargo", "run --quiet --manifest-path ../codex-rs/tui/Cargo.toml -- --help");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+
+    [CrossCliFact]
     public void ProviderListMatches()
     {
         var dotnet = RunProcess("dotnet", "run --project ../codex-dotnet/CodexCli provider list --names-only");
@@ -20,7 +71,7 @@ public class CrossCliCompatTests
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 
-    [Fact(Skip="requires rust toolchain")]
+    [CrossCliFact]
     public void HistoryCountMatches()
     {
         var dotnet = RunProcess("dotnet", "run --project ../codex-dotnet/CodexCli history messages-count");
@@ -28,7 +79,7 @@ public class CrossCliCompatTests
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 
-    [Fact(Skip="requires rust toolchain")]
+    [CrossCliFact]
     public void ServersListMatches()
     {
         var cfg = CreateTempConfig();
@@ -37,7 +88,7 @@ public class CrossCliCompatTests
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 
-    [Fact(Skip="requires rust toolchain")]
+    [CrossCliFact]
     public void RootsListMatches()
     {
         var cfg = CreateTempConfig();
@@ -46,7 +97,7 @@ public class CrossCliCompatTests
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 
-    [Fact(Skip="requires rust toolchain")]
+    [CrossCliFact]
     public void MessagesCountMatches()
     {
         var cfg = CreateTempConfig();
@@ -55,7 +106,7 @@ public class CrossCliCompatTests
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 
-    [Fact(Skip="requires rust toolchain")]
+    [CrossCliFact]
     public void MessagesListMatches()
     {
         var cfg = CreateTempConfig();
@@ -64,7 +115,7 @@ public class CrossCliCompatTests
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 
-    [Fact(Skip="requires rust toolchain")]
+    [CrossCliFact]
     public void PromptsListMatches()
     {
         var cfg = CreateTempConfig();
@@ -73,7 +124,7 @@ public class CrossCliCompatTests
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 
-    [Fact(Skip="requires rust toolchain")]
+    [CrossCliFact]
     public void PromptGetMatches()
     {
         var cfg = CreateTempConfig();
@@ -82,7 +133,7 @@ public class CrossCliCompatTests
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 
-    [Fact(Skip="requires rust toolchain")]
+    [CrossCliFact]
     public void ResourcesListMatches()
     {
         var cfg = CreateTempConfig();
@@ -91,7 +142,7 @@ public class CrossCliCompatTests
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 
-    [Fact(Skip="requires rust toolchain")]
+    [CrossCliFact]
     public void TemplatesListMatches()
     {
         var cfg = CreateTempConfig();
@@ -100,7 +151,7 @@ public class CrossCliCompatTests
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 
-    [Fact(Skip="requires rust toolchain")]
+    [CrossCliFact]
     public void LoggingSetLevelMatches()
     {
         var cfg = CreateTempConfig();
@@ -109,7 +160,7 @@ public class CrossCliCompatTests
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 
-    [Fact(Skip="requires rust toolchain")]
+    [CrossCliFact]
     public void AddAndGetMessageMatches()
     {
         var cfg = CreateTempConfig();
@@ -144,7 +195,7 @@ args = ["run", "--project", "../codex-dotnet/CodexCli", "mcp"]
         return path;
     }
 
-    [Fact(Skip="requires rust toolchain")]
+    [CrossCliFact]
     public void ServersListJsonMatches()
     {
         var cfg = CreateTempConfig();
@@ -153,7 +204,7 @@ args = ["run", "--project", "../codex-dotnet/CodexCli", "mcp"]
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 
-    [Fact(Skip="requires rust toolchain")]
+    [CrossCliFact]
     public void RootsAddJsonMatches()
     {
         var cfg = CreateTempConfig();
@@ -162,7 +213,7 @@ args = ["run", "--project", "../codex-dotnet/CodexCli", "mcp"]
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 
-    [Fact(Skip="requires rust toolchain")]
+    [CrossCliFact]
     public void PromptsAddJsonMatches()
     {
         var cfg = CreateTempConfig();
@@ -171,7 +222,7 @@ args = ["run", "--project", "../codex-dotnet/CodexCli", "mcp"]
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 
-    [Fact(Skip="requires rust toolchain")]
+    [CrossCliFact]
     public void MessagesAddJsonMatches()
     {
         var cfg = CreateTempConfig();
@@ -180,7 +231,7 @@ args = ["run", "--project", "../codex-dotnet/CodexCli", "mcp"]
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 
-    [Fact(Skip="requires rust toolchain")]
+    [CrossCliFact]
     public void ResourcesWriteJsonMatches()
     {
         var cfg = CreateTempConfig();
@@ -189,7 +240,7 @@ args = ["run", "--project", "../codex-dotnet/CodexCli", "mcp"]
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 
-    [Fact(Skip="requires rust toolchain")]
+    [CrossCliFact]
     public void LoggingSetLevelJsonMatches()
     {
         var cfg = CreateTempConfig();
@@ -198,7 +249,7 @@ args = ["run", "--project", "../codex-dotnet/CodexCli", "mcp"]
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 
-    [Fact(Skip="requires rust toolchain")]
+    [CrossCliFact]
     public void HistoryMessagesCountJsonMatches()
     {
         var dotnet = RunProcess("dotnet", "run --project ../codex-dotnet/CodexCli history messages-count --json");
@@ -206,7 +257,7 @@ args = ["run", "--project", "../codex-dotnet/CodexCli", "mcp"]
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 
-    [Fact(Skip="requires rust toolchain")]
+    [CrossCliFact]
     public void HistoryMessagesSearchJsonMatches()
     {
         var dotnet = RunProcess("dotnet", "run --project ../codex-dotnet/CodexCli history messages-search hi --json");
@@ -214,7 +265,7 @@ args = ["run", "--project", "../codex-dotnet/CodexCli", "mcp"]
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 
-    [Fact(Skip="requires rust toolchain")]
+    [CrossCliFact]
     public void HistoryMessagesLastJsonMatches()
     {
         var dotnet = RunProcess("dotnet", "run --project ../codex-dotnet/CodexCli history messages-last 1 --json");
@@ -222,7 +273,7 @@ args = ["run", "--project", "../codex-dotnet/CodexCli", "mcp"]
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 
-    [Fact(Skip="requires rust toolchain")]
+    [CrossCliFact]
     public void HistoryStatsJsonMatches()
     {
         var dotnet = RunProcess("dotnet", "run --project ../codex-dotnet/CodexCli history stats --json");
@@ -230,7 +281,7 @@ args = ["run", "--project", "../codex-dotnet/CodexCli", "mcp"]
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 
-    [Fact(Skip="requires rust toolchain")]
+    [CrossCliFact]
     public void ProviderInfoJsonMatches()
     {
         var dotnet = RunProcess("dotnet", "run --project ../codex-dotnet/CodexCli provider info openai --json");
@@ -238,7 +289,7 @@ args = ["run", "--project", "../codex-dotnet/CodexCli", "mcp"]
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 
-    [Fact(Skip="requires rust toolchain")]
+    [CrossCliFact]
     public void ProviderCurrentJsonMatches()
     {
         var dotnet = RunProcess("dotnet", "run --project ../codex-dotnet/CodexCli provider current --json");

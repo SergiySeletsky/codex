@@ -1,5 +1,5 @@
+// C# version implemented in `codex-dotnet/CodexCli/Util/ConversationHistory.cs` (done)
 use crate::models::ResponseItem;
-//! C# version implemented in `codex-dotnet/CodexCli/Util/ConversationHistory.cs` (done)
 
 /// Transcript of conversation history that is needed:
 /// - for ZDR clients for which previous_response_id is not available, so we

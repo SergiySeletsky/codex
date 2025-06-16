@@ -1,5 +1,6 @@
 //! A live status indicator that shows the *latest* log line emitted by the
 //! application while the agent is processing a long‑running task.
+// C# version implemented in codex-dotnet/CodexCli/Interactive/Widgets/StatusIndicatorWidget.cs (done)
 
 use std::sync::Arc;
 use std::sync::atomic::AtomicBool;
