@@ -683,3 +683,6 @@
 638. Added cross-language tests for login screen and Git warning
 639. Fixed comment style in `codex-rs/core/src/conversation_history.rs`
 640. TODO next run: continue porting TUI widgets and stabilize compatibility tests
+641. Verified dotnet 8 installation again and built CLI/tests
+642. Ran targeted tests including CrossCliFact-guarded suite
+643. TODO next run: continue porting TUI widgets and stabilize compatibility tests
