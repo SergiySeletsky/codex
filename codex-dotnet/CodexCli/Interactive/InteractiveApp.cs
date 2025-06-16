@@ -28,6 +28,16 @@ public static class InteractiveApp
                 logWriter = new StreamWriter(opts.EventLogFile, append: false);
             AnsiConsole.MarkupLine("[green]Codex interactive mode[/]");
             AnsiConsole.MarkupLine($"Session ID: [yellow]{sessionId}[/]");
+
+            var providerId = opts.ModelProvider ?? cfg?.ModelProvider;
+            if (providerId != null && ModelProviderInfo.BuiltIns.TryGetValue(providerId, out var provInfo))
+            {
+                if (ApiKeyManager.GetKey(provInfo) == null && provInfo.EnvKey != null)
+                {
+                    AnsiConsole.MarkupLine($"[yellow]No API key for {providerId}. Run 'codex provider login {providerId}' to set one.[/]");
+                }
+            }
+
             AnsiConsole.MarkupLine("Type /help for commands");
             if (!string.IsNullOrEmpty(opts.Prompt))
             {

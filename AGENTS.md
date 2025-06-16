@@ -676,3 +676,6 @@
 631. Added cross-language test verifying `codex-tui --help` output parity
 632. Added comment referencing C# port in `codex-rs/tui/src/main.rs`
 633. TODO next run: flesh out TUI features and extend compatibility tests
+634. InteractiveApp warns when API key missing for the selected provider
+635. Added cross-language test verifying `codex-tui --version` output parity
+636. TODO next run: implement login screen and git warning in .NET TUI and expand compatibility tests
