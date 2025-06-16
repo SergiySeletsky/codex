@@ -665,3 +665,5 @@
 620. Implemented `ENABLE_CROSS_CLI_TESTS` env var check to skip CrossCliCompatTests when unset
 621. Ran targeted tests again; compatibility tests now skip automatically
 622. TODO next run: port remaining Rust features and stabilize cross-language suite
+623. Marked CLI port complete by updating comment in `codex-rs/cli/src/lib.rs`
+624. TODO next run: review TUI features and expand cross-language tests
