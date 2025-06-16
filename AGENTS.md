@@ -736,3 +736,5 @@
 679. Updated InteractiveApp to use the callback and removed inline approval handling.
 680. Added ApprovalResponderInvoked unit test to ensure callbacks fire.
 681. TODO next run: finalize status indicator widget behavior and port remaining screens.
+682. Finalized StatusIndicatorWidget with animated dot pattern and inline updates.
+683. TODO next run: port user_approval_widget for TUI approvals.
