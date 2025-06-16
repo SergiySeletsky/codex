@@ -1,3 +1,4 @@
+// C# version implemented in codex-dotnet/CodexCli/Interactive/Widgets/BottomPaneView.cs (done)
 use crate::user_approval_widget::ApprovalRequest;
 use crossterm::event::KeyEvent;
 use ratatui::buffer::Buffer;

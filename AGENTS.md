@@ -790,3 +790,7 @@
      output using the PTY helper.
 712. TODO next run: flesh out bottom pane widgets and continue parity tests for
      interactive features.
+713. Implemented IBottomPaneView interface and StatusIndicatorView in C# referencing Rust bottom pane modules.
+714. Marked bottom pane view files in Rust as done and added BottomPane placeholder in C#.
+715. Added InteractiveConfigMatches cross-CLI test verifying /config output parity.
+716. TODO next run: implement ChatComposer and integrate BottomPane; extend interactive parity tests.
