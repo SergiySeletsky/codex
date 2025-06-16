@@ -657,3 +657,8 @@
 613. Fixed test execution by building tests before running
 614. ExecRunnerTests and ProviderCommandTests pass on .NET 8
 615. TODO next run: enable compatibility tests and verify remaining features
+
+616. Verified dotnet 8 installation and compiled CLI/tests
+617. Ran targeted tests again: ExecRunnerTests and ProviderCommandTests pass
+618. Attempted CrossCliCompatTests run but Rust compilation too slow; tests remain skipped
+619. TODO next run: add env-based conditional skip for cross-language tests and continue porting features
