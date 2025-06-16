@@ -189,9 +189,40 @@ public static class InteractiveApp
 
                 var info = cfg?.GetProvider(providerId ?? "openai") ?? ModelProviderInfo.BuiltIns[providerId ?? "openai"];
                 var client = new OpenAIClient(ApiKeyManager.GetKey(info), info.BaseUrl);
+                Func<Event, Task<ReviewDecision>> approvalHandler = async ev =>
+                {
+                    if (ev is ExecApprovalRequestEvent execReq)
+                    {
+                        if (execPolicy.IsForbidden(execReq.Command.First()))
+                        {
+                            chat.AddAgentMessage($"Denied '{string.Join(" ", execReq.Command)}' ({execPolicy.GetReason(execReq.Command.First())})");
+                            return ReviewDecision.Denied;
+                        }
+                        if (!execPolicy.VerifyCommand(execReq.Command.First(), execReq.Command.Skip(1)))
+                        {
+                            chat.AddAgentMessage($"Denied '{string.Join(" ", execReq.Command)}' (unverified)");
+                            return ReviewDecision.Denied;
+                        }
+                        chat.AddAgentMessage($"Run '{string.Join(" ", execReq.Command)}'? [y/N]");
+                        var resp = Console.ReadLine();
+                        var dec = resp?.StartsWith("y", StringComparison.OrdinalIgnoreCase) == true ? ReviewDecision.Approved : ReviewDecision.Denied;
+                        chat.AddAgentMessage(dec == ReviewDecision.Approved ? "Approved" : "Denied");
+                        return dec;
+                    }
+                    if (ev is PatchApplyApprovalRequestEvent patchReq)
+                    {
+                        chat.AddAgentMessage($"Apply patch? [y/N] {patchReq.PatchSummary}");
+                        var r = Console.ReadLine();
+                        var dec = r?.StartsWith("y", StringComparison.OrdinalIgnoreCase) == true ? ReviewDecision.Approved : ReviewDecision.Denied;
+                        chat.AddAgentMessage(dec == ReviewDecision.Approved ? "Approved" : "Denied");
+                        return dec;
+                    }
+                    return ReviewDecision.Denied;
+                };
+
                 var events = (info.Name == "Mock")
-                    ? CodexCli.Protocol.MockCodexAgent.RunAsync(prompt, Array.Empty<string>())
-                    : CodexCli.Protocol.RealCodexAgent.RunAsync(prompt, client, opts.Model ?? cfg?.Model ?? "default");
+                    ? CodexCli.Protocol.MockCodexAgent.RunAsync(prompt, Array.Empty<string>(), approvalHandler)
+                    : CodexCli.Protocol.RealCodexAgent.RunAsync(prompt, client, opts.Model ?? cfg?.Model ?? "default", approvalHandler);
                 await foreach (var ev in events)
                 {
                     processor.ProcessEvent(ev);
@@ -208,33 +239,6 @@ public static class InteractiveApp
                                 lastMessage = tc.LastAgentMessage;
                             }
                             status.UpdateText("ready");
-                            break;
-                        case ExecApprovalRequestEvent ar:
-                            if (execPolicy.IsForbidden(ar.Command.First()))
-                            {
-                                chat.AddAgentMessage($"Denied '{string.Join(" ", ar.Command)}' ({execPolicy.GetReason(ar.Command.First())})");
-                            }
-                            else if (!execPolicy.VerifyCommand(ar.Command.First(), ar.Command.Skip(1)))
-                            {
-                                chat.AddAgentMessage($"Denied '{string.Join(" ", ar.Command)}' (unverified)");
-                            }
-                            else
-                            {
-                                chat.AddAgentMessage($"Run '{string.Join(" ", ar.Command)}'? [y/N]");
-                                var resp = Console.ReadLine();
-                                if (resp?.StartsWith("y", StringComparison.OrdinalIgnoreCase) == true)
-                                    chat.AddAgentMessage("Approved");
-                                else
-                                    chat.AddAgentMessage("Denied");
-                            }
-                            break;
-                        case PatchApplyApprovalRequestEvent pr:
-                            chat.AddAgentMessage($"Apply patch? [y/N] {pr.PatchSummary}");
-                            var r = Console.ReadLine();
-                            if (r?.StartsWith("y", StringComparison.OrdinalIgnoreCase) == true)
-                                chat.AddAgentMessage("Approved");
-                            else
-                                chat.AddAgentMessage("Denied");
                             break;
                     }
                     if (logWriter != null)

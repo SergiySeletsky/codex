@@ -731,3 +731,8 @@
 674. Added ExecPolicy checks and interactive approval prompts.
 675. Updated tests after refactoring; targeted suites pass with .NET 8.
 676. TODO next run: port remaining TUI widgets (status indicator, login screens) fully and start sending approval responses back to agents.
+677. Added ReviewDecision enum and approval callbacks so InteractiveApp can send responses to agents.
+678. MockCodexAgent now invokes the callback and emits background events reflecting the decision.
+679. Updated InteractiveApp to use the callback and removed inline approval handling.
+680. Added ApprovalResponderInvoked unit test to ensure callbacks fire.
+681. TODO next run: finalize status indicator widget behavior and port remaining screens.
