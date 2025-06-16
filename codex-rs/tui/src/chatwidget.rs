@@ -1,3 +1,4 @@
+// C# version implemented in codex-dotnet/CodexTui/ChatWidget.cs (in progress)
 use std::path::PathBuf;
 use std::sync::Arc;
 

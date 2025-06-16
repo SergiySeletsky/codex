@@ -690,3 +690,6 @@
 645. Refactored `CodexTui` Program to use these screens
 646. Added cross-reference comments in `login_screen.rs` and `git_warning_screen.rs`
 647. TODO next run: port chat widgets and status indicator, then extend tests
+648. Created placeholder `ChatWidget.cs` and `StatusIndicatorWidget.cs` and added to CodexTui project
+649. Inserted cross-reference comments in `chatwidget.rs` and `status_indicator_widget.rs`
+650. TODO next run: integrate new widgets into the .NET TUI and write compatibility tests
