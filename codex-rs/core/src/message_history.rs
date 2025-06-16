@@ -1,4 +1,5 @@
 //! Persistence layer for the global, append-only *message history* file.
+//! C# version in `codex-dotnet/CodexCli/Util/MessageHistory.cs` (done)
 //!
 //! The history is stored at `~/.codex/history.jsonl` with **one JSON object per
 //! line** so that it can be efficiently appended to and parsed with standard

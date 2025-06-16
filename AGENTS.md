@@ -628,3 +628,11 @@
 585. Resource write/subscribe/unsubscribe return JSON and events
 586. Logging set-level command supports JSON output
 587. TODO next run: stabilize tests and enable cross-language suite
+588. Added comments referencing C# ports in proto.rs, login.rs, debug_sandbox.rs and message_history.rs
+589. Created cross-language tests verifying `mcp-manager servers --json`
+590. Added test for `roots add` JSON output parity
+591. Added test for `prompts add` JSON output parity
+592. Added test for `messages add` JSON output parity
+593. Added test for `resources write` JSON output parity
+594. Added test for `set-level --json` parity
+595. TODO next run: finalize JSON/event parity and enable cross-language tests

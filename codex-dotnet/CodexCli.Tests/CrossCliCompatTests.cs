@@ -143,4 +143,58 @@ args = ["run", "--project", "../codex-dotnet/CodexCli", "mcp"]
 """);
         return path;
     }
+
+    [Fact(Skip="requires rust toolchain")]
+    public void ServersListJsonMatches()
+    {
+        var cfg = CreateTempConfig();
+        var dotnet = RunProcess("dotnet", $"run --project ../codex-dotnet/CodexCli --config {cfg} mcp-manager servers --json");
+        var rust = RunProcess("cargo", $"run --quiet --manifest-path ../codex-rs/cli/Cargo.toml -- --config {cfg} mcp-manager servers --json");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [Fact(Skip="requires rust toolchain")]
+    public void RootsAddJsonMatches()
+    {
+        var cfg = CreateTempConfig();
+        var dotnet = RunProcess("bash", $"-c 'dotnet run --project ../codex-dotnet/CodexCli --config {cfg} mcp-manager roots add --server test x && dotnet run --project ../codex-dotnet/CodexCli --config {cfg} mcp-manager roots list --server test --json'");
+        var rust = RunProcess("bash", $"-c 'cargo run --quiet --manifest-path ../codex-rs/cli/Cargo.toml -- --config {cfg} mcp-manager roots add --server test x && cargo run --quiet --manifest-path ../codex-rs/cli/Cargo.toml -- --config {cfg} mcp-manager roots list --server test --json'");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [Fact(Skip="requires rust toolchain")]
+    public void PromptsAddJsonMatches()
+    {
+        var cfg = CreateTempConfig();
+        var dotnet = RunProcess("bash", $"-c 'dotnet run --project ../codex-dotnet/CodexCli --config {cfg} mcp-manager prompts add --server test demo \"hello\" && dotnet run --project ../codex-dotnet/CodexCli --config {cfg} mcp-manager prompts get --server test demo --json'");
+        var rust = RunProcess("bash", $"-c 'cargo run --quiet --manifest-path ../codex-rs/cli/Cargo.toml -- --config {cfg} mcp-manager prompts add --server test demo \"hello\" && cargo run --quiet --manifest-path ../codex-rs/cli/Cargo.toml -- --config {cfg} mcp-manager prompts get --server test demo --json'");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [Fact(Skip="requires rust toolchain")]
+    public void MessagesAddJsonMatches()
+    {
+        var cfg = CreateTempConfig();
+        var dotnet = RunProcess("bash", $"-c 'dotnet run --project ../codex-dotnet/CodexCli --config {cfg} mcp-manager messages add --server test hi --json && dotnet run --project ../codex-dotnet/CodexCli --config {cfg} mcp-manager messages get --server test 0 --json'");
+        var rust = RunProcess("bash", $"-c 'cargo run --quiet --manifest-path ../codex-rs/cli/Cargo.toml -- --config {cfg} mcp-manager messages add --server test hi --json && cargo run --quiet --manifest-path ../codex-rs/cli/Cargo.toml -- --config {cfg} mcp-manager messages get --server test 0 --json'");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [Fact(Skip="requires rust toolchain")]
+    public void ResourcesWriteJsonMatches()
+    {
+        var cfg = CreateTempConfig();
+        var dotnet = RunProcess("bash", $"-c 'dotnet run --project ../codex-dotnet/CodexCli --config {cfg} mcp-manager resources write --server test r1 hi --json && dotnet run --project ../codex-dotnet/CodexCli --config {cfg} mcp-manager resources list --server test --json'");
+        var rust = RunProcess("bash", $"-c 'cargo run --quiet --manifest-path ../codex-rs/cli/Cargo.toml -- --config {cfg} mcp-manager resources write --server test r1 hi --json && cargo run --quiet --manifest-path ../codex-rs/cli/Cargo.toml -- --config {cfg} mcp-manager resources list --server test --json'");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [Fact(Skip="requires rust toolchain")]
+    public void LoggingSetLevelJsonMatches()
+    {
+        var cfg = CreateTempConfig();
+        var dotnet = RunProcess("dotnet", $"run --project ../codex-dotnet/CodexCli --config {cfg} mcp-manager set-level --server test debug --json");
+        var rust = RunProcess("cargo", $"run --quiet --manifest-path ../codex-rs/cli/Cargo.toml -- --config {cfg} mcp-manager set-level --server test debug --json");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
 }
