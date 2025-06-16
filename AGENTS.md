@@ -770,3 +770,9 @@
      `Console.ReadKey` fails when stdin is redirected. Deferred full parity test.
 702. TODO next run: explore using a pseudo terminal for cross-language
      interactive tests and continue polishing the TUI widgets.
+703. Reinstalled .NET 8 SDK in fresh container and built CLI/tests successfully.
+704. Added `RunProcessWithPty` helper using `script` to allocate a TTY and
+     updated `TuiLoginScreenMatches` test to invoke both binaries via this
+     method.
+705. TODO next run: use the new helper for end-to-end interactive tests and
+     handle ANSI sanitization differences.

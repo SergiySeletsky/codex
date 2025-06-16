@@ -38,8 +38,8 @@ public class CrossCliCompatTests
     [CrossCliFact]
     public void TuiLoginScreenMatches()
     {
-        var dotnet = RunProcess("bash", "-c 'printf q | dotnet run --project ../codex-dotnet/CodexTui --skip-git-repo-check'");
-        var rust = RunProcess("bash", "-c 'printf q | cargo run --quiet --manifest-path ../codex-rs/tui/Cargo.toml -- --skip-git-repo-check'");
+        var dotnet = RunProcessWithPty("dotnet run --project ../codex-dotnet/CodexTui --skip-git-repo-check", "q\n");
+        var rust = RunProcessWithPty("cargo run --quiet --manifest-path ../codex-rs/tui/Cargo.toml -- --skip-git-repo-check", "q\n");
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 
@@ -181,6 +181,28 @@ public class CrossCliCompatTests
         string stdout = p.StandardOutput.ReadToEnd();
         string stderr = p.StandardError.ReadToEnd();
         p.WaitForExit();
+        return (stdout, stderr);
+    }
+
+    private (string stdout, string stderr) RunProcessWithPty(string command, string input)
+    {
+        var escaped = command.Replace("'", "'\\''");
+        var psi = new ProcessStartInfo("bash", $"-c \"script -qfec '{escaped}' /dev/null\"")
+        {
+            RedirectStandardInput = true,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false
+        };
+        var p = Process.Start(psi)!;
+        if (!string.IsNullOrEmpty(input))
+            p.StandardInput.Write(input);
+        p.StandardInput.Close();
+        string stdout = p.StandardOutput.ReadToEnd();
+        string stderr = p.StandardError.ReadToEnd();
+        p.WaitForExit();
+        if (stdout.StartsWith(input))
+            stdout = stdout.Substring(input.Length);
         return (stdout, stderr);
     }
 
