@@ -2,7 +2,7 @@ using CodexCli;
 using CodexCli.Config;
 using CodexCli.Util;
 using Spectre.Console;
-using CodexTui;
+using CodexCli.Interactive;
 
 class Program
 {

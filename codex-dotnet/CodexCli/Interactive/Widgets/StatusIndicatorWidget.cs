@@ -1,7 +1,7 @@
 using Spectre.Console;
 using CodexCli.Util;
 
-namespace CodexTui;
+namespace CodexCli.Interactive;
 
 /// <summary>
 /// Minimal status indicator placeholder.

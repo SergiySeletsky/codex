@@ -701,3 +701,11 @@
 655. Updated `StatusIndicatorWidget` and `ChatWidget` to sanitize text via `AnsiEscape`
 656. Added unit test `AnsiEscapeUtilsTests` verifying escape stripping
 657. TODO next run: enhance interactive display using the widgets and port additional TUI components
+658. InteractiveApp now renders messages through `ChatWidget` and shows a running
+     `StatusIndicatorWidget`
+659. Moved chat and status widget classes into `CodexCli` so both CLI and TUI can
+     share them
+660. Updated `CodexTui` project to reference widget sources from `CodexCli`
+661. Added status updates and message sanitizing in the interactive loop
+662. Build and tests run on .NET 8; cross-CLI tests remain skipped by default
+663. TODO next run: port scrolling, history widget and event streaming from Rust

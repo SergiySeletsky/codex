@@ -26,24 +26,30 @@ public static class InteractiveApp
             StreamWriter? logWriter = null;
             if (opts.EventLogFile != null)
                 logWriter = new StreamWriter(opts.EventLogFile, append: false);
-            AnsiConsole.MarkupLine("[green]Codex interactive mode[/]");
-            AnsiConsole.MarkupLine($"Session ID: [yellow]{sessionId}[/]");
+
+            var chat = new ChatWidget();
+            using var status = new StatusIndicatorWidget();
+            status.Start();
+            status.UpdateText("ready");
+
+            chat.AddAgentMessage("Codex interactive mode");
+            chat.AddAgentMessage($"Session ID: {sessionId}");
 
             var providerId = opts.ModelProvider ?? cfg?.ModelProvider;
             if (providerId != null && ModelProviderInfo.BuiltIns.TryGetValue(providerId, out var provInfo))
             {
                 if (ApiKeyManager.GetKey(provInfo) == null && provInfo.EnvKey != null)
                 {
-                    AnsiConsole.MarkupLine($"[yellow]No API key for {providerId}. Run 'codex provider login {providerId}' to set one.[/]");
+                    chat.AddAgentMessage($"No API key for {providerId}. Run 'codex provider login {providerId}' to set one.");
                 }
             }
 
-            AnsiConsole.MarkupLine("Type /help for commands");
+            chat.AddAgentMessage("Type /help for commands");
             if (!string.IsNullOrEmpty(opts.Prompt))
             {
                 history.Add(opts.Prompt);
                 SessionManager.AddEntry(sessionId, opts.Prompt);
-                AnsiConsole.MarkupLine($"Initial prompt: [blue]{opts.Prompt}[/]");
+                chat.AddUserMessage(opts.Prompt);
             }
             while (true)
             {
@@ -53,7 +59,7 @@ public static class InteractiveApp
                 if (prompt.Equals("/history", StringComparison.OrdinalIgnoreCase))
                 {
                     foreach (var item in history)
-                        AnsiConsole.MarkupLine($"[blue]{item}[/]");
+                        chat.AddAgentMessage(item);
                     continue;
                 }
                 if (prompt.Equals("/reset", StringComparison.OrdinalIgnoreCase) ||
@@ -62,30 +68,31 @@ public static class InteractiveApp
                     history.Clear();
                     SessionManager.ClearHistory(sessionId);
                     sessionId = SessionManager.CreateSession();
-                    AnsiConsole.MarkupLine($"Started new session [yellow]{sessionId}[/]");
+                    chat.AddAgentMessage($"Started new session {sessionId}");
+                    status.UpdateText("new session");
                     continue;
                 }
                 if (prompt.Equals("/help", StringComparison.OrdinalIgnoreCase))
                 {
-                    AnsiConsole.MarkupLine("Available commands: /history, /new, /quit, /help, /log, /config, /save <file>, /save-last <file>, /version, /sessions, /delete <id>");
+                    chat.AddAgentMessage("Available commands: /history, /new, /quit, /help, /log, /config, /save <file>, /save-last <file>, /version, /sessions, /delete <id>");
                     continue;
                 }
                 if (prompt.Equals("/log", StringComparison.OrdinalIgnoreCase))
                 {
                     var dir = cfg != null ? EnvUtils.GetLogDir(cfg) : Path.Combine(EnvUtils.FindCodexHome(), "log");
-                    AnsiConsole.MarkupLine($"Log dir: [blue]{dir}[/]");
+                    chat.AddAgentMessage($"Log dir: {dir}");
                     continue;
                 }
                 if (prompt.Equals("/version", StringComparison.OrdinalIgnoreCase))
                 {
                     var ver = typeof(InteractiveApp).Assembly.GetName().Version?.ToString() ?? "?";
-                    AnsiConsole.MarkupLine($"Version: [blue]{ver}[/]");
+                    chat.AddAgentMessage($"Version: {ver}");
                     continue;
                 }
                 if (prompt.Equals("/sessions", StringComparison.OrdinalIgnoreCase))
                 {
                     foreach (var info in SessionManager.ListSessionsWithInfo())
-                        AnsiConsole.MarkupLine($"{info.Id} {info.Start:o}");
+                        chat.AddAgentMessage($"{info.Id} {info.Start:o}");
                     continue;
                 }
                 if (prompt.StartsWith("/delete", StringComparison.OrdinalIgnoreCase))
@@ -93,35 +100,35 @@ public static class InteractiveApp
                     var parts = prompt.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
                     if (parts.Length < 2)
                     {
-                        AnsiConsole.MarkupLine("Usage: /delete <id>");
+                        chat.AddAgentMessage("Usage: /delete <id>");
                         continue;
                     }
                     var id = parts[1];
                     if (SessionManager.DeleteSession(id))
-                        AnsiConsole.MarkupLine($"Deleted {id}");
+                        chat.AddAgentMessage($"Deleted {id}");
                     else
-                        AnsiConsole.MarkupLine($"Session {id} not found");
+                        chat.AddAgentMessage($"Session {id} not found");
                     continue;
                 }
                 if (prompt.Equals("/config", StringComparison.OrdinalIgnoreCase))
                 {
                     if (cfg != null)
                     {
-                        AnsiConsole.MarkupLine($"Model: [blue]{cfg.Model}[/]");
+                        chat.AddAgentMessage($"Model: {cfg.Model}");
                         if (!string.IsNullOrEmpty(cfg.ModelProvider))
-                            AnsiConsole.MarkupLine($"Provider: [blue]{cfg.ModelProvider}[/]");
+                            chat.AddAgentMessage($"Provider: {cfg.ModelProvider}");
                         var codexHome = cfg.CodexHome ?? EnvUtils.FindCodexHome();
-                        AnsiConsole.MarkupLine($"CodexHome: [blue]{codexHome}[/]");
-                        AnsiConsole.MarkupLine($"Hide reasoning: [blue]{cfg.HideAgentReasoning}[/]");
-                        AnsiConsole.MarkupLine($"Disable storage: [blue]{cfg.DisableResponseStorage}[/]");
+                        chat.AddAgentMessage($"CodexHome: {codexHome}");
+                        chat.AddAgentMessage($"Hide reasoning: {cfg.HideAgentReasoning}");
+                        chat.AddAgentMessage($"Disable storage: {cfg.DisableResponseStorage}");
                         if (cfg.ModelReasoningEffort != null)
-                            AnsiConsole.MarkupLine($"Reasoning effort: [blue]{cfg.ModelReasoningEffort}[/]");
+                            chat.AddAgentMessage($"Reasoning effort: {cfg.ModelReasoningEffort}");
                         if (cfg.ModelReasoningSummary != null)
-                            AnsiConsole.MarkupLine($"Reasoning summary: [blue]{cfg.ModelReasoningSummary}[/]");
+                            chat.AddAgentMessage($"Reasoning summary: {cfg.ModelReasoningSummary}");
                     }
                     else
                     {
-                        AnsiConsole.MarkupLine("No config loaded");
+                        chat.AddAgentMessage("No config loaded");
                     }
                     continue;
                 }
@@ -130,11 +137,11 @@ public static class InteractiveApp
                     var parts = prompt.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
                     if (parts.Length < 2 || lastMessage == null)
                     {
-                        AnsiConsole.MarkupLine("Usage: /save-last <file>");
+                        chat.AddAgentMessage("Usage: /save-last <file>");
                         continue;
                     }
                     File.WriteAllText(parts[1], lastMessage);
-                    AnsiConsole.MarkupLine($"Saved last message to [green]{parts[1]}[/]");
+                    chat.AddAgentMessage($"Saved last message to {parts[1]}");
                     continue;
                 }
                 if (prompt.StartsWith("/save", StringComparison.OrdinalIgnoreCase))
@@ -142,12 +149,12 @@ public static class InteractiveApp
                     var parts = prompt.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
                     if (parts.Length < 2)
                     {
-                        AnsiConsole.MarkupLine("Usage: /save <file>");
+                        chat.AddAgentMessage("Usage: /save <file>");
                         continue;
                     }
                     var file = parts[1];
                     File.WriteAllLines(file, history);
-                    AnsiConsole.MarkupLine($"Saved history to [green]{file}[/]");
+                    chat.AddAgentMessage($"Saved history to {file}");
                     continue;
                 }
                 history.Add(prompt);
@@ -155,7 +162,8 @@ public static class InteractiveApp
                 if (logWriter != null)
                     logWriter.WriteLine(prompt);
                 lastMessage = prompt;
-                AnsiConsole.MarkupLine($"You typed: [blue]{prompt}[/]");
+                chat.AddUserMessage(prompt);
+                status.UpdateText(prompt);
             }
             if (logWriter != null)
             {
@@ -163,7 +171,7 @@ public static class InteractiveApp
                 logWriter.Dispose();
             }
             if (SessionManager.GetHistoryFile(sessionId) is { } path)
-                AnsiConsole.MarkupLine($"History saved to [green]{path}[/]");
+                chat.AddAgentMessage($"History saved to {path}");
             if (opts.LastMessageFile != null && lastMessage != null)
                 File.WriteAllText(opts.LastMessageFile, lastMessage);
         }
