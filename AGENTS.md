@@ -662,3 +662,6 @@
 617. Ran targeted tests again: ExecRunnerTests and ProviderCommandTests pass
 618. Attempted CrossCliCompatTests run but Rust compilation too slow; tests remain skipped
 619. TODO next run: add env-based conditional skip for cross-language tests and continue porting features
+620. Implemented `ENABLE_CROSS_CLI_TESTS` env var check to skip CrossCliCompatTests when unset
+621. Ran targeted tests again; compatibility tests now skip automatically
+622. TODO next run: port remaining Rust features and stabilize cross-language suite
