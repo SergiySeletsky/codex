@@ -776,3 +776,7 @@
      method.
 705. TODO next run: use the new helper for end-to-end interactive tests and
      handle ANSI sanitization differences.
+706. Added `InteractiveQuitMatches` test running both CLIs through the new
+     pseudo-terminal helper and verifying `/quit` behavior.
+707. TODO next run: sanitize outputs with `AnsiEscape.StripAnsi` and ensure
+     `RunProcessWithPty` executes from repo root to avoid path issues.
