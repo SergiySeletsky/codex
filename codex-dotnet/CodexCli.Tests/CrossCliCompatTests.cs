@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.IO;
+using CodexCli.Util;
 using Xunit;
 
 public class CrossCliCompatTests
@@ -40,7 +41,9 @@ public class CrossCliCompatTests
     {
         var dotnet = RunProcessWithPty("dotnet run --project ../codex-dotnet/CodexTui --skip-git-repo-check", "q\n");
         var rust = RunProcessWithPty("cargo run --quiet --manifest-path ../../codex-rs/tui/Cargo.toml -- --skip-git-repo-check", "q\n");
-        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+        var dOut = AnsiEscape.StripAnsi(dotnet.stdout).Trim();
+        var rOut = AnsiEscape.StripAnsi(rust.stdout).Trim();
+        Assert.Equal(rOut, dOut);
     }
 
     [CrossCliFact]
@@ -48,7 +51,9 @@ public class CrossCliCompatTests
     {
         var dotnet = RunProcessWithPty("dotnet run --project ../codex-dotnet/CodexCli interactive hi --model-provider Mock --hide-agent-reasoning --disable-response-storage --no-project-doc", "/quit\n");
         var rust = RunProcessWithPty("cargo run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- interactive hi --model-provider Mock --hide-agent-reasoning --disable-response-storage --no-project-doc", "/quit\n");
-        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+        var dOut = AnsiEscape.StripAnsi(dotnet.stdout).Trim();
+        var rOut = AnsiEscape.StripAnsi(rust.stdout).Trim();
+        Assert.Equal(rOut, dOut);
     }
 
     [CrossCliFact]
@@ -195,12 +200,14 @@ public class CrossCliCompatTests
     private (string stdout, string stderr) RunProcessWithPty(string command, string input)
     {
         var escaped = command.Replace("'", "'\\''");
+        var repoRoot = GitUtils.GetRepoRoot(Directory.GetCurrentDirectory())!;
         var psi = new ProcessStartInfo("bash", $"-c \"script -qfec '{escaped}' /dev/null\"")
         {
             RedirectStandardInput = true,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
-            UseShellExecute = false
+            UseShellExecute = false,
+            WorkingDirectory = repoRoot
         };
         var p = Process.Start(psi)!;
         if (!string.IsNullOrEmpty(input))

@@ -780,3 +780,7 @@
      pseudo-terminal helper and verifying `/quit` behavior.
 707. TODO next run: sanitize outputs with `AnsiEscape.StripAnsi` and ensure
      `RunProcessWithPty` executes from repo root to avoid path issues.
+708. Updated `RunProcessWithPty` to set its working directory to the repo root
+     and applied `AnsiEscape.StripAnsi` to outputs in interactive tests.
+709. TODO next run: port remaining TUI features and extend cross-language tests
+     for full session parity.
