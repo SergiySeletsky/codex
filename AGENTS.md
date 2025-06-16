@@ -763,3 +763,10 @@
      interactive help output matches the Rust `codex-tui` binary.
 699. TODO next run: attempt end-to-end interactive session parity and polish
      remaining widgets.
+
+700. Installed .NET 8 on the CI image and verified `dotnet test` can run. Executed
+     `AnsiEscapeUtilsTests` successfully as a smoke check.
+701. Attempted to run an end-to-end interactive session via `CodexTui` but
+     `Console.ReadKey` fails when stdin is redirected. Deferred full parity test.
+702. TODO next run: explore using a pseudo terminal for cross-language
+     interactive tests and continue polishing the TUI widgets.
