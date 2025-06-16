@@ -45,6 +45,20 @@ class Program
         var newArgs = new string[args.Length + 1];
         newArgs[0] = "interactive";
         Array.Copy(args, 0, newArgs, 1, args.Length);
-        return await CodexCli.Program.Main(newArgs);
+
+        // Basic integration of placeholder widgets. Real-time event streaming
+        // like the Rust version is not yet implemented, but we display the
+        // widgets so the UI structure matches. ChatWidget.cs and
+        // StatusIndicatorWidget.cs mirror the Rust implementations.
+        var chat = new ChatWidget();
+        chat.AddAgentMessage("Codex ready.");
+        using var status = new StatusIndicatorWidget();
+        status.Start();
+
+        var rc = await CodexCli.Program.Main(newArgs);
+
+        status.Dispose();
+        chat.Render();
+        return rc;
     }
 }

@@ -693,3 +693,6 @@
 648. Created placeholder `ChatWidget.cs` and `StatusIndicatorWidget.cs` and added to CodexTui project
 649. Inserted cross-reference comments in `chatwidget.rs` and `status_indicator_widget.rs`
 650. TODO next run: integrate new widgets into the .NET TUI and write compatibility tests
+651. Integrated placeholder `ChatWidget` and `StatusIndicatorWidget` into `CodexTui` Program
+652. Marked chat widget and status indicator comments as done in Rust sources
+653. TODO next run: flesh out widget functionality and extend compatibility tests

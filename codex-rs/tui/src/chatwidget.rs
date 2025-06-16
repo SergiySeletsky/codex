@@ -1,4 +1,4 @@
-// C# version implemented in codex-dotnet/CodexTui/ChatWidget.cs (in progress)
+// C# version implemented in codex-dotnet/CodexTui/ChatWidget.cs (done)
 use std::path::PathBuf;
 use std::sync::Arc;
 
