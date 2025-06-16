@@ -1,3 +1,4 @@
+// C# analog handled inline in codex-dotnet/CodexCli/Interactive/InteractiveApp.cs (done)
 use crossterm::event::DisableMouseCapture;
 use crossterm::event::EnableMouseCapture;
 use ratatui::crossterm::execute;

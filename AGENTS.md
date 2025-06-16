@@ -784,3 +784,9 @@
      and applied `AnsiEscape.StripAnsi` to outputs in interactive tests.
 709. TODO next run: port remaining TUI features and extend cross-language tests
      for full session parity.
+710. Reinstalled .NET 8 SDK in fresh container and confirmed basic `dotnet`
+     commands work.
+711. Added `InteractiveHistoryMatches` cross-CLI test to compare `/history`
+     output using the PTY helper.
+712. TODO next run: flesh out bottom pane widgets and continue parity tests for
+     interactive features.
