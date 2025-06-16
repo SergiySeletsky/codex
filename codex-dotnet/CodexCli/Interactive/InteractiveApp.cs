@@ -238,6 +238,33 @@ public static class InteractiveApp
                             chat.AddAgentMessage(am.Message);
                             lastMessage = am.Message;
                             break;
+                        case BackgroundEvent bg:
+                            chat.AddSystemMessage(bg.Message);
+                            break;
+                        case ErrorEvent err:
+                            chat.AddSystemMessage($"ERROR: {err.Message}");
+                            break;
+                        case ExecCommandBeginEvent beginEv:
+                            chat.AddSystemMessage($"exec {string.Join(" ", beginEv.Command)} in {beginEv.Cwd}");
+                            break;
+                        case ExecCommandEndEvent endEv:
+                            chat.AddSystemMessage($"exec {(endEv.ExitCode == 0 ? "succeeded" : $"exited {endEv.ExitCode}")}");
+                            break;
+                        case PatchApplyBeginEvent pb:
+                            chat.AddSystemMessage($"apply_patch auto_approved={pb.AutoApproved}");
+                            break;
+                        case PatchApplyEndEvent pe:
+                            chat.AddSystemMessage($"apply_patch {(pe.Success ? "succeeded" : "failed")}");
+                            break;
+                        case McpToolCallBeginEvent mc:
+                            chat.AddSystemMessage($"tool {mc.Server}.{mc.Tool}");
+                            break;
+                        case McpToolCallEndEvent mce:
+                            chat.AddSystemMessage($"tool {(mce.IsSuccess ? "success" : "failed")}");
+                            break;
+                        case AgentReasoningEvent ar when !hideReason:
+                            chat.AddSystemMessage(ar.Text);
+                            break;
                         case TaskCompleteEvent tc:
                             if (tc.LastAgentMessage != null)
                             {

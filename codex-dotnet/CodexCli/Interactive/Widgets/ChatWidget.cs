@@ -7,7 +7,7 @@ namespace CodexCli.Interactive;
 /// Very minimal chat widget placeholder.
 /// Mirrors codex-rs/tui/src/chatwidget.rs (in progress).
 /// </summary>
-internal class ChatWidget
+public class ChatWidget
 {
     private readonly ConversationHistoryWidget _history = new();
 
@@ -25,8 +25,17 @@ internal class ChatWidget
         AnsiConsole.MarkupLine($"[bold green]Codex:[/] {clean}");
     }
 
+    public void AddSystemMessage(string text)
+    {
+        var clean = AnsiEscape.StripAnsi(text);
+        _history.Add($"[bold yellow]System:[/] {clean}");
+        AnsiConsole.MarkupLine($"[bold yellow]System:[/] {clean}");
+    }
+
     public void ScrollUp(int lines) => _history.ScrollUp(lines);
     public void ScrollDown(int lines) => _history.ScrollDown(lines);
+
+    public IReadOnlyList<string> GetVisibleLines(int height) => _history.GetVisibleLines(height);
 
     public void Render(int height = 10)
     {

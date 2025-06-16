@@ -750,3 +750,12 @@
      events appear in the log.
 692. TODO next run: expand TUI widget functionality and stabilize cross-language
      tests.
+693. Added `ChatWidget.AddSystemMessage` for log output and exposed
+     `GetVisibleLines` to support testing.
+694. InteractiveApp now logs background and command events through the chat
+     widget for history rendering.
+695. Introduced `ChatWidgetTests` confirming system messages are stored
+     correctly.
+696. Fixed `CodexTui` namespace and csproj items so the project builds.
+697. TODO next run: add cross-language interactive tests and continue refining
+     TUI widgets.

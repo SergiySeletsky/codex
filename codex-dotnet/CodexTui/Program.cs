@@ -5,6 +5,8 @@ using Spectre.Console;
 using CodexCli.Interactive;
 using CodexCli.Protocol;
 
+namespace CodexTui;
+
 class Program
 {
     public static async Task<int> Main(string[] args)
@@ -53,7 +55,7 @@ class Program
         {
             return Task.FromResult(ev switch
             {
-                ExecApprovalRequestEvent e => widget.PromptExec(e.Command.ToArray(), e.Cwd),
+                ExecApprovalRequestEvent e => widget.PromptExec(e.Command.ToArray(), Environment.CurrentDirectory),
                 PatchApplyApprovalRequestEvent p => widget.PromptPatch(p.PatchSummary),
                 _ => ReviewDecision.Denied
             });
