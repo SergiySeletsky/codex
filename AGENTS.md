@@ -742,3 +742,11 @@
 685. Added unit tests for UserApprovalWidget.
 686. Inserted cross-reference comment in user_approval_widget.rs.
 687. TODO next run: integrate UserApprovalWidget into CodexTui event handling.
+688. Added `InteractiveApp.ApprovalHandler` property for custom approval prompts.
+689. CodexTui now sets `ApprovalHandler` using `UserApprovalWidget` and no longer
+     displays placeholder chat/status widgets.
+690. Updated Rust `user_approval_widget.rs` comment to mark C# port done.
+691. Created unit test `InteractiveAppApprovalTests` verifying approval handler
+     events appear in the log.
+692. TODO next run: expand TUI widget functionality and stabilize cross-language
+     tests.

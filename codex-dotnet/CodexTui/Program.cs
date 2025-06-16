@@ -3,6 +3,7 @@ using CodexCli.Config;
 using CodexCli.Util;
 using Spectre.Console;
 using CodexCli.Interactive;
+using CodexCli.Protocol;
 
 class Program
 {
@@ -46,19 +47,25 @@ class Program
         newArgs[0] = "interactive";
         Array.Copy(args, 0, newArgs, 1, args.Length);
 
-        // Basic integration of placeholder widgets. Real-time event streaming
-        // like the Rust version is not yet implemented, but we display the
-        // widgets so the UI structure matches. ChatWidget.cs and
-        // StatusIndicatorWidget.cs mirror the Rust implementations.
-        var chat = new ChatWidget();
-        chat.AddAgentMessage("Codex ready.");
-        using var status = new StatusIndicatorWidget();
-        status.Start();
+        // Provide interactive approval handler using the UserApprovalWidget.
+        var widget = new UserApprovalWidget();
+        InteractiveApp.ApprovalHandler = ev =>
+        {
+            return Task.FromResult(ev switch
+            {
+                ExecApprovalRequestEvent e => widget.PromptExec(e.Command.ToArray(), e.Cwd),
+                PatchApplyApprovalRequestEvent p => widget.PromptPatch(p.PatchSummary),
+                _ => ReviewDecision.Denied
+            });
+        };
 
-        var rc = await CodexCli.Program.Main(newArgs);
-
-        status.Dispose();
-        chat.Render();
-        return rc;
+        try
+        {
+            return await CodexCli.Program.Main(newArgs);
+        }
+        finally
+        {
+            InteractiveApp.ApprovalHandler = null;
+        }
     }
 }

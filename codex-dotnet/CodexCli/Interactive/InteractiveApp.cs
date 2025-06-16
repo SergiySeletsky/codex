@@ -15,6 +15,9 @@ namespace CodexCli.Interactive;
 /// </summary>
 public static class InteractiveApp
 {
+    /// <summary>Optional handler for approval requests when running interactively.</summary>
+    public static Func<Event, Task<ReviewDecision>>? ApprovalHandler { get; set; }
+
     public static async Task RunAsync(InteractiveOptions opts, AppConfig? cfg)
     {
         bool enableMouse = !(cfg?.Tui.DisableMouseCapture ?? false);
@@ -189,7 +192,8 @@ public static class InteractiveApp
 
                 var info = cfg?.GetProvider(providerId ?? "openai") ?? ModelProviderInfo.BuiltIns[providerId ?? "openai"];
                 var client = new OpenAIClient(ApiKeyManager.GetKey(info), info.BaseUrl);
-                Func<Event, Task<ReviewDecision>> approvalHandler = async ev =>
+
+                async Task<ReviewDecision> DefaultApproval(Event ev)
                 {
                     if (ev is ExecApprovalRequestEvent execReq)
                     {
@@ -218,7 +222,9 @@ public static class InteractiveApp
                         return dec;
                     }
                     return ReviewDecision.Denied;
-                };
+                }
+
+                var approvalHandler = ApprovalHandler ?? DefaultApproval;
 
                 var events = (info.Name == "Mock")
                     ? CodexCli.Protocol.MockCodexAgent.RunAsync(prompt, Array.Empty<string>(), approvalHandler)
