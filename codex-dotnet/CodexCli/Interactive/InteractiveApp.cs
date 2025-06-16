@@ -29,6 +29,11 @@ public static class InteractiveApp
             if (opts.EventLogFile != null)
                 logWriter = new StreamWriter(opts.EventLogFile, append: false);
 
+            bool withAnsi = !Console.IsOutputRedirected;
+            bool hideReason = opts.HideAgentReasoning ?? cfg?.HideAgentReasoning ?? false;
+            var processor = new EventProcessor(withAnsi, !hideReason, cfg?.FileOpener ?? UriBasedFileOpener.None, Environment.CurrentDirectory);
+            var execPolicy = ExecPolicy.LoadDefault();
+
             var chat = new ChatWidget();
             using var status = new StatusIndicatorWidget();
             status.Start();
@@ -189,47 +194,12 @@ public static class InteractiveApp
                     : CodexCli.Protocol.RealCodexAgent.RunAsync(prompt, client, opts.Model ?? cfg?.Model ?? "default");
                 await foreach (var ev in events)
                 {
+                    processor.ProcessEvent(ev);
                     switch (ev)
                     {
                         case AgentMessageEvent am:
                             chat.AddAgentMessage(am.Message);
                             lastMessage = am.Message;
-                            break;
-                        case BackgroundEvent bg:
-                            chat.AddAgentMessage($"{bg.Message}");
-                            break;
-                        case ErrorEvent err:
-                            chat.AddAgentMessage($"ERROR: {err.Message}");
-                            break;
-                        case ExecCommandBeginEvent begin:
-                            chat.AddAgentMessage($"exec {string.Join(' ', begin.Command)} in {begin.Cwd}");
-                            break;
-                        case ExecCommandEndEvent end:
-                            chat.AddAgentMessage(end.ExitCode == 0 ? "exec succeeded" : $"exec exited {end.ExitCode}");
-                            break;
-                        case ExecApprovalRequestEvent ar:
-                            chat.AddAgentMessage($"approval required for {string.Join(' ', ar.Command)} (auto-approving)");
-                            break;
-                        case PatchApplyApprovalRequestEvent pr:
-                            chat.AddAgentMessage($"patch approval required: {pr.PatchSummary} (auto-approving)");
-                            break;
-                        case PatchApplyBeginEvent pb:
-                            chat.AddAgentMessage($"apply_patch auto_approved={pb.AutoApproved}");
-                            foreach (var pathKey in pb.Changes.Keys)
-                                chat.AddAgentMessage(pathKey);
-                            break;
-                        case PatchApplyEndEvent pe:
-                            chat.AddAgentMessage(pe.Success ? "apply_patch succeeded" : "apply_patch failed");
-                            break;
-                        case McpToolCallBeginEvent mc:
-                            var inv = $"{mc.Server}.{mc.Tool}" + (string.IsNullOrEmpty(mc.ArgumentsJson) ? "()" : $"({mc.ArgumentsJson})");
-                            chat.AddAgentMessage($"tool {inv}");
-                            break;
-                        case McpToolCallEndEvent me:
-                            chat.AddAgentMessage(me.IsSuccess ? "tool success" : "tool failed");
-                            break;
-                        case AgentReasoningEvent ar2:
-                            chat.AddAgentMessage(ar2.Text);
                             break;
                         case TaskCompleteEvent tc:
                             if (tc.LastAgentMessage != null)
@@ -238,6 +208,33 @@ public static class InteractiveApp
                                 lastMessage = tc.LastAgentMessage;
                             }
                             status.UpdateText("ready");
+                            break;
+                        case ExecApprovalRequestEvent ar:
+                            if (execPolicy.IsForbidden(ar.Command.First()))
+                            {
+                                chat.AddAgentMessage($"Denied '{string.Join(" ", ar.Command)}' ({execPolicy.GetReason(ar.Command.First())})");
+                            }
+                            else if (!execPolicy.VerifyCommand(ar.Command.First(), ar.Command.Skip(1)))
+                            {
+                                chat.AddAgentMessage($"Denied '{string.Join(" ", ar.Command)}' (unverified)");
+                            }
+                            else
+                            {
+                                chat.AddAgentMessage($"Run '{string.Join(" ", ar.Command)}'? [y/N]");
+                                var resp = Console.ReadLine();
+                                if (resp?.StartsWith("y", StringComparison.OrdinalIgnoreCase) == true)
+                                    chat.AddAgentMessage("Approved");
+                                else
+                                    chat.AddAgentMessage("Denied");
+                            }
+                            break;
+                        case PatchApplyApprovalRequestEvent pr:
+                            chat.AddAgentMessage($"Apply patch? [y/N] {pr.PatchSummary}");
+                            var r = Console.ReadLine();
+                            if (r?.StartsWith("y", StringComparison.OrdinalIgnoreCase) == true)
+                                chat.AddAgentMessage("Approved");
+                            else
+                                chat.AddAgentMessage("Denied");
                             break;
                     }
                     if (logWriter != null)

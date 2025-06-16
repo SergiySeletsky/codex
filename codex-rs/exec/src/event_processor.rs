@@ -1,3 +1,4 @@
+// C# version implemented in codex-dotnet/CodexCli/Protocol/EventProcessor.cs (done)
 use codex_common::elapsed::format_elapsed;
 use codex_core::WireApi;
 use codex_core::config::Config;

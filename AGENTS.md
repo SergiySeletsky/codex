@@ -726,3 +726,8 @@
      mock agent.
 672. TODO next run: integrate `EventProcessor` for richer formatting and add
      user approval logic. Continue porting remaining TUI widgets.
+
+673. Integrated EventProcessor into InteractiveApp for formatted output.
+674. Added ExecPolicy checks and interactive approval prompts.
+675. Updated tests after refactoring; targeted suites pass with .NET 8.
+676. TODO next run: port remaining TUI widgets (status indicator, login screens) fully and start sending approval responses back to agents.
