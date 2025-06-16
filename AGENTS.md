@@ -679,3 +679,7 @@
 634. InteractiveApp warns when API key missing for the selected provider
 635. Added cross-language test verifying `codex-tui --version` output parity
 636. TODO next run: implement login screen and git warning in .NET TUI and expand compatibility tests
+637. Implemented login screen and Git warning checks in `CodexTui` Program
+638. Added cross-language tests for login screen and Git warning
+639. Fixed comment style in `codex-rs/core/src/conversation_history.rs`
+640. TODO next run: continue porting TUI widgets and stabilize compatibility tests

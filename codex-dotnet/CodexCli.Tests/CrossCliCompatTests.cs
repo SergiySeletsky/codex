@@ -35,6 +35,25 @@ public class CrossCliCompatTests
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 
+    [CrossCliFact]
+    public void TuiLoginScreenMatches()
+    {
+        var dotnet = RunProcess("bash", "-c 'printf q | dotnet run --project ../codex-dotnet/CodexTui --skip-git-repo-check'");
+        var rust = RunProcess("bash", "-c 'printf q | cargo run --quiet --manifest-path ../codex-rs/tui/Cargo.toml -- --skip-git-repo-check'");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [CrossCliFact]
+    public void TuiGitWarningMatches()
+    {
+        var tmp = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+        Directory.CreateDirectory(tmp);
+        var dotnet = RunProcess("bash", $"-c 'cd {tmp} && printf n | dotnet run --project ../../codex-dotnet/CodexTui'");
+        var rust = RunProcess("bash", $"-c 'cd {tmp} && printf n | cargo run --quiet --manifest-path ../../codex-rs/tui/Cargo.toml'");
+        Directory.Delete(tmp, true);
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
 
     [CrossCliFact]
     public void ProviderListMatches()
