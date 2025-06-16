@@ -1,3 +1,4 @@
+// C# port implemented in `codex-dotnet/CodexCli/Commands/DebugCommand.cs` (done)
 use std::path::PathBuf;
 
 use codex_common::CliConfigOverrides;

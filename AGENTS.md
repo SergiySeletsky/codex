@@ -580,3 +580,91 @@
 538. Added unit test verifying roots/remove endpoint
 539. Documented progress and updated TODO list
 540. TODO next run: improve cross-language tests and migrate remaining rust features
+541. Added ListRootsAsync, AddRootAsync and RemoveRootAsync methods in McpConnectionManager
+542. Introduced `roots` subcommand in McpManagerCommand with list/add/remove
+543. Created cross-language tests for version, provider list, history count, servers and roots list
+544. Enabled CrossCliCompatTests by removing skip attribute
+545. Build and tests executed (tests may run slower due to cross-language invocations)
+546. TODO next run: expand manager features and stabilise cross-language tests
+547. Added cross-language CLI tests for provider listing, history count, server list and roots list
+548. TODO next run: implement remaining Rust features in .NET and unskip compatibility tests
+549. Added message management helpers in McpConnectionManager
+550. Introduced `messages` subcommand in McpManagerCommand with list/count/clear/search/last
+551. Created cross-language CLI tests for message count and list
+552. Documented progress and updated TODO list
+553. TODO next run: port more CLI features from Rust such as prompt management
+554. TODO next run: enable cross-language tests once environment stable
+555. Added prompt management helpers in McpConnectionManager
+556. Introduced `prompts` subcommand in McpManagerCommand with list/get/add
+557. Created cross-language CLI tests for prompts list and get
+558. Added cross-reference comment in mcp-server message_processor.rs
+559. TODO next run: port remaining MCP CLI features and stabilise tests
+560. Added comment referencing C# port in mcp-client main.rs
+561. Extended McpConnectionManager with resource, template, logging and sampling helpers
+562. Enhanced McpManagerCommand with resources/templates/logging/complete/create-message subcommands and message add/get
+563. Added cross-language tests for resources list, templates list, logging set-level and message roundtrip
+564. TODO next run: review remaining Rust features for parity and enable compatibility tests
+565. Added JSON and event streaming options to `roots list` in McpManagerCommand
+566. Extended `messages list` with --json and event watch options
+567. Prompts list/get now support JSON output and event streaming
+568. Resources list includes JSON/events options
+569. Templates command supports JSON/events options
+570. Build succeeded with .NET 8 SDK
+571. Ran targeted unit tests for ExecRunnerTests
+572. TODO next run: update remaining commands for JSON/event options and stabilize full test suite
+
+573. Added JSON/event options to tool `call` subcommand in McpManagerCommand
+574. Extended messages subcommands (count, clear, search, last, add, get) with JSON output and event streaming
+575. Prompts add command now supports event watching
+576. Resources read/write/subscribe/unsubscribe enhanced with JSON/event options
+577. Logging set-level subcommand now accepts events options
+578. Completion request subcommand supports JSON and event streaming
+579. Sampling create-message command prints JSON and events
+580. TODO next run: port remaining CLI features and improve tests
+581. Added --json and event options to `mcp-manager servers` command
+582. Roots add/remove now support JSON output and event watching
+583. Messages add command prints JSON and streams events
+584. Prompts add command outputs JSON and streams events
+585. Resource write/subscribe/unsubscribe return JSON and events
+586. Logging set-level command supports JSON output
+587. TODO next run: stabilize tests and enable cross-language suite
+588. Added comments referencing C# ports in proto.rs, login.rs, debug_sandbox.rs and message_history.rs
+589. Created cross-language tests verifying `mcp-manager servers --json`
+590. Added test for `roots add` JSON output parity
+591. Added test for `prompts add` JSON output parity
+592. Added test for `messages add` JSON output parity
+593. Added test for `resources write` JSON output parity
+594. Added test for `set-level --json` parity
+595. TODO next run: finalize JSON/event parity and enable cross-language tests
+596. Added `--json` options to history messages-search, messages-count, stats and summary
+597. Provider info and current commands now output JSON when requested
+598. Extended cross-language tests for history and provider JSON parity
+599. Added comment referencing C# port in exit_status.rs
+600. Added comment in cli/lib.rs pointing to C# command modules
+601. TODO next run: expand history event options and enable compatibility tests
+602. Added C# port reference in conversation_history.rs
+603. History messages-meta command supports --events-url and --watch-events
+604. History messages-entry command supports --events-url and --watch-events
+605. History messages-search command supports --events-url and --watch-events
+606. History messages-last command supports --events-url and --watch-events
+607. History messages-count command supports --events-url and --watch-events
+608. History stats command supports --events-url and --watch-events
+609. History summary command supports --events-url and --watch-events
+610. Provider list/info/current subcommands support --events-url and --watch-events
+611. TODO next run: enable compatibility tests once environment stable
+
+612. Installed .NET 8 SDK and built project successfully
+613. Fixed test execution by building tests before running
+614. ExecRunnerTests and ProviderCommandTests pass on .NET 8
+615. TODO next run: enable compatibility tests and verify remaining features
+616. Added --json and event streaming options to `history list`
+617. Added --json and event streaming options to `history show`
+618. Added event streaming options to `history clear`
+619. Added event streaming options to `history path`
+620. Added event streaming options to `history purge`
+621. Added --json and event streaming options to `history info`
+622. Added event streaming options to `history entry`
+623. Built project and targeted tests after refactor
+624. ProviderCommandTests pass
+625. ExecRunnerTests pass
+626. TODO next run: enable compatibility tests and port remaining features

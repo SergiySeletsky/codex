@@ -1,3 +1,4 @@
+// C# port implemented in `codex-dotnet/CodexCli/Commands/LoginCommand.cs` (done)
 use codex_common::CliConfigOverrides;
 use codex_core::config::Config;
 use codex_core::config::ConfigOverrides;
