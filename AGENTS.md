@@ -636,3 +636,9 @@
 593. Added test for `resources write` JSON output parity
 594. Added test for `set-level --json` parity
 595. TODO next run: finalize JSON/event parity and enable cross-language tests
+596. Added `--json` options to history messages-search, messages-count, stats and summary
+597. Provider info and current commands now output JSON when requested
+598. Extended cross-language tests for history and provider JSON parity
+599. Added comment referencing C# port in exit_status.rs
+600. Added comment in cli/lib.rs pointing to C# command modules
+601. TODO next run: expand history event options and enable compatibility tests

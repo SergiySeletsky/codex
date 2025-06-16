@@ -1,3 +1,4 @@
+// C# port implemented in `codex-dotnet/CodexCli/Util/ExitStatus.cs` (done)
 #[cfg(unix)]
 pub(crate) fn handle_exit_status(status: std::process::ExitStatus) -> ! {
     use std::os::unix::process::ExitStatusExt;

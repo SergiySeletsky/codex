@@ -197,4 +197,52 @@ args = ["run", "--project", "../codex-dotnet/CodexCli", "mcp"]
         var rust = RunProcess("cargo", $"run --quiet --manifest-path ../codex-rs/cli/Cargo.toml -- --config {cfg} mcp-manager set-level --server test debug --json");
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
+
+    [Fact(Skip="requires rust toolchain")]
+    public void HistoryMessagesCountJsonMatches()
+    {
+        var dotnet = RunProcess("dotnet", "run --project ../codex-dotnet/CodexCli history messages-count --json");
+        var rust = RunProcess("cargo", "run --quiet --manifest-path ../codex-rs/cli/Cargo.toml -- history messages-count --json");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [Fact(Skip="requires rust toolchain")]
+    public void HistoryMessagesSearchJsonMatches()
+    {
+        var dotnet = RunProcess("dotnet", "run --project ../codex-dotnet/CodexCli history messages-search hi --json");
+        var rust = RunProcess("cargo", "run --quiet --manifest-path ../codex-rs/cli/Cargo.toml -- history messages-search hi --json");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [Fact(Skip="requires rust toolchain")]
+    public void HistoryMessagesLastJsonMatches()
+    {
+        var dotnet = RunProcess("dotnet", "run --project ../codex-dotnet/CodexCli history messages-last 1 --json");
+        var rust = RunProcess("cargo", "run --quiet --manifest-path ../codex-rs/cli/Cargo.toml -- history messages-last 1 --json");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [Fact(Skip="requires rust toolchain")]
+    public void HistoryStatsJsonMatches()
+    {
+        var dotnet = RunProcess("dotnet", "run --project ../codex-dotnet/CodexCli history stats --json");
+        var rust = RunProcess("cargo", "run --quiet --manifest-path ../codex-rs/cli/Cargo.toml -- history stats --json");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [Fact(Skip="requires rust toolchain")]
+    public void ProviderInfoJsonMatches()
+    {
+        var dotnet = RunProcess("dotnet", "run --project ../codex-dotnet/CodexCli provider info openai --json");
+        var rust = RunProcess("cargo", "run --quiet --manifest-path ../codex-rs/cli/Cargo.toml -- provider info openai --json");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [Fact(Skip="requires rust toolchain")]
+    public void ProviderCurrentJsonMatches()
+    {
+        var dotnet = RunProcess("dotnet", "run --project ../codex-dotnet/CodexCli provider current --json");
+        var rust = RunProcess("cargo", "run --quiet --manifest-path ../codex-rs/cli/Cargo.toml -- provider current --json");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
 }

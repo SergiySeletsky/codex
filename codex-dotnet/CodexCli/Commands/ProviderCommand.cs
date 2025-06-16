@@ -54,8 +54,10 @@ public static class ProviderCommand
 
         var infoCmd = new Command("info", "Show provider details");
         var idArg = new Argument<string>("id");
+        var infoJsonOpt = new Option<bool>("--json", () => false, "Output JSON");
         infoCmd.AddArgument(idArg);
-        infoCmd.SetHandler((string id, string? cfgPath) =>
+        infoCmd.AddOption(infoJsonOpt);
+        infoCmd.SetHandler((string id, bool json, string? cfgPath) =>
         {
             AppConfig? cfg = null;
             if (!string.IsNullOrEmpty(cfgPath) && File.Exists(cfgPath))
@@ -63,27 +65,37 @@ public static class ProviderCommand
             var providers = cfg?.ModelProviders ?? ModelProviderInfo.BuiltIns;
             if (providers.TryGetValue(id, out var info))
             {
-                Console.WriteLine($"name: {info.Name}\nbase_url: {info.BaseUrl}");
-                if (info.EnvKey != null)
-                    Console.WriteLine($"env_key: {info.EnvKey}");
-                if (!string.IsNullOrEmpty(info.EnvKeyInstructions))
-                    Console.WriteLine(info.EnvKeyInstructions);
+                if (json)
+                    Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(info));
+                else
+                {
+                    Console.WriteLine($"name: {info.Name}\nbase_url: {info.BaseUrl}");
+                    if (info.EnvKey != null)
+                        Console.WriteLine($"env_key: {info.EnvKey}");
+                    if (!string.IsNullOrEmpty(info.EnvKeyInstructions))
+                        Console.WriteLine(info.EnvKeyInstructions);
+                }
             }
             else
             {
                 Console.WriteLine($"Provider {id} not found");
             }
-        }, idArg, configOption);
+        }, idArg, infoJsonOpt, configOption);
 
         var currentCmd = new Command("current", "Show current provider");
-        currentCmd.SetHandler((string? cfgPath) =>
+        var currentJsonOpt = new Option<bool>("--json", () => false, "Output JSON string");
+        currentCmd.AddOption(currentJsonOpt);
+        currentCmd.SetHandler((bool json, string? cfgPath) =>
         {
             AppConfig? cfg = null;
             if (!string.IsNullOrEmpty(cfgPath) && File.Exists(cfgPath))
                 cfg = AppConfig.Load(cfgPath);
-            var id = EnvUtils.GetModelProviderId(cfg?.ModelProvider);
-            Console.WriteLine(id ?? "openai");
-        }, configOption);
+            var id = EnvUtils.GetModelProviderId(cfg?.ModelProvider) ?? "openai";
+            if (json)
+                Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(id));
+            else
+                Console.WriteLine(id);
+        }, currentJsonOpt, configOption);
 
         var addCmd = new Command("add", "Add a provider");
         var addId = new Argument<string>("id");

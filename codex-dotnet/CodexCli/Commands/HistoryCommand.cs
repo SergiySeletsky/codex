@@ -103,13 +103,18 @@ public static class HistoryCommand
 
         var msgSearchCmd = new Command("messages-search", "Search message history for text");
         var termArg = new Argument<string>("term", "Search term");
+        var searchJsonOpt = new Option<bool>("--json", () => false, "Output JSON array");
         msgSearchCmd.AddArgument(termArg);
-        msgSearchCmd.SetHandler(async (string term) =>
+        msgSearchCmd.AddOption(searchJsonOpt);
+        msgSearchCmd.SetHandler(async (string term, bool json) =>
         {
             var cfg = new AppConfig();
             var results = await MessageHistory.SearchEntriesAsync(term, cfg);
-            foreach (var r in results) Console.WriteLine(r);
-        }, termArg);
+            if (json)
+                Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(results));
+            else
+                foreach (var r in results) Console.WriteLine(r);
+        }, termArg, searchJsonOpt);
 
         var msgLastCmd = new Command("messages-last", "Show last N history entries");
         var lastCountArg = new Argument<int>("n", getDefaultValue: () => 10);
@@ -131,12 +136,17 @@ public static class HistoryCommand
         }, lastCountArg, jsonOpt);
 
         var msgCountCmd = new Command("messages-count", "Print number of history entries");
-        msgCountCmd.SetHandler(async () =>
+        var countJsonOpt = new Option<bool>("--json", () => false, "Output JSON object");
+        msgCountCmd.AddOption(countJsonOpt);
+        msgCountCmd.SetHandler(async (bool json) =>
         {
             var cfg = new AppConfig();
             var count = await MessageHistory.CountEntriesAsync(cfg);
-            Console.WriteLine(count);
-        });
+            if (json)
+                Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(new { count }));
+            else
+                Console.WriteLine(count);
+        }, countJsonOpt);
 
         var msgWatchCmd = new Command("messages-watch", "Watch for new history entries");
         msgWatchCmd.SetHandler(async () =>
@@ -147,25 +157,42 @@ public static class HistoryCommand
         });
 
         var statsCmd = new Command("stats", "Show message counts per session");
-        statsCmd.SetHandler(async () =>
+        var statsJsonOpt = new Option<bool>("--json", () => false, "Output JSON map");
+        statsCmd.AddOption(statsJsonOpt);
+        statsCmd.SetHandler(async (bool json) =>
         {
             var cfg = new AppConfig();
             var stats = await MessageHistory.SessionStatsAsync(cfg);
-            foreach (var kv in stats)
-                Console.WriteLine($"{kv.Key} {kv.Value}");
-        });
+            if (json)
+                Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(stats));
+            else
+                foreach (var kv in stats)
+                    Console.WriteLine($"{kv.Key} {kv.Value}");
+        }, statsJsonOpt);
 
         var summaryCmd = new Command("summary", "List sessions with start time and message count");
-        summaryCmd.SetHandler(async () =>
+        var summaryJsonOpt = new Option<bool>("--json", () => false, "Output JSON list");
+        summaryCmd.AddOption(summaryJsonOpt);
+        summaryCmd.SetHandler(async (bool json) =>
         {
             var cfg = new AppConfig();
             var stats = await MessageHistory.SessionStatsAsync(cfg);
-            foreach (var info in SessionManager.ListSessionsWithInfo())
+            if (json)
             {
-                stats.TryGetValue(info.Id, out var c);
-                Console.WriteLine($"{info.Id} {info.Start:o} {c}");
+                var list = SessionManager.ListSessionsWithInfo()
+                    .Select(i => new { id = i.Id, start = i.Start, count = stats.TryGetValue(i.Id, out var c) ? c : 0 })
+                    .ToList();
+                Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(list));
             }
-        });
+            else
+            {
+                foreach (var info in SessionManager.ListSessionsWithInfo())
+                {
+                    stats.TryGetValue(info.Id, out var c);
+                    Console.WriteLine($"{info.Id} {info.Start:o} {c}");
+                }
+            }
+        }, summaryJsonOpt);
 
         var root = new Command("history", "Manage session history");
         root.AddCommand(listCmd);
