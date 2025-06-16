@@ -667,3 +667,6 @@
 622. TODO next run: port remaining Rust features and stabilize cross-language suite
 623. Marked CLI port complete by updating comment in `codex-rs/cli/src/lib.rs`
 624. TODO next run: review TUI features and expand cross-language tests
+625. Introduced `CrossCliFact` attribute and replaced `[Fact]` usages
+626. Added cross-language test verifying `--help` output parity
+627. TODO next run: start porting TUI CLI to .NET and extend compatibility tests
