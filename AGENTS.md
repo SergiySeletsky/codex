@@ -872,3 +872,6 @@
      decisions via injected console input.
 760. TODO next run: wire overlay rendering into `TuiApp` update loop and expand
      bottom pane tests covering `PushApprovalRequest`.
+761. Wired `BottomPane.PushApprovalRequest` so overlay remains active until `Render` displays the decision. `BottomPane.Render` now clears the view when complete and `HasActiveView` property indicates pending overlays.
+762. Updated `TuiApp` event loop to redraw when an overlay is active and added `BottomPaneTests` verifying decision rendering and clearing.
+763. TODO next run: expand ApprovalModalView visuals and begin porting remaining widgets like conversation history.

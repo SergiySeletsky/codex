@@ -146,11 +146,18 @@ internal static class TuiApp
                         case GetHistoryEntryResponseEvent ge:
                             pane.OnHistoryEntryResponse(ge.SessionId, ge.Offset, ge.Entry);
                             break;
-                        case SessionConfiguredEvent sc:
-                            pane.SetHistoryMetadata(sc.SessionId, 0);
-                            break;
-                    }
+                    case SessionConfiguredEvent sc:
+                        pane.SetHistoryMetadata(sc.SessionId, 0);
+                        break;
                 }
+                if (pane.HasActiveView)
+                {
+                    int b = Math.Max(1, pane.CalculateRequiredHeight(Console.WindowHeight / 2));
+                    int c = Math.Max(1, Console.WindowHeight - b - 1);
+                    chat.Render(c);
+                    pane.Render(b);
+                }
+            }
                 int bottomHeight2 = Math.Max(1, pane.CalculateRequiredHeight(Console.WindowHeight / 2));
                 int chatHeight2 = Math.Max(1, Console.WindowHeight - bottomHeight2 - 1);
                 chat.Render(chatHeight2);

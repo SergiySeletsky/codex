@@ -66,12 +66,20 @@ public class BottomPane
     public void Render(int areaHeight)
     {
         if (_activeView != null)
+        {
             _activeView.Render(areaHeight);
+            if (_activeView.IsComplete)
+                _activeView = null;
+        }
         else
+        {
             _composer.Render(areaHeight);
+        }
     }
 
     public bool IsCommandPopupVisible => _activeView == null && _composer.IsCommandPopupVisible;
+
+    public bool HasActiveView => _activeView != null;
 
     public void SetHistoryMetadata(string logId, int count) =>
         _composer.SetHistoryMetadata(logId, count);
@@ -102,8 +110,6 @@ public class BottomPane
         var view = new ApprovalModalView(req);
         _activeView = view;
         RequestRedraw();
-        var decision = view.Decision;
-        _activeView = null;
-        return decision;
+        return view.Decision;
     }
 }
