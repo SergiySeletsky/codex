@@ -1,21 +1,23 @@
 using System;
 using CodexCli.Protocol;
+using Spectre.Console;
 
 namespace CodexCli.Interactive;
 
 /// <summary>
 /// Simplified approval modal capturing ReviewDecision via UserApprovalWidget.
-/// Mirrors codex-rs/tui/src/bottom_pane/approval_modal_view.rs (rendering done).
+/// Mirrors codex-rs/tui/src/bottom_pane/approval_modal_view.rs (done).
 /// </summary>
-internal class ApprovalModalView : IBottomPaneView
+public class ApprovalModalView : IBottomPaneView
 {
     private readonly Queue<Event> _queue = new();
-    private readonly UserApprovalWidget _widget = new();
+    private readonly UserApprovalWidget _widget;
     private bool _done;
     public ReviewDecision Decision { get; private set; } = ReviewDecision.Denied;
 
-    public ApprovalModalView(Event request)
+    public ApprovalModalView(Event request, Func<string?>? readLine = null)
     {
+        _widget = new UserApprovalWidget(readLine);
         _queue.Enqueue(request);
         ProcessNext();
     }
@@ -44,7 +46,11 @@ internal class ApprovalModalView : IBottomPaneView
 
     public int CalculateRequiredHeight(int areaHeight) => 1;
 
-    public void Render(int areaHeight) { }
+    public void Render(int areaHeight)
+    {
+        if (_done)
+            AnsiConsole.MarkupLine($"[grey]Decision: {Decision}[/]");
+    }
 
     public Event? TryConsumeApprovalRequest(Event request)
     {

@@ -1,4 +1,4 @@
-// C# analog implemented in codex-dotnet/CodexCli/Interactive/Widgets/ApprovalModalView.cs (rendering done)
+// C# analog implemented in codex-dotnet/CodexCli/Interactive/Widgets/ApprovalModalView.cs (done)
 use crossterm::event::KeyEvent;
 use ratatui::buffer::Buffer;
 use ratatui::layout::Rect;

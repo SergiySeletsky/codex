@@ -866,3 +866,9 @@
      `InteractiveApp.ApprovalHandler`.
 757. TODO next run: polish overlay rendering and add tests covering
      approval handling in the TUI.
+758. Added minimal overlay rendering in `ApprovalModalView.Render` that prints the
+     resulting decision after the prompt.
+759. Introduced `ApprovalModalViewTests` exercising immediate and queued approval
+     decisions via injected console input.
+760. TODO next run: wire overlay rendering into `TuiApp` update loop and expand
+     bottom pane tests covering `PushApprovalRequest`.
