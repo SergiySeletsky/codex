@@ -149,6 +149,8 @@ public interface ITextArea
     void SelectAll();
     void Cut();
     void InsertString(string text);
+    void InsertChar(char ch);
+    void DeleteCharBeforeCursor();
     void MoveCursor(int row, int col);
 }
 

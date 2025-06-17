@@ -851,3 +851,10 @@
      interactive tests for slash command popup behavior.
 749. Implemented basic typed input in `ChatComposer` so slash commands can be entered interactively. Added unit test `ChatComposerInputTests` verifying tab completion.
 750. TODO next run: improve textarea editing and extend popup rendering tests.
+751. Implemented BasicTextArea with cursor-aware editing and updated ChatComposer
+     to use it. Added left/right arrow handling and proper backspace behavior.
+752. Added ChatComposerEditingTests covering cursor movement and deletion logic.
+753. Extended CommandPopupTests to verify height calculation when showing all
+     commands.
+754. TODO next run: refine command popup rendering within TuiApp and integrate
+     approval modal overlay visuals.

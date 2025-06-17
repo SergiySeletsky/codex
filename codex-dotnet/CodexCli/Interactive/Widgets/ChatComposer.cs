@@ -18,7 +18,7 @@ public class ChatComposer
 
     public ChatComposer(bool hasFocus, AppEventSender sender)
     {
-        _textarea = new SimpleTextArea();
+        _textarea = new BasicTextArea();
         _appEventTx = sender;
     }
 
@@ -99,19 +99,25 @@ public class ChatComposer
         if (key.KeyChar != '\0' && key.Key != ConsoleKey.Enter &&
             key.Key != ConsoleKey.Backspace)
         {
-            _textarea.InsertString(string.Join("\n", _textarea.Lines) + key.KeyChar);
+            _textarea.InsertChar(key.KeyChar);
             return (InputResult.None, true);
         }
         if (key.Key == ConsoleKey.Backspace)
         {
-            var lines = _textarea.Lines.ToList();
-            if (lines.Count > 0 && lines[^1].Length > 0)
-            {
-                lines[^1] = lines[^1][..^1];
-                _textarea.SelectAll();
-                _textarea.Cut();
-                _textarea.InsertString(string.Join("\n", lines));
-            }
+            _textarea.DeleteCharBeforeCursor();
+            return (InputResult.None, true);
+        }
+        if (key.Key == ConsoleKey.LeftArrow)
+        {
+            var (row,col) = _textarea.Cursor;
+            _textarea.MoveCursor(row, Math.Max(0, col - 1));
+            return (InputResult.None, true);
+        }
+        if (key.Key == ConsoleKey.RightArrow)
+        {
+            var (row,col) = _textarea.Cursor;
+            var line = _textarea.Lines[row];
+            _textarea.MoveCursor(row, Math.Min(line.Length, col + 1));
             return (InputResult.None, true);
         }
         if (key.Key == ConsoleKey.Enter && key.Modifiers == 0)
@@ -154,17 +160,65 @@ public class ChatComposer
             Spectre.Console.AnsiConsole.MarkupLine($"> {Spectre.Console.Markup.Escape(text)}");
     }
 
-    private class SimpleTextArea : ITextArea
+    private class BasicTextArea : ITextArea
     {
         private List<string> _lines = new() { string.Empty };
         private int _row;
         private int _col;
+
         public IReadOnlyList<string> Lines => _lines;
         public (int Row, int Col) Cursor => (_row, _col);
-        public void SelectAll() { }
-        public void Cut() { _lines = new() { string.Empty }; }
-        public void InsertString(string text) => _lines = new(text.Split('\n'));
-        public void MoveCursor(int row, int col) { _row = row; _col = col; }
+
+        public void SelectAll() { /* no-op */ }
+
+        public void Cut()
+        {
+            _lines = new() { string.Empty };
+            _row = 0;
+            _col = 0;
+        }
+
+        public void InsertString(string text)
+        {
+            _lines = new(text.Split('\n'));
+            _row = _lines.Count - 1;
+            _col = _lines[^1].Length;
+        }
+
+        public void MoveCursor(int row, int col)
+        {
+            _row = Math.Clamp(row, 0, _lines.Count - 1);
+            _col = Math.Clamp(col, 0, _lines[_row].Length);
+        }
+
+        public void InsertChar(char ch)
+        {
+            var line = _lines[_row];
+            if (_col >= line.Length)
+                line += ch;
+            else
+                line = line.Insert(_col, ch.ToString());
+            _lines[_row] = line;
+            _col++;
+        }
+
+        public void DeleteCharBeforeCursor()
+        {
+            if (_col > 0)
+            {
+                var line = _lines[_row];
+                line = line.Remove(_col - 1, 1);
+                _lines[_row] = line;
+                _col--;
+            }
+            else if (_row > 0)
+            {
+                _col = _lines[_row - 1].Length;
+                _lines[_row - 1] += _lines[_row];
+                _lines.RemoveAt(_row);
+                _row--;
+            }
+        }
     }
 }
 

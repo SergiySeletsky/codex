@@ -14,6 +14,23 @@ public class ChatComposerHistoryTests
         public void Cut() { _lines = new() { "" }; }
         public void InsertString(string text) => _lines = new(text.Split('\n'));
         public void MoveCursor(int row, int col) { Cursor = (row,col); }
+        public void InsertChar(char ch)
+        {
+            var line = _lines[Cursor.Row];
+            line = line.Insert(Cursor.Col, ch.ToString());
+            _lines[Cursor.Row] = line;
+            Cursor = (Cursor.Row, Cursor.Col + 1);
+        }
+        public void DeleteCharBeforeCursor()
+        {
+            if (Cursor.Col > 0)
+            {
+                var line = _lines[Cursor.Row];
+                line = line.Remove(Cursor.Col - 1, 1);
+                _lines[Cursor.Row] = line;
+                Cursor = (Cursor.Row, Cursor.Col - 1);
+            }
+        }
     }
 
     [Fact]
