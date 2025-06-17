@@ -50,6 +50,7 @@ public class BottomPane
     public void SetInputFocus(bool focus)
     {
         _hasInputFocus = focus;
+        _composer.SetInputFocus(focus);
     }
 
     public void SetTaskRunning(bool running)
@@ -59,10 +60,36 @@ public class BottomPane
 
     public int CalculateRequiredHeight(int areaHeight)
     {
-        return 1;
+        return _composer.CalculateRequiredHeight(areaHeight);
     }
 
-    internal void RequestRedraw() { }
+    public void SetHistoryMetadata(string logId, int count) =>
+        _composer.SetHistoryMetadata(logId, count);
 
-    public void PushApprovalRequest(Event req) { }
+    public void OnHistoryEntryResponse(string logId, int offset, string? entry)
+    {
+        if (_composer.OnHistoryEntryResponse(logId, offset, entry))
+            RequestRedraw();
+    }
+
+    internal void RequestRedraw() { /* no-op for console prototype */ }
+
+    public void PushApprovalRequest(Event req)
+    {
+        if (_activeView is ApprovalModalView modal)
+        {
+            if (modal.TryConsumeApprovalRequest(req) == null)
+                return;
+        }
+        else if (_activeView != null)
+        {
+            var next = _activeView.TryConsumeApprovalRequest(req);
+            if (next == null)
+                return;
+            req = next;
+        }
+
+        _activeView = new ApprovalModalView(req);
+        RequestRedraw();
+    }
 }

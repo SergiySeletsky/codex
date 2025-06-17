@@ -829,3 +829,11 @@
      parity with the Rust TUI.
 735. TODO next run: handle history fetch events in `BottomPane` and show approval
      modals via overlay widgets.
+736. Implemented `ChatComposer.OnHistoryEntryResponse` and exposed helper methods
+     on `BottomPane` to forward history metadata and responses.
+737. Added `ApprovalModalView` stub in C# and hooked `BottomPane.PushApprovalRequest`
+     to display it when approval events arrive.
+738. `TuiApp` now forwards `SessionConfiguredEvent` and `GetHistoryEntryResponseEvent`
+     to `BottomPane` for prototype history navigation.
+739. TODO next run: flesh out ApprovalModalView rendering and start porting the
+     slash-command popup widget.

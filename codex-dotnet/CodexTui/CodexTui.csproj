@@ -15,5 +15,6 @@
     <Compile Include="..\CodexCli\Interactive\Widgets\ChatComposer.cs" Link="ChatComposer.cs" />
     <Compile Include="..\CodexCli\Interactive\Widgets\ChatComposerHistory.cs" Link="ChatComposerHistory.cs" />
     <Compile Include="..\CodexCli\Interactive\Widgets\StatusIndicatorView.cs" Link="StatusIndicatorView.cs" />
+    <Compile Include="..\CodexCli\Interactive\Widgets\ApprovalModalView.cs" Link="ApprovalModalView.cs" />
   </ItemGroup>
 </Project>

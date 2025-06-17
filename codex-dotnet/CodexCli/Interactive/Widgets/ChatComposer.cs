@@ -21,6 +21,13 @@ internal class ChatComposer
     public void SetHistoryMetadata(string logId, int count) =>
         _history.SetMetadata(logId, count);
 
+    public void SetInputFocus(bool hasFocus) { }
+
+    public bool OnHistoryEntryResponse(string logId, int offset, string? entry)
+        => _history.OnEntryResponse(logId, offset, entry, _textarea);
+
+    public int CalculateRequiredHeight(int areaHeight) => 1;
+
     public (InputResult Result, bool NeedsRedraw) HandleKeyEvent(ConsoleKeyInfo key)
     {
         if (key.Key == ConsoleKey.UpArrow)

@@ -137,6 +137,12 @@ internal static class TuiApp
                                 chat.AddAgentMessage(tc.LastAgentMessage);
                             status.UpdateText("ready");
                             break;
+                        case GetHistoryEntryResponseEvent ge:
+                            pane.OnHistoryEntryResponse(ge.SessionId, ge.Offset, ge.Entry);
+                            break;
+                        case SessionConfiguredEvent sc:
+                            pane.SetHistoryMetadata(sc.SessionId, 0);
+                            break;
                     }
                 }
             }
