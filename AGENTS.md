@@ -823,3 +823,9 @@
      TUI binaries to verify agent responses match.
 731. Marked `codex-rs/tui/src/app.rs` with cross-reference comment.
 732. TODO next run: improve `BottomPane` behavior and integrate more widgets.
+733. Implemented basic slash commands in `TuiApp` including `/history`, `/sessions`,
+     `/config`, `/scroll-up`, `/scroll-down` and `/help`.
+734. Added cross-language tests `TuiConfigMatches` and `TuiSessionsMatches` for
+     parity with the Rust TUI.
+735. TODO next run: handle history fetch events in `BottomPane` and show approval
+     modals via overlay widgets.
