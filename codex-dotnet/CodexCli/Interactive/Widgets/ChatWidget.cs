@@ -15,6 +15,7 @@ public class ChatWidget
     {
         var clean = AnsiEscape.StripAnsi(text);
         _history.Add($"[bold cyan]You:[/] {clean}");
+        _history.ScrollToBottom();
         AnsiConsole.MarkupLine($"[bold cyan]You:[/] {clean}");
     }
 
@@ -22,6 +23,7 @@ public class ChatWidget
     {
         var clean = AnsiEscape.StripAnsi(text);
         _history.Add($"[bold green]Codex:[/] {clean}");
+        _history.ScrollToBottom();
         AnsiConsole.MarkupLine($"[bold green]Codex:[/] {clean}");
     }
 
@@ -29,11 +31,15 @@ public class ChatWidget
     {
         var clean = AnsiEscape.StripAnsi(text);
         _history.Add($"[bold yellow]System:[/] {clean}");
+        _history.ScrollToBottom();
         AnsiConsole.MarkupLine($"[bold yellow]System:[/] {clean}");
     }
 
     public void ScrollUp(int lines) => _history.ScrollUp(lines);
     public void ScrollDown(int lines) => _history.ScrollDown(lines);
+    public void ScrollPageUp(int height) => _history.ScrollPageUp(height);
+    public void ScrollPageDown(int height) => _history.ScrollPageDown(height);
+    public void ScrollToBottom() => _history.ScrollToBottom();
 
     public IReadOnlyList<string> GetVisibleLines(int height) => _history.GetVisibleLines(height);
 

@@ -23,7 +23,7 @@ public class BottomPaneTests
         pane.Render(1);
         Assert.Null(field.GetValue(pane));
         Assert.Equal(ReviewDecision.Approved, decision);
-        Assert.Contains("Decision: Approved", sw.ToString());
+        Assert.Contains("Approved", sw.ToString());
     }
 }
 

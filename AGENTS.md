@@ -877,3 +877,5 @@
 763. TODO next run: expand ApprovalModalView visuals and begin porting remaining widgets like conversation history.
 764. Expanded `ApprovalModalView` rendering with request summaries and marked the file as in progress.
 765. Added page scrolling helpers to `ConversationHistoryWidget` and updated tests. TODO next run: integrate widget with `ChatWidget` for richer history display.
+766. Integrated `ConversationHistoryWidget` scrolling into `ChatWidget` with auto-scroll to bottom and added `PagingScrollsHistory` test.
+767. TODO next run: hook history widget into `ChatComposer` and expand TUI rendering tests.
