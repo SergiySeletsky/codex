@@ -812,5 +812,7 @@
      bottom pane sources into `CodexTui.csproj`.
 725. Added cross-language test `InteractiveSessionsMatches` covering `/sessions`
      command parity.
-726. TODO next run: hook `TuiApp` into `Program.cs` and stream events through
-     the bottom pane for a minimal interactive UI.
+726. Hooked `TuiApp` into `CodexTui` `Program.cs` and created a default
+     `InteractiveOptions` instance to launch the new bottom pane prototype.
+727. TODO next run: send agent output through `TuiApp` and expand tests for the
+     TUI flow.

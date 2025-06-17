@@ -1,4 +1,5 @@
 using CodexCli.Config;
+using CodexCli.Commands;
 using CodexCli.Interactive;
 using CodexCli.Protocol;
 using Spectre.Console;
