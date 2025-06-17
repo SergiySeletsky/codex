@@ -6,8 +6,8 @@ using Spectre.Console;
 namespace CodexCli.Interactive;
 
 /// <summary>
-/// Minimal chat composer handling basic history navigation.
-/// Mirrors codex-rs/tui/src/bottom_pane/chat_composer.rs (in progress).
+/// Minimal chat composer with cursor-aware editing and command popup.
+/// Mirrors codex-rs/tui/src/bottom_pane/chat_composer.rs (done for input logic).
 /// </summary>
 public class ChatComposer
 {

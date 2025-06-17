@@ -1,5 +1,5 @@
-// C# version partially implemented in codex-dotnet/CodexTui/TuiApp.cs
-// (slash commands done, remaining widgets in progress)
+// C# version implemented in codex-dotnet/CodexTui/TuiApp.cs
+// (popup rendering and approval handler done, more widgets pending)
 use crate::app_event::AppEvent;
 use crate::app_event_sender::AppEventSender;
 use crate::chatwidget::ChatWidget;

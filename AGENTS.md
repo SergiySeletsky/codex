@@ -858,3 +858,11 @@
      commands.
 754. TODO next run: refine command popup rendering within TuiApp and integrate
      approval modal overlay visuals.
+755. Integrated command popup height into TuiApp so chat area adjusts
+     dynamically. Added bottom pane approval handler that shows the
+     UserApprovalWidget and returns the user's decision.
+756. ApprovalModalView now records the decision from UserApprovalWidget and
+     BottomPane.PushApprovalRequest returns it to the agent via
+     `InteractiveApp.ApprovalHandler`.
+757. TODO next run: polish overlay rendering and add tests covering
+     approval handling in the TUI.

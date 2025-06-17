@@ -84,22 +84,26 @@ public class BottomPane
 
     internal void RequestRedraw() { /* no-op for console prototype */ }
 
-    public void PushApprovalRequest(Event req)
+    public ReviewDecision PushApprovalRequest(Event req)
     {
         if (_activeView is ApprovalModalView modal)
         {
             if (modal.TryConsumeApprovalRequest(req) == null)
-                return;
+                return modal.Decision;
         }
         else if (_activeView != null)
         {
             var next = _activeView.TryConsumeApprovalRequest(req);
             if (next == null)
-                return;
+                return ReviewDecision.Denied;
             req = next;
         }
 
-        _activeView = new ApprovalModalView(req);
+        var view = new ApprovalModalView(req);
+        _activeView = view;
         RequestRedraw();
+        var decision = view.Decision;
+        _activeView = null;
+        return decision;
     }
 }

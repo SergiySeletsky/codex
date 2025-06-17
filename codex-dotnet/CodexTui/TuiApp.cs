@@ -43,11 +43,16 @@ internal static class TuiApp
             UriBasedFileOpener.None,
             Environment.CurrentDirectory);
 
+        InteractiveApp.ApprovalHandler = ev => Task.FromResult(pane.PushApprovalRequest(ev));
+
         while (true)
         {
             var key = Console.ReadKey(intercept: true);
             var res = pane.HandleKeyEvent(key);
-            pane.Render(3);
+            int bottomHeight = Math.Max(1, pane.CalculateRequiredHeight(Console.WindowHeight / 2));
+            int chatHeight = Math.Max(1, Console.WindowHeight - bottomHeight - 1);
+            chat.Render(chatHeight);
+            pane.Render(bottomHeight);
             if (res.IsSubmitted)
             {
                 var text = res.SubmittedText!;
@@ -146,9 +151,13 @@ internal static class TuiApp
                             break;
                     }
                 }
-                pane.Render(3);
+                int bottomHeight2 = Math.Max(1, pane.CalculateRequiredHeight(Console.WindowHeight / 2));
+                int chatHeight2 = Math.Max(1, Console.WindowHeight - bottomHeight2 - 1);
+                chat.Render(chatHeight2);
+                pane.Render(bottomHeight2);
             }
        }
+        InteractiveApp.ApprovalHandler = null;
         return 0;
     }
 

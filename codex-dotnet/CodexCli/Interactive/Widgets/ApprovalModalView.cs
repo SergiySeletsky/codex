@@ -4,14 +4,15 @@ using CodexCli.Protocol;
 namespace CodexCli.Interactive;
 
 /// <summary>
-/// Placeholder modal for user approvals.
-/// Mirrors codex-rs/tui/src/bottom_pane/approval_modal_view.rs (in progress).
+/// Simplified approval modal capturing ReviewDecision via UserApprovalWidget.
+/// Mirrors codex-rs/tui/src/bottom_pane/approval_modal_view.rs (rendering done).
 /// </summary>
 internal class ApprovalModalView : IBottomPaneView
 {
     private readonly Queue<Event> _queue = new();
     private readonly UserApprovalWidget _widget = new();
     private bool _done;
+    public ReviewDecision Decision { get; private set; } = ReviewDecision.Denied;
 
     public ApprovalModalView(Event request)
     {
@@ -28,10 +29,10 @@ internal class ApprovalModalView : IBottomPaneView
         switch (request)
         {
             case ExecApprovalRequestEvent e:
-                _widget.PromptExec(e.Command.ToArray(), Environment.CurrentDirectory);
+                Decision = _widget.PromptExec(e.Command.ToArray(), Environment.CurrentDirectory);
                 break;
             case PatchApplyApprovalRequestEvent p:
-                _widget.PromptPatch(p.PatchSummary);
+                Decision = _widget.PromptPatch(p.PatchSummary);
                 break;
         }
         _done = true;
