@@ -837,3 +837,8 @@
      to `BottomPane` for prototype history navigation.
 739. TODO next run: flesh out ApprovalModalView rendering and start porting the
      slash-command popup widget.
+740. Began implementing `ApprovalModalView` queueing logic so multiple requests can be handled sequentially.
+741. Added `SlashCommand` enum and `CommandPopup` widget with filtering and navigation.
+742. Integrated `CommandPopup` into `ChatComposer` for tab completion and command selection.
+743. Created unit test `CommandPopupTests` verifying command filtering and selection.
+744. TODO next run: hook command popup rendering into `TuiApp` and polish approval modal output.

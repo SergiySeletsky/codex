@@ -9,27 +9,32 @@ namespace CodexCli.Interactive;
 /// </summary>
 internal class ApprovalModalView : IBottomPaneView
 {
+    private readonly Queue<Event> _queue = new();
     private readonly UserApprovalWidget _widget = new();
     private bool _done;
 
     public ApprovalModalView(Event request)
     {
-        Consume(request);
+        _queue.Enqueue(request);
+        ProcessNext();
     }
 
-    private void Consume(Event request)
+    private void ProcessNext()
     {
+        if (_done)
+            return;
+        if (!_queue.TryDequeue(out var request))
+            return;
         switch (request)
         {
             case ExecApprovalRequestEvent e:
                 _widget.PromptExec(e.Command.ToArray(), Environment.CurrentDirectory);
-                _done = true;
                 break;
             case PatchApplyApprovalRequestEvent p:
                 _widget.PromptPatch(p.PatchSummary);
-                _done = true;
                 break;
         }
+        _done = true;
     }
 
     public void HandleKeyEvent(ConsoleKeyInfo key, BottomPane pane) { }
@@ -44,7 +49,8 @@ internal class ApprovalModalView : IBottomPaneView
     {
         if (_done)
             return request;
-        Consume(request);
+        _queue.Enqueue(request);
+        ProcessNext();
         return null;
     }
 }

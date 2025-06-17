@@ -1,4 +1,6 @@
 using System;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace CodexCli.Interactive;
 
@@ -11,6 +13,7 @@ internal class ChatComposer
     private readonly ITextArea _textarea;
     private readonly AppEventSender _appEventTx;
     private readonly ChatComposerHistory _history = new();
+    private CommandPopup? _commandPopup;
 
     public ChatComposer(bool hasFocus, AppEventSender sender)
     {
@@ -26,9 +29,53 @@ internal class ChatComposer
     public bool OnHistoryEntryResponse(string logId, int offset, string? entry)
         => _history.OnEntryResponse(logId, offset, entry, _textarea);
 
-    public int CalculateRequiredHeight(int areaHeight) => 1;
+    public int CalculateRequiredHeight(int areaHeight)
+    {
+        int rows = _textarea.Lines.Count;
+        int popup = _commandPopup?.CalculateRequiredHeight(areaHeight) ?? 0;
+        return rows + popup;
+    }
 
     public (InputResult Result, bool NeedsRedraw) HandleKeyEvent(ConsoleKeyInfo key)
+    {
+        var result = _commandPopup != null ? HandleWithPopup(key) : HandleWithoutPopup(key);
+        SyncCommandPopup();
+        return result;
+    }
+
+    private (InputResult,bool) HandleWithPopup(ConsoleKeyInfo key)
+    {
+        if (_commandPopup == null)
+            return (InputResult.None, false);
+        switch (key.Key)
+        {
+            case ConsoleKey.UpArrow:
+                _commandPopup.MoveUp();
+                return (InputResult.None, true);
+            case ConsoleKey.DownArrow:
+                _commandPopup.MoveDown();
+                return (InputResult.None, true);
+            case ConsoleKey.Tab:
+                if (_commandPopup.SelectedCommand() is SlashCommand cmd)
+                {
+                    _textarea.SelectAll();
+                    _textarea.Cut();
+                    _textarea.InsertString($"/{cmd.Command()} ");
+                }
+                return (InputResult.None, true);
+            case ConsoleKey.Enter when key.Modifiers == 0:
+                if (_commandPopup.SelectedCommand() is SlashCommand cmd2)
+                {
+                    _textarea.SelectAll();
+                    _textarea.Cut();
+                    return (InputResult.Submitted($"/{cmd2.Command()}"), true);
+                }
+                break;
+        }
+        return HandleWithoutPopup(key);
+    }
+
+    private (InputResult,bool) HandleWithoutPopup(ConsoleKeyInfo key)
     {
         if (key.Key == ConsoleKey.UpArrow)
         {
@@ -59,6 +106,20 @@ internal class ChatComposer
             return (InputResult.Submitted(text), true);
         }
         return (InputResult.None, false);
+    }
+
+    private void SyncCommandPopup()
+    {
+        var firstLine = _textarea.Lines.FirstOrDefault() ?? string.Empty;
+        if (firstLine.StartsWith('/'))
+        {
+            _commandPopup ??= new CommandPopup();
+            _commandPopup.OnComposerTextChange(firstLine);
+        }
+        else
+        {
+            _commandPopup = null;
+        }
     }
 
     private class SimpleTextArea : ITextArea
