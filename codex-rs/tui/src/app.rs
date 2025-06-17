@@ -1,3 +1,4 @@
+// C# version partially implemented in codex-dotnet/CodexTui/TuiApp.cs (in progress)
 use crate::app_event::AppEvent;
 use crate::app_event_sender::AppEventSender;
 use crate::chatwidget::ChatWidget;

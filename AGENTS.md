@@ -818,3 +818,8 @@
      streaming through `EventProcessor` so user prompts produce agent output.
 728. TODO next run: add tests for `TuiApp` streaming and continue polishing
      bottom pane widgets for parity with the Rust UI.
+729. Installed .NET 8 SDK in fresh container so TUI builds and runs.
+730. Added cross-language test `TuiChatMatches` sending a prompt through both
+     TUI binaries to verify agent responses match.
+731. Marked `codex-rs/tui/src/app.rs` with cross-reference comment.
+732. TODO next run: improve `BottomPane` behavior and integrate more widgets.
