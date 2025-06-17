@@ -26,6 +26,21 @@ public class ConversationHistoryWidget
         _scrollOffset = Math.Max(0, _scrollOffset - lines);
     }
 
+    public void ScrollPageUp(int height)
+    {
+        ScrollUp(height);
+    }
+
+    public void ScrollPageDown(int height)
+    {
+        ScrollDown(height);
+    }
+
+    public void ScrollToBottom()
+    {
+        _scrollOffset = 0;
+    }
+
     public IReadOnlyList<string> GetVisibleLines(int height)
     {
         if (height <= 0)

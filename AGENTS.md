@@ -875,3 +875,5 @@
 761. Wired `BottomPane.PushApprovalRequest` so overlay remains active until `Render` displays the decision. `BottomPane.Render` now clears the view when complete and `HasActiveView` property indicates pending overlays.
 762. Updated `TuiApp` event loop to redraw when an overlay is active and added `BottomPaneTests` verifying decision rendering and clearing.
 763. TODO next run: expand ApprovalModalView visuals and begin porting remaining widgets like conversation history.
+764. Expanded `ApprovalModalView` rendering with request summaries and marked the file as in progress.
+765. Added page scrolling helpers to `ConversationHistoryWidget` and updated tests. TODO next run: integrate widget with `ChatWidget` for richer history display.

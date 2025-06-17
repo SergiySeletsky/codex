@@ -19,5 +19,17 @@ public class ConversationHistoryWidgetTests
         hist.ScrollDown(1);
         lines = hist.GetVisibleLines(3);
         Assert.Equal(new[]{"line 2","line 3","line 4"}, lines);
+
+        hist.ScrollPageUp(2);
+        lines = hist.GetVisibleLines(3);
+        Assert.Equal(new[]{"line 0","line 1","line 2"}, lines);
+
+        hist.ScrollPageDown(2);
+        lines = hist.GetVisibleLines(3);
+        Assert.Equal(new[]{"line 2","line 3","line 4"}, lines);
+
+        hist.ScrollToBottom();
+        lines = hist.GetVisibleLines(3);
+        Assert.Equal(new[]{"line 2","line 3","line 4"}, lines);
     }
 }
