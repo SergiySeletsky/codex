@@ -814,5 +814,7 @@
      command parity.
 726. Hooked `TuiApp` into `CodexTui` `Program.cs` and created a default
      `InteractiveOptions` instance to launch the new bottom pane prototype.
-727. TODO next run: send agent output through `TuiApp` and expand tests for the
-     TUI flow.
+727. Implemented basic input loop in `TuiApp` and wired `MockCodexAgent`
+     streaming through `EventProcessor` so user prompts produce agent output.
+728. TODO next run: add tests for `TuiApp` streaming and continue polishing
+     bottom pane widgets for parity with the Rust UI.

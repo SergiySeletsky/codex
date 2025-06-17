@@ -2,6 +2,7 @@ using CodexCli.Config;
 using CodexCli.Commands;
 using CodexCli.Interactive;
 using CodexCli.Protocol;
+using CodexCli.Util;
 using Spectre.Console;
 
 namespace CodexTui;
@@ -12,7 +13,7 @@ namespace CodexTui;
 /// </summary>
 internal static class TuiApp
 {
-    public static Task<int> RunAsync(InteractiveOptions opts, AppConfig? cfg)
+    public static async Task<int> RunAsync(InteractiveOptions opts, AppConfig? cfg)
     {
         var sender = new AppEventSender(_ => { });
         var pane = new BottomPane(sender, hasInputFocus: true);
@@ -22,6 +23,14 @@ internal static class TuiApp
         chat.AddAgentMessage("Codex TUI prototype - type /quit to exit");
         if (!string.IsNullOrEmpty(opts.Prompt))
             chat.AddUserMessage(opts.Prompt);
+
+        string providerId = opts.ModelProvider ?? cfg?.ModelProvider ?? "Mock";
+        bool hideReason = opts.HideAgentReasoning ?? cfg?.HideAgentReasoning ?? false;
+        var processor = new EventProcessor(withAnsi: !Console.IsOutputRedirected,
+            showReasoning: !hideReason,
+            UriBasedFileOpener.None,
+            Environment.CurrentDirectory);
+
         while (true)
         {
             var key = Console.ReadKey(intercept: true);
@@ -32,10 +41,40 @@ internal static class TuiApp
                 chat.AddUserMessage(text);
                 if (text.Equals("/quit", StringComparison.OrdinalIgnoreCase))
                     break;
-                // TODO: send text to agent and display responses
-                chat.AddAgentMessage($"echo: {text}");
+
+                status.UpdateText("thinking...");
+
+                var events = providerId == "Mock"
+                    ? MockCodexAgent.RunAsync(text, Array.Empty<string>(), InteractiveApp.ApprovalHandler)
+                    : RealCodexAgent.RunAsync(text,
+                        new OpenAIClient(ApiKeyManager.GetKey(ModelProviderInfo.BuiltIns[providerId]),
+                            ModelProviderInfo.BuiltIns[providerId].BaseUrl),
+                        opts.Model ?? cfg?.Model ?? "default",
+                        InteractiveApp.ApprovalHandler ?? (_ => Task.FromResult(ReviewDecision.Approved)));
+
+                await foreach (var ev in events)
+                {
+                    processor.ProcessEvent(ev);
+                    switch (ev)
+                    {
+                        case AgentMessageEvent am:
+                            chat.AddAgentMessage(am.Message);
+                            break;
+                        case BackgroundEvent bg:
+                            chat.AddSystemMessage(bg.Message);
+                            break;
+                        case ErrorEvent err:
+                            chat.AddSystemMessage($"ERROR: {err.Message}");
+                            break;
+                        case TaskCompleteEvent tc:
+                            if (tc.LastAgentMessage != null)
+                                chat.AddAgentMessage(tc.LastAgentMessage);
+                            status.UpdateText("ready");
+                            break;
+                    }
+                }
             }
         }
-        return Task.FromResult(0);
+        return 0;
     }
 }
