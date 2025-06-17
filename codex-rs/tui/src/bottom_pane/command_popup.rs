@@ -1,3 +1,4 @@
+// C# analog implemented in codex-dotnet/CodexCli/Interactive/Widgets/CommandPopup.cs (rendering done)
 use std::collections::HashMap;
 
 use ratatui::buffer::Buffer;

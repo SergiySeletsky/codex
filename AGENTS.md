@@ -763,3 +763,115 @@
      interactive help output matches the Rust `codex-tui` binary.
 699. TODO next run: attempt end-to-end interactive session parity and polish
      remaining widgets.
+
+700. Installed .NET 8 on the CI image and verified `dotnet test` can run. Executed
+     `AnsiEscapeUtilsTests` successfully as a smoke check.
+701. Attempted to run an end-to-end interactive session via `CodexTui` but
+     `Console.ReadKey` fails when stdin is redirected. Deferred full parity test.
+702. TODO next run: explore using a pseudo terminal for cross-language
+     interactive tests and continue polishing the TUI widgets.
+703. Reinstalled .NET 8 SDK in fresh container and built CLI/tests successfully.
+704. Added `RunProcessWithPty` helper using `script` to allocate a TTY and
+     updated `TuiLoginScreenMatches` test to invoke both binaries via this
+     method.
+705. TODO next run: use the new helper for end-to-end interactive tests and
+     handle ANSI sanitization differences.
+706. Added `InteractiveQuitMatches` test running both CLIs through the new
+     pseudo-terminal helper and verifying `/quit` behavior.
+707. TODO next run: sanitize outputs with `AnsiEscape.StripAnsi` and ensure
+     `RunProcessWithPty` executes from repo root to avoid path issues.
+708. Updated `RunProcessWithPty` to set its working directory to the repo root
+     and applied `AnsiEscape.StripAnsi` to outputs in interactive tests.
+709. TODO next run: port remaining TUI features and extend cross-language tests
+     for full session parity.
+710. Reinstalled .NET 8 SDK in fresh container and confirmed basic `dotnet`
+     commands work.
+711. Added `InteractiveHistoryMatches` cross-CLI test to compare `/history`
+     output using the PTY helper.
+712. TODO next run: flesh out bottom pane widgets and continue parity tests for
+     interactive features.
+713. Implemented IBottomPaneView interface and StatusIndicatorView in C# referencing Rust bottom pane modules.
+714. Marked bottom pane view files in Rust as done and added BottomPane placeholder in C#.
+715. Added InteractiveConfigMatches cross-CLI test verifying /config output parity.
+716. TODO next run: implement ChatComposer and integrate BottomPane; extend interactive parity tests.
+717. Implemented `ChatComposerHistory` and `ChatComposer` classes in C# referencing
+     Rust sources.
+718. Added `AppEventSender` helper and ported `BottomPane` skeleton to use the new
+     composer.
+719. Marked `chat_composer.rs` and `chat_composer_history.rs` with cross-reference
+     comments.
+720. Added unit test `ChatComposerHistoryTests` covering history navigation with
+     async fetch.
+721. TODO next run: integrate BottomPane into `CodexTui` and add more parity tests
+     for interactive editing and slash commands.
+722. Added cross-language test `InteractiveScrollMatches` verifying `/scroll-up`
+     and `/scroll-down` work the same between Rust and .NET CLIs.
+723. TODO next run: begin wiring `BottomPane` into `CodexTui` and expand
+     interactive parity coverage.
+724. Created `TuiApp` stub hosting `BottomPane` for keyboard input and linked
+     bottom pane sources into `CodexTui.csproj`.
+725. Added cross-language test `InteractiveSessionsMatches` covering `/sessions`
+     command parity.
+726. Hooked `TuiApp` into `CodexTui` `Program.cs` and created a default
+     `InteractiveOptions` instance to launch the new bottom pane prototype.
+727. Implemented basic input loop in `TuiApp` and wired `MockCodexAgent`
+     streaming through `EventProcessor` so user prompts produce agent output.
+728. TODO next run: add tests for `TuiApp` streaming and continue polishing
+     bottom pane widgets for parity with the Rust UI.
+729. Installed .NET 8 SDK in fresh container so TUI builds and runs.
+730. Added cross-language test `TuiChatMatches` sending a prompt through both
+     TUI binaries to verify agent responses match.
+731. Marked `codex-rs/tui/src/app.rs` with cross-reference comment.
+732. TODO next run: improve `BottomPane` behavior and integrate more widgets.
+733. Implemented basic slash commands in `TuiApp` including `/history`, `/sessions`,
+     `/config`, `/scroll-up`, `/scroll-down` and `/help`.
+734. Added cross-language tests `TuiConfigMatches` and `TuiSessionsMatches` for
+     parity with the Rust TUI.
+735. TODO next run: handle history fetch events in `BottomPane` and show approval
+     modals via overlay widgets.
+736. Implemented `ChatComposer.OnHistoryEntryResponse` and exposed helper methods
+     on `BottomPane` to forward history metadata and responses.
+737. Added `ApprovalModalView` stub in C# and hooked `BottomPane.PushApprovalRequest`
+     to display it when approval events arrive.
+738. `TuiApp` now forwards `SessionConfiguredEvent` and `GetHistoryEntryResponseEvent`
+     to `BottomPane` for prototype history navigation.
+739. TODO next run: flesh out ApprovalModalView rendering and start porting the
+     slash-command popup widget.
+740. Began implementing `ApprovalModalView` queueing logic so multiple requests can be handled sequentially.
+741. Added `SlashCommand` enum and `CommandPopup` widget with filtering and navigation.
+742. Integrated `CommandPopup` into `ChatComposer` for tab completion and command selection.
+743. Created unit test `CommandPopupTests` verifying command filtering and selection.
+744. TODO next run: hook command popup rendering into `TuiApp` and polish approval modal output.
+745. Hooked command popup rendering into `TuiApp` using `BottomPane.Render` and
+     added `ChatComposer.Render` for console output.
+746. Added `BottomPane.Render` and `ChatComposer.IsCommandPopupVisible` helpers
+     for future widget integration.
+747. Approval modal now processes queued requests but still lacks fancy UI.
+748. TODO next run: flesh out remaining BottomPane widgets and extend cross-language
+     interactive tests for slash command popup behavior.
+749. Implemented basic typed input in `ChatComposer` so slash commands can be entered interactively. Added unit test `ChatComposerInputTests` verifying tab completion.
+750. TODO next run: improve textarea editing and extend popup rendering tests.
+751. Implemented BasicTextArea with cursor-aware editing and updated ChatComposer
+     to use it. Added left/right arrow handling and proper backspace behavior.
+752. Added ChatComposerEditingTests covering cursor movement and deletion logic.
+753. Extended CommandPopupTests to verify height calculation when showing all
+     commands.
+754. TODO next run: refine command popup rendering within TuiApp and integrate
+     approval modal overlay visuals.
+755. Integrated command popup height into TuiApp so chat area adjusts
+     dynamically. Added bottom pane approval handler that shows the
+     UserApprovalWidget and returns the user's decision.
+756. ApprovalModalView now records the decision from UserApprovalWidget and
+     BottomPane.PushApprovalRequest returns it to the agent via
+     `InteractiveApp.ApprovalHandler`.
+757. TODO next run: polish overlay rendering and add tests covering
+     approval handling in the TUI.
+758. Added minimal overlay rendering in `ApprovalModalView.Render` that prints the
+     resulting decision after the prompt.
+759. Introduced `ApprovalModalViewTests` exercising immediate and queued approval
+     decisions via injected console input.
+760. TODO next run: wire overlay rendering into `TuiApp` update loop and expand
+     bottom pane tests covering `PushApprovalRequest`.
+761. Wired `BottomPane.PushApprovalRequest` so overlay remains active until `Render` displays the decision. `BottomPane.Render` now clears the view when complete and `HasActiveView` property indicates pending overlays.
+762. Updated `TuiApp` event loop to redraw when an overlay is active and added `BottomPaneTests` verifying decision rendering and clearing.
+763. TODO next run: expand ApprovalModalView visuals and begin porting remaining widgets like conversation history.

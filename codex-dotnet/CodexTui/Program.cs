@@ -1,7 +1,7 @@
 using CodexCli;
 using CodexCli.Config;
 using CodexCli.Util;
-using Spectre.Console;
+using CodexCli.Commands;
 using CodexCli.Interactive;
 using CodexCli.Protocol;
 
@@ -49,6 +49,13 @@ class Program
         newArgs[0] = "interactive";
         Array.Copy(args, 0, newArgs, 1, args.Length);
 
+        bool showHelp = args.Contains("--help") || args.Contains("-h");
+        bool showVersion = args.Contains("--version") || args.Contains("-V");
+        if (showHelp || showVersion)
+        {
+            return await CodexCli.Program.Main(newArgs);
+        }
+
         // Provide interactive approval handler using the UserApprovalWidget.
         var widget = new UserApprovalWidget();
         InteractiveApp.ApprovalHandler = ev =>
@@ -61,9 +68,39 @@ class Program
             });
         };
 
+        var opts = new InteractiveOptions(
+            null,
+            Array.Empty<FileInfo>(),
+            null,
+            null,
+            providerId,
+            false,
+            null,
+            Array.Empty<SandboxPermission>(),
+            ColorMode.Auto,
+            skipGit,
+            null,
+            Array.Empty<string>(),
+            Array.Empty<string>(),
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            false,
+            null,
+            null,
+            null,
+            Array.Empty<string>(),
+            Array.Empty<string>(),
+            Array.Empty<string>(),
+            null,
+            null);
+
         try
         {
-            return await CodexCli.Program.Main(newArgs);
+            return await TuiApp.RunAsync(opts, cfg);
         }
         finally
         {
