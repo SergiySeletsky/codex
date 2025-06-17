@@ -1,4 +1,5 @@
-// C# version implemented in codex-dotnet/CodexCli/Interactive/Widgets/ChatComposer.cs (in progress)
+// C# version implemented in codex-dotnet/CodexCli/Interactive/Widgets/ChatComposer.cs
+// (typed input and popup logic done)
 use crossterm::event::KeyEvent;
 use ratatui::buffer::Buffer;
 use ratatui::layout::Alignment;

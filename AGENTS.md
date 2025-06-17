@@ -849,3 +849,5 @@
 747. Approval modal now processes queued requests but still lacks fancy UI.
 748. TODO next run: flesh out remaining BottomPane widgets and extend cross-language
      interactive tests for slash command popup behavior.
+749. Implemented basic typed input in `ChatComposer` so slash commands can be entered interactively. Added unit test `ChatComposerInputTests` verifying tab completion.
+750. TODO next run: improve textarea editing and extend popup rendering tests.

@@ -9,7 +9,7 @@ namespace CodexCli.Interactive;
 /// Minimal chat composer handling basic history navigation.
 /// Mirrors codex-rs/tui/src/bottom_pane/chat_composer.rs (in progress).
 /// </summary>
-internal class ChatComposer
+public class ChatComposer
 {
     private readonly ITextArea _textarea;
     private readonly AppEventSender _appEventTx;
@@ -95,6 +95,24 @@ internal class ChatComposer
                 return (InputResult.None, consumed);
             }
             return (InputResult.None, false);
+        }
+        if (key.KeyChar != '\0' && key.Key != ConsoleKey.Enter &&
+            key.Key != ConsoleKey.Backspace)
+        {
+            _textarea.InsertString(string.Join("\n", _textarea.Lines) + key.KeyChar);
+            return (InputResult.None, true);
+        }
+        if (key.Key == ConsoleKey.Backspace)
+        {
+            var lines = _textarea.Lines.ToList();
+            if (lines.Count > 0 && lines[^1].Length > 0)
+            {
+                lines[^1] = lines[^1][..^1];
+                _textarea.SelectAll();
+                _textarea.Cut();
+                _textarea.InsertString(string.Join("\n", lines));
+            }
+            return (InputResult.None, true);
         }
         if (key.Key == ConsoleKey.Enter && key.Modifiers == 0)
         {
