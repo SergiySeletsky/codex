@@ -47,6 +47,7 @@ internal static class TuiApp
         {
             var key = Console.ReadKey(intercept: true);
             var res = pane.HandleKeyEvent(key);
+            pane.Render(3);
             if (res.IsSubmitted)
             {
                 var text = res.SubmittedText!;
@@ -145,6 +146,7 @@ internal static class TuiApp
                             break;
                     }
                 }
+                pane.Render(3);
             }
        }
         return 0;

@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using Spectre.Console;
 
 namespace CodexCli.Interactive;
 
@@ -120,6 +121,19 @@ internal class ChatComposer
         {
             _commandPopup = null;
         }
+    }
+
+    public bool IsCommandPopupVisible => _commandPopup != null;
+
+    public void Render(int areaHeight)
+    {
+        if (_commandPopup != null)
+        {
+            _commandPopup.Render();
+        }
+        var text = string.Join("\n", _textarea.Lines);
+        if (text.Length > 0)
+            Spectre.Console.AnsiConsole.MarkupLine($"> {Spectre.Console.Markup.Escape(text)}");
     }
 
     private class SimpleTextArea : ITextArea

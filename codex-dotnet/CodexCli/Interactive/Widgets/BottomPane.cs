@@ -63,6 +63,16 @@ public class BottomPane
         return _composer.CalculateRequiredHeight(areaHeight);
     }
 
+    public void Render(int areaHeight)
+    {
+        if (_activeView != null)
+            _activeView.Render(areaHeight);
+        else
+            _composer.Render(areaHeight);
+    }
+
+    public bool IsCommandPopupVisible => _activeView == null && _composer.IsCommandPopupVisible;
+
     public void SetHistoryMetadata(string logId, int count) =>
         _composer.SetHistoryMetadata(logId, count);
 
