@@ -8,7 +8,8 @@ namespace CodexCli.Interactive;
 /// <summary>
 /// Very simple scrollable history log with basic formatting helpers.
 /// Mirrors codex-rs/tui/src/conversation_history_widget.rs (scrolling,
-/// message formatting, history entry helpers, mcp tool calls and patch diff summary done, rendering in progress).
+/// message formatting, history entry helpers, exec/patch events, mcp tool calls with
+/// formatted results and diff summary done, rendering in progress).
 /// </summary>
 public class ConversationHistoryWidget
 {
@@ -82,6 +83,8 @@ public class ConversationHistoryWidget
         Add($"[magenta]apply_patch[/] {status}");
     }
 
+    private const int ToolCallMaxLines = 5;
+
     public void AddMcpToolCallBegin(string server, string tool, string? args)
     {
         string invocation = $"{server}.{tool}" + (string.IsNullOrEmpty(args) ? "()" : $"({Markup.Escape(args)})");
@@ -92,7 +95,8 @@ public class ConversationHistoryWidget
     {
         string title = success ? "success" : "failed";
         Add($"[magenta]tool[/] {title}:");
-        foreach (var line in resultJson.Split('\n'))
+        string formatted = TextFormatting.FormatAndTruncateToolResult(resultJson, ToolCallMaxLines, 80);
+        foreach (var line in formatted.Split('\n'))
             Add($"[dim]{Markup.Escape(line)}[/]");
     }
 

@@ -9,7 +9,7 @@ namespace CodexCli.Interactive;
 /// Chat widget managing conversation history and bottom pane input.
 /// Mirrors codex-rs/tui/src/chatwidget.rs
 /// (status indicator, log bridge, agent reasoning, background/error and history entry updates done.
-/// exec command, mcp tool call events and patch diff summary done).
+/// exec command, patch diff summary, mcp tool call events and result formatting done).
 /// </summary>
 public class ChatWidget
 {
@@ -135,7 +135,8 @@ public class ChatWidget
         _history.ScrollToBottom();
         string title = success ? "success" : "failed";
         AnsiConsole.MarkupLine($"[magenta]tool[/] {title}:");
-        foreach (var line in resultJson.Split('\n'))
+        string formatted = TextFormatting.FormatAndTruncateToolResult(resultJson, 5, 80);
+        foreach (var line in formatted.Split('\n'))
             AnsiConsole.MarkupLine($"[dim]{Markup.Escape(line)}[/]");
     }
 

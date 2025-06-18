@@ -152,6 +152,6 @@ public class ChatWidgetTests
         var lines = widget.GetVisibleLines(3);
         Assert.Contains("[magenta]tool[/] [bold]srv.tool({\"a\":1})[/]", lines);
         Assert.Contains("[magenta]tool[/] success:", lines);
-        Assert.Contains("[dim]{\"ok\":true}[/]", lines);
+        Assert.Contains("[dim]{\"ok\": true}[/]", lines);
     }
 }

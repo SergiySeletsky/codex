@@ -955,4 +955,8 @@
 806. TODO next run: stabilize test suite runtime and continue porting advanced rendering features.
 807. Ported text_formatting helpers to C# as TextFormatting.cs with truncate and JSON compact logic. Added TextFormattingTests. Updated rust file comment.
 808. Installed .NET SDK in container so builds/tests run. Filtered test suite passes under 1s.
-809. TODO next run: wire TextFormatting into widgets for tool call output and continue porting remaining Rust utilities.
+809. Wired `TextFormatting.FormatAndTruncateToolResult` into the chat and history
+     widgets so MCP tool call results are compacted and truncated like Rust.
+     Updated tests and cross-reference comments.
+810. TODO next run: port additional Rust utilities and continue refining
+     interactive tests.
