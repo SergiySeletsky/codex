@@ -930,3 +930,7 @@
      message types.
 795. TODO next run: continue improving history entry rendering and work on
      stabilizing interactive test runs.
+796. Fixed lingering tasks in `StatusIndicatorWidget` by disposing it when
+     overlays close. Tests now finish within the timeout.
+797. TODO next run: improve history entry rendering and bridge log output
+     for history-related events.

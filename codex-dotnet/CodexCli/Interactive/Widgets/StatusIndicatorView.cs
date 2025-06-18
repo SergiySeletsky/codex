@@ -6,7 +6,7 @@ namespace CodexCli.Interactive;
 /// Wrapper view for StatusIndicatorWidget.
 /// Mirrors codex-rs/tui/src/bottom_pane/status_indicator_view.rs (done).
 /// </summary>
-internal class StatusIndicatorView : IBottomPaneView
+internal class StatusIndicatorView : IBottomPaneView, IDisposable
 {
     private readonly StatusIndicatorWidget _widget;
     private readonly int _height;
@@ -40,4 +40,6 @@ internal class StatusIndicatorView : IBottomPaneView
     public bool ShouldHideWhenTaskIsDone() => true;
 
     public Event? TryConsumeApprovalRequest(Event request) => request;
+
+    public void Dispose() => _widget.Dispose();
 }

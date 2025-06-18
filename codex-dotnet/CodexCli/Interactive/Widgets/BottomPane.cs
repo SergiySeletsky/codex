@@ -29,6 +29,7 @@ public class BottomPane
             _activeView.HandleKeyEvent(key, this);
             if (_activeView.IsComplete)
             {
+                if (_activeView is IDisposable d) d.Dispose();
                 _activeView = null;
             }
             return InputResult.None;
@@ -69,6 +70,7 @@ public class BottomPane
         {
             if (_activeView.ShouldHideWhenTaskIsDone())
             {
+                if (_activeView is IDisposable d) d.Dispose();
                 _activeView = null;
                 RequestRedraw();
             }
@@ -86,7 +88,10 @@ public class BottomPane
         {
             _activeView.Render(areaHeight);
             if (_activeView.IsComplete)
+            {
+                if (_activeView is IDisposable d) d.Dispose();
                 _activeView = null;
+            }
         }
         else
         {
@@ -124,6 +129,8 @@ public class BottomPane
             req = next;
         }
 
+        if (_activeView is IDisposable disp)
+            disp.Dispose();
         var view = new ApprovalModalView(req);
         _activeView = view;
         RequestRedraw();
