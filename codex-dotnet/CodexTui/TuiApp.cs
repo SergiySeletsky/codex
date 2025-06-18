@@ -12,7 +12,8 @@ namespace CodexTui;
 
 /// <summary>
 /// Initial prototype TUI host wiring the BottomPane for user input.
-/// Mirrors codex-rs/tui/src/app.rs (slash commands implemented, widgets in progress).
+/// Mirrors codex-rs/tui/src/app.rs (slash commands and status overlay implemented,
+/// widgets in progress).
 /// </summary>
 internal static class TuiApp
 {
@@ -131,7 +132,7 @@ internal static class TuiApp
                             lastMessage = am.Message;
                             break;
                         case BackgroundEvent bg:
-                            chat.AddSystemMessage(bg.Message);
+                            chat.AddBackgroundEvent(bg.Message);
                             LogBridge.Emit(bg.Message);
                             break;
                         case AgentReasoningEvent ar:
@@ -142,7 +143,7 @@ internal static class TuiApp
                             }
                             break;
                         case ErrorEvent err:
-                            chat.AddSystemMessage($"ERROR: {err.Message}");
+                            chat.AddError(err.Message);
                             LogBridge.Emit(err.Message);
                             break;
                         case TaskCompleteEvent tc:

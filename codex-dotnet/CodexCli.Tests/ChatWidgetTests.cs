@@ -27,6 +27,17 @@ public class ChatWidgetTests
     }
 
     [Fact]
+    public void BackgroundAndErrorMessagesAreStored()
+    {
+        var widget = new ChatWidget();
+        widget.AddBackgroundEvent("upload finished");
+        widget.AddError("oops");
+        var lines = widget.GetVisibleLines(2);
+        Assert.Contains("[gray]upload finished[/]", lines);
+        Assert.Contains("[red]ERROR: oops[/]", lines);
+    }
+
+    [Fact]
     public void PagingScrollsHistory()
     {
         var widget = new ChatWidget();

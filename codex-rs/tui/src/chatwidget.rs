@@ -1,5 +1,5 @@
 // C# version implemented in codex-dotnet/CodexCli/Interactive/Widgets/ChatWidget.cs
-// (focus switching and agent reasoning done)
+// (focus switching, agent reasoning, background/error messages done)
 use std::path::PathBuf;
 use std::sync::Arc;
 

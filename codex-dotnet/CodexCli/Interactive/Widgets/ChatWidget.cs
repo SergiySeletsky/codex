@@ -8,7 +8,8 @@ namespace CodexCli.Interactive;
 /// <summary>
 /// Chat widget managing conversation history and bottom pane input.
 /// Mirrors codex-rs/tui/src/chatwidget.rs
-/// (status indicator, log bridge and agent reasoning done).
+/// (status indicator, log bridge and agent reasoning done,
+/// background/error messages added).
 /// </summary>
 public class ChatWidget
 {
@@ -47,6 +48,22 @@ public class ChatWidget
         _history.ScrollToBottom();
         var clean = AnsiEscape.StripAnsi(text);
         AnsiConsole.MarkupLine($"[bold yellow]System:[/] {clean}");
+    }
+
+    public void AddBackgroundEvent(string text)
+    {
+        _history.AddBackgroundEvent(text);
+        _history.ScrollToBottom();
+        var clean = AnsiEscape.StripAnsi(text);
+        AnsiConsole.MarkupLine($"[gray]{Markup.Escape(clean)}[/]");
+    }
+
+    public void AddError(string text)
+    {
+        _history.AddError(text);
+        _history.ScrollToBottom();
+        var clean = AnsiEscape.StripAnsi(text);
+        AnsiConsole.MarkupLine($"[red]ERROR: {Markup.Escape(clean)}[/]");
     }
 
     public void AddAgentReasoning(string text)

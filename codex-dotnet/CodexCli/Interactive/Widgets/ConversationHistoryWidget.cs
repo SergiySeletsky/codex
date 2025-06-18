@@ -6,8 +6,8 @@ namespace CodexCli.Interactive;
 
 /// <summary>
 /// Very simple scrollable history log with basic formatting helpers.
-/// Mirrors codex-rs/tui/src/conversation_history_widget.rs (scrolling done,
-/// rendering in progress).
+/// Mirrors codex-rs/tui/src/conversation_history_widget.rs (scrolling and
+/// message formatting done, rendering in progress).
 /// </summary>
 public class ConversationHistoryWidget
 {
@@ -37,6 +37,18 @@ public class ConversationHistoryWidget
     {
         var clean = Util.AnsiEscape.StripAnsi(text);
         Add($"[italic]{Markup.Escape(clean)}[/]");
+    }
+
+    public void AddBackgroundEvent(string text)
+    {
+        var clean = Util.AnsiEscape.StripAnsi(text);
+        Add($"[gray]{Markup.Escape(clean)}[/]");
+    }
+
+    public void AddError(string text)
+    {
+        var clean = Util.AnsiEscape.StripAnsi(text);
+        Add($"[red]ERROR: {Markup.Escape(clean)}[/]");
     }
 
     public void Add(string text)

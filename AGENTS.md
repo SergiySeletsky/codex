@@ -923,3 +923,10 @@
      skipping many cases.
 792. TODO next run: flesh out history entry rendering and reduce test output
      noise to stabilize runs.
+793. Added `AddBackgroundEvent` and `AddError` helpers to `ConversationHistoryWidget`
+     and `ChatWidget` with formatted output. Updated `TuiApp` to use them.
+     Marked rust/csharp sources accordingly.
+794. Created unit test `BackgroundAndErrorMessagesAreStored` verifying the new
+     message types.
+795. TODO next run: continue improving history entry rendering and work on
+     stabilizing interactive test runs.
