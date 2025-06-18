@@ -960,3 +960,8 @@
      Updated tests and cross-reference comments.
 810. TODO next run: port additional Rust utilities and continue refining
      interactive tests.
+811. Added `CitationRegex` helper in C# mirroring the Rust version and integrated
+     it with `MarkdownUtils`. Created `CitationRegexTests` verifying capture groups
+     and updated rust sources with cross-reference comments.
+812. TODO next run: implement markdown rendering utilities and stabilize
+     interactive tests.

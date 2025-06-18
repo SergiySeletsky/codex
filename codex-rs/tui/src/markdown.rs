@@ -1,3 +1,4 @@
+// C# version implemented in codex-dotnet/CodexCli/Util/MarkdownUtils.cs (in progress)
 use codex_core::config::Config;
 use codex_core::config_types::UriBasedFileOpener;
 use ratatui::text::Line;

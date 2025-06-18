@@ -1,3 +1,4 @@
+//! C# version implemented in codex-dotnet/CodexCli/Util/CitationRegex.cs (done)
 #![allow(clippy::expect_used)]
 
 use regex_lite::Regex;
