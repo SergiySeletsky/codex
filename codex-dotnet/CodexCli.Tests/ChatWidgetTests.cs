@@ -48,4 +48,18 @@ public class ChatWidgetTests
             "[bold yellow]System:[/] line 3",
             "[bold yellow]System:[/] line 4"}, lines);
     }
+
+    [Fact]
+    public void TabSwitchesFocus()
+    {
+        var widget = new ChatWidget();
+        for (int i = 0; i < 3; i++)
+            widget.AddSystemMessage($"line {i}");
+
+        widget.HandleKeyEvent(new ConsoleKeyInfo('\t', ConsoleKey.Tab, false, false, false));
+        widget.HandleKeyEvent(new ConsoleKeyInfo('\0', ConsoleKey.UpArrow, false, false, false));
+        var lines = widget.GetVisibleLines(2);
+        Assert.Equal(new[]{"[bold yellow]System:[/] line 0",
+            "[bold yellow]System:[/] line 1"}, lines);
+    }
 }

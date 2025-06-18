@@ -881,3 +881,8 @@
 767. Hooked `ConversationHistoryWidget` into `ChatComposer` so submitted messages update the log automatically.
 768. Added `ChatComposerHistoryWidgetIntegrationTests` covering history updates from the composer.
 769. TODO next run: integrate `ChatWidget` and `BottomPane` for focus switching and extend interactive rendering tests.
+770. Connected `ChatWidget` with `BottomPane` so <Tab> toggles focus.
+771. Added `HandleKeyEvent` to `ConversationHistoryWidget` and integrated focus management.
+772. Updated `TuiApp` to delegate input and rendering to `ChatWidget`.
+773. Added `TabSwitchesFocus` unit test verifying history scrolling after focus change.
+774. TODO next run: refine interactive event loop and expand cross-language tests for focus behavior.

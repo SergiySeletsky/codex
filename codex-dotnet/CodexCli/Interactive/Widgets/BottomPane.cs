@@ -15,9 +15,9 @@ public class BottomPane
     private bool _hasInputFocus;
     private bool _isTaskRunning;
 
-    public BottomPane(AppEventSender sender, bool hasInputFocus)
+    public BottomPane(AppEventSender sender, bool hasInputFocus, ConversationHistoryWidget? history = null)
     {
-        _composer = new ChatComposer(hasInputFocus, sender);
+        _composer = new ChatComposer(hasInputFocus, sender, history);
         _appEventTx = sender;
         _hasInputFocus = hasInputFocus;
     }

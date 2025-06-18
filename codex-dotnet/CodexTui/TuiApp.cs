@@ -19,8 +19,7 @@ internal static class TuiApp
     public static async Task<int> RunAsync(InteractiveOptions opts, AppConfig? cfg)
     {
         var sender = new AppEventSender(_ => { });
-        var pane = new BottomPane(sender, hasInputFocus: true);
-        var chat = new ChatWidget();
+        var chat = new ChatWidget(sender);
         using var status = new StatusIndicatorWidget();
         status.Start();
 
@@ -43,20 +42,17 @@ internal static class TuiApp
             UriBasedFileOpener.None,
             Environment.CurrentDirectory);
 
-        InteractiveApp.ApprovalHandler = ev => Task.FromResult(pane.PushApprovalRequest(ev));
+        InteractiveApp.ApprovalHandler = ev => Task.FromResult(chat.PushApprovalRequest(ev));
 
         while (true)
         {
             var key = Console.ReadKey(intercept: true);
-            var res = pane.HandleKeyEvent(key);
-            int bottomHeight = Math.Max(1, pane.CalculateRequiredHeight(Console.WindowHeight / 2));
-            int chatHeight = Math.Max(1, Console.WindowHeight - bottomHeight - 1);
-            chat.Render(chatHeight);
-            pane.Render(bottomHeight);
+            var res = chat.HandleKeyEvent(key);
+            chat.Render(Console.WindowHeight);
             if (res.IsSubmitted)
             {
                 var text = res.SubmittedText!;
-                chat.AddUserMessage(text);
+                // message already recorded in history by the composer
 
                 if (text.Equals("/quit", StringComparison.OrdinalIgnoreCase))
                     break;
@@ -144,26 +140,22 @@ internal static class TuiApp
                             status.UpdateText("ready");
                             break;
                         case GetHistoryEntryResponseEvent ge:
-                            pane.OnHistoryEntryResponse(ge.SessionId, ge.Offset, ge.Entry);
+                            chat.OnHistoryEntryResponse(ge.SessionId, ge.Offset, ge.Entry);
                             break;
-                    case SessionConfiguredEvent sc:
-                        pane.SetHistoryMetadata(sc.SessionId, 0);
-                        break;
+                        case SessionConfiguredEvent sc:
+                            chat.SetHistoryMetadata(sc.SessionId, 0);
+                            break;
+                    }
                 }
-                if (pane.HasActiveView)
+
+                if (chat.HasActiveView)
                 {
-                    int b = Math.Max(1, pane.CalculateRequiredHeight(Console.WindowHeight / 2));
-                    int c = Math.Max(1, Console.WindowHeight - b - 1);
-                    chat.Render(c);
-                    pane.Render(b);
+                    chat.Render(Console.WindowHeight);
                 }
             }
-                int bottomHeight2 = Math.Max(1, pane.CalculateRequiredHeight(Console.WindowHeight / 2));
-                int chatHeight2 = Math.Max(1, Console.WindowHeight - bottomHeight2 - 1);
-                chat.Render(chatHeight2);
-                pane.Render(bottomHeight2);
-            }
-       }
+
+            chat.Render(Console.WindowHeight);
+        }
         InteractiveApp.ApprovalHandler = null;
         return 0;
     }

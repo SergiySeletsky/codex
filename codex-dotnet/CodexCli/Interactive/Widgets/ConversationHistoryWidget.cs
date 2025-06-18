@@ -10,6 +10,7 @@ public class ConversationHistoryWidget
 {
     private readonly List<string> _entries = new();
     private int _scrollOffset = 0; // lines scrolled back from bottom
+    private bool _hasInputFocus;
 
     public void Add(string text)
     {
@@ -39,6 +40,32 @@ public class ConversationHistoryWidget
     public void ScrollToBottom()
     {
         _scrollOffset = 0;
+    }
+
+    public void SetInputFocus(bool focus) => _hasInputFocus = focus;
+
+    public bool HandleKeyEvent(ConsoleKeyInfo key)
+    {
+        switch (key.Key)
+        {
+            case ConsoleKey.UpArrow:
+            case ConsoleKey.K:
+                ScrollUp(1);
+                return true;
+            case ConsoleKey.DownArrow:
+            case ConsoleKey.J:
+                ScrollDown(1);
+                return true;
+            case ConsoleKey.PageUp:
+            case ConsoleKey.B:
+                ScrollPageUp(10);
+                return true;
+            case ConsoleKey.PageDown:
+            case ConsoleKey.Spacebar:
+                ScrollPageDown(10);
+                return true;
+        }
+        return false;
     }
 
     public IReadOnlyList<string> GetVisibleLines(int height)

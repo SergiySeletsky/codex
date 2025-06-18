@@ -1,4 +1,4 @@
-// C# version implemented in codex-dotnet/CodexCli/Interactive/Widgets/ChatWidget.cs (done)
+// C# version implemented in codex-dotnet/CodexCli/Interactive/Widgets/ChatWidget.cs (focus switching in progress)
 use std::path::PathBuf;
 use std::sync::Arc;
 

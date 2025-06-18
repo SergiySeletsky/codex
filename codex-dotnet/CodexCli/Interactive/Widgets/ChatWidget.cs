@@ -1,15 +1,28 @@
+using System;
 using Spectre.Console;
 using CodexCli.Util;
+using CodexCli.Protocol;
 
 namespace CodexCli.Interactive;
 
 /// <summary>
-/// Very minimal chat widget placeholder.
-/// Mirrors codex-rs/tui/src/chatwidget.rs (in progress).
+/// Chat widget managing conversation history and bottom pane input.
+/// Mirrors codex-rs/tui/src/chatwidget.rs (focus switching in progress).
 /// </summary>
 public class ChatWidget
 {
     private readonly ConversationHistoryWidget _history = new();
+    private readonly BottomPane _bottomPane;
+    private InputFocus _focus = InputFocus.BottomPane;
+
+    private enum InputFocus { HistoryPane, BottomPane }
+
+    public ChatWidget() : this(new AppEventSender(_ => { })) {}
+
+    public ChatWidget(AppEventSender sender)
+    {
+        _bottomPane = new BottomPane(sender, hasInputFocus: true, _history);
+    }
 
     public void AddUserMessage(string text)
     {
@@ -41,11 +54,46 @@ public class ChatWidget
     public void ScrollPageDown(int height) => _history.ScrollPageDown(height);
     public void ScrollToBottom() => _history.ScrollToBottom();
 
+    public InputResult HandleKeyEvent(ConsoleKeyInfo key)
+    {
+        if (key.Key == ConsoleKey.Tab && !_bottomPane.IsCommandPopupVisible)
+        {
+            _focus = _focus == InputFocus.HistoryPane ? InputFocus.BottomPane : InputFocus.HistoryPane;
+            _history.SetInputFocus(_focus == InputFocus.HistoryPane);
+            _bottomPane.SetInputFocus(_focus == InputFocus.BottomPane);
+            return InputResult.None;
+        }
+
+        if (_focus == InputFocus.HistoryPane)
+        {
+            _history.HandleKeyEvent(key);
+            return InputResult.None;
+        }
+
+        return _bottomPane.HandleKeyEvent(key);
+    }
+
     public IReadOnlyList<string> GetVisibleLines(int height) => _history.GetVisibleLines(height);
 
-    public void Render(int height = 10)
+    public int CalculateRequiredHeight(int areaHeight) => _bottomPane.CalculateRequiredHeight(areaHeight);
+
+    public bool HasActiveView => _bottomPane.HasActiveView;
+
+    public void SetHistoryMetadata(string logId, int count) =>
+        _bottomPane.SetHistoryMetadata(logId, count);
+
+    public void OnHistoryEntryResponse(string logId, int offset, string? entry) =>
+        _bottomPane.OnHistoryEntryResponse(logId, offset, entry);
+
+    public ReviewDecision PushApprovalRequest(Event req) =>
+        _bottomPane.PushApprovalRequest(req);
+
+    public void Render(int totalHeight)
     {
-        foreach (var line in _history.GetVisibleLines(height))
+        int bottomHeight = Math.Max(1, _bottomPane.CalculateRequiredHeight(totalHeight / 2));
+        int chatHeight = Math.Max(1, totalHeight - bottomHeight);
+        foreach (var line in _history.GetVisibleLines(chatHeight))
             AnsiConsole.MarkupLine(line);
+        _bottomPane.Render(bottomHeight);
     }
 }
