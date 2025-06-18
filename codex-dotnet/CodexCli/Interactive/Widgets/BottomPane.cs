@@ -5,7 +5,7 @@ namespace CodexCli.Interactive;
 
 /// <summary>
 /// Container for chat composer and overlay views.
-/// Mirrors codex-rs/tui/src/bottom_pane/mod.rs (in progress).
+/// Mirrors codex-rs/tui/src/bottom_pane/mod.rs (status indicator overlay done).
 /// </summary>
 public class BottomPane
 {
@@ -56,6 +56,22 @@ public class BottomPane
     public void SetTaskRunning(bool running)
     {
         _isTaskRunning = running;
+
+        if (running && _activeView == null)
+        {
+            var widget = new StatusIndicatorWidget();
+            widget.Start();
+            _activeView = new StatusIndicatorView(widget);
+            RequestRedraw();
+        }
+        else if (!running && _activeView != null)
+        {
+            if (_activeView.ShouldHideWhenTaskIsDone())
+            {
+                _activeView = null;
+                RequestRedraw();
+            }
+        }
     }
 
     public int CalculateRequiredHeight(int areaHeight)

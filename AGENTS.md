@@ -890,3 +890,7 @@
      to avoid Spectre.Console output capture issues.
 776. TODO next run: stabilize interactive tests to avoid hanging and continue porting
      remaining Rust features.
+777. Implemented `BottomPane.SetTaskRunning` to show a `StatusIndicatorView`
+     while tasks run and hide it on completion. Added corresponding unit test.
+778. TODO next run: flesh out StatusIndicatorView rendering and integrate
+     more TUI widgets from Rust.

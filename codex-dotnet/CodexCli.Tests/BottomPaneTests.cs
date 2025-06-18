@@ -26,5 +26,18 @@ public class BottomPaneTests
         // Rendering writes via Spectre.Console which bypasses Console.Out in this
         // test environment, so we only verify the decision and overlay state.
     }
+
+    [Fact]
+    public void SetTaskRunningShowsAndHidesStatusIndicator()
+    {
+        var pane = new BottomPane(new AppEventSender(_ => { }), true);
+        var field = typeof(BottomPane).GetField("_activeView", BindingFlags.NonPublic | BindingFlags.Instance)!;
+        pane.SetTaskRunning(true);
+        var view = field.GetValue(pane);
+        Assert.NotNull(view);
+        Assert.Equal("StatusIndicatorView", view!.GetType().Name);
+        pane.SetTaskRunning(false);
+        Assert.Null(field.GetValue(pane));
+    }
 }
 
