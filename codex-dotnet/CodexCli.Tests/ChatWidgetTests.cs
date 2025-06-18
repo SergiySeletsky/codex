@@ -142,4 +142,16 @@ public class ChatWidgetTests
         Assert.Contains("[yellow bold]M[/] c.txt", lines);
         Assert.Contains("[green]+hi[/]", lines);
     }
+
+    [Fact]
+    public void ToolCallEventsAreStored()
+    {
+        var widget = new ChatWidget();
+        widget.AddMcpToolCallBegin("srv", "tool", "{\"a\":1}");
+        widget.AddMcpToolCallEnd(true, "{\"ok\":true}");
+        var lines = widget.GetVisibleLines(3);
+        Assert.Contains("[magenta]tool[/] [bold]srv.tool({\"a\":1})[/]", lines);
+        Assert.Contains("[magenta]tool[/] success:", lines);
+        Assert.Contains("[dim]{\"ok\":true}[/]", lines);
+    }
 }

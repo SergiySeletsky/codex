@@ -951,3 +951,5 @@
      `AddPatchApplyBegin` now accepts FileChange dictionaries and displays summary lines.
      Added `PatchSummaryLinesAreRendered` test verifying markup output.
      TODO next run: stabilize interactive tests and port remaining Rust widgets.
+805. Added MCP tool call event helpers in ConversationHistoryWidget and ChatWidget. TuiApp now renders these events and forwards log lines. Added ToolCallEvents tests.
+806. TODO next run: stabilize test suite runtime and continue porting advanced rendering features.

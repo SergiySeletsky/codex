@@ -172,6 +172,14 @@ internal static class TuiApp
                             chat.AddExecResult(end.ExitCode);
                             LogBridge.Emit(end.ExitCode == 0 ? end.Stdout : end.Stderr);
                             break;
+                        case McpToolCallBeginEvent mc:
+                            chat.AddMcpToolCallBegin(mc.Server, mc.Tool, mc.ArgumentsJson);
+                            LogBridge.Emit(mc.ArgumentsJson ?? "");
+                            break;
+                        case McpToolCallEndEvent mce:
+                            chat.AddMcpToolCallEnd(mce.IsSuccess, mce.ResultJson);
+                            LogBridge.Emit(mce.ResultJson);
+                            break;
                         case PatchApplyBeginEvent pb:
                             chat.AddPatchApplyBegin(pb.AutoApproved, pb.Changes);
                             LogBridge.Emit($"patch auto_approved={pb.AutoApproved}");

@@ -47,4 +47,16 @@ public class ConversationHistoryWidgetTests
         Assert.Contains("[magenta]apply_patch[/] auto_approved=False", lines);
         Assert.Contains("[magenta]apply_patch[/] failed", lines);
     }
+
+    [Fact]
+    public void ToolCallEvents()
+    {
+        var hist = new ConversationHistoryWidget();
+        hist.AddMcpToolCallBegin("srv", "tool", null);
+        hist.AddMcpToolCallEnd(false, "{\"err\":1}");
+        var lines = hist.GetVisibleLines(3);
+        Assert.Contains("[magenta]tool[/] [bold]srv.tool()[/]", lines);
+        Assert.Contains("[magenta]tool[/] failed:", lines);
+        Assert.Contains("[dim]{\"err\":1}[/]", lines);
+    }
 }
