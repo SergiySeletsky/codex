@@ -1,4 +1,4 @@
-// C# version implemented in codex-dotnet/CodexCli/Util/MarkdownUtils.cs (in progress)
+// C# version implemented in codex-dotnet/CodexCli/Util/MarkdownUtils.cs (rewrite citations and append_markdown done)
 use codex_core::config::Config;
 use codex_core::config_types::UriBasedFileOpener;
 use ratatui::text::Line;

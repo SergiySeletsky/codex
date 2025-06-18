@@ -1,5 +1,6 @@
 using CodexCli.Util;
 using CodexCli.Config;
+using System.Collections.Generic;
 using Xunit;
 
 public class MarkdownUtilsTests
@@ -41,5 +42,13 @@ public class MarkdownUtilsTests
         var rendered = MarkdownUtils.RewriteFileCitations(md, UriBasedFileOpener.None, cwd);
         Assert.Equal(md, rendered);
         Assert.NotEqual(md, res);
+    }
+
+    [Fact]
+    public void AppendMarkdownSplitsLines()
+    {
+        var lines = new List<string>();
+        MarkdownUtils.AppendMarkdown("See 【F:a.rs†L1】\nNext", lines, UriBasedFileOpener.VsCode, "/root");
+        Assert.Equal(new[]{"See [a.rs:1](vscode://file/root/a.rs:1) ", "Next"}, lines);
     }
 }

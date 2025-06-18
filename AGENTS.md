@@ -965,3 +965,8 @@
      and updated rust sources with cross-reference comments.
 812. TODO next run: implement markdown rendering utilities and stabilize
      interactive tests.
+813. Implemented `MarkdownUtils.AppendMarkdown` for citation rewrites and added
+     tests verifying rendered lines. Updated source comments to mark rewrite and
+     append features done.
+814. TODO next run: integrate markdown rendering into history widgets and
+     continue stabilizing interactive tests.

@@ -1,8 +1,8 @@
 using CodexCli.Config;
 
 /// <summary>
-/// Helpers for rewriting markdown citations.
-/// Mirrors codex-rs/tui/src/markdown.rs (in progress).
+/// Helpers for rewriting markdown citations and rendering markdown lines.
+/// Mirrors codex-rs/tui/src/markdown.rs (citation rewrite and append_markdown done).
 /// </summary>
 
 namespace CodexCli.Util;
@@ -22,6 +22,13 @@ public static class MarkdownUtils
             path = path.Replace("\\", "/");
             return $"[{file}:{line}]({scheme}://file{path}:{line}) ";
         });
+    }
+
+    public static void AppendMarkdown(string markdown, IList<string> lines, UriBasedFileOpener opener, string cwd)
+    {
+        var processed = RewriteFileCitations(markdown, opener, cwd);
+        foreach (var line in processed.Split('\n'))
+            lines.Add(line);
     }
 }
 
