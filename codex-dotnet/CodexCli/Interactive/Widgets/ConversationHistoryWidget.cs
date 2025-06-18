@@ -51,6 +51,28 @@ public class ConversationHistoryWidget
         Add($"[red]ERROR: {Markup.Escape(clean)}[/]");
     }
 
+    public void AddExecCommand(string command)
+    {
+        Add($"[magenta]exec[/] {Markup.Escape(command)}");
+    }
+
+    public void AddExecResult(int exitCode)
+    {
+        var status = exitCode == 0 ? "succeeded" : $"exited {exitCode}";
+        Add($"[magenta]exec[/] {status}");
+    }
+
+    public void AddPatchApplyBegin(bool autoApproved)
+    {
+        Add($"[magenta]apply_patch[/] auto_approved={autoApproved}");
+    }
+
+    public void AddPatchApplyEnd(bool success)
+    {
+        var status = success ? "succeeded" : "failed";
+        Add($"[magenta]apply_patch[/] {status}");
+    }
+
     public void AddHistoryEntry(int offset, string text)
     {
         var clean = Util.AnsiEscape.StripAnsi(text);

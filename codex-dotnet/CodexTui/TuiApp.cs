@@ -164,6 +164,22 @@ internal static class TuiApp
                             chat.AddHistoryEntry(0, ah.Text);
                             LogBridge.Emit(ah.Text);
                             break;
+                        case ExecCommandBeginEvent begin:
+                            chat.AddExecCommand(string.Join(" ", begin.Command));
+                            LogBridge.Emit(string.Join(" ", begin.Command));
+                            break;
+                        case ExecCommandEndEvent end:
+                            chat.AddExecResult(end.ExitCode);
+                            LogBridge.Emit(end.ExitCode == 0 ? end.Stdout : end.Stderr);
+                            break;
+                        case PatchApplyBeginEvent pb:
+                            chat.AddPatchApplyBegin(pb.AutoApproved);
+                            LogBridge.Emit($"patch auto_approved={pb.AutoApproved}");
+                            break;
+                        case PatchApplyEndEvent pe:
+                            chat.AddPatchApplyEnd(pe.Success);
+                            LogBridge.Emit(pe.Success ? pe.Stdout : pe.Stderr);
+                            break;
                         case SessionConfiguredEvent sc:
                             chat.SetHistoryMetadata(sc.SessionId, 0);
                             break;

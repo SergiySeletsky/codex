@@ -106,4 +106,19 @@ public class ChatWidgetTests
         var lines = widget.GetVisibleLines(1);
         Assert.Contains("[dim]history 2: old[/]", lines);
     }
+
+    [Fact]
+    public void CommandAndPatchEventsAreStored()
+    {
+        var widget = new ChatWidget();
+        widget.AddExecCommand("touch file.txt");
+        widget.AddExecResult(0);
+        widget.AddPatchApplyBegin(true);
+        widget.AddPatchApplyEnd(true);
+        var lines = widget.GetVisibleLines(4);
+        Assert.Contains("[magenta]exec[/] touch file.txt", lines);
+        Assert.Contains("[magenta]exec[/] succeeded", lines);
+        Assert.Contains("[magenta]apply_patch[/] auto_approved=True", lines);
+        Assert.Contains("[magenta]apply_patch[/] succeeded", lines);
+    }
 }

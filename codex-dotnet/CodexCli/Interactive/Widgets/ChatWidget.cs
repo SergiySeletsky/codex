@@ -8,8 +8,8 @@ namespace CodexCli.Interactive;
 /// <summary>
 /// Chat widget managing conversation history and bottom pane input.
 /// Mirrors codex-rs/tui/src/chatwidget.rs
-/// (status indicator, log bridge, agent reasoning and history entry updates done,
-/// background/error messages added).
+/// (status indicator, log bridge, agent reasoning, background/error and history entry updates done.
+/// exec command and patch events done).
 /// </summary>
 public class ChatWidget
 {
@@ -80,6 +80,36 @@ public class ChatWidget
         _history.ScrollToBottom();
         var clean = AnsiEscape.StripAnsi(text);
         AnsiConsole.MarkupLine($"[dim]history {offset}: {Markup.Escape(clean)}[/]");
+    }
+
+    public void AddExecCommand(string command)
+    {
+        _history.AddExecCommand(command);
+        _history.ScrollToBottom();
+        AnsiConsole.MarkupLine($"[magenta]exec[/] {Markup.Escape(command)}");
+    }
+
+    public void AddExecResult(int exitCode)
+    {
+        _history.AddExecResult(exitCode);
+        _history.ScrollToBottom();
+        var status = exitCode == 0 ? "succeeded" : $"exited {exitCode}";
+        AnsiConsole.MarkupLine($"[magenta]exec[/] {status}");
+    }
+
+    public void AddPatchApplyBegin(bool autoApproved)
+    {
+        _history.AddPatchApplyBegin(autoApproved);
+        _history.ScrollToBottom();
+        AnsiConsole.MarkupLine($"[magenta]apply_patch[/] auto_approved={autoApproved}");
+    }
+
+    public void AddPatchApplyEnd(bool success)
+    {
+        _history.AddPatchApplyEnd(success);
+        _history.ScrollToBottom();
+        var status = success ? "succeeded" : "failed";
+        AnsiConsole.MarkupLine($"[magenta]apply_patch[/] {status}");
     }
 
     public void SetTaskRunning(bool running) =>

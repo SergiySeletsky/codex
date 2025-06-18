@@ -942,3 +942,8 @@
 799. TODO next run: expand patch/command rendering in the history widget and
      continue stabilizing interactive tests.
 800. Fixed hanging tests by disposing StatusIndicator widgets and enumerator. TODO next run: measure full suite runtime and skip long tests if needed.
+801. Added exec command and patch apply event helpers in ConversationHistoryWidget and ChatWidget.
+    TuiApp now displays these events and forwards log lines via LogBridge.
+    Updated Rust comments to mark exec/patch support done in C#.
+802. Created unit tests `CommandAndPatchEventsAreStored` verifying new history entries.
+803. TODO next run: refine patch diff rendering and continue improving interactive tests.

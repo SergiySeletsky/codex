@@ -32,4 +32,19 @@ public class ConversationHistoryWidgetTests
         lines = hist.GetVisibleLines(3);
         Assert.Equal(new[]{"line 2","line 3","line 4"}, lines);
     }
+
+    [Fact]
+    public void CommandAndPatchEvents()
+    {
+        var hist = new ConversationHistoryWidget();
+        hist.AddExecCommand("mkdir out");
+        hist.AddExecResult(1);
+        hist.AddPatchApplyBegin(false);
+        hist.AddPatchApplyEnd(false);
+        var lines = hist.GetVisibleLines(4);
+        Assert.Contains("[magenta]exec[/] mkdir out", lines);
+        Assert.Contains("[magenta]exec[/] exited 1", lines);
+        Assert.Contains("[magenta]apply_patch[/] auto_approved=False", lines);
+        Assert.Contains("[magenta]apply_patch[/] failed", lines);
+    }
 }
