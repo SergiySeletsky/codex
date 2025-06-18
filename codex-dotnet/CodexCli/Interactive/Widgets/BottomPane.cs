@@ -61,7 +61,8 @@ public class BottomPane
         {
             var widget = new StatusIndicatorWidget();
             widget.Start();
-            _activeView = new StatusIndicatorView(widget);
+            int h = _composer.CalculateRequiredHeight(Console.WindowHeight / 2);
+            _activeView = new StatusIndicatorView(widget, h);
             RequestRedraw();
         }
         else if (!running && _activeView != null)

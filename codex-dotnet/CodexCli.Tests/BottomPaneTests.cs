@@ -39,5 +39,15 @@ public class BottomPaneTests
         pane.SetTaskRunning(false);
         Assert.Null(field.GetValue(pane));
     }
+
+    [Fact]
+    public void StatusIndicatorKeepsComposerHeight()
+    {
+        var pane = new BottomPane(new AppEventSender(_ => { }), true);
+        int before = pane.CalculateRequiredHeight(10);
+        pane.SetTaskRunning(true);
+        int after = pane.CalculateRequiredHeight(10);
+        Assert.Equal(before, after);
+    }
 }
 

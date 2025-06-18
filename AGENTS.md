@@ -894,3 +894,10 @@
      while tasks run and hide it on completion. Added corresponding unit test.
 778. TODO next run: flesh out StatusIndicatorView rendering and integrate
      more TUI widgets from Rust.
+779. Implemented height-preserving `StatusIndicatorView` so the bottom pane
+     doesn't jump when tasks start. Updated `BottomPane.SetTaskRunning` to pass
+     the composer height.
+780. Added `StatusIndicatorKeepsComposerHeight` unit test verifying the height
+     remains unchanged when the indicator overlay is active.
+781. TODO next run: integrate additional TUI widgets from the Rust version and
+     improve interactive tests to avoid timeouts.
