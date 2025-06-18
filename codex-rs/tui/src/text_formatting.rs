@@ -1,3 +1,4 @@
+// C# version implemented in codex-dotnet/CodexCli/Util/TextFormatting.cs (done)
 use unicode_segmentation::UnicodeSegmentation;
 
 /// Truncate a tool result to fit within the given height and width. If the text is valid JSON, we format it in a compact way before truncating.

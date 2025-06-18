@@ -953,3 +953,6 @@
      TODO next run: stabilize interactive tests and port remaining Rust widgets.
 805. Added MCP tool call event helpers in ConversationHistoryWidget and ChatWidget. TuiApp now renders these events and forwards log lines. Added ToolCallEvents tests.
 806. TODO next run: stabilize test suite runtime and continue porting advanced rendering features.
+807. Ported text_formatting helpers to C# as TextFormatting.cs with truncate and JSON compact logic. Added TextFormattingTests. Updated rust file comment.
+808. Installed .NET SDK in container so builds/tests run. Filtered test suite passes under 1s.
+809. TODO next run: wire TextFormatting into widgets for tool call output and continue porting remaining Rust utilities.
