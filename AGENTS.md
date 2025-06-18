@@ -906,3 +906,8 @@
      Added `TaskRunningShowsStatusIndicator` unit test.
 783. TODO next run: bridge log output via `AppEvent.LatestLog` and stabilize
      interactive tests.
+784. Introduced `LogBridge` to forward latest log lines to the chat widget and
+     replaced direct calls in `TuiApp` with bridge events. Added
+     `LogBridgeTests` verifying status indicator updates via the bridge.
+785. TODO next run: continue refining interactive tests and port remaining
+     widgets from the Rust UI.

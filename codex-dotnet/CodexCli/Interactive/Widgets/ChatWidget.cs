@@ -7,7 +7,7 @@ namespace CodexCli.Interactive;
 
 /// <summary>
 /// Chat widget managing conversation history and bottom pane input.
-/// Mirrors codex-rs/tui/src/chatwidget.rs (status indicator integration in progress).
+/// Mirrors codex-rs/tui/src/chatwidget.rs (status indicator + log bridge done).
 /// </summary>
 public class ChatWidget
 {
@@ -51,6 +51,10 @@ public class ChatWidget
     public void SetTaskRunning(bool running) =>
         _bottomPane.SetTaskRunning(running);
 
+    /// <summary>
+    /// Update the status indicator with the latest log line.
+    /// Called by <see cref="LogBridge"/> when <c>LatestLog</c> events arrive.
+    /// </summary>
     public void UpdateLatestLog(string line) =>
         _bottomPane.UpdateStatusText(line);
 

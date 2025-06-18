@@ -20,6 +20,7 @@ internal static class TuiApp
     {
         var sender = new AppEventSender(_ => { });
         var chat = new ChatWidget(sender);
+        LogBridge.LatestLog += chat.UpdateLatestLog;
 
         var sessionId = SessionManager.CreateSession();
         var history = new List<string>();
@@ -42,6 +43,8 @@ internal static class TuiApp
 
         InteractiveApp.ApprovalHandler = ev => Task.FromResult(chat.PushApprovalRequest(ev));
 
+        try
+        {
         while (true)
         {
             var key = Console.ReadKey(intercept: true);
@@ -108,7 +111,7 @@ internal static class TuiApp
                 SessionManager.AddEntry(sessionId, text);
 
                 chat.SetTaskRunning(true);
-                chat.UpdateLatestLog("thinking...");
+                LogBridge.Emit("thinking...");
 
                 var events = providerId == "Mock"
                     ? MockCodexAgent.RunAsync(text, Array.Empty<string>(), InteractiveApp.ApprovalHandler)
@@ -129,17 +132,17 @@ internal static class TuiApp
                             break;
                         case BackgroundEvent bg:
                             chat.AddSystemMessage(bg.Message);
-                            chat.UpdateLatestLog(bg.Message);
+                            LogBridge.Emit(bg.Message);
                             break;
                         case ErrorEvent err:
                             chat.AddSystemMessage($"ERROR: {err.Message}");
-                            chat.UpdateLatestLog(err.Message);
+                            LogBridge.Emit(err.Message);
                             break;
                         case TaskCompleteEvent tc:
                             if (tc.LastAgentMessage != null)
                                 chat.AddAgentMessage(tc.LastAgentMessage);
                             chat.SetTaskRunning(false);
-                            chat.UpdateLatestLog("ready");
+                            LogBridge.Emit("ready");
                             break;
                         case GetHistoryEntryResponseEvent ge:
                             chat.OnHistoryEntryResponse(ge.SessionId, ge.Offset, ge.Entry);
@@ -158,7 +161,11 @@ internal static class TuiApp
 
             chat.Render(Console.WindowHeight);
         }
-        InteractiveApp.ApprovalHandler = null;
+        finally
+        {
+            LogBridge.LatestLog -= chat.UpdateLatestLog;
+            InteractiveApp.ApprovalHandler = null;
+        }
         return 0;
     }
 
