@@ -1,5 +1,5 @@
 // C# version implemented in codex-dotnet/CodexCli/Interactive/Widgets/ConversationHistoryWidget.cs
-// (scrolling and message formatting done, rendering in progress)
+// (scrolling, message formatting and history entry helpers done, rendering in progress)
 use crate::cell_widget::CellWidget;
 use crate::history_cell::CommandOutput;
 use crate::history_cell::HistoryCell;

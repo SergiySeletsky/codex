@@ -12,8 +12,8 @@ namespace CodexTui;
 
 /// <summary>
 /// Initial prototype TUI host wiring the BottomPane for user input.
-/// Mirrors codex-rs/tui/src/app.rs (slash commands and status overlay implemented,
-/// widgets in progress).
+/// Mirrors codex-rs/tui/src/app.rs (slash commands, status overlay and history
+/// log bridging implemented, widgets in progress).
 /// </summary>
 internal static class TuiApp
 {
@@ -154,6 +154,15 @@ internal static class TuiApp
                             break;
                         case GetHistoryEntryResponseEvent ge:
                             chat.OnHistoryEntryResponse(ge.SessionId, ge.Offset, ge.Entry);
+                            if (ge.Entry != null)
+                            {
+                                chat.AddHistoryEntry(ge.Offset, ge.Entry);
+                                LogBridge.Emit(ge.Entry);
+                            }
+                            break;
+                        case AddToHistoryEvent ah:
+                            chat.AddHistoryEntry(0, ah.Text);
+                            LogBridge.Emit(ah.Text);
                             break;
                         case SessionConfiguredEvent sc:
                             chat.SetHistoryMetadata(sc.SessionId, 0);

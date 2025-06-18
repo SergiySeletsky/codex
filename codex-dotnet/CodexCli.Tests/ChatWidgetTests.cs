@@ -97,4 +97,13 @@ public class ChatWidgetTests
         widget.SetTaskRunning(false);
         Assert.Null(active.GetValue(pane));
     }
+
+    [Fact]
+    public void HistoryEntriesAreStored()
+    {
+        var widget = new ChatWidget();
+        widget.AddHistoryEntry(2, "old");
+        var lines = widget.GetVisibleLines(1);
+        Assert.Contains("[dim]history 2: old[/]", lines);
+    }
 }

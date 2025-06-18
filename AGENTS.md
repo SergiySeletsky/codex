@@ -934,3 +934,10 @@
      overlays close. Tests now finish within the timeout.
 797. TODO next run: improve history entry rendering and bridge log output
      for history-related events.
+798. Added `AddHistoryEntry` methods in `ConversationHistoryWidget` and
+     `ChatWidget` so fetched history lines render with a dim style. `TuiApp`
+     now handles `GetHistoryEntryResponseEvent` and `AddToHistoryEvent`,
+     adding the text to the conversation and forwarding it via `LogBridge`.
+     Updated rust/csharp source comments to mark history entry helpers done.
+799. TODO next run: expand patch/command rendering in the history widget and
+     continue stabilizing interactive tests.
