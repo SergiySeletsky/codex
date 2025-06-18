@@ -48,6 +48,7 @@ public class BottomPaneTests
         pane.SetTaskRunning(true);
         int after = pane.CalculateRequiredHeight(10);
         Assert.Equal(before, after);
+        pane.SetTaskRunning(false); // cleanup background task
     }
 }
 

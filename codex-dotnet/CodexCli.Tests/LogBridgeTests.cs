@@ -23,6 +23,7 @@ public class LogBridgeTests
         finally
         {
             LogBridge.LatestLog -= widget.UpdateLatestLog;
+            widget.SetTaskRunning(false); // dispose background task
         }
     }
 }

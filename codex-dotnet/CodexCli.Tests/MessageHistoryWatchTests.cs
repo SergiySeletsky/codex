@@ -15,5 +15,6 @@ public class MessageHistoryWatchTests
         Assert.True(await enumerator.MoveNextAsync());
         Assert.Equal("one", enumerator.Current);
         cts.Cancel();
+        await enumerator.DisposeAsync();
     }
 }

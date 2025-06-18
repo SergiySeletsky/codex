@@ -941,3 +941,4 @@
      Updated rust/csharp source comments to mark history entry helpers done.
 799. TODO next run: expand patch/command rendering in the history widget and
      continue stabilizing interactive tests.
+800. Fixed hanging tests by disposing StatusIndicator widgets and enumerator. TODO next run: measure full suite runtime and skip long tests if needed.
