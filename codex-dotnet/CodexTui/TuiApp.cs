@@ -134,6 +134,13 @@ internal static class TuiApp
                             chat.AddSystemMessage(bg.Message);
                             LogBridge.Emit(bg.Message);
                             break;
+                        case AgentReasoningEvent ar:
+                            if (!hideReason)
+                            {
+                                chat.AddAgentReasoning(ar.Text);
+                                LogBridge.Emit(ar.Text);
+                            }
+                            break;
                         case ErrorEvent err:
                             chat.AddSystemMessage($"ERROR: {err.Message}");
                             LogBridge.Emit(err.Message);

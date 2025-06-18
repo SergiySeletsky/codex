@@ -18,6 +18,15 @@ public class ChatWidgetTests
     }
 
     [Fact]
+    public void AgentReasoningIsStored()
+    {
+        var widget = new ChatWidget();
+        widget.AddAgentReasoning("thinking...");
+        var lines = widget.GetVisibleLines(1);
+        Assert.Contains("[italic]thinking...[/]", lines);
+    }
+
+    [Fact]
     public void PagingScrollsHistory()
     {
         var widget = new ChatWidget();

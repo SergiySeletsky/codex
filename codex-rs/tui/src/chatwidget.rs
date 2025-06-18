@@ -1,4 +1,5 @@
-// C# version implemented in codex-dotnet/CodexCli/Interactive/Widgets/ChatWidget.cs (focus switching in progress)
+// C# version implemented in codex-dotnet/CodexCli/Interactive/Widgets/ChatWidget.cs
+// (focus switching and agent reasoning done)
 use std::path::PathBuf;
 use std::sync::Arc;
 

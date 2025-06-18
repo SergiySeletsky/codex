@@ -911,3 +911,8 @@
      `LogBridgeTests` verifying status indicator updates via the bridge.
 785. TODO next run: continue refining interactive tests and port remaining
      widgets from the Rust UI.
+786. Reinstalled .NET SDK in the container so builds/tests run again.
+787. Added `AddAgentReasoning` to `ChatWidget` and handled `AgentReasoningEvent`
+     in `TuiApp` with log bridge updates. Marked rust/csharp sources accordingly.
+788. TODO next run: enhance `ConversationHistoryWidget` rendering and continue
+     syncing TUI features.
