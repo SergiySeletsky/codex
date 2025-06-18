@@ -1,16 +1,43 @@
 using System.Collections.Generic;
+using Spectre.Console;
+using CodexCli.Util;
 
 namespace CodexCli.Interactive;
 
 /// <summary>
-/// Very simple scrollable history log. Not feature complete.
-/// Mirrors codex-rs/tui/src/conversation_history_widget.rs (in progress).
+/// Very simple scrollable history log with basic formatting helpers.
+/// Mirrors codex-rs/tui/src/conversation_history_widget.rs (scrolling done,
+/// rendering in progress).
 /// </summary>
 public class ConversationHistoryWidget
 {
     private readonly List<string> _entries = new();
     private int _scrollOffset = 0; // lines scrolled back from bottom
     private bool _hasInputFocus;
+
+    public void AddUserMessage(string text)
+    {
+        var clean = Util.AnsiEscape.StripAnsi(text);
+        Add($"[bold cyan]You:[/] {clean}");
+    }
+
+    public void AddAgentMessage(string text)
+    {
+        var clean = Util.AnsiEscape.StripAnsi(text);
+        Add($"[bold green]Codex:[/] {clean}");
+    }
+
+    public void AddSystemMessage(string text)
+    {
+        var clean = Util.AnsiEscape.StripAnsi(text);
+        Add($"[bold yellow]System:[/] {clean}");
+    }
+
+    public void AddAgentReasoning(string text)
+    {
+        var clean = Util.AnsiEscape.StripAnsi(text);
+        Add($"[italic]{Markup.Escape(clean)}[/]");
+    }
 
     public void Add(string text)
     {

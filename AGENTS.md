@@ -916,3 +916,10 @@
      in `TuiApp` with log bridge updates. Marked rust/csharp sources accordingly.
 788. TODO next run: enhance `ConversationHistoryWidget` rendering and continue
      syncing TUI features.
+789. Implemented `ConversationHistoryWidget` helpers for user/agent/system
+     messages and reasoning. Updated `ChatWidget` to use them.
+790. Reinstalled .NET SDK and verified builds succeed on fresh container.
+791. Ran `dotnet test` but interactive tests still emit output and hang after
+     skipping many cases.
+792. TODO next run: flesh out history entry rendering and reduce test output
+     noise to stabilize runs.

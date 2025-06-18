@@ -27,33 +27,33 @@ public class ChatWidget
 
     public void AddUserMessage(string text)
     {
-        var clean = AnsiEscape.StripAnsi(text);
-        _history.Add($"[bold cyan]You:[/] {clean}");
+        _history.AddUserMessage(text);
         _history.ScrollToBottom();
+        var clean = AnsiEscape.StripAnsi(text);
         AnsiConsole.MarkupLine($"[bold cyan]You:[/] {clean}");
     }
 
     public void AddAgentMessage(string text)
     {
-        var clean = AnsiEscape.StripAnsi(text);
-        _history.Add($"[bold green]Codex:[/] {clean}");
+        _history.AddAgentMessage(text);
         _history.ScrollToBottom();
+        var clean = AnsiEscape.StripAnsi(text);
         AnsiConsole.MarkupLine($"[bold green]Codex:[/] {clean}");
     }
 
     public void AddSystemMessage(string text)
     {
-        var clean = AnsiEscape.StripAnsi(text);
-        _history.Add($"[bold yellow]System:[/] {clean}");
+        _history.AddSystemMessage(text);
         _history.ScrollToBottom();
+        var clean = AnsiEscape.StripAnsi(text);
         AnsiConsole.MarkupLine($"[bold yellow]System:[/] {clean}");
     }
 
     public void AddAgentReasoning(string text)
     {
-        var clean = AnsiEscape.StripAnsi(text);
-        _history.Add($"[italic]{Markup.Escape(clean)}[/]");
+        _history.AddAgentReasoning(text);
         _history.ScrollToBottom();
+        var clean = AnsiEscape.StripAnsi(text);
         AnsiConsole.MarkupLine($"[italic]{Markup.Escape(clean)}[/]");
     }
 
