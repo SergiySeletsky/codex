@@ -7,7 +7,7 @@ namespace CodexCli.Interactive;
 
 /// <summary>
 /// Chat widget managing conversation history and bottom pane input.
-/// Mirrors codex-rs/tui/src/chatwidget.rs (focus switching in progress).
+/// Mirrors codex-rs/tui/src/chatwidget.rs (status indicator integration in progress).
 /// </summary>
 public class ChatWidget
 {
@@ -47,6 +47,12 @@ public class ChatWidget
         _history.ScrollToBottom();
         AnsiConsole.MarkupLine($"[bold yellow]System:[/] {clean}");
     }
+
+    public void SetTaskRunning(bool running) =>
+        _bottomPane.SetTaskRunning(running);
+
+    public void UpdateLatestLog(string line) =>
+        _bottomPane.UpdateStatusText(line);
 
     public void ScrollUp(int lines) => _history.ScrollUp(lines);
     public void ScrollDown(int lines) => _history.ScrollDown(lines);

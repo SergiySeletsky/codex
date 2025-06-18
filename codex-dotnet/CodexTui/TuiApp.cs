@@ -20,8 +20,6 @@ internal static class TuiApp
     {
         var sender = new AppEventSender(_ => { });
         var chat = new ChatWidget(sender);
-        using var status = new StatusIndicatorWidget();
-        status.Start();
 
         var sessionId = SessionManager.CreateSession();
         var history = new List<string>();
@@ -109,7 +107,8 @@ internal static class TuiApp
                 history.Add(text);
                 SessionManager.AddEntry(sessionId, text);
 
-                status.UpdateText("thinking...");
+                chat.SetTaskRunning(true);
+                chat.UpdateLatestLog("thinking...");
 
                 var events = providerId == "Mock"
                     ? MockCodexAgent.RunAsync(text, Array.Empty<string>(), InteractiveApp.ApprovalHandler)
@@ -130,14 +129,17 @@ internal static class TuiApp
                             break;
                         case BackgroundEvent bg:
                             chat.AddSystemMessage(bg.Message);
+                            chat.UpdateLatestLog(bg.Message);
                             break;
                         case ErrorEvent err:
                             chat.AddSystemMessage($"ERROR: {err.Message}");
+                            chat.UpdateLatestLog(err.Message);
                             break;
                         case TaskCompleteEvent tc:
                             if (tc.LastAgentMessage != null)
                                 chat.AddAgentMessage(tc.LastAgentMessage);
-                            status.UpdateText("ready");
+                            chat.SetTaskRunning(false);
+                            chat.UpdateLatestLog("ready");
                             break;
                         case GetHistoryEntryResponseEvent ge:
                             chat.OnHistoryEntryResponse(ge.SessionId, ge.Offset, ge.Entry);

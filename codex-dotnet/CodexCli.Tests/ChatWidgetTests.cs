@@ -62,4 +62,19 @@ public class ChatWidgetTests
         Assert.Equal(new[]{"[bold yellow]System:[/] line 0",
             "[bold yellow]System:[/] line 1"}, lines);
     }
+
+    [Fact]
+    public void TaskRunningShowsStatusIndicator()
+    {
+        var widget = new ChatWidget();
+        var field = typeof(ChatWidget)
+            .GetField("_bottomPane", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
+        var pane = field.GetValue(widget);
+        var active = pane!.GetType().GetField("_activeView", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
+
+        widget.SetTaskRunning(true);
+        Assert.NotNull(active.GetValue(pane));
+        widget.SetTaskRunning(false);
+        Assert.Null(active.GetValue(pane));
+    }
 }

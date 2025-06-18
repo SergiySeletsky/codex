@@ -901,3 +901,8 @@
      remains unchanged when the indicator overlay is active.
 781. TODO next run: integrate additional TUI widgets from the Rust version and
      improve interactive tests to avoid timeouts.
+782. Integrated `ChatWidget.SetTaskRunning` and `UpdateLatestLog` with `TuiApp`
+     so the status indicator overlay is shown while the agent works.
+     Added `TaskRunningShowsStatusIndicator` unit test.
+783. TODO next run: bridge log output via `AppEvent.LatestLog` and stabilize
+     interactive tests.
