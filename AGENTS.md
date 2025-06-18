@@ -947,3 +947,7 @@
     Updated Rust comments to mark exec/patch support done in C#.
 802. Created unit tests `CommandAndPatchEventsAreStored` verifying new history entries.
 803. TODO next run: refine patch diff rendering and continue improving interactive tests.
+804. Implemented patch diff summary rendering using `FormatPatchLines` helpers.
+     `AddPatchApplyBegin` now accepts FileChange dictionaries and displays summary lines.
+     Added `PatchSummaryLinesAreRendered` test verifying markup output.
+     TODO next run: stabilize interactive tests and port remaining Rust widgets.

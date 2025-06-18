@@ -173,7 +173,7 @@ internal static class TuiApp
                             LogBridge.Emit(end.ExitCode == 0 ? end.Stdout : end.Stderr);
                             break;
                         case PatchApplyBeginEvent pb:
-                            chat.AddPatchApplyBegin(pb.AutoApproved);
+                            chat.AddPatchApplyBegin(pb.AutoApproved, pb.Changes);
                             LogBridge.Emit($"patch auto_approved={pb.AutoApproved}");
                             break;
                         case PatchApplyEndEvent pe:

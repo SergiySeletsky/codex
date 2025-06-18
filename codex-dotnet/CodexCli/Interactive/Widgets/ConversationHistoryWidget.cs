@@ -1,13 +1,14 @@
 using System.Collections.Generic;
 using Spectre.Console;
 using CodexCli.Util;
+using CodexCli.Protocol;
 
 namespace CodexCli.Interactive;
 
 /// <summary>
 /// Very simple scrollable history log with basic formatting helpers.
 /// Mirrors codex-rs/tui/src/conversation_history_widget.rs (scrolling,
-/// message formatting and history entry helpers done, rendering in progress).
+/// message formatting, history entry helpers and patch diff summary done, rendering in progress).
 /// </summary>
 public class ConversationHistoryWidget
 {
@@ -62,9 +63,17 @@ public class ConversationHistoryWidget
         Add($"[magenta]exec[/] {status}");
     }
 
-    public void AddPatchApplyBegin(bool autoApproved)
+    public void AddPatchApplyBegin(bool autoApproved, IReadOnlyDictionary<string,FileChange>? changes = null)
     {
-        Add($"[magenta]apply_patch[/] auto_approved={autoApproved}");
+        if (changes == null)
+        {
+            Add($"[magenta]apply_patch[/] auto_approved={autoApproved}");
+            return;
+        }
+
+        Add("[magenta]applying patch[/]");
+        foreach (var line in FormatPatchLines(changes))
+            Add(line);
     }
 
     public void AddPatchApplyEnd(bool success)
@@ -144,5 +153,63 @@ public class ConversationHistoryWidget
         int start = Math.Max(0, _entries.Count - height - _scrollOffset);
         int count = Math.Min(height, _entries.Count - start);
         return _entries.GetRange(start, count);
+    }
+
+    private static List<string> CreateDiffSummary(IReadOnlyDictionary<string,FileChange> changes)
+    {
+        var lines = new List<string>();
+        foreach (var kv in changes)
+        {
+            var path = kv.Key;
+            switch (kv.Value)
+            {
+                case AddFileChange add:
+                    int added = add.Content.Split('\n').Length;
+                    if (add.Content.EndsWith("\n")) added--;
+                    lines.Add($"A {path} (+{added})");
+                    break;
+                case DeleteFileChange:
+                    lines.Add($"D {path}");
+                    break;
+                case UpdateFileChange upd:
+                    if (upd.MovePath != null)
+                        lines.Add($"R {path} -> {upd.MovePath}");
+                    else
+                        lines.Add($"M {path}");
+                    lines.AddRange(upd.UnifiedDiff.Split('\n'));
+                    break;
+            }
+        }
+        return lines;
+    }
+
+    private static string FormatPatchLine(string line)
+    {
+        if (line.StartsWith("+"))
+            return $"[green]{Markup.Escape(line)}[/]";
+        if (line.StartsWith("-"))
+            return $"[red]{Markup.Escape(line)}[/]";
+        if (line.Length > 2 && line[1] == ' ')
+        {
+            char kind = line[0];
+            string rest = line.Substring(2);
+            string color = kind switch
+            {
+                'A' => "green",
+                'D' => "red",
+                'M' => "yellow",
+                'R' => "cyan",
+                'C' => "cyan",
+                _ => "white"
+            };
+            return $"[{color} bold]{kind}[/] {Markup.Escape(rest)}";
+        }
+        return Markup.Escape(line);
+    }
+
+    internal static IEnumerable<string> FormatPatchLines(IReadOnlyDictionary<string,FileChange> changes)
+    {
+        foreach (var l in CreateDiffSummary(changes))
+            yield return FormatPatchLine(l);
     }
 }

@@ -1,4 +1,6 @@
 using CodexCli.Interactive;
+using CodexCli.Protocol;
+using System.Collections.Generic;
 using Xunit;
 
 public class ChatWidgetTests
@@ -120,5 +122,24 @@ public class ChatWidgetTests
         Assert.Contains("[magenta]exec[/] succeeded", lines);
         Assert.Contains("[magenta]apply_patch[/] auto_approved=True", lines);
         Assert.Contains("[magenta]apply_patch[/] succeeded", lines);
+    }
+
+    [Fact]
+    public void PatchSummaryLinesAreRendered()
+    {
+        var widget = new ChatWidget();
+        var changes = new Dictionary<string,FileChange>
+        {
+            {"a.txt", new AddFileChange("hello\nworld\n")},
+            {"b.txt", new DeleteFileChange()},
+            {"c.txt", new UpdateFileChange("+hi\n-context\n", null)}
+        };
+        widget.AddPatchApplyBegin(true, changes);
+        var lines = widget.GetVisibleLines(8);
+        Assert.Contains("[magenta]applying patch[/]", lines);
+        Assert.Contains("[green bold]A[/] a.txt (+2)", lines);
+        Assert.Contains("[red bold]D[/] b.txt", lines);
+        Assert.Contains("[yellow bold]M[/] c.txt", lines);
+        Assert.Contains("[green]+hi[/]", lines);
     }
 }

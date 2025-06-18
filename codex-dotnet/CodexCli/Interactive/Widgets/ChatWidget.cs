@@ -9,7 +9,7 @@ namespace CodexCli.Interactive;
 /// Chat widget managing conversation history and bottom pane input.
 /// Mirrors codex-rs/tui/src/chatwidget.rs
 /// (status indicator, log bridge, agent reasoning, background/error and history entry updates done.
-/// exec command and patch events done).
+/// exec command and patch diff summary done).
 /// </summary>
 public class ChatWidget
 {
@@ -97,11 +97,20 @@ public class ChatWidget
         AnsiConsole.MarkupLine($"[magenta]exec[/] {status}");
     }
 
-    public void AddPatchApplyBegin(bool autoApproved)
+    public void AddPatchApplyBegin(bool autoApproved, IReadOnlyDictionary<string,FileChange>? changes = null)
     {
-        _history.AddPatchApplyBegin(autoApproved);
+        _history.AddPatchApplyBegin(autoApproved, changes);
         _history.ScrollToBottom();
-        AnsiConsole.MarkupLine($"[magenta]apply_patch[/] auto_approved={autoApproved}");
+
+        if (changes == null)
+        {
+            AnsiConsole.MarkupLine($"[magenta]apply_patch[/] auto_approved={autoApproved}");
+            return;
+        }
+
+        AnsiConsole.MarkupLine("[magenta]applying patch[/]");
+        foreach (var line in ConversationHistoryWidget.FormatPatchLines(changes))
+            AnsiConsole.MarkupLine(line);
     }
 
     public void AddPatchApplyEnd(bool success)
