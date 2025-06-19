@@ -164,4 +164,14 @@ public class ChatWidgetTests
         Assert.Contains("[magenta]tool[/] success:", lines);
         Assert.Contains("[dim]{\"ok\": true}[/]", lines);
     }
+
+    [Fact]
+    public void ClearConversationRemovesLines()
+    {
+        var widget = new ChatWidget();
+        widget.AddAgentMessage("hello");
+        Assert.Single(widget.GetVisibleLines(1));
+        widget.ClearConversation();
+        Assert.Empty(widget.GetVisibleLines(1));
+    }
 }

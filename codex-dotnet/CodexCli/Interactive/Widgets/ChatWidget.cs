@@ -10,7 +10,7 @@ namespace CodexCli.Interactive;
 /// Chat widget managing conversation history and bottom pane input.
 /// Mirrors codex-rs/tui/src/chatwidget.rs
 /// (status indicator, log bridge, agent reasoning, background/error and history entry updates done.
-/// exec command, patch diff summary, mcp tool call events, markdown history rendering done).
+/// exec command, patch diff summary, mcp tool call events, markdown history rendering, /new command clearing history done).
 /// </summary>
 public class ChatWidget
 {
@@ -83,6 +83,11 @@ public class ChatWidget
         _history.ScrollToBottom();
         var clean = AnsiEscape.StripAnsi(text);
         AnsiConsole.MarkupLine($"[dim]history {offset}: {Markup.Escape(clean)}[/]");
+    }
+
+    public void ClearConversation()
+    {
+        _history.Clear();
     }
 
     public void AddExecCommand(string command)

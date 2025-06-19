@@ -975,3 +975,11 @@
 816. Added `AgentMessageMarkdownIsRewritten` unit test verifying citation rewrite.
 817. TODO next run: further stabilize interactive tests and port remaining
      rendering helpers.
+818. Added `Clear` method to `ConversationHistoryWidget` and `ClearConversation`
+     helper in `ChatWidget`.
+     Implemented `/new` slash command in `TuiApp` to clear the conversation and
+     updated the help text.
+819. Created unit tests verifying conversation and history widgets clear their
+     lines when `/new` is invoked.
+820. TODO next run: port additional slash commands and continue stabilizing
+     interactive tests.

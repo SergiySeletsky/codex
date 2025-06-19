@@ -48,6 +48,12 @@ public class ConversationHistoryWidget
             Add(Markup.Escape(lines[i]));
     }
 
+    public void Clear()
+    {
+        _entries.Clear();
+        _scrollOffset = 0;
+    }
+
     public void AddSystemMessage(string text)
     {
         var lines = new List<string>();

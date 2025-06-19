@@ -59,9 +59,15 @@ internal static class TuiApp
                 if (text.Equals("/quit", StringComparison.OrdinalIgnoreCase))
                     break;
 
+                if (text.Equals("/new", StringComparison.OrdinalIgnoreCase))
+                {
+                    chat.ClearConversation();
+                    continue;
+                }
+
                 if (text.Equals("/help", StringComparison.OrdinalIgnoreCase))
                 {
-                    chat.AddAgentMessage("Available commands: /history, /scroll-up, /scroll-down, /sessions, /config, /quit");
+                    chat.AddAgentMessage("Available commands: /new, /history, /scroll-up, /scroll-down, /sessions, /config, /quit");
                     continue;
                 }
                 if (text.Equals("/history", StringComparison.OrdinalIgnoreCase))

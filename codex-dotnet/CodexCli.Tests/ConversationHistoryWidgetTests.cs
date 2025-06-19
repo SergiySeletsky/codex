@@ -59,4 +59,14 @@ public class ConversationHistoryWidgetTests
         Assert.Contains("[magenta]tool[/] failed:", lines);
         Assert.Contains("[dim]{\"err\": 1}[/]", lines);
     }
+
+    [Fact]
+    public void ClearRemovesLines()
+    {
+        var hist = new ConversationHistoryWidget();
+        hist.Add("line");
+        Assert.Single(hist.GetVisibleLines(1));
+        hist.Clear();
+        Assert.Empty(hist.GetVisibleLines(1));
+    }
 }
