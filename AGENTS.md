@@ -1034,3 +1034,6 @@
 859. Adjusted image placeholder tests to expect 1x1 PNG and JPEG samples and
      updated CrossCli tests. All unit tests pass again.
 860. TODO next run: finish outstanding widgets and improve rendering fidelity.
+861. Fixed BottomPane height calculation to use active overlay views.
+     Added unit test verifying approval modal height and updated Rust comments.
+862. TODO next run: port remaining bottom pane widgets and polish TUI layout.

@@ -50,5 +50,16 @@ public class BottomPaneTests
         Assert.Equal(before, after);
         pane.SetTaskRunning(false); // cleanup background task
     }
+
+    [Fact]
+    public void ApprovalModalUsesOverlayHeight()
+    {
+        var pane = new BottomPane(new AppEventSender(_ => { }), true);
+        Console.SetIn(new StringReader("n\n"));
+        pane.PushApprovalRequest(new ExecApprovalRequestEvent("1", new[] { "ls" }));
+        int height = pane.CalculateRequiredHeight(10);
+        Assert.Equal(1, height);
+        pane.Render(1); // cleanup
+    }
 }
 

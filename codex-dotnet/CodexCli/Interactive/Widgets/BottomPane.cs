@@ -5,7 +5,8 @@ namespace CodexCli.Interactive;
 
 /// <summary>
 /// Container for chat composer and overlay views.
-/// Mirrors codex-rs/tui/src/bottom_pane/mod.rs (status indicator overlay done).
+/// Mirrors codex-rs/tui/src/bottom_pane/mod.rs (status and approval overlays
+/// done, interactive image command and JPEG support implemented).
 /// </summary>
 public class BottomPane
 {
@@ -79,7 +80,9 @@ public class BottomPane
 
     public int CalculateRequiredHeight(int areaHeight)
     {
-        return _composer.CalculateRequiredHeight(areaHeight);
+        return _activeView != null
+            ? _activeView.CalculateRequiredHeight(areaHeight)
+            : _composer.CalculateRequiredHeight(areaHeight);
     }
 
     public void Render(int areaHeight)
