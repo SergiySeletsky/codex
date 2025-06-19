@@ -21,7 +21,8 @@ namespace CodexTui;
 /// debouncing via <see cref="ScrollEventHelper"/> and xterm mouse sequence
 /// parsing via <see cref="AnsiMouseParser"/> with arrow and navigation keys parsed in
 /// <see cref="AnsiKeyParser"/> and non-blocking PTY input handled by
-/// <see cref="PtyInputReader"/> (done; further polish pending).
+/// <see cref="PtyInputReader"/> with bracketed paste enabled via
+/// <see cref="BracketedPasteCapture"/> (done; further polish pending).
 /// </summary>
 internal static class TuiApp
 {
@@ -33,6 +34,7 @@ internal static class TuiApp
         var scrollHelper = new ScrollEventHelper(sender);
         var mouseParser = new AnsiMouseParser(scrollHelper);
         using var mouse = new MouseCapture(!(cfg?.Tui.DisableMouseCapture ?? false));
+        using var paste = new BracketedPasteCapture(true);
         using var input = new PtyInputReader(Console.In, mouseParser);
         LogBridge.LatestLog += chat.UpdateLatestLog;
 

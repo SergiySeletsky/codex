@@ -1107,3 +1107,9 @@
 901. Added cross-language test `InteractiveHomeEndMatches` ensuring parity for
      Home/End editing.
 902. TODO next run: handle paste events and continue event loop polish.
+
+903. Implemented BracketedPasteCapture enabling bracketed paste mode and documented cross-file mapping.
+904. PtyInputReader now decodes bracketed paste sequences and queues shifted newline events.
+905. BasicTextArea and ChatComposer handle Shift+Enter for newline insertion.
+906. Added unit tests for paste parsing and newline handling plus cross-language test `InteractivePasteMatches`.
+907. TODO next run: refine paste buffering and improve test stability.

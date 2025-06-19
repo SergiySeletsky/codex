@@ -29,5 +29,24 @@ public class PtyInputReaderTests
         Assert.Equal('b', key2.KeyChar);
     }
 
+    [Fact]
+    public async Task ParsesBracketedPaste()
+    {
+        using var reader = new StringReader("\u001b[200~a\nb\u001b[201~");
+        var helper = new ScrollEventHelper(new AppEventSender(_ => { }));
+        var parser = new AnsiMouseParser(helper);
+        using var input = new PtyInputReader(reader, parser);
 
+        await Task.Delay(100);
+        var keys = new List<ConsoleKeyInfo>();
+        for (int i = 0; i < 3; i++)
+        {
+            Assert.True(input.TryRead(out var k));
+            keys.Add(k);
+        }
+        Assert.Equal('a', keys[0].KeyChar);
+        Assert.Equal('\n', keys[1].KeyChar);
+        Assert.Equal(ConsoleModifiers.Shift, keys[1].Modifiers);
+        Assert.Equal('b', keys[2].KeyChar);
+    }
 }

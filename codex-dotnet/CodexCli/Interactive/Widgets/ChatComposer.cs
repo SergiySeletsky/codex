@@ -123,6 +123,12 @@ public class ChatComposer
             _textarea.MoveCursor(row, Math.Min(line.Length, col + 1));
             return (InputResult.None, true);
         }
+        if (key.Key == ConsoleKey.Enter && key.Modifiers != 0)
+        {
+            _textarea.InsertChar('\n');
+            return (InputResult.None, true);
+        }
+
         if (key.Key == ConsoleKey.Enter && key.Modifiers == 0)
         {
             var text = string.Join("\n", _textarea.Lines);
@@ -202,12 +208,23 @@ public class ChatComposer
 
         public void InsertChar(char ch)
         {
-            var line = _lines[_row];
-            if (_col >= line.Length)
-                line += ch;
+            if (ch == '\n')
+            {
+                var line = _lines[_row];
+                var after = line[_col..];
+                _lines[_row] = line[.._col];
+                _lines.Insert(_row + 1, after);
+                _row++;
+                _col = 0;
+                return;
+            }
+
+            var lineCur = _lines[_row];
+            if (_col >= lineCur.Length)
+                lineCur += ch;
             else
-                line = line.Insert(_col, ch.ToString());
-            _lines[_row] = line;
+                lineCur = lineCur.Insert(_col, ch.ToString());
+            _lines[_row] = lineCur;
             _col++;
         }
 
