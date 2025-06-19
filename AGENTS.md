@@ -1062,3 +1062,5 @@
 876. Implemented cross-language tests `InteractiveLogMatches` and
      `InteractiveVersionMatches` ensuring CLI parity for these commands.
 877. TODO next run: finish polishing layout and remaining widget details.
+878. Added C# `ScrollEventHelper` stub and marked Rust counterpart done. Documented
+     resize handling polish planned for next iteration.
