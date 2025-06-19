@@ -6,21 +6,28 @@ using CodexCli.Util;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
+using System.Threading.Tasks;
 using Spectre.Console;
 
 namespace CodexTui;
 
 /// <summary>
 /// Initial prototype TUI host wiring the BottomPane for user input.
-/// Mirrors codex-rs/tui/src/app.rs (slash commands, status overlay and history
-/// log bridging implemented, widgets in progress).
+/// Mirrors codex-rs/tui/src/app.rs (login and git warning screens, slash
+/// commands, approval overlay, status indicator, history log bridging with
+/// PNG/JPEG dimension parsing, and initial/interactive image prompts all
+/// implemented. Layout spacing and height clamping done with scroll wheel
+/// debouncing via <see cref="ScrollEventHelper"/>; more polish pending).
 /// </summary>
 internal static class TuiApp
 {
     public static async Task<int> RunAsync(InteractiveOptions opts, AppConfig? cfg)
     {
-        var sender = new AppEventSender(_ => { });
+        var queue = new ConcurrentQueue<Event>();
+        var sender = new AppEventSender(ev => queue.Enqueue(ev));
         var chat = new ChatWidget(sender);
+        var scrollHelper = new ScrollEventHelper(sender);
         using var mouse = new MouseCapture(!(cfg?.Tui.DisableMouseCapture ?? false));
         LogBridge.LatestLog += chat.UpdateLatestLog;
 
@@ -35,6 +42,10 @@ internal static class TuiApp
             history.Add(opts.Prompt);
             SessionManager.AddEntry(sessionId, opts.Prompt);
         }
+        foreach (var img in opts.Images)
+        {
+            chat.AddUserImage(img.FullName);
+        }
 
         string providerId = opts.ModelProvider ?? cfg?.ModelProvider ?? "Mock";
         bool hideReason = opts.HideAgentReasoning ?? cfg?.HideAgentReasoning ?? false;
@@ -43,12 +54,82 @@ internal static class TuiApp
             UriBasedFileOpener.None,
             Environment.CurrentDirectory);
 
+        if (!string.IsNullOrEmpty(opts.Prompt) || opts.Images.Length > 0)
+        {
+            chat.SetTaskRunning(true);
+            LogBridge.Emit("thinking...");
+            var images = opts.Images.Select(i => i.FullName).ToArray();
+            var events = providerId == "Mock"
+                ? MockCodexAgent.RunAsync(opts.Prompt ?? string.Empty, images, InteractiveApp.ApprovalHandler)
+                : RealCodexAgent.RunAsync(opts.Prompt ?? string.Empty,
+                    new OpenAIClient(ApiKeyManager.GetKey(ModelProviderInfo.BuiltIns[providerId]),
+                        ModelProviderInfo.BuiltIns[providerId].BaseUrl),
+                    opts.Model ?? cfg?.Model ?? "default",
+                    InteractiveApp.ApprovalHandler ?? (_ => Task.FromResult(ReviewDecision.Approved)),
+                    images);
+            await foreach (var ev in events)
+            {
+                processor.ProcessEvent(ev);
+                switch (ev)
+                {
+                    case AgentMessageEvent am:
+                        chat.AddAgentMessage(am.Message);
+                        lastMessage = am.Message;
+                        break;
+                    case BackgroundEvent bg:
+                        chat.AddBackgroundEvent(bg.Message);
+                        LogBridge.Emit(bg.Message);
+                        break;
+                    case AgentReasoningEvent ar:
+                        if (!hideReason)
+                        {
+                            chat.AddAgentReasoning(ar.Text);
+                            LogBridge.Emit(ar.Text);
+                        }
+                        break;
+                    case ErrorEvent err:
+                        chat.AddError(err.Message);
+                        LogBridge.Emit(err.Message);
+                        break;
+                    case TaskCompleteEvent tc:
+                        if (tc.LastAgentMessage != null)
+                            chat.AddAgentMessage(tc.LastAgentMessage);
+                        chat.SetTaskRunning(false);
+                        LogBridge.Emit("ready");
+                        break;
+                    case McpToolCallBeginEvent mc:
+                        chat.AddMcpToolCallBegin(mc.Server, mc.Tool, mc.ArgumentsJson);
+                        LogBridge.Emit(mc.ArgumentsJson ?? "");
+                        break;
+                    case McpToolCallEndEvent mce:
+                        if (ToolResultUtils.HasImageOutput(mce.ResultJson))
+                            chat.AddMcpToolCallImage(mce.ResultJson);
+                        else
+                            chat.AddMcpToolCallEnd(mce.IsSuccess, mce.ResultJson);
+                        LogBridge.Emit(mce.ResultJson);
+                        break;
+                }
+            }
+        }
+
         InteractiveApp.ApprovalHandler = ev => Task.FromResult(chat.PushApprovalRequest(ev));
 
         try
         {
         while (true)
         {
+            bool scrolled = false;
+            while (queue.TryDequeue(out var ev))
+            {
+                if (ev is ScrollEvent se)
+                {
+                    chat.HandleScrollDelta(se.Delta);
+                    scrolled = true;
+                }
+            }
+            if (scrolled)
+                chat.Render(Console.WindowHeight);
+
             var key = Console.ReadKey(intercept: true);
             var res = chat.HandleKeyEvent(key);
             chat.Render(Console.WindowHeight);
@@ -75,7 +156,7 @@ internal static class TuiApp
 
                 if (text.Equals("/help", StringComparison.OrdinalIgnoreCase))
                 {
-                    chat.AddAgentMessage("Available commands: /new, /toggle-mouse-mode, /history, /scroll-up, /scroll-down, /sessions, /config, /quit");
+                    chat.AddAgentMessage("Available commands: /new, /toggle-mouse-mode, /history, /scroll-up, /scroll-down, /sessions, /config, /image <file>, /quit");
                     continue;
                 }
                 if (text.Equals("/history", StringComparison.OrdinalIgnoreCase))
@@ -86,15 +167,15 @@ internal static class TuiApp
                 if (text.StartsWith("/scroll-up", StringComparison.OrdinalIgnoreCase))
                 {
                     int n = ParseIntArg(text);
-                    chat.ScrollUp(n);
-                    chat.Render(20);
+                    for (int i = 0; i < n; i++) scrollHelper.ScrollUp();
+                    await Task.Delay(150);
                     continue;
                 }
                 if (text.StartsWith("/scroll-down", StringComparison.OrdinalIgnoreCase))
                 {
                     int n = ParseIntArg(text);
-                    chat.ScrollDown(n);
-                    chat.Render(20);
+                    for (int i = 0; i < n; i++) scrollHelper.ScrollDown();
+                    await Task.Delay(150);
                     continue;
                 }
                 if (text.Equals("/sessions", StringComparison.OrdinalIgnoreCase))
@@ -118,6 +199,78 @@ internal static class TuiApp
                     else
                     {
                         chat.AddAgentMessage("No config loaded");
+                    }
+                    continue;
+                }
+
+                if (text.StartsWith("/image ", StringComparison.OrdinalIgnoreCase))
+                {
+                    var parts = text.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+                    if (parts.Length < 2)
+                    {
+                        chat.AddError("Usage: /image <file>");
+                        continue;
+                    }
+                    var path = parts[1];
+                    if (!File.Exists(path))
+                    {
+                        chat.AddError($"File not found: {path}");
+                        continue;
+                    }
+                    chat.AddUserImage(path);
+                    chat.SetTaskRunning(true);
+                    LogBridge.Emit("thinking...");
+                    var images = new[] { path };
+                    var events = providerId == "Mock"
+                        ? MockCodexAgent.RunAsync(string.Empty, images, InteractiveApp.ApprovalHandler)
+                        : RealCodexAgent.RunAsync(string.Empty,
+                            new OpenAIClient(ApiKeyManager.GetKey(ModelProviderInfo.BuiltIns[providerId]),
+                                ModelProviderInfo.BuiltIns[providerId].BaseUrl),
+                            opts.Model ?? cfg?.Model ?? "default",
+                            InteractiveApp.ApprovalHandler ?? (_ => Task.FromResult(ReviewDecision.Approved)),
+                            images);
+                    await foreach (var ev in events)
+                    {
+                        processor.ProcessEvent(ev);
+                        switch (ev)
+                        {
+                            case AgentMessageEvent am:
+                                chat.AddAgentMessage(am.Message);
+                                lastMessage = am.Message;
+                                break;
+                            case BackgroundEvent bg:
+                                chat.AddBackgroundEvent(bg.Message);
+                                LogBridge.Emit(bg.Message);
+                                break;
+                            case AgentReasoningEvent ar:
+                                if (!hideReason)
+                                {
+                                    chat.AddAgentReasoning(ar.Text);
+                                    LogBridge.Emit(ar.Text);
+                                }
+                                break;
+                            case ErrorEvent err:
+                                chat.AddError(err.Message);
+                                LogBridge.Emit(err.Message);
+                                break;
+                            case TaskCompleteEvent tc:
+                                if (tc.LastAgentMessage != null)
+                                    chat.AddAgentMessage(tc.LastAgentMessage);
+                                chat.SetTaskRunning(false);
+                                LogBridge.Emit("ready");
+                                break;
+                            case McpToolCallBeginEvent mc:
+                                chat.AddMcpToolCallBegin(mc.Server, mc.Tool, mc.ArgumentsJson);
+                                LogBridge.Emit(mc.ArgumentsJson ?? string.Empty);
+                                break;
+                            case McpToolCallEndEvent mce:
+                                if (ToolResultUtils.HasImageOutput(mce.ResultJson))
+                                    chat.AddMcpToolCallImage(mce.ResultJson);
+                                else
+                                    chat.AddMcpToolCallEnd(mce.IsSuccess, mce.ResultJson);
+                                LogBridge.Emit(mce.ResultJson);
+                                break;
+                        }
                     }
                     continue;
                 }
@@ -191,7 +344,10 @@ internal static class TuiApp
                             LogBridge.Emit(mc.ArgumentsJson ?? "");
                             break;
                         case McpToolCallEndEvent mce:
-                            chat.AddMcpToolCallEnd(mce.IsSuccess, mce.ResultJson);
+                            if (ToolResultUtils.HasImageOutput(mce.ResultJson))
+                                chat.AddMcpToolCallImage(mce.ResultJson);
+                            else
+                                chat.AddMcpToolCallEnd(mce.IsSuccess, mce.ResultJson);
                             LogBridge.Emit(mce.ResultJson);
                             break;
                         case PatchApplyBeginEvent pb:
@@ -229,4 +385,6 @@ internal static class TuiApp
         var parts = text.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
         return parts.Length > 1 && int.TryParse(parts[1], out var val) ? val : 1;
     }
+
+    private static bool IsImageResult(string json) => ToolResultUtils.HasImageOutput(json);
 }

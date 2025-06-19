@@ -989,3 +989,83 @@
 823. Integrated `TextBlock` storage into `ConversationHistoryWidget` via new `HistoryCell` class. Updated `ChatComposer` and widget tests.
 824. Expanded `HistoryCell` variants and added cached line counts for smoother scrolling. Updated `ConversationHistoryWidget` with an `Entry` helper storing heights and refactored scrolling logic. Tests pass under 1s.
 825. TODO next run: handle image output in tool call results and finish HistoryCell parity with Rust.
+826. Implemented placeholder image output support in `HistoryCell` and `ConversationHistoryWidget`. Updated cross-file comments to mark feature done.
+827. Added `AddMcpToolCallImage` in `ChatWidget` and wired `TuiApp` to detect image results.
+828. `MockCodexAgent` now emits an additional `McpToolCallEndEvent` with image data.
+829. Created unit tests `ToolImageEvent` and `ToolImageEventIsStored` verifying history widgets store the placeholder.
+830. Added cross-language test `ExecImageUploadMatches` ensuring exec image attachments behave the same.
+831. TODO next run: refine image rendering and optimize cross-language test runtime.
+832. Introduced `ToolResultUtils.HasImageOutput` helper mirroring Rust logic and
+     updated `TuiApp` to parse JSON tool results.
+833. Added `ToolResultUtilsTests` verifying image detection.
+834. Updated cross-file comments marking image detection done.
+835. TODO next run: improve actual image rendering and speed up cross-language tests.
+836. Added ImageSharp dependency and implemented `ToolResultUtils.FormatImageInfo`
+     to decode image dimensions.
+837. `ChatWidget` and `ConversationHistoryWidget` now display `<image WxH>` using
+     the new helper. `TuiApp` passes JSON results to render dimensions.
+838. Updated unit tests for image info parsing and widget output.
+839. Updated cross-file comments to mark basic image dimension rendering done.
+840. TODO next run: handle initial image prompts and continue porting remaining
+     widgets.
+841. Implemented `FormatImageInfoFromFile` for local PNGs and added `AddUserImage`
+     in history and chat widgets.
+842. `TuiApp` now processes initial `--image` files, sending them to agents and
+     displaying `<image WxH>` placeholders.
+843. `RealCodexAgent.RunAsync` accepts image paths for parity with Rust.
+844. Added tests verifying local image info parsing and user image rendering.
+845. Updated cross-file comments to mark initial image prompt support done.
+846. TODO next run: polish widget layout and expand cross-language tests.
+847. Updated widget status comments for CommandPopup, ApprovalModalView and
+     UserApprovalWidget to 'done'.
+848. Documented image dimension parsing progress in TuiApp and app.rs comments.
+849. Added cross-language test `TuiImageUploadMatches` verifying initial image
+     parity.
+850. TODO next run: finish remaining widgets and add interactive image support.
+851. Implemented `/image` command in `TuiApp` to upload images interactively.
+852. Updated chat widget and history comments to note interactive image support.
+853. Added cross-language test `TuiImageCommandMatches` exercising the new command.
+854. TODO next run: refine image rendering and finalize remaining widget ports.
+855. Implemented JPEG dimension parsing in `ToolResultUtils` and updated
+     `FormatImageInfoFromFile` accordingly.
+856. Extended widget tests to verify JPEG placeholders for user and tool images.
+857. Added cross-language tests covering JPEG uploads and `/image` command parity.
+858. Updated cross-file comments to mark JPEG support done.
+859. Adjusted image placeholder tests to expect 1x1 PNG and JPEG samples and
+     updated CrossCli tests. All unit tests pass again.
+860. TODO next run: finish outstanding widgets and improve rendering fidelity.
+861. Fixed BottomPane height calculation to use active overlay views.
+     Added unit test verifying approval modal height and updated Rust comments.
+862. TODO next run: port remaining bottom pane widgets and polish TUI layout.
+863. Ported remaining bottom pane widgets and marked modules done in source
+     comments for both Rust and C# implementations.
+864. Updated TuiApp and app.rs comments noting login screen, git warning,
+     slash commands and image features all implemented.
+865. Added cross-language test `InteractiveNewMatches` verifying `/new` command
+     output matches between binaries.
+866. TODO next run: refine layout spacing and continue parity checks.
+867. Implemented basic layout spacing between conversation history and composer
+     in ChatWidget and TuiApp.
+868. Updated rust and C# source comments to mark layout spacing done.
+869. Added `GetLayoutHeights` helper and blank-line rendering in ChatWidget with
+     unit test verifying the spacing logic.
+870. TODO next run: polish remaining layout details and enable more CLI parity
+     checks.
+871. Clamped bottom pane height in `ChatWidget.GetLayoutHeights` so at least one
+     history row is visible on small terminals.
+872. Updated cross-file comments in ChatWidget, TuiApp and app.rs noting layout
+     clamping completed.
+873. Added unit test `LayoutClampsBottomHeight` verifying the new sizing logic.
+874. TODO next run: expand CLI parity tests and continue refining TUI layout.
+875. Added `/log` and `/version` handling notes in ChatWidget and Rust sources
+     and documented mapping in InteractiveApp comments.
+876. Implemented cross-language tests `InteractiveLogMatches` and
+     `InteractiveVersionMatches` ensuring CLI parity for these commands.
+877. TODO next run: finish polishing layout and remaining widget details.
+878. Added C# `ScrollEventHelper` stub and marked Rust counterpart done. Documented
+     resize handling polish planned for next iteration.
+879. Implemented ScrollEventHelper debouncing logic and marked C# file done. TODO next run: integrate with TuiApp event loop for wheel events.
+880. Wired ScrollEventHelper into TuiApp with a basic event queue and updated
+     source comments. Added ChatWidget.HandleScrollDelta with unit test.
+881. TODO next run: parse real terminal mouse sequences and finish scroll
+     integration polish.

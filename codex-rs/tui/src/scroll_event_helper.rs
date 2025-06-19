@@ -1,3 +1,4 @@
+// C# version implemented in codex-dotnet/CodexTui/ScrollEventHelper.cs (done)
 use std::sync::Arc;
 use std::sync::atomic::AtomicBool;
 use std::sync::atomic::AtomicI32;

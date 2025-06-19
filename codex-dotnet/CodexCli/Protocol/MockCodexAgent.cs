@@ -32,6 +32,9 @@ public static async IAsyncEnumerable<Event> RunAsync(string prompt, IReadOnlyLis
         await Task.Delay(50);
         yield return new McpToolCallEndEvent(Guid.NewGuid().ToString(), true, "{\"result\":42}");
         await Task.Delay(50);
+        yield return new McpToolCallEndEvent(Guid.NewGuid().ToString(), true,
+            "{\"content\":[{\"type\":\"image\",\"data\":\"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAADUlEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==\"}]}");
+        await Task.Delay(50);
         var changes = new Dictionary<string,FileChange>{{"file.txt", new AddFileChange("hello\n")}};
         yield return new PatchApplyBeginEvent(Guid.NewGuid().ToString(), true, changes);
         await Task.Delay(50);

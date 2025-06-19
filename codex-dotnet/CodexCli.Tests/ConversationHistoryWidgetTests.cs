@@ -1,5 +1,8 @@
 using CodexCli.Interactive;
+using CodexCli.Util;
 using Xunit;
+using System;
+using System.IO;
 
 public class ConversationHistoryWidgetTests
 {
@@ -70,6 +73,48 @@ public class ConversationHistoryWidgetTests
         Assert.Contains("[magenta]tool[/] [bold]srv.tool()[/]", lines);
         Assert.Contains("[magenta]tool[/] failed:", lines);
         Assert.Contains("[dim]{\"err\": 1}[/]", lines);
+    }
+
+    [Fact]
+    public void ToolImageEvent()
+    {
+        var hist = new ConversationHistoryWidget();
+        const string json = "{\"content\":[{\"type\":\"image\",\"data\":\"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAADUlEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==\"}]}";
+        hist.AddMcpToolCallImage(ToolResultUtils.FormatImageInfo(json));
+        var line = Assert.Single(hist.GetVisibleLines(1));
+        Assert.Equal("[magenta]tool[/] <image 1x1>", line);
+    }
+
+    [Fact]
+    public void ToolImageEvent_Jpeg()
+    {
+        var hist = new ConversationHistoryWidget();
+        const string jpeg = "/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAABAAEDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDi6KKK+ZP3E//Z";
+        hist.AddMcpToolCallImage(ToolResultUtils.FormatImageInfo($"{{\"content\":[{{\"type\":\"image\",\"data\":\"{jpeg}\"}}]}}"));
+        var line = Assert.Single(hist.GetVisibleLines(1));
+        Assert.Equal("[magenta]tool[/] <image 1x1>", line);
+    }
+
+    [Fact]
+    public void UserImageIsStored()
+    {
+        var hist = new ConversationHistoryWidget();
+        var path = Path.GetTempFileName() + ".png";
+        File.WriteAllBytes(path, Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAADUlEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg=="));
+        hist.AddUserImage(path);
+        var line = Assert.Single(hist.GetVisibleLines(1));
+        Assert.Equal("[bold cyan]You:[/] <image 1x1>", line);
+    }
+
+    [Fact]
+    public void UserImageIsStored_Jpeg()
+    {
+        var hist = new ConversationHistoryWidget();
+        var path = Path.GetTempFileName() + ".jpg";
+        File.WriteAllBytes(path, Convert.FromBase64String("/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAABAAEDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDi6KKK+ZP3E//Z"));
+        hist.AddUserImage(path);
+        var line = Assert.Single(hist.GetVisibleLines(1));
+        Assert.Equal("[bold cyan]You:[/] <image 1x1>", line);
     }
 
     [Fact]

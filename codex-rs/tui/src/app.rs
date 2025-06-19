@@ -1,5 +1,8 @@
 // C# version implemented in codex-dotnet/CodexTui/TuiApp.cs
-// (popup rendering, /new clearing history and approval overlay wired, more widgets pending)
+// (login screen, git warning, slash commands, approval overlay, status
+// indicator, PNG/JPEG dimension parsing and initial + interactive image prompts
+// all done; layout spacing and height clamping done with scroll wheel
+// debouncing via ScrollEventHelper, further polish pending)
 use crate::app_event::AppEvent;
 use crate::app_event_sender::AppEventSender;
 use crate::chatwidget::ChatWidget;

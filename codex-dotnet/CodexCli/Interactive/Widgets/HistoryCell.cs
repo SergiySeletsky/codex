@@ -3,7 +3,7 @@ using System.Collections.Generic;
 namespace CodexCli.Interactive;
 
 /// <summary>
-/// Mirrors codex-rs/tui/src/history_cell.rs (partial, image output not yet ported)
+/// Mirrors codex-rs/tui/src/history_cell.rs (PNG/JPEG dimension rendering and interactive uploads done)
 /// </summary>
 internal class HistoryCell : ICellWidget
 {
@@ -26,6 +26,7 @@ internal class HistoryCell : ICellWidget
         ToolBegin,
         ToolEnd,
         ToolImage,
+        UserImage,
         HistoryEntry
     }
 

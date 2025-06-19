@@ -1,6 +1,7 @@
 //! Bottom pane: shows the ChatComposer or a BottomPaneView, if one is active.
 // C# version implemented in codex-dotnet/CodexCli/Interactive/Widgets/BottomPane.cs
-// (status indicator overlay done, more widgets pending)
+// (done, including status and approval overlays and the interactive image command
+// with JPEG support)
 
 use bottom_pane_view::BottomPaneView;
 use bottom_pane_view::ConditionalUpdate;

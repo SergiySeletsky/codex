@@ -10,13 +10,19 @@ namespace CodexCli.Interactive;
 /// Chat widget managing conversation history and bottom pane input.
 /// Mirrors codex-rs/tui/src/chatwidget.rs
 /// (status indicator, log bridge, agent reasoning, background/error and history entry updates done.
-/// exec command, patch diff summary, mcp tool call events, markdown history rendering, /new command clearing history done).
+/// Log directory and version commands handled. Exec command, patch diff summary,
+/// MCP tool call events with image detection and PNG/JPEG dimension rendering,
+/// initial and interactive image prompts handled, markdown history rendering,
+/// /new command clearing history, layout spacing between history and composer
+/// and bottom pane height clamping done. Mouse wheel scrolling via
+/// <see cref="ScrollEventHelper"/> integrated.)
 /// </summary>
 public class ChatWidget
 {
     private readonly ConversationHistoryWidget _history;
     private readonly BottomPane _bottomPane;
     private InputFocus _focus = InputFocus.BottomPane;
+    private const int LayoutSpacing = 1;
 
     private enum InputFocus { HistoryPane, BottomPane }
 
@@ -35,6 +41,14 @@ public class ChatWidget
         _history.ScrollToBottom();
         var clean = AnsiEscape.StripAnsi(text);
         AnsiConsole.MarkupLine($"[bold cyan]You:[/] {clean}");
+    }
+
+    public void AddUserImage(string path)
+    {
+        _history.AddUserImage(path);
+        _history.ScrollToBottom();
+        var desc = ToolResultUtils.FormatImageInfoFromFile(path);
+        AnsiConsole.MarkupLine($"[bold cyan]You:[/] {desc}");
     }
 
     public void AddAgentMessage(string text)
@@ -148,6 +162,14 @@ public class ChatWidget
             AnsiConsole.MarkupLine($"[dim]{Markup.Escape(line)}[/]");
     }
 
+    public void AddMcpToolCallImage(string resultJson)
+    {
+        string desc = ToolResultUtils.FormatImageInfo(resultJson);
+        _history.AddMcpToolCallImage(desc);
+        _history.ScrollToBottom();
+        AnsiConsole.MarkupLine($"[magenta]tool[/] {desc}");
+    }
+
     public void SetTaskRunning(bool running) =>
         _bottomPane.SetTaskRunning(running);
 
@@ -163,6 +185,18 @@ public class ChatWidget
     public void ScrollPageUp(int height) => _history.ScrollPageUp(height);
     public void ScrollPageDown(int height) => _history.ScrollPageDown(height);
     public void ScrollToBottom() => _history.ScrollToBottom();
+
+    /// <summary>
+    /// Handle debounced scroll wheel events.
+    /// </summary>
+    public void HandleScrollDelta(int delta)
+    {
+        int magnified = delta == 1 ? 1 : delta * 2;
+        if (magnified < 0)
+            _history.ScrollUp(-magnified);
+        else if (magnified > 0)
+            _history.ScrollDown(magnified);
+    }
 
     public InputResult HandleKeyEvent(ConsoleKeyInfo key)
     {
@@ -198,12 +232,21 @@ public class ChatWidget
     public ReviewDecision PushApprovalRequest(Event req) =>
         _bottomPane.PushApprovalRequest(req);
 
+    public (int chatHeight, int bottomHeight) GetLayoutHeights(int totalHeight)
+    {
+        int desired = _bottomPane.CalculateRequiredHeight(totalHeight);
+        int maxBottom = Math.Max(1, totalHeight - LayoutSpacing - 1);
+        int bottomHeight = Math.Min(desired, maxBottom);
+        int chatHeight = Math.Max(1, totalHeight - bottomHeight - LayoutSpacing);
+        return (chatHeight, bottomHeight);
+    }
+
     public void Render(int totalHeight)
     {
-        int bottomHeight = Math.Max(1, _bottomPane.CalculateRequiredHeight(totalHeight / 2));
-        int chatHeight = Math.Max(1, totalHeight - bottomHeight);
+        var (chatHeight, bottomHeight) = GetLayoutHeights(totalHeight);
         foreach (var line in _history.GetVisibleLines(chatHeight))
             AnsiConsole.MarkupLine(line);
+        AnsiConsole.MarkupLine(string.Empty);
         _bottomPane.Render(bottomHeight);
     }
 }

@@ -10,8 +10,8 @@ namespace CodexCli.Interactive;
 /// Very simple scrollable history log with basic formatting helpers.
 /// Mirrors codex-rs/tui/src/conversation_history_widget.rs (scrolling,
 /// message formatting with markdown, text block storage, history entry helpers,
-/// exec/patch events, mcp tool calls with formatted results and diff summary
-/// done. HistoryCell port in progress.
+/// exec/patch events, mcp tool calls with formatted results, diff summary,
+/// HistoryCell image placeholders with PNG/JPEG dimensions and interactive image uploads done.
 /// </summary>
 public class ConversationHistoryWidget
 {
@@ -42,6 +42,12 @@ public class ConversationHistoryWidget
             lines.Add(string.Empty);
         lines[0] = $"[bold cyan]You:[/] {Markup.Escape(lines[0])}";
         AddLines(lines, HistoryCell.CellType.User);
+    }
+
+    public void AddUserImage(string path)
+    {
+        string desc = ToolResultUtils.FormatImageInfoFromFile(path);
+        AddLines(new[] { $"[bold cyan]You:[/] {desc}" }, HistoryCell.CellType.UserImage);
     }
 
     public void AddAgentMessage(string text)
@@ -137,6 +143,11 @@ public class ConversationHistoryWidget
         foreach (var line in formatted.Split('\n'))
             lines.Add($"[dim]{Markup.Escape(line)}[/]");
         AddLines(lines, HistoryCell.CellType.ToolEnd);
+    }
+
+    public void AddMcpToolCallImage(string description)
+    {
+        AddLines(new[]{"[magenta]tool[/] " + description}, HistoryCell.CellType.ToolImage);
     }
 
     public void AddHistoryEntry(int offset, string text)

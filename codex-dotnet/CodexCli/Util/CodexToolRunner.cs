@@ -22,7 +22,7 @@ public static class CodexToolRunner
         var apiKey = ApiKeyManager.GetKey(providerInfo);
         var client = new OpenAIClient(apiKey, providerInfo.BaseUrl);
 
-        await foreach (var ev in RealCodexAgent.RunAsync(param.Prompt, client, param.Model ?? "gpt-3.5-turbo"))
+        await foreach (var ev in RealCodexAgent.RunAsync(param.Prompt, client, param.Model ?? "gpt-3.5-turbo", null, Array.Empty<string>()))
         {
             emit(ev);
         }

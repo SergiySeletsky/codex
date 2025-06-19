@@ -7,7 +7,7 @@ namespace CodexCli.Interactive;
 
 /// <summary>
 /// Popup widget displaying available slash commands.
-/// Mirrors codex-rs/tui/src/bottom_pane/command_popup.rs (in progress).
+/// Mirrors codex-rs/tui/src/bottom_pane/command_popup.rs (rendering done).
 /// </summary>
 public class CommandPopup
 {

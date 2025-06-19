@@ -8,6 +8,11 @@ using System.Linq;
 using CodexCli.Commands;
 using SessionManager = CodexCli.Util.SessionManager;
 
+/// <summary>
+/// Mirrors codex-rs/tui/src/lib.rs interactive app.
+/// Basic event loop with /log and /version commands implemented (done).
+/// </summary>
+
 namespace CodexCli.Interactive;
 
 /// <summary>
@@ -228,7 +233,7 @@ public static class InteractiveApp
 
                 var events = (info.Name == "Mock")
                     ? CodexCli.Protocol.MockCodexAgent.RunAsync(prompt, Array.Empty<string>(), approvalHandler)
-                    : CodexCli.Protocol.RealCodexAgent.RunAsync(prompt, client, opts.Model ?? cfg?.Model ?? "default", approvalHandler);
+                    : CodexCli.Protocol.RealCodexAgent.RunAsync(prompt, client, opts.Model ?? cfg?.Model ?? "default", approvalHandler, Array.Empty<string>());
                 await foreach (var ev in events)
                 {
                     processor.ProcessEvent(ev);
