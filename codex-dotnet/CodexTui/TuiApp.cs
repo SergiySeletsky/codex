@@ -112,6 +112,7 @@ internal static class TuiApp
                         break;
             }
         }
+        }
 
         InteractiveApp.ApprovalHandler = ev => Task.FromResult(chat.PushApprovalRequest(ev));
 
@@ -224,7 +225,7 @@ internal static class TuiApp
                     chat.SetTaskRunning(true);
                     LogBridge.Emit("thinking...");
                     var images = new[] { path };
-                    var events = providerId == "Mock"
+                    var imageEvents = providerId == "Mock"
                         ? MockCodexAgent.RunAsync(string.Empty, images, InteractiveApp.ApprovalHandler)
                         : RealCodexAgent.RunAsync(string.Empty,
                             new OpenAIClient(ApiKeyManager.GetKey(ModelProviderInfo.BuiltIns[providerId]),
@@ -232,7 +233,7 @@ internal static class TuiApp
                             opts.Model ?? cfg?.Model ?? "default",
                             InteractiveApp.ApprovalHandler ?? (_ => Task.FromResult(ReviewDecision.Approved)),
                             images);
-                    await foreach (var ev in events)
+                    await foreach (var ev in imageEvents)
                     {
                         processor.ProcessEvent(ev);
                         switch (ev)
@@ -374,6 +375,7 @@ internal static class TuiApp
             }
 
             chat.Render(Console.WindowHeight);
+        }
         }
         finally
         {

@@ -1083,3 +1083,6 @@
      and return `bool` when sequences are consumed.
 888. Revised unit test to assert scroll event emission and enabled it.
 889. Documented PTY input reader improvements as next step.
+890. Fixed TuiApp build by closing try block and referencing CodexCli project
+     without linked sources. Renamed local variables and stabilized
+     `AnsiMouseParserTests`.
