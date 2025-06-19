@@ -21,6 +21,7 @@ internal static class TuiApp
     {
         var sender = new AppEventSender(_ => { });
         var chat = new ChatWidget(sender);
+        using var mouse = new MouseCapture(!(cfg?.Tui.DisableMouseCapture ?? false));
         LogBridge.LatestLog += chat.UpdateLatestLog;
 
         var sessionId = SessionManager.CreateSession();
@@ -65,9 +66,16 @@ internal static class TuiApp
                     continue;
                 }
 
+                if (text.Equals("/toggle-mouse-mode", StringComparison.OrdinalIgnoreCase))
+                {
+                    mouse.Toggle();
+                    chat.AddSystemMessage(mouse.IsActive ? "Mouse mode enabled" : "Mouse mode disabled");
+                    continue;
+                }
+
                 if (text.Equals("/help", StringComparison.OrdinalIgnoreCase))
                 {
-                    chat.AddAgentMessage("Available commands: /new, /history, /scroll-up, /scroll-down, /sessions, /config, /quit");
+                    chat.AddAgentMessage("Available commands: /new, /toggle-mouse-mode, /history, /scroll-up, /scroll-down, /sessions, /config, /quit");
                     continue;
                 }
                 if (text.Equals("/history", StringComparison.OrdinalIgnoreCase))

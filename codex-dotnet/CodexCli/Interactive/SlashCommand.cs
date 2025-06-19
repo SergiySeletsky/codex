@@ -6,7 +6,7 @@ namespace CodexCli.Interactive;
 
 /// <summary>
 /// Slash command enumeration used by the chat composer.
-/// Mirrors codex-rs/tui/src/slash_command.rs (in progress).
+/// Mirrors codex-rs/tui/src/slash_command.rs (done).
 /// </summary>
 public enum SlashCommand
 {

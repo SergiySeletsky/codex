@@ -981,5 +981,7 @@
      updated the help text.
 819. Created unit tests verifying conversation and history widgets clear their
      lines when `/new` is invoked.
-820. TODO next run: port additional slash commands and continue stabilizing
-     interactive tests.
+820. Implemented `/toggle-mouse-mode` command in `TuiApp` with new
+     `MouseCapture` helper class. Updated help text and cross-file comments.
+821. TODO next run: continue stabilizing interactive tests and port remaining
+     widgets.
