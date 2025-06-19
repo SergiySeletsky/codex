@@ -41,7 +41,7 @@ public sealed class AnsiMouseParser
         if (_buf.Length == 2 && ch != '[')
         {
             _parsing = false;
-            return true;
+            return false;
         }
 
         if (ch == 'M' || ch == 'm')
@@ -49,15 +49,24 @@ public sealed class AnsiMouseParser
             var seq = _buf.ToString();
             _parsing = false;
             if (seq.StartsWith("\u001b[<64"))
+            {
                 _helper.ScrollUp();
-            else if (seq.StartsWith("\u001b[<65"))
+                return true;
+            }
+            if (seq.StartsWith("\u001b[<65"))
+            {
                 _helper.ScrollDown();
-            return true;
+                return true;
+            }
+            return false;
         }
 
         // avoid unbounded growth
         if (_buf.Length > 16)
+        {
             _parsing = false;
+            return false;
+        }
 
         return true;
     }

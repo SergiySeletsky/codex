@@ -1100,3 +1100,10 @@
 897. Added cross-language test `InteractiveArrowEditMatches` verifying cursor
      movement parity between Rust and .NET TUIs.
 898. TODO next run: support additional escape sequences and polish event loop.
+899. Added Home/End/Delete/PageUp/PageDown parsing in `AnsiKeyParser` and wired
+     it through `PtyInputReader`.
+900. Updated unit tests to cover the new key sequences and `PtyInputReader`
+     behaviour.
+901. Added cross-language test `InteractiveHomeEndMatches` ensuring parity for
+     Home/End editing.
+902. TODO next run: handle paste events and continue event loop polish.

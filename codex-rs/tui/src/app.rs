@@ -5,7 +5,7 @@
 // debouncing via ScrollEventHelper, further polish pending. Mouse wheel
 // escape sequence parsing ported in codex-dotnet/CodexCli/Interactive/AnsiMouseParser.cs (done)
 // non-blocking PTY input mirrored in codex-dotnet/CodexTui/PtyInputReader.cs (done)
-// and arrow key parsing ported in codex-dotnet/CodexCli/Interactive/AnsiKeyParser.cs (done)
+// and key escape parsing ported in codex-dotnet/CodexCli/Interactive/AnsiKeyParser.cs (done)
 use crate::app_event::AppEvent;
 use crate::app_event_sender::AppEventSender;
 use crate::chatwidget::ChatWidget;
