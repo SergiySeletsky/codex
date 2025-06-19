@@ -8,6 +8,11 @@ using System.Linq;
 using CodexCli.Commands;
 using SessionManager = CodexCli.Util.SessionManager;
 
+/// <summary>
+/// Mirrors codex-rs/tui/src/lib.rs interactive app.
+/// Basic event loop with /log and /version commands implemented (done).
+/// </summary>
+
 namespace CodexCli.Interactive;
 
 /// <summary>

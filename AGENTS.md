@@ -1057,3 +1057,8 @@
      clamping completed.
 873. Added unit test `LayoutClampsBottomHeight` verifying the new sizing logic.
 874. TODO next run: expand CLI parity tests and continue refining TUI layout.
+875. Added `/log` and `/version` handling notes in ChatWidget and Rust sources
+     and documented mapping in InteractiveApp comments.
+876. Implemented cross-language tests `InteractiveLogMatches` and
+     `InteractiveVersionMatches` ensuring CLI parity for these commands.
+877. TODO next run: finish polishing layout and remaining widget details.
