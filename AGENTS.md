@@ -1064,3 +1064,4 @@
 877. TODO next run: finish polishing layout and remaining widget details.
 878. Added C# `ScrollEventHelper` stub and marked Rust counterpart done. Documented
      resize handling polish planned for next iteration.
+879. Implemented ScrollEventHelper debouncing logic and marked C# file done. TODO next run: integrate with TuiApp event loop for wheel events.

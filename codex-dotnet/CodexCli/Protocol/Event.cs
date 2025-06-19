@@ -22,6 +22,7 @@ namespace CodexCli.Protocol;
 [JsonDerivedType(typeof(AgentReasoningEvent), "agent_reasoning")]
 [JsonDerivedType(typeof(SessionConfiguredEvent), "session_configured")]
 [JsonDerivedType(typeof(AddToHistoryEvent), "add_to_history")]
+[JsonDerivedType(typeof(ScrollEvent), "scroll")]
 [JsonDerivedType(typeof(GetHistoryEntryRequestEvent), "get_history_entry_request")]
 [JsonDerivedType(typeof(GetHistoryEntryResponseEvent), "get_history_entry_response")]
 [JsonDerivedType(typeof(ResourceUpdatedEvent), "resource_updated")]
@@ -56,6 +57,7 @@ public record McpToolCallEndEvent(string Id, bool IsSuccess, string ResultJson) 
 public record AgentReasoningEvent(string Id, string Text) : Event(Id);
 public record SessionConfiguredEvent(string Id, string SessionId, string Model) : Event(Id);
 public record AddToHistoryEvent(string Id, string Text) : Event(Id);
+public record ScrollEvent(string Id, int Delta) : Event(Id);
 public record GetHistoryEntryRequestEvent(string Id, string SessionId, int Offset) : Event(Id);
 public record GetHistoryEntryResponseEvent(string Id, string SessionId, int Offset, string? Entry) : Event(Id);
 
