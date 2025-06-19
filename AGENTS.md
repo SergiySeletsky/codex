@@ -1069,3 +1069,13 @@
      source comments. Added ChatWidget.HandleScrollDelta with unit test.
 881. TODO next run: parse real terminal mouse sequences and finish scroll
      integration polish.
+882. Added `AnsiMouseParser` to decode xterm mouse wheel sequences and wired it
+     into `TuiApp` so real scroll events feed `ScrollEventHelper`.
+883. Updated `app.rs` comment referencing the C# parser and marked the feature
+     done.
+884. Created `AnsiMouseParserTests` and integration test ensuring scroll events
+     are emitted correctly.
+885. Added cross-language test `TuiMouseWheelMatches` verifying wheel sequence
+     parity between Rust and .NET TUIs.
+886. TODO next run: refine PTY input handling and continue polishing TUI event
+     loop.

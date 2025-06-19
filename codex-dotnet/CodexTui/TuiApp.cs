@@ -18,7 +18,8 @@ namespace CodexTui;
 /// commands, approval overlay, status indicator, history log bridging with
 /// PNG/JPEG dimension parsing, and initial/interactive image prompts all
 /// implemented. Layout spacing and height clamping done with scroll wheel
-/// debouncing via <see cref="ScrollEventHelper"/>; more polish pending).
+/// debouncing via <see cref="ScrollEventHelper"/> and xterm mouse sequence
+/// parsing via <see cref="AnsiMouseParser"/> (done; more polish pending).
 /// </summary>
 internal static class TuiApp
 {
@@ -28,6 +29,7 @@ internal static class TuiApp
         var sender = new AppEventSender(ev => queue.Enqueue(ev));
         var chat = new ChatWidget(sender);
         var scrollHelper = new ScrollEventHelper(sender);
+        var mouseParser = new AnsiMouseParser(scrollHelper);
         using var mouse = new MouseCapture(!(cfg?.Tui.DisableMouseCapture ?? false));
         LogBridge.LatestLog += chat.UpdateLatestLog;
 
@@ -131,6 +133,8 @@ internal static class TuiApp
                 chat.Render(Console.WindowHeight);
 
             var key = Console.ReadKey(intercept: true);
+            if (mouseParser.ProcessChar(key.KeyChar))
+                continue;
             var res = chat.HandleKeyEvent(key);
             chat.Render(Console.WindowHeight);
             if (res.IsSubmitted)
