@@ -12,9 +12,10 @@ namespace CodexTui;
 
 /// <summary>
 /// Initial prototype TUI host wiring the BottomPane for user input.
-/// Mirrors codex-rs/tui/src/app.rs (slash commands, status overlay and history
-/// log bridging with PNG/JPEG dimension parsing, initial prompt images and
-/// interactive image attachments implemented. Additional widgets pending).
+/// Mirrors codex-rs/tui/src/app.rs (login and git warning screens, slash
+/// commands, approval overlay, status indicator, history log bridging with
+/// PNG/JPEG dimension parsing, and initial/interactive image prompts all
+/// implemented. Layout polish pending).
 /// </summary>
 internal static class TuiApp
 {

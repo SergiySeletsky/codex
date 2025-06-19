@@ -5,8 +5,8 @@ namespace CodexCli.Interactive;
 
 /// <summary>
 /// Container for chat composer and overlay views.
-/// Mirrors codex-rs/tui/src/bottom_pane/mod.rs (status and approval overlays
-/// done, interactive image command and JPEG support implemented).
+/// Mirrors codex-rs/tui/src/bottom_pane/mod.rs (done, including status and
+/// approval overlays plus the interactive image command with JPEG support).
 /// </summary>
 public class BottomPane
 {

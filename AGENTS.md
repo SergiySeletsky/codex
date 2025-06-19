@@ -1037,3 +1037,10 @@
 861. Fixed BottomPane height calculation to use active overlay views.
      Added unit test verifying approval modal height and updated Rust comments.
 862. TODO next run: port remaining bottom pane widgets and polish TUI layout.
+863. Ported remaining bottom pane widgets and marked modules done in source
+     comments for both Rust and C# implementations.
+864. Updated TuiApp and app.rs comments noting login screen, git warning,
+     slash commands and image features all implemented.
+865. Added cross-language test `InteractiveNewMatches` verifying `/new` command
+     output matches between binaries.
+866. TODO next run: refine layout spacing and continue parity checks.
