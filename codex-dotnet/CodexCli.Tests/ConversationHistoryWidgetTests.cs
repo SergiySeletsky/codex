@@ -73,6 +73,15 @@ public class ConversationHistoryWidgetTests
     }
 
     [Fact]
+    public void ToolImageEvent()
+    {
+        var hist = new ConversationHistoryWidget();
+        hist.AddMcpToolCallImage();
+        var line = Assert.Single(hist.GetVisibleLines(1));
+        Assert.Equal("[magenta]tool[/] <image output>", line);
+    }
+
+    [Fact]
     public void ClearRemovesLines()
     {
         var hist = new ConversationHistoryWidget();

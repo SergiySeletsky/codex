@@ -191,7 +191,10 @@ internal static class TuiApp
                             LogBridge.Emit(mc.ArgumentsJson ?? "");
                             break;
                         case McpToolCallEndEvent mce:
-                            chat.AddMcpToolCallEnd(mce.IsSuccess, mce.ResultJson);
+                            if (IsImageResult(mce.ResultJson))
+                                chat.AddMcpToolCallImage();
+                            else
+                                chat.AddMcpToolCallEnd(mce.IsSuccess, mce.ResultJson);
                             LogBridge.Emit(mce.ResultJson);
                             break;
                         case PatchApplyBeginEvent pb:
@@ -228,5 +231,10 @@ internal static class TuiApp
     {
         var parts = text.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
         return parts.Length > 1 && int.TryParse(parts[1], out var val) ? val : 1;
+    }
+
+    private static bool IsImageResult(string json)
+    {
+        return json.Contains("\"type\":\"image\"");
     }
 }

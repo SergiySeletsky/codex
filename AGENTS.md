@@ -989,3 +989,9 @@
 823. Integrated `TextBlock` storage into `ConversationHistoryWidget` via new `HistoryCell` class. Updated `ChatComposer` and widget tests.
 824. Expanded `HistoryCell` variants and added cached line counts for smoother scrolling. Updated `ConversationHistoryWidget` with an `Entry` helper storing heights and refactored scrolling logic. Tests pass under 1s.
 825. TODO next run: handle image output in tool call results and finish HistoryCell parity with Rust.
+826. Implemented placeholder image output support in `HistoryCell` and `ConversationHistoryWidget`. Updated cross-file comments to mark feature done.
+827. Added `AddMcpToolCallImage` in `ChatWidget` and wired `TuiApp` to detect image results.
+828. `MockCodexAgent` now emits an additional `McpToolCallEndEvent` with image data.
+829. Created unit tests `ToolImageEvent` and `ToolImageEventIsStored` verifying history widgets store the placeholder.
+830. Added cross-language test `ExecImageUploadMatches` ensuring exec image attachments behave the same.
+831. TODO next run: refine image rendering and optimize cross-language test runtime.

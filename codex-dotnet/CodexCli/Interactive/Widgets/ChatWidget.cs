@@ -148,6 +148,13 @@ public class ChatWidget
             AnsiConsole.MarkupLine($"[dim]{Markup.Escape(line)}[/]");
     }
 
+    public void AddMcpToolCallImage()
+    {
+        _history.AddMcpToolCallImage();
+        _history.ScrollToBottom();
+        AnsiConsole.MarkupLine("[magenta]tool[/] <image output>");
+    }
+
     public void SetTaskRunning(bool running) =>
         _bottomPane.SetTaskRunning(running);
 

@@ -166,6 +166,15 @@ public class ChatWidgetTests
     }
 
     [Fact]
+    public void ToolImageEventIsStored()
+    {
+        var widget = new ChatWidget();
+        widget.AddMcpToolCallImage();
+        var line = Assert.Single(widget.GetVisibleLines(1));
+        Assert.Equal("[magenta]tool[/] <image output>", line);
+    }
+
+    [Fact]
     public void ClearConversationRemovesLines()
     {
         var widget = new ChatWidget();

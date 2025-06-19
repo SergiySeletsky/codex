@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics;
 using System.IO;
 using CodexCli.Util;
@@ -420,5 +421,21 @@ args = ["run", "--project", "../codex-dotnet/CodexCli", "mcp"]
         var dotnet = RunProcess("dotnet", "run --project ../codex-dotnet/CodexCli provider current --json");
         var rust = RunProcess("cargo", "run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- provider current --json");
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [CrossCliFact]
+    public void ExecImageUploadMatches()
+    {
+        string path = CreateTempImage();
+        var dotnet = RunProcess("dotnet", $"run --project ../codex-dotnet/CodexCli exec hi --model-provider Mock --image {path}");
+        var rust = RunProcess("cargo", $"run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- exec hi -c model_provider=Mock --image {path}");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    private string CreateTempImage()
+    {
+        var tmp = Path.GetTempFileName() + ".png";
+        File.WriteAllBytes(tmp, Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAADUlEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg=="));
+        return tmp;
     }
 }

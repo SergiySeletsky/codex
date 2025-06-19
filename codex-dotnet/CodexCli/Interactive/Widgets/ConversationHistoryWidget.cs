@@ -139,6 +139,11 @@ public class ConversationHistoryWidget
         AddLines(lines, HistoryCell.CellType.ToolEnd);
     }
 
+    public void AddMcpToolCallImage()
+    {
+        AddLines(new[]{"[magenta]tool[/] <image output>"}, HistoryCell.CellType.ToolImage);
+    }
+
     public void AddHistoryEntry(int offset, string text)
     {
         var clean = Util.AnsiEscape.StripAnsi(text);
