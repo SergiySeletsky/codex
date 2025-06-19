@@ -13,7 +13,8 @@ namespace CodexTui;
 /// <summary>
 /// Initial prototype TUI host wiring the BottomPane for user input.
 /// Mirrors codex-rs/tui/src/app.rs (slash commands, status overlay and history
-/// log bridging with image dimension parsing implemented, widgets in progress).
+/// log bridging with image dimension parsing and initial prompt images
+/// implemented, widgets in progress).
 /// </summary>
 internal static class TuiApp
 {
@@ -35,6 +36,10 @@ internal static class TuiApp
             history.Add(opts.Prompt);
             SessionManager.AddEntry(sessionId, opts.Prompt);
         }
+        foreach (var img in opts.Images)
+        {
+            chat.AddUserImage(img.FullName);
+        }
 
         string providerId = opts.ModelProvider ?? cfg?.ModelProvider ?? "Mock";
         bool hideReason = opts.HideAgentReasoning ?? cfg?.HideAgentReasoning ?? false;
@@ -42,6 +47,64 @@ internal static class TuiApp
             showReasoning: !hideReason,
             UriBasedFileOpener.None,
             Environment.CurrentDirectory);
+
+        if (!string.IsNullOrEmpty(opts.Prompt) || opts.Images.Length > 0)
+        {
+            chat.SetTaskRunning(true);
+            LogBridge.Emit("thinking...");
+            var images = opts.Images.Select(i => i.FullName).ToArray();
+            var events = providerId == "Mock"
+                ? MockCodexAgent.RunAsync(opts.Prompt ?? string.Empty, images, InteractiveApp.ApprovalHandler)
+                : RealCodexAgent.RunAsync(opts.Prompt ?? string.Empty,
+                    new OpenAIClient(ApiKeyManager.GetKey(ModelProviderInfo.BuiltIns[providerId]),
+                        ModelProviderInfo.BuiltIns[providerId].BaseUrl),
+                    opts.Model ?? cfg?.Model ?? "default",
+                    InteractiveApp.ApprovalHandler ?? (_ => Task.FromResult(ReviewDecision.Approved)),
+                    images);
+            await foreach (var ev in events)
+            {
+                processor.ProcessEvent(ev);
+                switch (ev)
+                {
+                    case AgentMessageEvent am:
+                        chat.AddAgentMessage(am.Message);
+                        lastMessage = am.Message;
+                        break;
+                    case BackgroundEvent bg:
+                        chat.AddBackgroundEvent(bg.Message);
+                        LogBridge.Emit(bg.Message);
+                        break;
+                    case AgentReasoningEvent ar:
+                        if (!hideReason)
+                        {
+                            chat.AddAgentReasoning(ar.Text);
+                            LogBridge.Emit(ar.Text);
+                        }
+                        break;
+                    case ErrorEvent err:
+                        chat.AddError(err.Message);
+                        LogBridge.Emit(err.Message);
+                        break;
+                    case TaskCompleteEvent tc:
+                        if (tc.LastAgentMessage != null)
+                            chat.AddAgentMessage(tc.LastAgentMessage);
+                        chat.SetTaskRunning(false);
+                        LogBridge.Emit("ready");
+                        break;
+                    case McpToolCallBeginEvent mc:
+                        chat.AddMcpToolCallBegin(mc.Server, mc.Tool, mc.ArgumentsJson);
+                        LogBridge.Emit(mc.ArgumentsJson ?? "");
+                        break;
+                    case McpToolCallEndEvent mce:
+                        if (ToolResultUtils.HasImageOutput(mce.ResultJson))
+                            chat.AddMcpToolCallImage(mce.ResultJson);
+                        else
+                            chat.AddMcpToolCallEnd(mce.IsSuccess, mce.ResultJson);
+                        LogBridge.Emit(mce.ResultJson);
+                        break;
+                }
+            }
+        }
 
         InteractiveApp.ApprovalHandler = ev => Task.FromResult(chat.PushApprovalRequest(ev));
 

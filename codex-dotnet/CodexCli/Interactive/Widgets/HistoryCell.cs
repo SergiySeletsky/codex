@@ -26,6 +26,7 @@ internal class HistoryCell : ICellWidget
         ToolBegin,
         ToolEnd,
         ToolImage,
+        UserImage,
         HistoryEntry
     }
 

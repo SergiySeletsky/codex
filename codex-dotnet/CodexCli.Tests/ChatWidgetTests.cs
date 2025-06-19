@@ -3,6 +3,8 @@ using CodexCli.Protocol;
 using CodexCli.Config;
 using CodexCli.Util;
 using System.Collections.Generic;
+using System;
+using System.IO;
 using Xunit;
 
 public class ChatWidgetTests
@@ -174,6 +176,17 @@ public class ChatWidgetTests
         widget.AddMcpToolCallImage(json);
         var line = Assert.Single(widget.GetVisibleLines(1));
         Assert.Equal("[magenta]tool[/] <image 1x1>", line);
+    }
+
+    [Fact]
+    public void UserImageIsStored()
+    {
+        var widget = new ChatWidget();
+        var path = Path.GetTempFileName() + ".png";
+        File.WriteAllBytes(path, Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAADUlEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg=="));
+        widget.AddUserImage(path);
+        var line = Assert.Single(widget.GetVisibleLines(1));
+        Assert.Equal("[bold cyan]You:[/] <image 1x1>", line);
     }
 
     [Fact]

@@ -54,4 +54,23 @@ public static class ToolResultUtils
 
         return "<image output>";
     }
+
+    public static string FormatImageInfoFromFile(string path)
+    {
+        try
+        {
+            using var fs = File.OpenRead(path);
+            Span<byte> buf = stackalloc byte[24];
+            int read = fs.Read(buf);
+            if (read >= 24 && buf[12] == (byte)'I' && buf[13] == (byte)'H' && buf[14] == (byte)'D' && buf[15] == (byte)'R')
+            {
+                int w = (buf[16] << 24) | (buf[17] << 16) | (buf[18] << 8) | buf[19];
+                int h = (buf[20] << 24) | (buf[21] << 16) | (buf[22] << 8) | buf[23];
+                return $"<image {w}x{h}>";
+            }
+        }
+        catch (Exception) { }
+
+        return "<image>";
+    }
 }

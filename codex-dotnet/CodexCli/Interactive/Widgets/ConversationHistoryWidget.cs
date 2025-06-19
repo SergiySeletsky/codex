@@ -44,6 +44,12 @@ public class ConversationHistoryWidget
         AddLines(lines, HistoryCell.CellType.User);
     }
 
+    public void AddUserImage(string path)
+    {
+        string desc = ToolResultUtils.FormatImageInfoFromFile(path);
+        AddLines(new[] { $"[bold cyan]You:[/] {desc}" }, HistoryCell.CellType.UserImage);
+    }
+
     public void AddAgentMessage(string text)
     {
         var lines = new List<string>();

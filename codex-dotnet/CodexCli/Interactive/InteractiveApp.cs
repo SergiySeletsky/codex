@@ -228,7 +228,7 @@ public static class InteractiveApp
 
                 var events = (info.Name == "Mock")
                     ? CodexCli.Protocol.MockCodexAgent.RunAsync(prompt, Array.Empty<string>(), approvalHandler)
-                    : CodexCli.Protocol.RealCodexAgent.RunAsync(prompt, client, opts.Model ?? cfg?.Model ?? "default", approvalHandler);
+                    : CodexCli.Protocol.RealCodexAgent.RunAsync(prompt, client, opts.Model ?? cfg?.Model ?? "default", approvalHandler, Array.Empty<string>());
                 await foreach (var ev in events)
                 {
                     processor.ProcessEvent(ev);

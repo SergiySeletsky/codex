@@ -244,7 +244,7 @@ public static class ExecCommand
             {
                 events = providerId == "mock"
                     ? CodexCli.Protocol.MockCodexAgent.RunAsync(prompt, imagePaths)
-                    : CodexCli.Protocol.RealCodexAgent.RunAsync(prompt, client, opts.Model ?? cfg?.Model ?? "default");
+                    : CodexCli.Protocol.RealCodexAgent.RunAsync(prompt, client, opts.Model ?? cfg?.Model ?? "default", null, imagePaths);
             }
             await foreach (var ev in events)
             {

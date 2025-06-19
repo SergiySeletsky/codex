@@ -1008,3 +1008,11 @@
 839. Updated cross-file comments to mark basic image dimension rendering done.
 840. TODO next run: handle initial image prompts and continue porting remaining
      widgets.
+841. Implemented `FormatImageInfoFromFile` for local PNGs and added `AddUserImage`
+     in history and chat widgets.
+842. `TuiApp` now processes initial `--image` files, sending them to agents and
+     displaying `<image WxH>` placeholders.
+843. `RealCodexAgent.RunAsync` accepts image paths for parity with Rust.
+844. Added tests verifying local image info parsing and user image rendering.
+845. Updated cross-file comments to mark initial image prompt support done.
+846. TODO next run: polish widget layout and expand cross-language tests.

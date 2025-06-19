@@ -11,7 +11,7 @@ namespace CodexCli.Interactive;
 /// Mirrors codex-rs/tui/src/chatwidget.rs
 /// (status indicator, log bridge, agent reasoning, background/error and history entry updates done.
 /// exec command, patch diff summary, mcp tool call events with image detection
-/// and basic image dimension rendering,
+/// and basic image dimension rendering, initial prompt images handled,
 /// markdown history rendering, /new command clearing history done).
 /// </summary>
 public class ChatWidget
@@ -37,6 +37,14 @@ public class ChatWidget
         _history.ScrollToBottom();
         var clean = AnsiEscape.StripAnsi(text);
         AnsiConsole.MarkupLine($"[bold cyan]You:[/] {clean}");
+    }
+
+    public void AddUserImage(string path)
+    {
+        _history.AddUserImage(path);
+        _history.ScrollToBottom();
+        var desc = ToolResultUtils.FormatImageInfoFromFile(path);
+        AnsiConsole.MarkupLine($"[bold cyan]You:[/] {desc}");
     }
 
     public void AddAgentMessage(string text)

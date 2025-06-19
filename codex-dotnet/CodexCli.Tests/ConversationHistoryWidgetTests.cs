@@ -1,6 +1,8 @@
 using CodexCli.Interactive;
 using CodexCli.Util;
 using Xunit;
+using System;
+using System.IO;
 
 public class ConversationHistoryWidgetTests
 {
@@ -81,6 +83,17 @@ public class ConversationHistoryWidgetTests
         hist.AddMcpToolCallImage(ToolResultUtils.FormatImageInfo(json));
         var line = Assert.Single(hist.GetVisibleLines(1));
         Assert.Equal("[magenta]tool[/] <image 1x1>", line);
+    }
+
+    [Fact]
+    public void UserImageIsStored()
+    {
+        var hist = new ConversationHistoryWidget();
+        var path = Path.GetTempFileName() + ".png";
+        File.WriteAllBytes(path, Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAADUlEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg=="));
+        hist.AddUserImage(path);
+        var line = Assert.Single(hist.GetVisibleLines(1));
+        Assert.Equal("[bold cyan]You:[/] <image 1x1>", line);
     }
 
     [Fact]
