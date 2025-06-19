@@ -134,7 +134,7 @@ public class ChatComposer
             if (_conversationHistory != null)
             {
                 var clean = AnsiEscape.StripAnsi(text);
-                _conversationHistory.Add($"[bold cyan]You:[/] {clean}");
+                _conversationHistory.AddUserMessage(clean);
                 _conversationHistory.ScrollToBottom();
             }
             return (InputResult.Submitted(text), true);

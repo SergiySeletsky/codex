@@ -986,4 +986,5 @@
 821. Reinstalled .NET SDK in fresh container so `dotnet` commands work.
      Filtered test suite now runs successfully under 1s.
 822. Ported `cell_widget.rs` as `ICellWidget` interface and `text_block.rs` as `TextBlock` class in C#. Added `TextBlockTests` verifying measurement and window rendering.
-823. TODO next run: integrate `TextBlock` with `ConversationHistoryWidget` and continue migrating `HistoryCell` logic from Rust.
+823. Integrated `TextBlock` storage into `ConversationHistoryWidget` via new `HistoryCell` class. Updated `ChatComposer` and widget tests.
+824. TODO next run: expand `HistoryCell` variants and optimize scrolling logic.

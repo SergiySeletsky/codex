@@ -9,16 +9,18 @@ namespace CodexCli.Interactive;
 /// <summary>
 /// Very simple scrollable history log with basic formatting helpers.
 /// Mirrors codex-rs/tui/src/conversation_history_widget.rs (scrolling,
-/// message formatting with markdown, history entry helpers, exec/patch events,
-/// mcp tool calls with formatted results and diff summary done).
+/// message formatting with markdown, text block storage, history entry helpers,
+/// exec/patch events, mcp tool calls with formatted results and diff summary
+/// done. HistoryCell port in progress.
 /// </summary>
 public class ConversationHistoryWidget
 {
-    private readonly List<string> _entries = new();
+    private readonly List<HistoryCell> _entries = new();
     private int _scrollOffset = 0; // lines scrolled back from bottom
     private bool _hasInputFocus;
     private readonly UriBasedFileOpener _fileOpener;
     private readonly string _cwd;
+    private const int Width = 80;
 
     public ConversationHistoryWidget(UriBasedFileOpener opener = UriBasedFileOpener.None, string? cwd = null)
     {
@@ -32,9 +34,8 @@ public class ConversationHistoryWidget
         MarkdownUtils.AppendMarkdown(Util.AnsiEscape.StripAnsi(text), lines, _fileOpener, _cwd);
         if (lines.Count == 0)
             lines.Add(string.Empty);
-        Add($"[bold cyan]You:[/] {Markup.Escape(lines[0])}");
-        for (int i = 1; i < lines.Count; i++)
-            Add(Markup.Escape(lines[i]));
+        lines[0] = $"[bold cyan]You:[/] {Markup.Escape(lines[0])}";
+        AddLines(lines, HistoryCell.CellType.User);
     }
 
     public void AddAgentMessage(string text)
@@ -43,9 +44,8 @@ public class ConversationHistoryWidget
         MarkdownUtils.AppendMarkdown(Util.AnsiEscape.StripAnsi(text), lines, _fileOpener, _cwd);
         if (lines.Count == 0)
             lines.Add(string.Empty);
-        Add($"[bold green]Codex:[/] {Markup.Escape(lines[0])}");
-        for (int i = 1; i < lines.Count; i++)
-            Add(Markup.Escape(lines[i]));
+        lines[0] = $"[bold green]Codex:[/] {Markup.Escape(lines[0])}";
+        AddLines(lines, HistoryCell.CellType.Agent);
     }
 
     public void Clear()
@@ -60,59 +60,59 @@ public class ConversationHistoryWidget
         MarkdownUtils.AppendMarkdown(Util.AnsiEscape.StripAnsi(text), lines, _fileOpener, _cwd);
         if (lines.Count == 0)
             lines.Add(string.Empty);
-        Add($"[bold yellow]System:[/] {Markup.Escape(lines[0])}");
-        for (int i = 1; i < lines.Count; i++)
-            Add(Markup.Escape(lines[i]));
+        lines[0] = $"[bold yellow]System:[/] {Markup.Escape(lines[0])}";
+        AddLines(lines, HistoryCell.CellType.System);
     }
 
     public void AddAgentReasoning(string text)
     {
         var lines = new List<string>();
         MarkdownUtils.AppendMarkdown(Util.AnsiEscape.StripAnsi(text), lines, _fileOpener, _cwd);
-        foreach (var line in lines)
-            Add($"[italic]{Markup.Escape(line)}[/]");
+        for (int i = 0; i < lines.Count; i++)
+            lines[i] = $"[italic]{Markup.Escape(lines[i])}[/]";
+        AddLines(lines, HistoryCell.CellType.Reasoning);
     }
 
     public void AddBackgroundEvent(string text)
     {
         var clean = Util.AnsiEscape.StripAnsi(text);
-        Add($"[gray]{Markup.Escape(clean)}[/]");
+        AddLines(new[]{$"[gray]{Markup.Escape(clean)}[/]"}, HistoryCell.CellType.Background);
     }
 
     public void AddError(string text)
     {
         var clean = Util.AnsiEscape.StripAnsi(text);
-        Add($"[red]ERROR: {Markup.Escape(clean)}[/]");
+        AddLines(new[]{$"[red]ERROR: {Markup.Escape(clean)}[/]"}, HistoryCell.CellType.Error);
     }
 
     public void AddExecCommand(string command)
     {
-        Add($"[magenta]exec[/] {Markup.Escape(command)}");
+        AddLines(new[]{$"[magenta]exec[/] {Markup.Escape(command)}"}, HistoryCell.CellType.ExecCommand);
     }
 
     public void AddExecResult(int exitCode)
     {
         var status = exitCode == 0 ? "succeeded" : $"exited {exitCode}";
-        Add($"[magenta]exec[/] {status}");
+        AddLines(new[]{$"[magenta]exec[/] {status}"}, HistoryCell.CellType.ExecResult);
     }
 
     public void AddPatchApplyBegin(bool autoApproved, IReadOnlyDictionary<string,FileChange>? changes = null)
     {
         if (changes == null)
         {
-            Add($"[magenta]apply_patch[/] auto_approved={autoApproved}");
+            AddLines(new[]{$"[magenta]apply_patch[/] auto_approved={autoApproved}"}, HistoryCell.CellType.PatchBegin);
             return;
         }
 
-        Add("[magenta]applying patch[/]");
-        foreach (var line in FormatPatchLines(changes))
-            Add(line);
+        var all = new List<string> { "[magenta]applying patch[/]" };
+        all.AddRange(FormatPatchLines(changes));
+        AddLines(all, HistoryCell.CellType.PatchBegin);
     }
 
     public void AddPatchApplyEnd(bool success)
     {
         var status = success ? "succeeded" : "failed";
-        Add($"[magenta]apply_patch[/] {status}");
+        AddLines(new[]{$"[magenta]apply_patch[/] {status}"}, HistoryCell.CellType.PatchEnd);
     }
 
     private const int ToolCallMaxLines = 5;
@@ -120,32 +120,33 @@ public class ConversationHistoryWidget
     public void AddMcpToolCallBegin(string server, string tool, string? args)
     {
         string invocation = $"{server}.{tool}" + (string.IsNullOrEmpty(args) ? "()" : $"({Markup.Escape(args)})");
-        Add($"[magenta]tool[/] [bold]{invocation}[/]");
+        AddLines(new[] { $"[magenta]tool[/] [bold]{invocation}[/]" }, HistoryCell.CellType.ToolBegin);
     }
 
     public void AddMcpToolCallEnd(bool success, string resultJson)
     {
         string title = success ? "success" : "failed";
-        Add($"[magenta]tool[/] {title}:");
+        var lines = new List<string> { $"[magenta]tool[/] {title}:" };
         string formatted = TextFormatting.FormatAndTruncateToolResult(resultJson, ToolCallMaxLines, 80);
         foreach (var line in formatted.Split('\n'))
-            Add($"[dim]{Markup.Escape(line)}[/]");
+            lines.Add($"[dim]{Markup.Escape(line)}[/]");
+        AddLines(lines, HistoryCell.CellType.ToolEnd);
     }
 
     public void AddHistoryEntry(int offset, string text)
     {
         var clean = Util.AnsiEscape.StripAnsi(text);
-        Add($"[dim]history {offset}: {Markup.Escape(clean)}[/]");
+        AddLines(new[] { $"[dim]history {offset}: {Markup.Escape(clean)}[/]" }, HistoryCell.CellType.HistoryEntry);
     }
 
-    public void Add(string text)
+    private void AddLines(IEnumerable<string> lines, HistoryCell.CellType type)
     {
-        _entries.Add(text);
+        _entries.Add(new HistoryCell(type, lines));
     }
 
     public void ScrollUp(int lines)
     {
-        _scrollOffset = Math.Min(_scrollOffset + lines, Math.Max(0, _entries.Count - 1));
+        _scrollOffset = Math.Min(_scrollOffset + lines, Math.Max(0, TotalHeight() - 1));
     }
 
     public void ScrollDown(int lines)
@@ -198,11 +199,22 @@ public class ConversationHistoryWidget
     {
         if (height <= 0)
             return Array.Empty<string>();
-        int maxOffset = Math.Max(0, _entries.Count - height);
+        var all = new List<string>();
+        foreach (var cell in _entries)
+            all.AddRange(cell.RenderWindow(0, cell.Height(Width), Width));
+        int maxOffset = Math.Max(0, all.Count - height);
         _scrollOffset = Math.Min(_scrollOffset, maxOffset);
-        int start = Math.Max(0, _entries.Count - height - _scrollOffset);
-        int count = Math.Min(height, _entries.Count - start);
-        return _entries.GetRange(start, count);
+        int start = Math.Max(0, all.Count - height - _scrollOffset);
+        int count = Math.Min(height, all.Count - start);
+        return all.GetRange(start, count);
+    }
+
+    private int TotalHeight()
+    {
+        int total = 0;
+        foreach (var cell in _entries)
+            total += cell.Height(Width);
+        return total;
     }
 
     private static List<string> CreateDiffSummary(IReadOnlyDictionary<string,FileChange> changes)

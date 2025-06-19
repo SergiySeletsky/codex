@@ -1,3 +1,4 @@
+// C# partial port at codex-dotnet/CodexCli/Interactive/Widgets/HistoryCell.cs (in progress)
 use crate::cell_widget::CellWidget;
 use crate::exec_command::escape_command;
 use crate::markdown::append_markdown;
