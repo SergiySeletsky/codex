@@ -110,7 +110,6 @@ internal static class TuiApp
                             chat.AddMcpToolCallEnd(mce.IsSuccess, mce.ResultJson);
                         LogBridge.Emit(mce.ResultJson);
                         break;
-                }
             }
         }
 

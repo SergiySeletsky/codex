@@ -1079,3 +1079,7 @@
      parity between Rust and .NET TUIs.
 886. TODO next run: refine PTY input handling and continue polishing TUI event
      loop.
+887. Updated `AnsiMouseParser` to dispatch scroll events via `ScrollEventHelper`
+     and return `bool` when sequences are consumed.
+888. Revised unit test to assert scroll event emission and enabled it.
+889. Documented PTY input reader improvements as next step.
