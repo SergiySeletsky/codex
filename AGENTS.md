@@ -1051,3 +1051,9 @@
      unit test verifying the spacing logic.
 870. TODO next run: polish remaining layout details and enable more CLI parity
      checks.
+871. Clamped bottom pane height in `ChatWidget.GetLayoutHeights` so at least one
+     history row is visible on small terminals.
+872. Updated cross-file comments in ChatWidget, TuiApp and app.rs noting layout
+     clamping completed.
+873. Added unit test `LayoutClampsBottomHeight` verifying the new sizing logic.
+874. TODO next run: expand CLI parity tests and continue refining TUI layout.

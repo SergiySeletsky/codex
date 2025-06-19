@@ -227,4 +227,13 @@ public class ChatWidgetTests
         var (chat, bottom) = widget.GetLayoutHeights(10);
         Assert.Equal(9 - bottom, chat); // one line spacing
     }
+
+    [Fact]
+    public void LayoutClampsBottomHeight()
+    {
+        var widget = new ChatWidget();
+        var (chat, bottom) = widget.GetLayoutHeights(4);
+        Assert.Equal(2, chat);
+        Assert.Equal(1, bottom);
+    }
 }

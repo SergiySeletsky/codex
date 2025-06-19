@@ -12,8 +12,9 @@ namespace CodexCli.Interactive;
 /// (status indicator, log bridge, agent reasoning, background/error and history entry updates done.
 /// exec command, patch diff summary, mcp tool call events with image detection
 /// and PNG/JPEG dimension rendering, initial and interactive image prompts
-/// handled, markdown history rendering, /new command clearing history and
-/// layout spacing between history and composer done).
+/// handled, markdown history rendering, /new command clearing history,
+/// layout spacing between history and composer and bottom pane height
+/// clamping done).
 /// </summary>
 public class ChatWidget
 {
@@ -220,7 +221,9 @@ public class ChatWidget
 
     public (int chatHeight, int bottomHeight) GetLayoutHeights(int totalHeight)
     {
-        int bottomHeight = Math.Max(1, _bottomPane.CalculateRequiredHeight(totalHeight / 2));
+        int desired = _bottomPane.CalculateRequiredHeight(totalHeight);
+        int maxBottom = Math.Max(1, totalHeight - LayoutSpacing - 1);
+        int bottomHeight = Math.Min(desired, maxBottom);
         int chatHeight = Math.Max(1, totalHeight - bottomHeight - LayoutSpacing);
         return (chatHeight, bottomHeight);
     }
