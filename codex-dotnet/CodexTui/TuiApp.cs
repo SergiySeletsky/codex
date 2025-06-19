@@ -19,7 +19,8 @@ namespace CodexTui;
 /// PNG/JPEG dimension parsing, and initial/interactive image prompts all
 /// implemented. Layout spacing and height clamping done with scroll wheel
 /// debouncing via <see cref="ScrollEventHelper"/> and xterm mouse sequence
-/// parsing via <see cref="AnsiMouseParser"/> (done; more polish pending).
+/// parsing via <see cref="AnsiMouseParser"/> (done; non-blocking PTY input via
+/// Console.KeyAvailable; more polish pending).
 /// </summary>
 internal static class TuiApp
 {
@@ -31,6 +32,7 @@ internal static class TuiApp
         var scrollHelper = new ScrollEventHelper(sender);
         var mouseParser = new AnsiMouseParser(scrollHelper);
         using var mouse = new MouseCapture(!(cfg?.Tui.DisableMouseCapture ?? false));
+        using var input = new PtyInputReader(Console.In, mouseParser);
         LogBridge.LatestLog += chat.UpdateLatestLog;
 
         var sessionId = SessionManager.CreateSession();
@@ -132,9 +134,15 @@ internal static class TuiApp
             if (scrolled)
                 chat.Render(Console.WindowHeight);
 
-            var key = Console.ReadKey(intercept: true);
+            if (!input.TryRead(out var key))
+            {
+                await Task.Delay(10);
+                continue;
+            }
+
             if (mouseParser.ProcessChar(key.KeyChar))
                 continue;
+
             var res = chat.HandleKeyEvent(key);
             chat.Render(Console.WindowHeight);
             if (res.IsSubmitted)

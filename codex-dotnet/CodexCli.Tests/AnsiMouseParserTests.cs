@@ -13,9 +13,18 @@ public class AnsiMouseParserTests
         var events = new List<Event>();
         var helper = new ScrollEventHelper(new AppEventSender(ev => events.Add(ev)));
         var parser = new AnsiMouseParser(helper);
-        string seq = "\u001b[<64;0;0M\u001b[<65;0;0M";
-        foreach (var ch in seq)
+
+        foreach (var ch in "\u001b[<64;0;0M")
             Assert.True(parser.ProcessChar(ch));
+        await Task.Delay(150);
+
+        foreach (var ch in "\u001b[<65;0;0M")
+            Assert.True(parser.ProcessChar(ch));
+        await Task.Delay(150);
+
+        Assert.Equal(2, events.Count);
+        Assert.Equal(-1, Assert.IsType<ScrollEvent>(events[0]).Delta);
+        Assert.Equal(1, Assert.IsType<ScrollEvent>(events[1]).Delta);
     }
 }
 

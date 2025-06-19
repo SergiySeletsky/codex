@@ -4,6 +4,7 @@
 // all done; layout spacing and height clamping done with scroll wheel
 // debouncing via ScrollEventHelper, further polish pending. Mouse wheel
 // escape sequence parsing ported in codex-dotnet/CodexCli/Interactive/AnsiMouseParser.cs (done)
+// and non-blocking PTY input mirrored in codex-dotnet/CodexTui/PtyInputReader.cs (done)
 use crate::app_event::AppEvent;
 use crate::app_event_sender::AppEventSender;
 use crate::chatwidget::ChatWidget;

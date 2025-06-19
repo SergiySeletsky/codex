@@ -23,6 +23,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../CodexCli/CodexCli.csproj" />
+    <ProjectReference Include="../CodexTui/CodexTui.csproj" />
   </ItemGroup>
 
 </Project>

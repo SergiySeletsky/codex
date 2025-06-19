@@ -1086,3 +1086,10 @@
 890. Fixed TuiApp build by closing try block and referencing CodexCli project
      without linked sources. Renamed local variables and stabilized
      `AnsiMouseParserTests`.
+891. Implemented `PtyInputReader` for non-blocking console input and integrated
+     it into `TuiApp`. Updated source comments referencing Rust event loop.
+892. Revised `AnsiMouseParserTests` to verify emitted scroll events and added
+     `PtyInputReaderTests` ensuring normal characters propagate.
+893. Added cross-language test `TuiNonBlockingInputMatches` verifying typed
+     input parity between Rust and .NET TUIs.
+894. TODO next run: expand escape sequence parsing for arrow keys.
