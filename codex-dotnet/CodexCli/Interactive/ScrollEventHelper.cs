@@ -8,7 +8,7 @@ namespace CodexCli.Interactive;
 
 /// <summary>
 /// Debounces scroll wheel events so we can report the cumulative delta
-/// after a short delay. Integration with TuiApp pending.
+/// after a short delay. Integrated with <see cref="CodexTui.TuiApp"/>.
 /// </summary>
 public sealed class ScrollEventHelper
 {

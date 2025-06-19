@@ -6,6 +6,8 @@ using CodexCli.Util;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
+using System.Threading.Tasks;
 using Spectre.Console;
 
 namespace CodexTui;
@@ -15,14 +17,17 @@ namespace CodexTui;
 /// Mirrors codex-rs/tui/src/app.rs (login and git warning screens, slash
 /// commands, approval overlay, status indicator, history log bridging with
 /// PNG/JPEG dimension parsing, and initial/interactive image prompts all
-/// implemented. Layout spacing and height clamping done; more polish pending).
+/// implemented. Layout spacing and height clamping done with scroll wheel
+/// debouncing via <see cref="ScrollEventHelper"/>; more polish pending).
 /// </summary>
 internal static class TuiApp
 {
     public static async Task<int> RunAsync(InteractiveOptions opts, AppConfig? cfg)
     {
-        var sender = new AppEventSender(_ => { });
+        var queue = new ConcurrentQueue<Event>();
+        var sender = new AppEventSender(ev => queue.Enqueue(ev));
         var chat = new ChatWidget(sender);
+        var scrollHelper = new ScrollEventHelper(sender);
         using var mouse = new MouseCapture(!(cfg?.Tui.DisableMouseCapture ?? false));
         LogBridge.LatestLog += chat.UpdateLatestLog;
 
@@ -113,6 +118,18 @@ internal static class TuiApp
         {
         while (true)
         {
+            bool scrolled = false;
+            while (queue.TryDequeue(out var ev))
+            {
+                if (ev is ScrollEvent se)
+                {
+                    chat.HandleScrollDelta(se.Delta);
+                    scrolled = true;
+                }
+            }
+            if (scrolled)
+                chat.Render(Console.WindowHeight);
+
             var key = Console.ReadKey(intercept: true);
             var res = chat.HandleKeyEvent(key);
             chat.Render(Console.WindowHeight);
@@ -150,15 +167,15 @@ internal static class TuiApp
                 if (text.StartsWith("/scroll-up", StringComparison.OrdinalIgnoreCase))
                 {
                     int n = ParseIntArg(text);
-                    chat.ScrollUp(n);
-                    chat.Render(20);
+                    for (int i = 0; i < n; i++) scrollHelper.ScrollUp();
+                    await Task.Delay(150);
                     continue;
                 }
                 if (text.StartsWith("/scroll-down", StringComparison.OrdinalIgnoreCase))
                 {
                     int n = ParseIntArg(text);
-                    chat.ScrollDown(n);
-                    chat.Render(20);
+                    for (int i = 0; i < n; i++) scrollHelper.ScrollDown();
+                    await Task.Delay(150);
                     continue;
                 }
                 if (text.Equals("/sessions", StringComparison.OrdinalIgnoreCase))

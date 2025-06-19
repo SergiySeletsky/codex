@@ -1065,3 +1065,7 @@
 878. Added C# `ScrollEventHelper` stub and marked Rust counterpart done. Documented
      resize handling polish planned for next iteration.
 879. Implemented ScrollEventHelper debouncing logic and marked C# file done. TODO next run: integrate with TuiApp event loop for wheel events.
+880. Wired ScrollEventHelper into TuiApp with a basic event queue and updated
+     source comments. Added ChatWidget.HandleScrollDelta with unit test.
+881. TODO next run: parse real terminal mouse sequences and finish scroll
+     integration polish.

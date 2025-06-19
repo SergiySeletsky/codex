@@ -14,7 +14,8 @@ namespace CodexCli.Interactive;
 /// MCP tool call events with image detection and PNG/JPEG dimension rendering,
 /// initial and interactive image prompts handled, markdown history rendering,
 /// /new command clearing history, layout spacing between history and composer
-/// and bottom pane height clamping done).
+/// and bottom pane height clamping done. Mouse wheel scrolling via
+/// <see cref="ScrollEventHelper"/> integrated.)
 /// </summary>
 public class ChatWidget
 {
@@ -184,6 +185,18 @@ public class ChatWidget
     public void ScrollPageUp(int height) => _history.ScrollPageUp(height);
     public void ScrollPageDown(int height) => _history.ScrollPageDown(height);
     public void ScrollToBottom() => _history.ScrollToBottom();
+
+    /// <summary>
+    /// Handle debounced scroll wheel events.
+    /// </summary>
+    public void HandleScrollDelta(int delta)
+    {
+        int magnified = delta == 1 ? 1 : delta * 2;
+        if (magnified < 0)
+            _history.ScrollUp(-magnified);
+        else if (magnified > 0)
+            _history.ScrollDown(magnified);
+    }
 
     public InputResult HandleKeyEvent(ConsoleKeyInfo key)
     {

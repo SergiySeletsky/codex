@@ -85,6 +85,26 @@ public class ChatWidgetTests
     }
 
     [Fact]
+    public void HandleScrollDeltaMagnifies()
+    {
+        var widget = new ChatWidget();
+        for (int i = 0; i < 5; i++)
+            widget.AddSystemMessage($"line {i}");
+
+        widget.HandleScrollDelta(-1);
+        var lines = widget.GetVisibleLines(3);
+        Assert.Equal(new[]{"[bold yellow]System:[/] line 0",
+            "[bold yellow]System:[/] line 1",
+            "[bold yellow]System:[/] line 2"}, lines);
+
+        widget.HandleScrollDelta(1);
+        lines = widget.GetVisibleLines(3);
+        Assert.Equal(new[]{"[bold yellow]System:[/] line 1",
+            "[bold yellow]System:[/] line 2",
+            "[bold yellow]System:[/] line 3"}, lines);
+    }
+
+    [Fact]
     public void TabSwitchesFocus()
     {
         var widget = new ChatWidget();
