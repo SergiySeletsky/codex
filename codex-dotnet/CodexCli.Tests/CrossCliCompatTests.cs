@@ -432,6 +432,17 @@ args = ["run", "--project", "../codex-dotnet/CodexCli", "mcp"]
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 
+    [CrossCliFact]
+    public void TuiImageUploadMatches()
+    {
+        string path = CreateTempImage();
+        var dotnet = RunProcessWithPty($"dotnet run --project ../codex-dotnet/CodexTui --skip-git-repo-check --model-provider Mock --image {path}", "/quit\n");
+        var rust = RunProcessWithPty($"cargo run --quiet --manifest-path ../../codex-rs/tui/Cargo.toml -- --skip-git-repo-check -c model_provider=Mock --image {path}", "/quit\n");
+        var dOut = AnsiEscape.StripAnsi(dotnet.stdout).Trim();
+        var rOut = AnsiEscape.StripAnsi(rust.stdout).Trim();
+        Assert.Equal(rOut, dOut);
+    }
+
     private string CreateTempImage()
     {
         var tmp = Path.GetTempFileName() + ".png";

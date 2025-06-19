@@ -6,7 +6,7 @@ namespace CodexCli.Interactive;
 
 /// <summary>
 /// Simplified approval modal capturing ReviewDecision via UserApprovalWidget.
-/// Mirrors codex-rs/tui/src/bottom_pane/approval_modal_view.rs (in progress).
+/// Mirrors codex-rs/tui/src/bottom_pane/approval_modal_view.rs (done).
 /// </summary>
 public class ApprovalModalView : IBottomPaneView
 {

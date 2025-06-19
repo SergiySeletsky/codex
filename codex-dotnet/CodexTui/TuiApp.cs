@@ -14,7 +14,7 @@ namespace CodexTui;
 /// Initial prototype TUI host wiring the BottomPane for user input.
 /// Mirrors codex-rs/tui/src/app.rs (slash commands, status overlay and history
 /// log bridging with image dimension parsing and initial prompt images
-/// implemented, widgets in progress).
+/// implemented. Additional widgets pending).
 /// </summary>
 internal static class TuiApp
 {

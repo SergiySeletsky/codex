@@ -5,7 +5,7 @@ namespace CodexCli.Interactive;
 
 /// <summary>
 /// Simple user approval prompt used in the TUI.
-/// Mirrors codex-rs/tui/src/user_approval_widget.rs (in progress).
+/// Mirrors codex-rs/tui/src/user_approval_widget.rs (done).
 /// </summary>
 public class UserApprovalWidget
 {

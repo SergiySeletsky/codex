@@ -1016,3 +1016,9 @@
 844. Added tests verifying local image info parsing and user image rendering.
 845. Updated cross-file comments to mark initial image prompt support done.
 846. TODO next run: polish widget layout and expand cross-language tests.
+847. Updated widget status comments for CommandPopup, ApprovalModalView and
+     UserApprovalWidget to 'done'.
+848. Documented image dimension parsing progress in TuiApp and app.rs comments.
+849. Added cross-language test `TuiImageUploadMatches` verifying initial image
+     parity.
+850. TODO next run: finish remaining widgets and add interactive image support.

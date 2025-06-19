@@ -1,4 +1,5 @@
-// C# version in codex-dotnet/CodexTui/Program.cs and TuiApp.cs (in progress)
+// C# version in codex-dotnet/CodexTui/Program.cs and TuiApp.cs
+// (initial image prompts and dimension parsing done)
 use clap::Parser;
 use codex_common::CliConfigOverrides;
 use codex_tui::Cli;
