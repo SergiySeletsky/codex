@@ -6,13 +6,14 @@ namespace CodexCli.Interactive;
 
 /// <summary>
 /// Simplified approval modal capturing ReviewDecision via UserApprovalWidget.
-/// Mirrors codex-rs/tui/src/bottom_pane/approval_modal_view.rs (done).
+/// Mirrors codex-rs/tui/src/bottom_pane/approval_modal_view.rs (in progress).
 /// </summary>
 public class ApprovalModalView : IBottomPaneView
 {
     private readonly Queue<Event> _queue = new();
     private readonly UserApprovalWidget _widget;
     private bool _done;
+    private string? _summary;
     public ReviewDecision Decision { get; private set; } = ReviewDecision.Denied;
 
     public ApprovalModalView(Event request, Func<string?>? readLine = null)
@@ -31,9 +32,11 @@ public class ApprovalModalView : IBottomPaneView
         switch (request)
         {
             case ExecApprovalRequestEvent e:
+                _summary = string.Join(' ', e.Command);
                 Decision = _widget.PromptExec(e.Command.ToArray(), Environment.CurrentDirectory);
                 break;
             case PatchApplyApprovalRequestEvent p:
+                _summary = p.PatchSummary;
                 Decision = _widget.PromptPatch(p.PatchSummary);
                 break;
         }
@@ -49,7 +52,12 @@ public class ApprovalModalView : IBottomPaneView
     public void Render(int areaHeight)
     {
         if (_done)
-            AnsiConsole.MarkupLine($"[grey]Decision: {Decision}[/]");
+        {
+            if (!string.IsNullOrEmpty(_summary))
+                AnsiConsole.MarkupLine($"[grey]{Markup.Escape(_summary)} -> {Decision}[/]");
+            else
+                AnsiConsole.MarkupLine($"[grey]Decision: {Decision}[/]");
+        }
     }
 
     public Event? TryConsumeApprovalRequest(Event request)

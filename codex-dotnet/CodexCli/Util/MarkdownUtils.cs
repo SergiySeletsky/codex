@@ -1,17 +1,20 @@
-using System.Text.RegularExpressions;
 using CodexCli.Config;
+
+/// <summary>
+/// Helpers for rewriting markdown citations and rendering markdown lines.
+/// Mirrors codex-rs/tui/src/markdown.rs (citation rewrite and append_markdown done).
+/// </summary>
 
 namespace CodexCli.Util;
 
 public static class MarkdownUtils
 {
-    private static readonly Regex CitationRegex = new("【F:([^†]+)†L(\\d+)(?:-L(\\d+|\\?))?】", RegexOptions.Compiled);
 
     public static string RewriteFileCitations(string src, UriBasedFileOpener opener, string cwd)
     {
         var scheme = opener.GetScheme();
         if (scheme == null) return src;
-        return CitationRegex.Replace(src, m =>
+        return CitationRegex.Instance.Replace(src, m =>
         {
             var file = m.Groups[1].Value;
             var line = m.Groups[2].Value;
@@ -20,4 +23,12 @@ public static class MarkdownUtils
             return $"[{file}:{line}]({scheme}://file{path}:{line}) ";
         });
     }
+
+    public static void AppendMarkdown(string markdown, IList<string> lines, UriBasedFileOpener opener, string cwd)
+    {
+        var processed = RewriteFileCitations(markdown, opener, cwd);
+        foreach (var line in processed.Split('\n'))
+            lines.Add(line);
+    }
 }
+

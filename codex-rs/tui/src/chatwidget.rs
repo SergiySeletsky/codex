@@ -1,4 +1,6 @@
-// C# version implemented in codex-dotnet/CodexCli/Interactive/Widgets/ChatWidget.cs (done)
+// C# version implemented in codex-dotnet/CodexCli/Interactive/Widgets/ChatWidget.cs
+// (focus switching, agent reasoning, background/error messages, exec command,
+// patch diff summary, mcp tool call events, markdown history rendering done)
 use std::path::PathBuf;
 use std::sync::Arc;
 

@@ -2,24 +2,27 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using Spectre.Console;
+using CodexCli.Util;
 
 namespace CodexCli.Interactive;
 
 /// <summary>
 /// Minimal chat composer with cursor-aware editing and command popup.
-/// Mirrors codex-rs/tui/src/bottom_pane/chat_composer.rs (done for input logic).
+/// Mirrors codex-rs/tui/src/bottom_pane/chat_composer.rs (input logic and history hook done).
 /// </summary>
 public class ChatComposer
 {
     private readonly ITextArea _textarea;
     private readonly AppEventSender _appEventTx;
     private readonly ChatComposerHistory _history = new();
+    private readonly ConversationHistoryWidget? _conversationHistory;
     private CommandPopup? _commandPopup;
 
-    public ChatComposer(bool hasFocus, AppEventSender sender)
+    public ChatComposer(bool hasFocus, AppEventSender sender, ConversationHistoryWidget? history = null)
     {
         _textarea = new BasicTextArea();
         _appEventTx = sender;
+        _conversationHistory = history;
     }
 
     public void SetHistoryMetadata(string logId, int count) =>
@@ -128,6 +131,12 @@ public class ChatComposer
             if (text.Length == 0)
                 return (InputResult.None, true);
             _history.RecordLocalSubmission(text);
+            if (_conversationHistory != null)
+            {
+                var clean = AnsiEscape.StripAnsi(text);
+                _conversationHistory.AddUserMessage(clean);
+                _conversationHistory.ScrollToBottom();
+            }
             return (InputResult.Submitted(text), true);
         }
         return (InputResult.None, false);

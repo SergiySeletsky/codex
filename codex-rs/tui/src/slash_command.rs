@@ -1,4 +1,4 @@
-// C# analog implemented in codex-dotnet/CodexCli/Interactive/SlashCommand.cs (in progress)
+// C# analog implemented in codex-dotnet/CodexCli/Interactive/SlashCommand.cs (done)
 use std::collections::HashMap;
 
 use strum::IntoEnumIterator;

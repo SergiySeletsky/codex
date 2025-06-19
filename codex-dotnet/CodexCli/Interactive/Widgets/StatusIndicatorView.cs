@@ -6,24 +6,29 @@ namespace CodexCli.Interactive;
 /// Wrapper view for StatusIndicatorWidget.
 /// Mirrors codex-rs/tui/src/bottom_pane/status_indicator_view.rs (done).
 /// </summary>
-internal class StatusIndicatorView : IBottomPaneView
+internal class StatusIndicatorView : IBottomPaneView, IDisposable
 {
     private readonly StatusIndicatorWidget _widget;
+    private readonly int _height;
 
-    public StatusIndicatorView(StatusIndicatorWidget widget)
+    public StatusIndicatorView(StatusIndicatorWidget widget, int height)
     {
         _widget = widget;
+        _height = Math.Max(1, height);
     }
 
     public void HandleKeyEvent(ConsoleKeyInfo key, BottomPane pane) { }
 
     public bool IsComplete => false;
 
-    public int CalculateRequiredHeight(int areaHeight) => 1;
+    public int CalculateRequiredHeight(int areaHeight) => _height;
 
     public void Render(int areaHeight)
     {
-        // widget draws directly to console
+        // widget draws directly to console; fill remaining lines so
+        // the pane height stays constant like the Rust version
+        for (int i = 1; i < _height; i++)
+            Console.WriteLine();
     }
 
     public ConditionalUpdate UpdateStatusText(string text)
@@ -35,4 +40,6 @@ internal class StatusIndicatorView : IBottomPaneView
     public bool ShouldHideWhenTaskIsDone() => true;
 
     public Event? TryConsumeApprovalRequest(Event request) => request;
+
+    public void Dispose() => _widget.Dispose();
 }

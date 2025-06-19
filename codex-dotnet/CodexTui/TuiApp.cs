@@ -12,17 +12,17 @@ namespace CodexTui;
 
 /// <summary>
 /// Initial prototype TUI host wiring the BottomPane for user input.
-/// Mirrors codex-rs/tui/src/app.rs (slash commands implemented, widgets in progress).
+/// Mirrors codex-rs/tui/src/app.rs (slash commands, status overlay and history
+/// log bridging implemented, widgets in progress).
 /// </summary>
 internal static class TuiApp
 {
     public static async Task<int> RunAsync(InteractiveOptions opts, AppConfig? cfg)
     {
         var sender = new AppEventSender(_ => { });
-        var pane = new BottomPane(sender, hasInputFocus: true);
-        var chat = new ChatWidget();
-        using var status = new StatusIndicatorWidget();
-        status.Start();
+        var chat = new ChatWidget(sender);
+        using var mouse = new MouseCapture(!(cfg?.Tui.DisableMouseCapture ?? false));
+        LogBridge.LatestLog += chat.UpdateLatestLog;
 
         var sessionId = SessionManager.CreateSession();
         var history = new List<string>();
@@ -43,27 +43,39 @@ internal static class TuiApp
             UriBasedFileOpener.None,
             Environment.CurrentDirectory);
 
-        InteractiveApp.ApprovalHandler = ev => Task.FromResult(pane.PushApprovalRequest(ev));
+        InteractiveApp.ApprovalHandler = ev => Task.FromResult(chat.PushApprovalRequest(ev));
 
+        try
+        {
         while (true)
         {
             var key = Console.ReadKey(intercept: true);
-            var res = pane.HandleKeyEvent(key);
-            int bottomHeight = Math.Max(1, pane.CalculateRequiredHeight(Console.WindowHeight / 2));
-            int chatHeight = Math.Max(1, Console.WindowHeight - bottomHeight - 1);
-            chat.Render(chatHeight);
-            pane.Render(bottomHeight);
+            var res = chat.HandleKeyEvent(key);
+            chat.Render(Console.WindowHeight);
             if (res.IsSubmitted)
             {
                 var text = res.SubmittedText!;
-                chat.AddUserMessage(text);
+                // message already recorded in history by the composer
 
                 if (text.Equals("/quit", StringComparison.OrdinalIgnoreCase))
                     break;
 
+                if (text.Equals("/new", StringComparison.OrdinalIgnoreCase))
+                {
+                    chat.ClearConversation();
+                    continue;
+                }
+
+                if (text.Equals("/toggle-mouse-mode", StringComparison.OrdinalIgnoreCase))
+                {
+                    mouse.Toggle();
+                    chat.AddSystemMessage(mouse.IsActive ? "Mouse mode enabled" : "Mouse mode disabled");
+                    continue;
+                }
+
                 if (text.Equals("/help", StringComparison.OrdinalIgnoreCase))
                 {
-                    chat.AddAgentMessage("Available commands: /history, /scroll-up, /scroll-down, /sessions, /config, /quit");
+                    chat.AddAgentMessage("Available commands: /new, /toggle-mouse-mode, /history, /scroll-up, /scroll-down, /sessions, /config, /quit");
                     continue;
                 }
                 if (text.Equals("/history", StringComparison.OrdinalIgnoreCase))
@@ -113,7 +125,8 @@ internal static class TuiApp
                 history.Add(text);
                 SessionManager.AddEntry(sessionId, text);
 
-                status.UpdateText("thinking...");
+                chat.SetTaskRunning(true);
+                LogBridge.Emit("thinking...");
 
                 var events = providerId == "Mock"
                     ? MockCodexAgent.RunAsync(text, Array.Empty<string>(), InteractiveApp.ApprovalHandler)
@@ -133,38 +146,81 @@ internal static class TuiApp
                             lastMessage = am.Message;
                             break;
                         case BackgroundEvent bg:
-                            chat.AddSystemMessage(bg.Message);
+                            chat.AddBackgroundEvent(bg.Message);
+                            LogBridge.Emit(bg.Message);
+                            break;
+                        case AgentReasoningEvent ar:
+                            if (!hideReason)
+                            {
+                                chat.AddAgentReasoning(ar.Text);
+                                LogBridge.Emit(ar.Text);
+                            }
                             break;
                         case ErrorEvent err:
-                            chat.AddSystemMessage($"ERROR: {err.Message}");
+                            chat.AddError(err.Message);
+                            LogBridge.Emit(err.Message);
                             break;
                         case TaskCompleteEvent tc:
                             if (tc.LastAgentMessage != null)
                                 chat.AddAgentMessage(tc.LastAgentMessage);
-                            status.UpdateText("ready");
+                            chat.SetTaskRunning(false);
+                            LogBridge.Emit("ready");
                             break;
                         case GetHistoryEntryResponseEvent ge:
-                            pane.OnHistoryEntryResponse(ge.SessionId, ge.Offset, ge.Entry);
+                            chat.OnHistoryEntryResponse(ge.SessionId, ge.Offset, ge.Entry);
+                            if (ge.Entry != null)
+                            {
+                                chat.AddHistoryEntry(ge.Offset, ge.Entry);
+                                LogBridge.Emit(ge.Entry);
+                            }
                             break;
-                    case SessionConfiguredEvent sc:
-                        pane.SetHistoryMetadata(sc.SessionId, 0);
-                        break;
+                        case AddToHistoryEvent ah:
+                            chat.AddHistoryEntry(0, ah.Text);
+                            LogBridge.Emit(ah.Text);
+                            break;
+                        case ExecCommandBeginEvent begin:
+                            chat.AddExecCommand(string.Join(" ", begin.Command));
+                            LogBridge.Emit(string.Join(" ", begin.Command));
+                            break;
+                        case ExecCommandEndEvent end:
+                            chat.AddExecResult(end.ExitCode);
+                            LogBridge.Emit(end.ExitCode == 0 ? end.Stdout : end.Stderr);
+                            break;
+                        case McpToolCallBeginEvent mc:
+                            chat.AddMcpToolCallBegin(mc.Server, mc.Tool, mc.ArgumentsJson);
+                            LogBridge.Emit(mc.ArgumentsJson ?? "");
+                            break;
+                        case McpToolCallEndEvent mce:
+                            chat.AddMcpToolCallEnd(mce.IsSuccess, mce.ResultJson);
+                            LogBridge.Emit(mce.ResultJson);
+                            break;
+                        case PatchApplyBeginEvent pb:
+                            chat.AddPatchApplyBegin(pb.AutoApproved, pb.Changes);
+                            LogBridge.Emit($"patch auto_approved={pb.AutoApproved}");
+                            break;
+                        case PatchApplyEndEvent pe:
+                            chat.AddPatchApplyEnd(pe.Success);
+                            LogBridge.Emit(pe.Success ? pe.Stdout : pe.Stderr);
+                            break;
+                        case SessionConfiguredEvent sc:
+                            chat.SetHistoryMetadata(sc.SessionId, 0);
+                            break;
+                    }
                 }
-                if (pane.HasActiveView)
+
+                if (chat.HasActiveView)
                 {
-                    int b = Math.Max(1, pane.CalculateRequiredHeight(Console.WindowHeight / 2));
-                    int c = Math.Max(1, Console.WindowHeight - b - 1);
-                    chat.Render(c);
-                    pane.Render(b);
+                    chat.Render(Console.WindowHeight);
                 }
             }
-                int bottomHeight2 = Math.Max(1, pane.CalculateRequiredHeight(Console.WindowHeight / 2));
-                int chatHeight2 = Math.Max(1, Console.WindowHeight - bottomHeight2 - 1);
-                chat.Render(chatHeight2);
-                pane.Render(bottomHeight2);
-            }
-       }
-        InteractiveApp.ApprovalHandler = null;
+
+            chat.Render(Console.WindowHeight);
+        }
+        finally
+        {
+            LogBridge.LatestLog -= chat.UpdateLatestLog;
+            InteractiveApp.ApprovalHandler = null;
+        }
         return 0;
     }
 

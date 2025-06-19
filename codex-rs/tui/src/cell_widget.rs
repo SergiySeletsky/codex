@@ -1,3 +1,4 @@
+// C# version implemented in codex-dotnet/CodexCli/Interactive/Widgets/ICellWidget.cs (done)
 use ratatui::prelude::*;
 
 /// Trait implemented by every type that can live inside the conversation

@@ -5,7 +5,7 @@ namespace CodexCli.Interactive;
 
 /// <summary>
 /// Container for chat composer and overlay views.
-/// Mirrors codex-rs/tui/src/bottom_pane/mod.rs (in progress).
+/// Mirrors codex-rs/tui/src/bottom_pane/mod.rs (status indicator overlay done).
 /// </summary>
 public class BottomPane
 {
@@ -15,9 +15,9 @@ public class BottomPane
     private bool _hasInputFocus;
     private bool _isTaskRunning;
 
-    public BottomPane(AppEventSender sender, bool hasInputFocus)
+    public BottomPane(AppEventSender sender, bool hasInputFocus, ConversationHistoryWidget? history = null)
     {
-        _composer = new ChatComposer(hasInputFocus, sender);
+        _composer = new ChatComposer(hasInputFocus, sender, history);
         _appEventTx = sender;
         _hasInputFocus = hasInputFocus;
     }
@@ -29,6 +29,7 @@ public class BottomPane
             _activeView.HandleKeyEvent(key, this);
             if (_activeView.IsComplete)
             {
+                if (_activeView is IDisposable d) d.Dispose();
                 _activeView = null;
             }
             return InputResult.None;
@@ -56,6 +57,24 @@ public class BottomPane
     public void SetTaskRunning(bool running)
     {
         _isTaskRunning = running;
+
+        if (running && _activeView == null)
+        {
+            var widget = new StatusIndicatorWidget();
+            widget.Start();
+            int h = _composer.CalculateRequiredHeight(Console.WindowHeight / 2);
+            _activeView = new StatusIndicatorView(widget, h);
+            RequestRedraw();
+        }
+        else if (!running && _activeView != null)
+        {
+            if (_activeView.ShouldHideWhenTaskIsDone())
+            {
+                if (_activeView is IDisposable d) d.Dispose();
+                _activeView = null;
+                RequestRedraw();
+            }
+        }
     }
 
     public int CalculateRequiredHeight(int areaHeight)
@@ -69,7 +88,10 @@ public class BottomPane
         {
             _activeView.Render(areaHeight);
             if (_activeView.IsComplete)
+            {
+                if (_activeView is IDisposable d) d.Dispose();
                 _activeView = null;
+            }
         }
         else
         {
@@ -107,6 +129,8 @@ public class BottomPane
             req = next;
         }
 
+        if (_activeView is IDisposable disp)
+            disp.Dispose();
         var view = new ApprovalModalView(req);
         _activeView = view;
         RequestRedraw();

@@ -1,4 +1,4 @@
-// C# analog handled inline in codex-dotnet/CodexCli/Interactive/InteractiveApp.cs (done)
+// C# analog implemented in codex-dotnet/CodexCli/Interactive/MouseCapture.cs (done)
 use crossterm::event::DisableMouseCapture;
 use crossterm::event::EnableMouseCapture;
 use ratatui::crossterm::execute;

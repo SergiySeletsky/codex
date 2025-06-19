@@ -875,3 +875,117 @@
 761. Wired `BottomPane.PushApprovalRequest` so overlay remains active until `Render` displays the decision. `BottomPane.Render` now clears the view when complete and `HasActiveView` property indicates pending overlays.
 762. Updated `TuiApp` event loop to redraw when an overlay is active and added `BottomPaneTests` verifying decision rendering and clearing.
 763. TODO next run: expand ApprovalModalView visuals and begin porting remaining widgets like conversation history.
+764. Expanded `ApprovalModalView` rendering with request summaries and marked the file as in progress.
+765. Added page scrolling helpers to `ConversationHistoryWidget` and updated tests. TODO next run: integrate widget with `ChatWidget` for richer history display.
+766. Integrated `ConversationHistoryWidget` scrolling into `ChatWidget` with auto-scroll to bottom and added `PagingScrollsHistory` test.
+767. Hooked `ConversationHistoryWidget` into `ChatComposer` so submitted messages update the log automatically.
+768. Added `ChatComposerHistoryWidgetIntegrationTests` covering history updates from the composer.
+769. TODO next run: integrate `ChatWidget` and `BottomPane` for focus switching and extend interactive rendering tests.
+770. Connected `ChatWidget` with `BottomPane` so <Tab> toggles focus.
+771. Added `HandleKeyEvent` to `ConversationHistoryWidget` and integrated focus management.
+772. Updated `TuiApp` to delegate input and rendering to `ChatWidget`.
+773. Added `TabSwitchesFocus` unit test verifying history scrolling after focus change.
+774. TODO next run: refine interactive event loop and expand cross-language tests for focus behavior.
+775. Installed .NET SDK in container to run builds/tests and updated `BottomPaneTests`
+     to avoid Spectre.Console output capture issues.
+776. TODO next run: stabilize interactive tests to avoid hanging and continue porting
+     remaining Rust features.
+777. Implemented `BottomPane.SetTaskRunning` to show a `StatusIndicatorView`
+     while tasks run and hide it on completion. Added corresponding unit test.
+778. TODO next run: flesh out StatusIndicatorView rendering and integrate
+     more TUI widgets from Rust.
+779. Implemented height-preserving `StatusIndicatorView` so the bottom pane
+     doesn't jump when tasks start. Updated `BottomPane.SetTaskRunning` to pass
+     the composer height.
+780. Added `StatusIndicatorKeepsComposerHeight` unit test verifying the height
+     remains unchanged when the indicator overlay is active.
+781. TODO next run: integrate additional TUI widgets from the Rust version and
+     improve interactive tests to avoid timeouts.
+782. Integrated `ChatWidget.SetTaskRunning` and `UpdateLatestLog` with `TuiApp`
+     so the status indicator overlay is shown while the agent works.
+     Added `TaskRunningShowsStatusIndicator` unit test.
+783. TODO next run: bridge log output via `AppEvent.LatestLog` and stabilize
+     interactive tests.
+784. Introduced `LogBridge` to forward latest log lines to the chat widget and
+     replaced direct calls in `TuiApp` with bridge events. Added
+     `LogBridgeTests` verifying status indicator updates via the bridge.
+785. TODO next run: continue refining interactive tests and port remaining
+     widgets from the Rust UI.
+786. Reinstalled .NET SDK in the container so builds/tests run again.
+787. Added `AddAgentReasoning` to `ChatWidget` and handled `AgentReasoningEvent`
+     in `TuiApp` with log bridge updates. Marked rust/csharp sources accordingly.
+788. TODO next run: enhance `ConversationHistoryWidget` rendering and continue
+     syncing TUI features.
+789. Implemented `ConversationHistoryWidget` helpers for user/agent/system
+     messages and reasoning. Updated `ChatWidget` to use them.
+790. Reinstalled .NET SDK and verified builds succeed on fresh container.
+791. Ran `dotnet test` but interactive tests still emit output and hang after
+     skipping many cases.
+792. TODO next run: flesh out history entry rendering and reduce test output
+     noise to stabilize runs.
+793. Added `AddBackgroundEvent` and `AddError` helpers to `ConversationHistoryWidget`
+     and `ChatWidget` with formatted output. Updated `TuiApp` to use them.
+     Marked rust/csharp sources accordingly.
+794. Created unit test `BackgroundAndErrorMessagesAreStored` verifying the new
+     message types.
+795. TODO next run: continue improving history entry rendering and work on
+     stabilizing interactive test runs.
+796. Fixed lingering tasks in `StatusIndicatorWidget` by disposing it when
+     overlays close. Tests now finish within the timeout.
+797. TODO next run: improve history entry rendering and bridge log output
+     for history-related events.
+798. Added `AddHistoryEntry` methods in `ConversationHistoryWidget` and
+     `ChatWidget` so fetched history lines render with a dim style. `TuiApp`
+     now handles `GetHistoryEntryResponseEvent` and `AddToHistoryEvent`,
+     adding the text to the conversation and forwarding it via `LogBridge`.
+     Updated rust/csharp source comments to mark history entry helpers done.
+799. TODO next run: expand patch/command rendering in the history widget and
+     continue stabilizing interactive tests.
+800. Fixed hanging tests by disposing StatusIndicator widgets and enumerator. TODO next run: measure full suite runtime and skip long tests if needed.
+801. Added exec command and patch apply event helpers in ConversationHistoryWidget and ChatWidget.
+    TuiApp now displays these events and forwards log lines via LogBridge.
+    Updated Rust comments to mark exec/patch support done in C#.
+802. Created unit tests `CommandAndPatchEventsAreStored` verifying new history entries.
+803. TODO next run: refine patch diff rendering and continue improving interactive tests.
+804. Implemented patch diff summary rendering using `FormatPatchLines` helpers.
+     `AddPatchApplyBegin` now accepts FileChange dictionaries and displays summary lines.
+     Added `PatchSummaryLinesAreRendered` test verifying markup output.
+     TODO next run: stabilize interactive tests and port remaining Rust widgets.
+805. Added MCP tool call event helpers in ConversationHistoryWidget and ChatWidget. TuiApp now renders these events and forwards log lines. Added ToolCallEvents tests.
+806. TODO next run: stabilize test suite runtime and continue porting advanced rendering features.
+807. Ported text_formatting helpers to C# as TextFormatting.cs with truncate and JSON compact logic. Added TextFormattingTests. Updated rust file comment.
+808. Installed .NET SDK in container so builds/tests run. Filtered test suite passes under 1s.
+809. Wired `TextFormatting.FormatAndTruncateToolResult` into the chat and history
+     widgets so MCP tool call results are compacted and truncated like Rust.
+     Updated tests and cross-reference comments.
+810. TODO next run: port additional Rust utilities and continue refining
+     interactive tests.
+811. Added `CitationRegex` helper in C# mirroring the Rust version and integrated
+     it with `MarkdownUtils`. Created `CitationRegexTests` verifying capture groups
+     and updated rust sources with cross-reference comments.
+812. TODO next run: implement markdown rendering utilities and stabilize
+     interactive tests.
+813. Implemented `MarkdownUtils.AppendMarkdown` for citation rewrites and added
+     tests verifying rendered lines. Updated source comments to mark rewrite and
+     append features done.
+814. TODO next run: integrate markdown rendering into history widgets and
+     continue stabilizing interactive tests.
+815. Integrated markdown rendering via `MarkdownUtils` in `ConversationHistoryWidget`
+     and `ChatWidget` so messages show rewritten citations.
+816. Added `AgentMessageMarkdownIsRewritten` unit test verifying citation rewrite.
+817. TODO next run: further stabilize interactive tests and port remaining
+     rendering helpers.
+818. Added `Clear` method to `ConversationHistoryWidget` and `ClearConversation`
+     helper in `ChatWidget`.
+     Implemented `/new` slash command in `TuiApp` to clear the conversation and
+     updated the help text.
+819. Created unit tests verifying conversation and history widgets clear their
+     lines when `/new` is invoked.
+820. Implemented `/toggle-mouse-mode` command in `TuiApp` with new
+     `MouseCapture` helper class. Updated help text and cross-file comments.
+821. Reinstalled .NET SDK in fresh container so `dotnet` commands work.
+     Filtered test suite now runs successfully under 1s.
+822. Ported `cell_widget.rs` as `ICellWidget` interface and `text_block.rs` as `TextBlock` class in C#. Added `TextBlockTests` verifying measurement and window rendering.
+823. Integrated `TextBlock` storage into `ConversationHistoryWidget` via new `HistoryCell` class. Updated `ChatComposer` and widget tests.
+824. Expanded `HistoryCell` variants and added cached line counts for smoother scrolling. Updated `ConversationHistoryWidget` with an `Entry` helper storing heights and refactored scrolling logic. Tests pass under 1s.
+825. TODO next run: handle image output in tool call results and finish HistoryCell parity with Rust.

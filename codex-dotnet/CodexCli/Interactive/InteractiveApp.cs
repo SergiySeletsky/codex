@@ -83,7 +83,7 @@ public static class InteractiveApp
                 }
                 if (prompt.Equals("/help", StringComparison.OrdinalIgnoreCase))
                 {
-                    chat.AddAgentMessage("Available commands: /history, /scroll-up, /scroll-down, /new, /quit, /help, /log, /config, /save <file>, /save-last <file>, /version, /sessions, /delete <id>");
+                    chat.AddAgentMessage("Available commands: /history, /scroll-up, /scroll-down, /new, /toggle-mouse-mode, /quit, /help, /log, /config, /save <file>, /save-last <file>, /version, /sessions, /delete <id>");
                     continue;
                 }
                 if (prompt.Equals("/log", StringComparison.OrdinalIgnoreCase))
