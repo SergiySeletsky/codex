@@ -15,7 +15,13 @@ namespace CodexCli.Interactive;
 /// </summary>
 public class ConversationHistoryWidget
 {
-    private readonly List<HistoryCell> _entries = new();
+    private class Entry
+    {
+        public HistoryCell Cell;
+        public int LineCount;
+    }
+
+    private readonly List<Entry> _entries = new();
     private int _scrollOffset = 0; // lines scrolled back from bottom
     private bool _hasInputFocus;
     private readonly UriBasedFileOpener _fileOpener;
@@ -141,7 +147,8 @@ public class ConversationHistoryWidget
 
     private void AddLines(IEnumerable<string> lines, HistoryCell.CellType type)
     {
-        _entries.Add(new HistoryCell(type, lines));
+        var cell = new HistoryCell(type, lines);
+        _entries.Add(new Entry { Cell = cell, LineCount = cell.Height(Width) });
     }
 
     public void ScrollUp(int lines)
@@ -199,21 +206,38 @@ public class ConversationHistoryWidget
     {
         if (height <= 0)
             return Array.Empty<string>();
-        var all = new List<string>();
-        foreach (var cell in _entries)
-            all.AddRange(cell.RenderWindow(0, cell.Height(Width), Width));
-        int maxOffset = Math.Max(0, all.Count - height);
+        int totalHeight = TotalHeight();
+        int maxOffset = Math.Max(0, totalHeight - height);
         _scrollOffset = Math.Min(_scrollOffset, maxOffset);
-        int start = Math.Max(0, all.Count - height - _scrollOffset);
-        int count = Math.Min(height, all.Count - start);
-        return all.GetRange(start, count);
+        int start = Math.Max(0, totalHeight - height - _scrollOffset);
+
+        var visible = new List<string>();
+        int currentLine = 0;
+        foreach (var entry in _entries)
+        {
+            if (currentLine + entry.LineCount <= start)
+            {
+                currentLine += entry.LineCount;
+                continue;
+            }
+
+            int first = Math.Max(0, start - currentLine);
+            int remainingHeight = height - visible.Count;
+            if (remainingHeight <= 0) break;
+            var lines = entry.Cell.RenderWindow(first, remainingHeight, Width);
+            visible.AddRange(lines);
+            currentLine += entry.LineCount;
+            if (visible.Count >= height) break;
+        }
+
+        return visible;
     }
 
     private int TotalHeight()
     {
         int total = 0;
-        foreach (var cell in _entries)
-            total += cell.Height(Width);
+        foreach (var entry in _entries)
+            total += entry.LineCount;
         return total;
     }
 

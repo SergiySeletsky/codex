@@ -987,4 +987,5 @@
      Filtered test suite now runs successfully under 1s.
 822. Ported `cell_widget.rs` as `ICellWidget` interface and `text_block.rs` as `TextBlock` class in C#. Added `TextBlockTests` verifying measurement and window rendering.
 823. Integrated `TextBlock` storage into `ConversationHistoryWidget` via new `HistoryCell` class. Updated `ChatComposer` and widget tests.
-824. TODO next run: expand `HistoryCell` variants and optimize scrolling logic.
+824. Expanded `HistoryCell` variants and added cached line counts for smoother scrolling. Updated `ConversationHistoryWidget` with an `Entry` helper storing heights and refactored scrolling logic. Tests pass under 1s.
+825. TODO next run: handle image output in tool call results and finish HistoryCell parity with Rust.

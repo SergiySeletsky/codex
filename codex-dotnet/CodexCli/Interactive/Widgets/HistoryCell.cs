@@ -3,13 +3,15 @@ using System.Collections.Generic;
 namespace CodexCli.Interactive;
 
 /// <summary>
-/// Mirrors codex-rs/tui/src/history_cell.rs (partial, more variants TBD)
+/// Mirrors codex-rs/tui/src/history_cell.rs (partial, image output not yet ported)
 /// </summary>
 internal class HistoryCell : ICellWidget
 {
     internal enum CellType
     {
         Generic,
+        Welcome,
+        SessionInfo,
         User,
         Agent,
         System,
@@ -20,8 +22,10 @@ internal class HistoryCell : ICellWidget
         ExecResult,
         PatchBegin,
         PatchEnd,
+        PendingPatch,
         ToolBegin,
         ToolEnd,
+        ToolImage,
         HistoryEntry
     }
 
