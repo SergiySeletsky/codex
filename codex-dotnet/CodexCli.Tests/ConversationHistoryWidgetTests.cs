@@ -82,7 +82,7 @@ public class ConversationHistoryWidgetTests
         const string json = "{\"content\":[{\"type\":\"image\",\"data\":\"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAADUlEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==\"}]}";
         hist.AddMcpToolCallImage(ToolResultUtils.FormatImageInfo(json));
         var line = Assert.Single(hist.GetVisibleLines(1));
-        Assert.Equal("[magenta]tool[/] <image 16x16>", line);
+        Assert.Equal("[magenta]tool[/] <image 1x1>", line);
     }
 
     [Fact]
@@ -103,7 +103,7 @@ public class ConversationHistoryWidgetTests
         File.WriteAllBytes(path, Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAADUlEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg=="));
         hist.AddUserImage(path);
         var line = Assert.Single(hist.GetVisibleLines(1));
-        Assert.Equal("[bold cyan]You:[/] <image 16x16>", line);
+        Assert.Equal("[bold cyan]You:[/] <image 1x1>", line);
     }
 
     [Fact]

@@ -1031,4 +1031,6 @@
 856. Extended widget tests to verify JPEG placeholders for user and tool images.
 857. Added cross-language tests covering JPEG uploads and `/image` command parity.
 858. Updated cross-file comments to mark JPEG support done.
-859. TODO next run: finish outstanding widgets and improve rendering fidelity.
+859. Adjusted image placeholder tests to expect 1x1 PNG and JPEG samples and
+     updated CrossCli tests. All unit tests pass again.
+860. TODO next run: finish outstanding widgets and improve rendering fidelity.

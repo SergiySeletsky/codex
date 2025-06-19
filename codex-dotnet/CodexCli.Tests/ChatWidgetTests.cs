@@ -175,7 +175,7 @@ public class ChatWidgetTests
         const string json = "{\"content\":[{\"type\":\"image\",\"data\":\"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAADUlEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==\"}]}";
         widget.AddMcpToolCallImage(json);
         var line = Assert.Single(widget.GetVisibleLines(1));
-        Assert.Equal("[magenta]tool[/] <image 16x16>", line);
+        Assert.Equal("[magenta]tool[/] <image 1x1>", line);
     }
 
     [Fact]
@@ -196,7 +196,7 @@ public class ChatWidgetTests
         File.WriteAllBytes(path, Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAADUlEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg=="));
         widget.AddUserImage(path);
         var line = Assert.Single(widget.GetVisibleLines(1));
-        Assert.Equal("[bold cyan]You:[/] <image 16x16>", line);
+        Assert.Equal("[bold cyan]You:[/] <image 1x1>", line);
     }
 
     [Fact]
