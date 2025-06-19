@@ -3,7 +3,7 @@ using System.Collections.Generic;
 namespace CodexCli.Interactive;
 
 /// <summary>
-/// Mirrors codex-rs/tui/src/history_cell.rs (image output handled)
+/// Mirrors codex-rs/tui/src/history_cell.rs (image output placeholder done)
 /// </summary>
 internal class HistoryCell : ICellWidget
 {

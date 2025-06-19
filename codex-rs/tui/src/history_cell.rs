@@ -1,4 +1,4 @@
-// C# version in codex-dotnet/CodexCli/Interactive/Widgets/HistoryCell.cs (image output handled)
+// C# version in codex-dotnet/CodexCli/Interactive/Widgets/HistoryCell.cs (image output placeholder done)
 use crate::cell_widget::CellWidget;
 use crate::exec_command::escape_command;
 use crate::markdown::append_markdown;

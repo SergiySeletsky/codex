@@ -995,3 +995,8 @@
 829. Created unit tests `ToolImageEvent` and `ToolImageEventIsStored` verifying history widgets store the placeholder.
 830. Added cross-language test `ExecImageUploadMatches` ensuring exec image attachments behave the same.
 831. TODO next run: refine image rendering and optimize cross-language test runtime.
+832. Introduced `ToolResultUtils.HasImageOutput` helper mirroring Rust logic and
+     updated `TuiApp` to parse JSON tool results.
+833. Added `ToolResultUtilsTests` verifying image detection.
+834. Updated cross-file comments marking image detection done.
+835. TODO next run: improve actual image rendering and speed up cross-language tests.

@@ -10,7 +10,8 @@ namespace CodexCli.Interactive;
 /// Chat widget managing conversation history and bottom pane input.
 /// Mirrors codex-rs/tui/src/chatwidget.rs
 /// (status indicator, log bridge, agent reasoning, background/error and history entry updates done.
-/// exec command, patch diff summary, mcp tool call events, markdown history rendering, /new command clearing history done).
+/// exec command, patch diff summary, mcp tool call events with image detection,
+/// markdown history rendering, /new command clearing history done).
 /// </summary>
 public class ChatWidget
 {
