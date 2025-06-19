@@ -1026,3 +1026,9 @@
 852. Updated chat widget and history comments to note interactive image support.
 853. Added cross-language test `TuiImageCommandMatches` exercising the new command.
 854. TODO next run: refine image rendering and finalize remaining widget ports.
+855. Implemented JPEG dimension parsing in `ToolResultUtils` and updated
+     `FormatImageInfoFromFile` accordingly.
+856. Extended widget tests to verify JPEG placeholders for user and tool images.
+857. Added cross-language tests covering JPEG uploads and `/image` command parity.
+858. Updated cross-file comments to mark JPEG support done.
+859. TODO next run: finish outstanding widgets and improve rendering fidelity.

@@ -433,9 +433,29 @@ args = ["run", "--project", "../codex-dotnet/CodexCli", "mcp"]
     }
 
     [CrossCliFact]
+    public void ExecImageUploadJpegMatches()
+    {
+        string path = CreateTempJpeg();
+        var dotnet = RunProcess("dotnet", $"run --project ../codex-dotnet/CodexCli exec hi --model-provider Mock --image {path}");
+        var rust = RunProcess("cargo", $"run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- exec hi -c model_provider=Mock --image {path}");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [CrossCliFact]
     public void TuiImageUploadMatches()
     {
         string path = CreateTempImage();
+        var dotnet = RunProcessWithPty($"dotnet run --project ../codex-dotnet/CodexTui --skip-git-repo-check --model-provider Mock --image {path}", "/quit\n");
+        var rust = RunProcessWithPty($"cargo run --quiet --manifest-path ../../codex-rs/tui/Cargo.toml -- --skip-git-repo-check -c model_provider=Mock --image {path}", "/quit\n");
+        var dOut = AnsiEscape.StripAnsi(dotnet.stdout).Trim();
+        var rOut = AnsiEscape.StripAnsi(rust.stdout).Trim();
+        Assert.Equal(rOut, dOut);
+    }
+
+    [CrossCliFact]
+    public void TuiImageUploadJpegMatches()
+    {
+        string path = CreateTempJpeg();
         var dotnet = RunProcessWithPty($"dotnet run --project ../codex-dotnet/CodexTui --skip-git-repo-check --model-provider Mock --image {path}", "/quit\n");
         var rust = RunProcessWithPty($"cargo run --quiet --manifest-path ../../codex-rs/tui/Cargo.toml -- --skip-git-repo-check -c model_provider=Mock --image {path}", "/quit\n");
         var dOut = AnsiEscape.StripAnsi(dotnet.stdout).Trim();
@@ -455,10 +475,29 @@ args = ["run", "--project", "../codex-dotnet/CodexCli", "mcp"]
         Assert.Equal(rOut, dOut);
     }
 
+    [CrossCliFact]
+    public void TuiImageCommandJpegMatches()
+    {
+        string path = CreateTempJpeg();
+        var input = $"/image {path}\n/quit\n";
+        var dotnet = RunProcessWithPty($"dotnet run --project ../codex-dotnet/CodexTui --skip-git-repo-check --model-provider Mock", input);
+        var rust = RunProcessWithPty($"cargo run --quiet --manifest-path ../../codex-rs/tui/Cargo.toml -- --skip-git-repo-check -c model_provider=Mock", input);
+        var dOut = AnsiEscape.StripAnsi(dotnet.stdout).Trim();
+        var rOut = AnsiEscape.StripAnsi(rust.stdout).Trim();
+        Assert.Equal(rOut, dOut);
+    }
+
     private string CreateTempImage()
     {
         var tmp = Path.GetTempFileName() + ".png";
         File.WriteAllBytes(tmp, Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAADUlEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg=="));
+        return tmp;
+    }
+
+    private string CreateTempJpeg()
+    {
+        var tmp = Path.GetTempFileName() + ".jpg";
+        File.WriteAllBytes(tmp, Convert.FromBase64String("/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAABAAEDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDi6KKK+ZP3E//Z"));
         return tmp;
     }
 }

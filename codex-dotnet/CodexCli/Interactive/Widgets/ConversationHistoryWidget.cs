@@ -11,7 +11,7 @@ namespace CodexCli.Interactive;
 /// Mirrors codex-rs/tui/src/conversation_history_widget.rs (scrolling,
 /// message formatting with markdown, text block storage, history entry helpers,
 /// exec/patch events, mcp tool calls with formatted results, diff summary,
-/// HistoryCell image placeholders and interactive image uploads done.
+/// HistoryCell image placeholders with PNG/JPEG dimensions and interactive image uploads done.
 /// </summary>
 public class ConversationHistoryWidget
 {

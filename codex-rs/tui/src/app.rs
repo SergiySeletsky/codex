@@ -1,5 +1,5 @@
 // C# version implemented in codex-dotnet/CodexTui/TuiApp.cs
-// (popup rendering, /new clearing history, approval overlay, image dimension parsing
+// (popup rendering, /new clearing history, approval overlay, PNG/JPEG dimension parsing
 // and initial + interactive image prompts done, more widgets pending)
 use crate::app_event::AppEvent;
 use crate::app_event_sender::AppEventSender;

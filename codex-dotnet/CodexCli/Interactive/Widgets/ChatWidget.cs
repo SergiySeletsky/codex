@@ -11,7 +11,7 @@ namespace CodexCli.Interactive;
 /// Mirrors codex-rs/tui/src/chatwidget.rs
 /// (status indicator, log bridge, agent reasoning, background/error and history entry updates done.
 /// exec command, patch diff summary, mcp tool call events with image detection
-/// and basic image dimension rendering, initial and interactive image prompts
+/// and PNG/JPEG dimension rendering, initial and interactive image prompts
 /// handled, markdown history rendering, /new command clearing history done).
 /// </summary>
 public class ChatWidget

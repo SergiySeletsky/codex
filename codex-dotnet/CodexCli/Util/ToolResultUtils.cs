@@ -39,12 +39,8 @@ public static class ToolResultUtils
                         item.TryGetProperty("data", out var data))
                     {
                         var bytes = Convert.FromBase64String(data.GetString() ?? "");
-                        if (bytes.Length > 24 && bytes[12] == (byte)'I' && bytes[13] == (byte)'H' && bytes[14] == (byte)'D' && bytes[15] == (byte)'R')
-                        {
-                            int w = (bytes[16] << 24) | (bytes[17] << 16) | (bytes[18] << 8) | bytes[19];
-                            int h = (bytes[20] << 24) | (bytes[21] << 16) | (bytes[22] << 8) | bytes[23];
+                        if (TryPngDimensions(bytes, out var w, out var h) || TryJpegDimensions(bytes, out w, out h))
                             return $"<image {w}x{h}>";
-                        }
                         return "<image output>";
                     }
                 }
@@ -60,17 +56,52 @@ public static class ToolResultUtils
         try
         {
             using var fs = File.OpenRead(path);
-            Span<byte> buf = stackalloc byte[24];
+            Span<byte> buf = stackalloc byte[256];
             int read = fs.Read(buf);
-            if (read >= 24 && buf[12] == (byte)'I' && buf[13] == (byte)'H' && buf[14] == (byte)'D' && buf[15] == (byte)'R')
-            {
-                int w = (buf[16] << 24) | (buf[17] << 16) | (buf[18] << 8) | buf[19];
-                int h = (buf[20] << 24) | (buf[21] << 16) | (buf[22] << 8) | buf[23];
+            var bytes = buf.Slice(0, read).ToArray();
+            if (TryPngDimensions(bytes, out var w, out var h) || TryJpegDimensions(bytes, out w, out h))
                 return $"<image {w}x{h}>";
-            }
         }
         catch (Exception) { }
 
         return "<image>";
+    }
+
+    private static bool TryPngDimensions(ReadOnlySpan<byte> bytes, out int w, out int h)
+    {
+        w = h = 0;
+        if (bytes.Length > 24 && bytes[12] == (byte)'I' && bytes[13] == (byte)'H' && bytes[14] == (byte)'D' && bytes[15] == (byte)'R')
+        {
+            w = (bytes[16] << 24) | (bytes[17] << 16) | (bytes[18] << 8) | bytes[19];
+            h = (bytes[20] << 24) | (bytes[21] << 16) | (bytes[22] << 8) | bytes[23];
+            return true;
+        }
+        return false;
+    }
+
+    private static bool TryJpegDimensions(ReadOnlySpan<byte> bytes, out int w, out int h)
+    {
+        w = h = 0;
+        if (bytes.Length < 4 || bytes[0] != 0xFF || bytes[1] != 0xD8)
+            return false;
+        int i = 2;
+        while (i + 9 < bytes.Length)
+        {
+            while (i < bytes.Length && bytes[i] != 0xFF)
+                i++;
+            if (i + 9 >= bytes.Length)
+                break;
+            byte marker = bytes[i + 1];
+            int len = (bytes[i + 2] << 8) | bytes[i + 3];
+            if (marker == 0xC0 || marker == 0xC2)
+            {
+                if (i + 7 >= bytes.Length) return false;
+                h = (bytes[i + 5] << 8) | bytes[i + 6];
+                w = (bytes[i + 7] << 8) | bytes[i + 8];
+                return true;
+            }
+            i += 2 + len;
+        }
+        return false;
     }
 }
