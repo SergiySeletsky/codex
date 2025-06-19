@@ -10,8 +10,8 @@ namespace CodexCli.Interactive;
 /// Very simple scrollable history log with basic formatting helpers.
 /// Mirrors codex-rs/tui/src/conversation_history_widget.rs (scrolling,
 /// message formatting with markdown, text block storage, history entry helpers,
-/// exec/patch events, mcp tool calls with formatted results, diff summary and
-/// HistoryCell image placeholders done.
+/// exec/patch events, mcp tool calls with formatted results, diff summary,
+/// HistoryCell image placeholders and interactive image uploads done.
 /// </summary>
 public class ConversationHistoryWidget
 {

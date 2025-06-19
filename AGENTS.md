@@ -1022,3 +1022,7 @@
 849. Added cross-language test `TuiImageUploadMatches` verifying initial image
      parity.
 850. TODO next run: finish remaining widgets and add interactive image support.
+851. Implemented `/image` command in `TuiApp` to upload images interactively.
+852. Updated chat widget and history comments to note interactive image support.
+853. Added cross-language test `TuiImageCommandMatches` exercising the new command.
+854. TODO next run: refine image rendering and finalize remaining widget ports.

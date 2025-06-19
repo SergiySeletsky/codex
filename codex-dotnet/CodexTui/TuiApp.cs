@@ -13,8 +13,8 @@ namespace CodexTui;
 /// <summary>
 /// Initial prototype TUI host wiring the BottomPane for user input.
 /// Mirrors codex-rs/tui/src/app.rs (slash commands, status overlay and history
-/// log bridging with image dimension parsing and initial prompt images
-/// implemented. Additional widgets pending).
+/// log bridging with image dimension parsing, initial prompt images and
+/// interactive image attachments implemented. Additional widgets pending).
 /// </summary>
 internal static class TuiApp
 {
@@ -138,7 +138,7 @@ internal static class TuiApp
 
                 if (text.Equals("/help", StringComparison.OrdinalIgnoreCase))
                 {
-                    chat.AddAgentMessage("Available commands: /new, /toggle-mouse-mode, /history, /scroll-up, /scroll-down, /sessions, /config, /quit");
+                    chat.AddAgentMessage("Available commands: /new, /toggle-mouse-mode, /history, /scroll-up, /scroll-down, /sessions, /config, /image <file>, /quit");
                     continue;
                 }
                 if (text.Equals("/history", StringComparison.OrdinalIgnoreCase))
@@ -181,6 +181,78 @@ internal static class TuiApp
                     else
                     {
                         chat.AddAgentMessage("No config loaded");
+                    }
+                    continue;
+                }
+
+                if (text.StartsWith("/image ", StringComparison.OrdinalIgnoreCase))
+                {
+                    var parts = text.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+                    if (parts.Length < 2)
+                    {
+                        chat.AddError("Usage: /image <file>");
+                        continue;
+                    }
+                    var path = parts[1];
+                    if (!File.Exists(path))
+                    {
+                        chat.AddError($"File not found: {path}");
+                        continue;
+                    }
+                    chat.AddUserImage(path);
+                    chat.SetTaskRunning(true);
+                    LogBridge.Emit("thinking...");
+                    var images = new[] { path };
+                    var events = providerId == "Mock"
+                        ? MockCodexAgent.RunAsync(string.Empty, images, InteractiveApp.ApprovalHandler)
+                        : RealCodexAgent.RunAsync(string.Empty,
+                            new OpenAIClient(ApiKeyManager.GetKey(ModelProviderInfo.BuiltIns[providerId]),
+                                ModelProviderInfo.BuiltIns[providerId].BaseUrl),
+                            opts.Model ?? cfg?.Model ?? "default",
+                            InteractiveApp.ApprovalHandler ?? (_ => Task.FromResult(ReviewDecision.Approved)),
+                            images);
+                    await foreach (var ev in events)
+                    {
+                        processor.ProcessEvent(ev);
+                        switch (ev)
+                        {
+                            case AgentMessageEvent am:
+                                chat.AddAgentMessage(am.Message);
+                                lastMessage = am.Message;
+                                break;
+                            case BackgroundEvent bg:
+                                chat.AddBackgroundEvent(bg.Message);
+                                LogBridge.Emit(bg.Message);
+                                break;
+                            case AgentReasoningEvent ar:
+                                if (!hideReason)
+                                {
+                                    chat.AddAgentReasoning(ar.Text);
+                                    LogBridge.Emit(ar.Text);
+                                }
+                                break;
+                            case ErrorEvent err:
+                                chat.AddError(err.Message);
+                                LogBridge.Emit(err.Message);
+                                break;
+                            case TaskCompleteEvent tc:
+                                if (tc.LastAgentMessage != null)
+                                    chat.AddAgentMessage(tc.LastAgentMessage);
+                                chat.SetTaskRunning(false);
+                                LogBridge.Emit("ready");
+                                break;
+                            case McpToolCallBeginEvent mc:
+                                chat.AddMcpToolCallBegin(mc.Server, mc.Tool, mc.ArgumentsJson);
+                                LogBridge.Emit(mc.ArgumentsJson ?? string.Empty);
+                                break;
+                            case McpToolCallEndEvent mce:
+                                if (ToolResultUtils.HasImageOutput(mce.ResultJson))
+                                    chat.AddMcpToolCallImage(mce.ResultJson);
+                                else
+                                    chat.AddMcpToolCallEnd(mce.IsSuccess, mce.ResultJson);
+                                LogBridge.Emit(mce.ResultJson);
+                                break;
+                        }
                     }
                     continue;
                 }

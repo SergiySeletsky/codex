@@ -1,7 +1,7 @@
 // C# version implemented in codex-dotnet/CodexCli/Interactive/Widgets/ChatWidget.cs
 // (focus switching, agent reasoning, background/error messages, exec command,
 // patch diff summary, mcp tool call events with image detection and
-// basic image dimension rendering, initial prompt images handled,
+// basic image dimension rendering, initial and interactive image prompts handled,
 // markdown history rendering done)
 use std::path::PathBuf;
 use std::sync::Arc;
