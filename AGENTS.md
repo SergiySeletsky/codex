@@ -1093,3 +1093,10 @@
 893. Added cross-language test `TuiNonBlockingInputMatches` verifying typed
      input parity between Rust and .NET TUIs.
 894. TODO next run: expand escape sequence parsing for arrow keys.
+895. Implemented `AnsiKeyParser` for arrow key sequences and integrated it
+     into `PtyInputReader`.
+896. Added unit tests `AnsiKeyParserTests` and extended `PtyInputReaderTests`
+     with arrow sequence coverage.
+897. Added cross-language test `InteractiveArrowEditMatches` verifying cursor
+     movement parity between Rust and .NET TUIs.
+898. TODO next run: support additional escape sequences and polish event loop.

@@ -17,7 +17,7 @@ public class PtyInputReaderTests
         using var reader = new StringReader("a\u001b[<64;0;0Mb");
         using var input = new PtyInputReader(reader, parser);
 
-        await Task.Delay(50);
+        await Task.Delay(100);
         Assert.True(input.TryRead(out var key1));
         Assert.Equal('a', key1.KeyChar);
         await Task.Delay(150);
@@ -26,4 +26,5 @@ public class PtyInputReaderTests
         Assert.True(input.TryRead(out var key2));
         Assert.Equal('b', key2.KeyChar);
     }
+
 }

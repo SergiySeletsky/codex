@@ -542,6 +542,17 @@ args = ["run", "--project", "../codex-dotnet/CodexCli", "mcp"]
         Assert.Equal(rOut, dOut);
     }
 
+    [CrossCliFact]
+    public void InteractiveArrowEditMatches()
+    {
+        var seq = "hi\u001b[Da\n/quit\n";
+        var dotnet = RunProcessWithPty("dotnet run --project ../codex-dotnet/CodexCli interactive --model-provider Mock --hide-agent-reasoning --disable-response-storage --no-project-doc", seq);
+        var rust = RunProcessWithPty("cargo run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- interactive --model-provider Mock --hide-agent-reasoning --disable-response-storage --no-project-doc", seq);
+        var dOut = AnsiEscape.StripAnsi(dotnet.stdout).Trim();
+        var rOut = AnsiEscape.StripAnsi(rust.stdout).Trim();
+        Assert.Equal(rOut, dOut);
+    }
+
     private string CreateTempImage()
     {
         var tmp = Path.GetTempFileName() + ".png";

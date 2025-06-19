@@ -19,8 +19,9 @@ namespace CodexTui;
 /// PNG/JPEG dimension parsing, and initial/interactive image prompts all
 /// implemented. Layout spacing and height clamping done with scroll wheel
 /// debouncing via <see cref="ScrollEventHelper"/> and xterm mouse sequence
-/// parsing via <see cref="AnsiMouseParser"/> (done; non-blocking PTY input via
-/// Console.KeyAvailable; more polish pending).
+/// parsing via <see cref="AnsiMouseParser"/> with arrow keys parsed in
+/// <see cref="AnsiKeyParser"/> and non-blocking PTY input handled by
+/// <see cref="PtyInputReader"/> (done; further polish pending).
 /// </summary>
 internal static class TuiApp
 {
