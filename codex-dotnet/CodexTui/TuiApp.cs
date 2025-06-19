@@ -15,7 +15,7 @@ namespace CodexTui;
 /// Mirrors codex-rs/tui/src/app.rs (login and git warning screens, slash
 /// commands, approval overlay, status indicator, history log bridging with
 /// PNG/JPEG dimension parsing, and initial/interactive image prompts all
-/// implemented. Layout polish pending).
+/// implemented. Basic layout spacing done; more polish pending).
 /// </summary>
 internal static class TuiApp
 {

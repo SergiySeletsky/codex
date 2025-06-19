@@ -2,7 +2,7 @@
 // (focus switching, agent reasoning, background/error messages, exec command,
 // patch diff summary, mcp tool call events with image detection and
 // PNG/JPEG dimension rendering, initial and interactive image prompts handled,
-// markdown history rendering done)
+// markdown history rendering and layout spacing done)
 use std::path::PathBuf;
 use std::sync::Arc;
 

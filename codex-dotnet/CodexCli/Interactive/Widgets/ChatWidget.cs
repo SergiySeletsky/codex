@@ -12,13 +12,15 @@ namespace CodexCli.Interactive;
 /// (status indicator, log bridge, agent reasoning, background/error and history entry updates done.
 /// exec command, patch diff summary, mcp tool call events with image detection
 /// and PNG/JPEG dimension rendering, initial and interactive image prompts
-/// handled, markdown history rendering, /new command clearing history done).
+/// handled, markdown history rendering, /new command clearing history and
+/// layout spacing between history and composer done).
 /// </summary>
 public class ChatWidget
 {
     private readonly ConversationHistoryWidget _history;
     private readonly BottomPane _bottomPane;
     private InputFocus _focus = InputFocus.BottomPane;
+    private const int LayoutSpacing = 1;
 
     private enum InputFocus { HistoryPane, BottomPane }
 
@@ -216,12 +218,19 @@ public class ChatWidget
     public ReviewDecision PushApprovalRequest(Event req) =>
         _bottomPane.PushApprovalRequest(req);
 
-    public void Render(int totalHeight)
+    public (int chatHeight, int bottomHeight) GetLayoutHeights(int totalHeight)
     {
         int bottomHeight = Math.Max(1, _bottomPane.CalculateRequiredHeight(totalHeight / 2));
-        int chatHeight = Math.Max(1, totalHeight - bottomHeight);
+        int chatHeight = Math.Max(1, totalHeight - bottomHeight - LayoutSpacing);
+        return (chatHeight, bottomHeight);
+    }
+
+    public void Render(int totalHeight)
+    {
+        var (chatHeight, bottomHeight) = GetLayoutHeights(totalHeight);
         foreach (var line in _history.GetVisibleLines(chatHeight))
             AnsiConsole.MarkupLine(line);
+        AnsiConsole.MarkupLine(string.Empty);
         _bottomPane.Render(bottomHeight);
     }
 }

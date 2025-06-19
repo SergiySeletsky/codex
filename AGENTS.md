@@ -1044,3 +1044,10 @@
 865. Added cross-language test `InteractiveNewMatches` verifying `/new` command
      output matches between binaries.
 866. TODO next run: refine layout spacing and continue parity checks.
+867. Implemented basic layout spacing between conversation history and composer
+     in ChatWidget and TuiApp.
+868. Updated rust and C# source comments to mark layout spacing done.
+869. Added `GetLayoutHeights` helper and blank-line rendering in ChatWidget with
+     unit test verifying the spacing logic.
+870. TODO next run: polish remaining layout details and enable more CLI parity
+     checks.

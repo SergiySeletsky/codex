@@ -219,4 +219,12 @@ public class ChatWidgetTests
         widget.ClearConversation();
         Assert.Empty(widget.GetVisibleLines(1));
     }
+
+    [Fact]
+    public void LayoutHeightsReserveSpacing()
+    {
+        var widget = new ChatWidget();
+        var (chat, bottom) = widget.GetLayoutHeights(10);
+        Assert.Equal(9 - bottom, chat); // one line spacing
+    }
 }
