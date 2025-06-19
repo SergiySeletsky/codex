@@ -970,3 +970,8 @@
      append features done.
 814. TODO next run: integrate markdown rendering into history widgets and
      continue stabilizing interactive tests.
+815. Integrated markdown rendering via `MarkdownUtils` in `ConversationHistoryWidget`
+     and `ChatWidget` so messages show rewritten citations.
+816. Added `AgentMessageMarkdownIsRewritten` unit test verifying citation rewrite.
+817. TODO next run: further stabilize interactive tests and port remaining
+     rendering helpers.

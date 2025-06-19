@@ -2,43 +2,69 @@ using System.Collections.Generic;
 using Spectre.Console;
 using CodexCli.Util;
 using CodexCli.Protocol;
+using CodexCli.Config;
 
 namespace CodexCli.Interactive;
 
 /// <summary>
 /// Very simple scrollable history log with basic formatting helpers.
 /// Mirrors codex-rs/tui/src/conversation_history_widget.rs (scrolling,
-/// message formatting, history entry helpers, exec/patch events, mcp tool calls with
-/// formatted results and diff summary done, rendering in progress).
+/// message formatting with markdown, history entry helpers, exec/patch events,
+/// mcp tool calls with formatted results and diff summary done).
 /// </summary>
 public class ConversationHistoryWidget
 {
     private readonly List<string> _entries = new();
     private int _scrollOffset = 0; // lines scrolled back from bottom
     private bool _hasInputFocus;
+    private readonly UriBasedFileOpener _fileOpener;
+    private readonly string _cwd;
+
+    public ConversationHistoryWidget(UriBasedFileOpener opener = UriBasedFileOpener.None, string? cwd = null)
+    {
+        _fileOpener = opener;
+        _cwd = cwd ?? Environment.CurrentDirectory;
+    }
 
     public void AddUserMessage(string text)
     {
-        var clean = Util.AnsiEscape.StripAnsi(text);
-        Add($"[bold cyan]You:[/] {clean}");
+        var lines = new List<string>();
+        MarkdownUtils.AppendMarkdown(Util.AnsiEscape.StripAnsi(text), lines, _fileOpener, _cwd);
+        if (lines.Count == 0)
+            lines.Add(string.Empty);
+        Add($"[bold cyan]You:[/] {Markup.Escape(lines[0])}");
+        for (int i = 1; i < lines.Count; i++)
+            Add(Markup.Escape(lines[i]));
     }
 
     public void AddAgentMessage(string text)
     {
-        var clean = Util.AnsiEscape.StripAnsi(text);
-        Add($"[bold green]Codex:[/] {clean}");
+        var lines = new List<string>();
+        MarkdownUtils.AppendMarkdown(Util.AnsiEscape.StripAnsi(text), lines, _fileOpener, _cwd);
+        if (lines.Count == 0)
+            lines.Add(string.Empty);
+        Add($"[bold green]Codex:[/] {Markup.Escape(lines[0])}");
+        for (int i = 1; i < lines.Count; i++)
+            Add(Markup.Escape(lines[i]));
     }
 
     public void AddSystemMessage(string text)
     {
-        var clean = Util.AnsiEscape.StripAnsi(text);
-        Add($"[bold yellow]System:[/] {clean}");
+        var lines = new List<string>();
+        MarkdownUtils.AppendMarkdown(Util.AnsiEscape.StripAnsi(text), lines, _fileOpener, _cwd);
+        if (lines.Count == 0)
+            lines.Add(string.Empty);
+        Add($"[bold yellow]System:[/] {Markup.Escape(lines[0])}");
+        for (int i = 1; i < lines.Count; i++)
+            Add(Markup.Escape(lines[i]));
     }
 
     public void AddAgentReasoning(string text)
     {
-        var clean = Util.AnsiEscape.StripAnsi(text);
-        Add($"[italic]{Markup.Escape(clean)}[/]");
+        var lines = new List<string>();
+        MarkdownUtils.AppendMarkdown(Util.AnsiEscape.StripAnsi(text), lines, _fileOpener, _cwd);
+        foreach (var line in lines)
+            Add($"[italic]{Markup.Escape(line)}[/]");
     }
 
     public void AddBackgroundEvent(string text)

@@ -2,6 +2,7 @@ using System;
 using Spectre.Console;
 using CodexCli.Util;
 using CodexCli.Protocol;
+using CodexCli.Config;
 
 namespace CodexCli.Interactive;
 
@@ -9,20 +10,22 @@ namespace CodexCli.Interactive;
 /// Chat widget managing conversation history and bottom pane input.
 /// Mirrors codex-rs/tui/src/chatwidget.rs
 /// (status indicator, log bridge, agent reasoning, background/error and history entry updates done.
-/// exec command, patch diff summary, mcp tool call events and result formatting done).
+/// exec command, patch diff summary, mcp tool call events, markdown history rendering done).
 /// </summary>
 public class ChatWidget
 {
-    private readonly ConversationHistoryWidget _history = new();
+    private readonly ConversationHistoryWidget _history;
     private readonly BottomPane _bottomPane;
     private InputFocus _focus = InputFocus.BottomPane;
 
     private enum InputFocus { HistoryPane, BottomPane }
 
-    public ChatWidget() : this(new AppEventSender(_ => { })) {}
+    public ChatWidget(UriBasedFileOpener opener = UriBasedFileOpener.None, string? cwd = null)
+        : this(new AppEventSender(_ => { }), opener, cwd) {}
 
-    public ChatWidget(AppEventSender sender)
+    public ChatWidget(AppEventSender sender, UriBasedFileOpener opener = UriBasedFileOpener.None, string? cwd = null)
     {
+        _history = new ConversationHistoryWidget(opener, cwd);
         _bottomPane = new BottomPane(sender, hasInputFocus: true, _history);
     }
 

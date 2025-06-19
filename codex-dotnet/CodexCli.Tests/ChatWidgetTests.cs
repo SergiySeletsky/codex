@@ -1,5 +1,6 @@
 using CodexCli.Interactive;
 using CodexCli.Protocol;
+using CodexCli.Config;
 using System.Collections.Generic;
 using Xunit;
 
@@ -37,6 +38,15 @@ public class ChatWidgetTests
         var lines = widget.GetVisibleLines(2);
         Assert.Contains("[gray]upload finished[/]", lines);
         Assert.Contains("[red]ERROR: oops[/]", lines);
+    }
+
+    [Fact]
+    public void AgentMessageMarkdownIsRewritten()
+    {
+        var widget = new ChatWidget(UriBasedFileOpener.VsCode, "/root");
+        widget.AddAgentMessage("See 【F:a.rs†L1】");
+        var line = Assert.Single(widget.GetVisibleLines(1));
+        Assert.Equal("[bold green]Codex:[/] See [[a.rs:1]](vscode://file/root/a.rs:1) ", line);
     }
 
     [Fact]

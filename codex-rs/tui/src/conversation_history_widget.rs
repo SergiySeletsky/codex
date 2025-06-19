@@ -1,6 +1,6 @@
 // C# version implemented in codex-dotnet/CodexCli/Interactive/Widgets/ConversationHistoryWidget.cs
-// (scrolling, message formatting, history entry helpers, exec/patch events,
-// mcp tool calls with result formatting and diff summary done; rendering in progress)
+// (scrolling, markdown message formatting, history entry helpers, exec/patch events,
+// mcp tool calls with result formatting and diff summary done)
 use crate::cell_widget::CellWidget;
 use crate::history_cell::CommandOutput;
 use crate::history_cell::HistoryCell;
