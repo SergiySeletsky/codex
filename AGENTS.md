@@ -983,5 +983,7 @@
      lines when `/new` is invoked.
 820. Implemented `/toggle-mouse-mode` command in `TuiApp` with new
      `MouseCapture` helper class. Updated help text and cross-file comments.
-821. TODO next run: continue stabilizing interactive tests and port remaining
-     widgets.
+821. Reinstalled .NET SDK in fresh container so `dotnet` commands work.
+     Filtered test suite now runs successfully under 1s.
+822. Ported `cell_widget.rs` as `ICellWidget` interface and `text_block.rs` as `TextBlock` class in C#. Added `TextBlockTests` verifying measurement and window rendering.
+823. TODO next run: integrate `TextBlock` with `ConversationHistoryWidget` and continue migrating `HistoryCell` logic from Rust.

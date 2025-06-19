@@ -1,3 +1,4 @@
+// C# version implemented in codex-dotnet/CodexCli/Interactive/Widgets/TextBlock.cs (done)
 use crate::cell_widget::CellWidget;
 use ratatui::prelude::*;
 
