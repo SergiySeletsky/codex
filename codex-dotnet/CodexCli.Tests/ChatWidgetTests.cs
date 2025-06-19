@@ -1,6 +1,7 @@
 using CodexCli.Interactive;
 using CodexCli.Protocol;
 using CodexCli.Config;
+using CodexCli.Util;
 using System.Collections.Generic;
 using Xunit;
 
@@ -169,9 +170,10 @@ public class ChatWidgetTests
     public void ToolImageEventIsStored()
     {
         var widget = new ChatWidget();
-        widget.AddMcpToolCallImage();
+        const string json = "{\"content\":[{\"type\":\"image\",\"data\":\"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAADUlEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==\"}]}";
+        widget.AddMcpToolCallImage(json);
         var line = Assert.Single(widget.GetVisibleLines(1));
-        Assert.Equal("[magenta]tool[/] <image output>", line);
+        Assert.Equal("[magenta]tool[/] <image 1x1>", line);
     }
 
     [Fact]

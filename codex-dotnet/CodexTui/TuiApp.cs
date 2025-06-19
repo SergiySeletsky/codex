@@ -13,7 +13,7 @@ namespace CodexTui;
 /// <summary>
 /// Initial prototype TUI host wiring the BottomPane for user input.
 /// Mirrors codex-rs/tui/src/app.rs (slash commands, status overlay and history
-/// log bridging with image result detection implemented, widgets in progress).
+/// log bridging with image dimension parsing implemented, widgets in progress).
 /// </summary>
 internal static class TuiApp
 {
@@ -192,7 +192,7 @@ internal static class TuiApp
                             break;
                         case McpToolCallEndEvent mce:
                             if (ToolResultUtils.HasImageOutput(mce.ResultJson))
-                                chat.AddMcpToolCallImage();
+                                chat.AddMcpToolCallImage(mce.ResultJson);
                             else
                                 chat.AddMcpToolCallEnd(mce.IsSuccess, mce.ResultJson);
                             LogBridge.Emit(mce.ResultJson);

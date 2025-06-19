@@ -16,4 +16,11 @@ public class ToolResultUtilsTests
         string json = "{\"content\":[{\"type\":\"text\",\"data\":\"hi\"}]}";
         Assert.False(ToolResultUtils.HasImageOutput(json));
     }
+
+    [Fact]
+    public void FormatImageInfo_ReturnsDimensions()
+    {
+        string json = "{\"content\":[{\"type\":\"image\",\"data\":\"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAADUlEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==\"}]}";
+        Assert.Equal("<image 1x1>", ToolResultUtils.FormatImageInfo(json));
+    }
 }

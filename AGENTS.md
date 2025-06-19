@@ -1000,3 +1000,11 @@
 833. Added `ToolResultUtilsTests` verifying image detection.
 834. Updated cross-file comments marking image detection done.
 835. TODO next run: improve actual image rendering and speed up cross-language tests.
+836. Added ImageSharp dependency and implemented `ToolResultUtils.FormatImageInfo`
+     to decode image dimensions.
+837. `ChatWidget` and `ConversationHistoryWidget` now display `<image WxH>` using
+     the new helper. `TuiApp` passes JSON results to render dimensions.
+838. Updated unit tests for image info parsing and widget output.
+839. Updated cross-file comments to mark basic image dimension rendering done.
+840. TODO next run: handle initial image prompts and continue porting remaining
+     widgets.

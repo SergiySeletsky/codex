@@ -1,4 +1,5 @@
 using CodexCli.Interactive;
+using CodexCli.Util;
 using Xunit;
 
 public class ConversationHistoryWidgetTests
@@ -76,9 +77,10 @@ public class ConversationHistoryWidgetTests
     public void ToolImageEvent()
     {
         var hist = new ConversationHistoryWidget();
-        hist.AddMcpToolCallImage();
+        const string json = "{\"content\":[{\"type\":\"image\",\"data\":\"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAADUlEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==\"}]}";
+        hist.AddMcpToolCallImage(ToolResultUtils.FormatImageInfo(json));
         var line = Assert.Single(hist.GetVisibleLines(1));
-        Assert.Equal("[magenta]tool[/] <image output>", line);
+        Assert.Equal("[magenta]tool[/] <image 1x1>", line);
     }
 
     [Fact]

@@ -139,9 +139,9 @@ public class ConversationHistoryWidget
         AddLines(lines, HistoryCell.CellType.ToolEnd);
     }
 
-    public void AddMcpToolCallImage()
+    public void AddMcpToolCallImage(string description)
     {
-        AddLines(new[]{"[magenta]tool[/] <image output>"}, HistoryCell.CellType.ToolImage);
+        AddLines(new[]{"[magenta]tool[/] " + description}, HistoryCell.CellType.ToolImage);
     }
 
     public void AddHistoryEntry(int offset, string text)
