@@ -4,6 +4,10 @@ using CodexCli.Config;
 
 namespace CodexCli.Util;
 
+/// <summary>
+/// Persistence layer for the global append-only message history file.
+/// Mirrors codex-rs/core/src/message_history.rs (done).
+/// </summary>
 public static class MessageHistory
 {
     private const string HistoryFile = "history.jsonl";

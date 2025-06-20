@@ -348,7 +348,7 @@ public class CrossCliCompatTests
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 
-    private (string stdout, string stderr) RunProcess(string file, string args)
+    private (string stdout, string stderr) RunProcess(string file, string args, Dictionary<string,string>? env = null)
     {
         var psi = new ProcessStartInfo(file, args)
         {
@@ -356,6 +356,9 @@ public class CrossCliCompatTests
             RedirectStandardError = true,
             UseShellExecute = false
         };
+        if (env != null)
+            foreach (var kv in env)
+                psi.Environment[kv.Key] = kv.Value;
         var p = Process.Start(psi)!;
         string stdout = p.StandardOutput.ReadToEnd();
         string stderr = p.StandardError.ReadToEnd();
@@ -363,7 +366,7 @@ public class CrossCliCompatTests
         return (stdout, stderr);
     }
 
-    private (string stdout, string stderr) RunProcessWithPty(string command, string input)
+    private (string stdout, string stderr) RunProcessWithPty(string command, string input, Dictionary<string,string>? env = null)
     {
         var escaped = command.Replace("'", "'\\''");
         var repoRoot = GitUtils.GetRepoRoot(Directory.GetCurrentDirectory())!;
@@ -375,6 +378,9 @@ public class CrossCliCompatTests
             UseShellExecute = false,
             WorkingDirectory = repoRoot
         };
+        if (env != null)
+            foreach (var kv in env)
+                psi.Environment[kv.Key] = kv.Value;
         var p = Process.Start(psi)!;
         if (!string.IsNullOrEmpty(input))
             p.StandardInput.Write(input);
@@ -481,6 +487,16 @@ args = ["run", "--project", "../codex-dotnet/CodexCli", "mcp"]
     {
         var dotnet = RunProcess("dotnet", "run --project ../codex-dotnet/CodexCli history stats --json");
         var rust = RunProcess("cargo", "run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- history stats --json");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [CrossCliFact]
+    public void HistoryCountAfterSessionMatches()
+    {
+        RunProcessWithPty("dotnet run --project ../codex-dotnet/CodexCli interactive hi --model-provider Mock --hide-agent-reasoning --disable-response-storage --no-project-doc", "/quit\n");
+        RunProcessWithPty("cargo run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- interactive hi --model-provider Mock --hide-agent-reasoning --disable-response-storage --no-project-doc", "/quit\n");
+        var dotnet = RunProcess("dotnet", "run --project ../codex-dotnet/CodexCli history messages-count");
+        var rust = RunProcess("cargo", "run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- history messages-count");
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 

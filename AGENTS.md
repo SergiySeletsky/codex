@@ -1151,3 +1151,8 @@
 931. Added cross-language test `TuiCtrlCMatches` verifying Ctrl+C behaviour in
      the TUI implementations.
 932. TODO next run: improve history persistence tests and finalize parity suite.
+933. Added `PersistenceNoneDoesNotWriteFile` unit test covering SessionManager
+     behaviour and cross-language test `HistoryCountAfterSessionMatches` to
+     verify persistent message logging parity.
+934. TODO next run: port remaining MCP utilities and stabilise the parity
+     suite.
