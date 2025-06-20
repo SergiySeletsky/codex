@@ -10,7 +10,8 @@ namespace CodexTui;
 
 /// <summary>
 /// Simple PTY input reader running on a background thread. Mirrors the
-/// crossterm event loop in codex-rs/tui/src/app.rs (done).
+/// crossterm event loop in codex-rs/tui/src/app.rs (done, paste capped
+/// and now flushed on dispose).
 /// </summary>
 public sealed class PtyInputReader : IDisposable
 {
@@ -138,5 +139,20 @@ public sealed class PtyInputReader : IDisposable
     {
         _cts.Cancel();
         try { _thread.Join(100); } catch { }
+        FlushPartialPaste();
+    }
+
+    private void FlushPartialPaste()
+    {
+        if (_inPaste || _detectPaste)
+        {
+            if (_detectPaste)
+                HandleChar('\u001b');
+            foreach (var ch in _pasteBuf.ToString())
+                HandleChar(ch);
+            _pasteBuf.Clear();
+            _inPaste = false;
+            _detectPaste = false;
+        }
     }
 }

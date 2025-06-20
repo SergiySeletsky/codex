@@ -76,4 +76,21 @@ public class PtyInputReaderTests
         while (input.TryRead(out _)) count++;
         Assert.True(count >= PtyInputReader.MaxPasteLength);
     }
+
+    [Fact]
+    public async Task FlushesPartialPasteOnDispose()
+    {
+        var helper = new ScrollEventHelper(new AppEventSender(_ => { }));
+        var parser = new AnsiMouseParser(helper);
+        var reader = new StringReader("\u001b[200~abc");
+        var input = new PtyInputReader(reader, parser);
+
+        await Task.Delay(100);
+        input.Dispose();
+
+        var chars = new List<char>();
+        while (input.TryRead(out var key))
+            chars.Add(key.KeyChar);
+        Assert.Equal(new[] { 'a', 'b', 'c' }, chars);
+    }
 }

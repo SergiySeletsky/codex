@@ -1119,3 +1119,9 @@
 911. Implemented `MaxPasteLength` in `PtyInputReader` to limit buffered paste text.
 912. Unskipped `InteractivePasteMatches` and added `PasteBufferIsCapped` test.
 913. TODO next run: polish paste flushing behaviour and expand CLI parity.
+914. Added partial paste buffer flush on dispose in `PtyInputReader` and marked
+     Rust comment accordingly.
+915. Added unit test `FlushesPartialPasteOnDispose` and cross-language test
+     `InteractiveInvalidPasteMatches` validating fallback behaviour.
+916. TODO next run: finish paste integration polish and revisit event loop
+     optimizations.
