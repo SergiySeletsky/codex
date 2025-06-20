@@ -1,6 +1,6 @@
 // C# version implemented in codex-dotnet/CodexCli/Interactive/Widgets/ChatComposer.cs
 // (typed input, popup logic, history hook, bracketed paste, Shift+Enter newline
-// and Ctrl+D exit/Ctrl+C interrupt handling done)
+// and Ctrl+D exit/Ctrl+C interrupt forwarding done)
 use crossterm::event::KeyEvent;
 use ratatui::buffer::Buffer;
 use ratatui::layout::Alignment;

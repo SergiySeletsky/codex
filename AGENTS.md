@@ -1139,4 +1139,8 @@
      handling in `TuiApp` with matching status comments.
 925. Added cross-language test `InteractiveCtrlDMatches` verifying exit
      behaviour.
-926. TODO next run: forward interrupt operations to the agent and refine tests.
+926. Forwarded Ctrl+C interrupts to active agents using cancellation tokens and
+     updated both C# and Rust comments.
+927. Added unit test `MockCodexAgentInterrupted` and cross-language test
+     `InteractiveCtrlCMatches` verifying interrupt parity.
+928. TODO next run: polish cancellation behaviour and expand CLI parity tests.
