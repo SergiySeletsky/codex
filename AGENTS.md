@@ -1161,3 +1161,5 @@
 937. TODO next run: expand MCP client tests and finalize parity suite.
 938. Added McpClient handshake unit test verifying StartAsync communication.
 939. TODO next run: cover additional MCP client APIs with tests.
+940. Added McpClient ListRootsAsync and ListToolsAsync tests verifying results.
+941. TODO next run: finalize MCP client parity and expand CLI coverage.

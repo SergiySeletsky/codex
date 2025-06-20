@@ -1,7 +1,7 @@
 //! A minimal async client for the Model Context Protocol (MCP).
 //!
 //! C# port implemented in `codex-dotnet/CodexCli/Util/McpClient.cs`
-//! (process handshake unit tested)
+//! (handshake, list-roots and list-tools tests)
 //!
 //! The client is intentionally lightweight – it is only capable of:
 //!   1. Spawning a subprocess that launches a conforming MCP server that
