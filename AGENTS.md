@@ -1125,3 +1125,9 @@
      `InteractiveInvalidPasteMatches` validating fallback behaviour.
 916. TODO next run: finish paste integration polish and revisit event loop
      optimizations.
+917. Added timed flush for partial paste sequences in `PtyInputReader` and
+     exposed `HasPendingKeys` helper.
+918. Updated Rust comments to note timeout flushing and updated status comment
+     in `PtyInputReader`.
+919. Added unit test `FlushesPartialPasteOnTimeout` verifying the new logic.
+920. TODO next run: profile event loop CPU usage and consider async reads.

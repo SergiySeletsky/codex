@@ -11,7 +11,7 @@ namespace CodexTui;
 /// <summary>
 /// Simple PTY input reader running on a background thread. Mirrors the
 /// crossterm event loop in codex-rs/tui/src/app.rs (done, paste capped
-/// and now flushed on dispose).
+/// and flushed on dispose with timeout handling).
 /// </summary>
 public sealed class PtyInputReader : IDisposable
 {
@@ -26,6 +26,10 @@ public sealed class PtyInputReader : IDisposable
     private readonly ConcurrentQueue<ConsoleKeyInfo> _keys = new();
     private readonly CancellationTokenSource _cts = new();
     private readonly Thread _thread;
+    private DateTime _lastInput = DateTime.UtcNow;
+
+    /// <summary>Milliseconds to wait before flushing a partial paste.</summary>
+    public const int PartialPasteTimeoutMs = 250;
 
     public PtyInputReader(TextReader reader, AnsiMouseParser parser)
     {
@@ -44,6 +48,7 @@ public sealed class PtyInputReader : IDisposable
                 int ch = _reader.Read();
                 if (ch == -1)
                     break;
+                _lastInput = DateTime.UtcNow;
                 char c = (char)ch;
 
                 if (_inPaste)
@@ -133,7 +138,26 @@ public sealed class PtyInputReader : IDisposable
         _keys.Enqueue(new ConsoleKeyInfo(c, ConsoleKey.NoName, false, false, false));
     }
 
-    public bool TryRead(out ConsoleKeyInfo key) => _keys.TryDequeue(out key);
+    public bool TryRead(out ConsoleKeyInfo key)
+    {
+        if (_keys.IsEmpty && (_inPaste || _detectPaste) &&
+            (DateTime.UtcNow - _lastInput).TotalMilliseconds > PartialPasteTimeoutMs)
+        {
+            FlushPartialPaste();
+        }
+        return _keys.TryDequeue(out key);
+    }
+
+    public bool HasPendingKeys
+    {
+        get
+        {
+            if (_keys.IsEmpty && (_inPaste || _detectPaste) &&
+                (DateTime.UtcNow - _lastInput).TotalMilliseconds > PartialPasteTimeoutMs)
+                FlushPartialPaste();
+            return !_keys.IsEmpty;
+        }
+    }
 
     public void Dispose()
     {
@@ -153,6 +177,7 @@ public sealed class PtyInputReader : IDisposable
             _pasteBuf.Clear();
             _inPaste = false;
             _detectPaste = false;
+            _lastInput = DateTime.UtcNow;
         }
     }
 }

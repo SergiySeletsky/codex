@@ -93,4 +93,19 @@ public class PtyInputReaderTests
             chars.Add(key.KeyChar);
         Assert.Equal(new[] { 'a', 'b', 'c' }, chars);
     }
+
+    [Fact]
+    public async Task FlushesPartialPasteOnTimeout()
+    {
+        var helper = new ScrollEventHelper(new AppEventSender(_ => { }));
+        var parser = new AnsiMouseParser(helper);
+        using var reader = new StringReader("\u001b[200~abc");
+        using var input = new PtyInputReader(reader, parser);
+
+        await Task.Delay(PtyInputReader.PartialPasteTimeoutMs + 150);
+        var chars = new List<char>();
+        while (input.TryRead(out var key))
+            chars.Add(key.KeyChar);
+        Assert.Equal(new[] { 'a', 'b', 'c' }, chars);
+    }
 }
