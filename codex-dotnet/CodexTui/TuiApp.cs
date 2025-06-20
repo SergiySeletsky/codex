@@ -18,7 +18,14 @@ namespace CodexTui;
 /// commands, approval overlay, status indicator, history log bridging with
 /// PNG/JPEG dimension parsing, and initial/interactive image prompts all
 /// implemented. Layout spacing and height clamping done with scroll wheel
-/// debouncing via <see cref="ScrollEventHelper"/>; more polish pending).
+/// debouncing via <see cref="ScrollEventHelper"/> and xterm mouse sequence
+/// parsing via <see cref="AnsiMouseParser"/> with arrow and navigation keys parsed in
+/// <see cref="AnsiKeyParser"/> and non-blocking PTY input handled by
+/// <see cref="PtyInputReader"/> (now async) with bracketed paste enabled via
+/// <see cref="BracketedPasteCapture"/> and a paste buffer capped at
+/// <see cref="PtyInputReader.MaxPasteLength"/> characters. Handles Ctrl+C
+/// interrupts via <see cref="SignalUtils.NotifyOnSigInt"/> forwarding
+/// cancellation to active agents and exits on Ctrl+D (done).
 /// </summary>
 internal static class TuiApp
 {
@@ -28,8 +35,13 @@ internal static class TuiApp
         var sender = new AppEventSender(ev => queue.Enqueue(ev));
         var chat = new ChatWidget(sender);
         var scrollHelper = new ScrollEventHelper(sender);
+        var mouseParser = new AnsiMouseParser(scrollHelper);
         using var mouse = new MouseCapture(!(cfg?.Tui.DisableMouseCapture ?? false));
+        using var paste = new BracketedPasteCapture(true);
+        using var input = new PtyInputReader(Console.In, mouseParser);
+        using var ctrlC = SignalUtils.NotifyOnSigInt();
         LogBridge.LatestLog += chat.UpdateLatestLog;
+        CancellationTokenSource? agentCts = null;
 
         var sessionId = SessionManager.CreateSession();
         var history = new List<string>();
@@ -59,14 +71,16 @@ internal static class TuiApp
             chat.SetTaskRunning(true);
             LogBridge.Emit("thinking...");
             var images = opts.Images.Select(i => i.FullName).ToArray();
+            agentCts = new CancellationTokenSource();
             var events = providerId == "Mock"
-                ? MockCodexAgent.RunAsync(opts.Prompt ?? string.Empty, images, InteractiveApp.ApprovalHandler)
+                ? MockCodexAgent.RunAsync(opts.Prompt ?? string.Empty, images, InteractiveApp.ApprovalHandler, agentCts.Token)
                 : RealCodexAgent.RunAsync(opts.Prompt ?? string.Empty,
                     new OpenAIClient(ApiKeyManager.GetKey(ModelProviderInfo.BuiltIns[providerId]),
                         ModelProviderInfo.BuiltIns[providerId].BaseUrl),
                     opts.Model ?? cfg?.Model ?? "default",
                     InteractiveApp.ApprovalHandler ?? (_ => Task.FromResult(ReviewDecision.Approved)),
-                    images);
+                    images,
+                    agentCts.Token);
             await foreach (var ev in events)
             {
                 processor.ProcessEvent(ev);
@@ -108,8 +122,10 @@ internal static class TuiApp
                             chat.AddMcpToolCallEnd(mce.IsSuccess, mce.ResultJson);
                         LogBridge.Emit(mce.ResultJson);
                         break;
-                }
             }
+            agentCts.Dispose();
+            agentCts = null;
+        }
         }
 
         InteractiveApp.ApprovalHandler = ev => Task.FromResult(chat.PushApprovalRequest(ev));
@@ -118,6 +134,11 @@ internal static class TuiApp
         {
         while (true)
         {
+            if (ctrlC.IsCancellationRequested)
+            {
+                agentCts?.Cancel();
+                break;
+            }
             bool scrolled = false;
             while (queue.TryDequeue(out var ev))
             {
@@ -130,7 +151,26 @@ internal static class TuiApp
             if (scrolled)
                 chat.Render(Console.WindowHeight);
 
-            var key = Console.ReadKey(intercept: true);
+            if (!input.TryRead(out var key))
+            {
+                await Task.Delay(10);
+                continue;
+            }
+
+            if (key.Modifiers == ConsoleModifiers.Control && key.Key == ConsoleKey.C)
+            {
+                chat.AddSystemMessage("Interrupted");
+                agentCts?.Cancel();
+                continue;
+            }
+            if ((key.Modifiers == ConsoleModifiers.Control && key.Key == ConsoleKey.D) || key.KeyChar == '\u0004')
+            {
+                break;
+            }
+
+            if (mouseParser.ProcessChar(key.KeyChar))
+                continue;
+
             var res = chat.HandleKeyEvent(key);
             chat.Render(Console.WindowHeight);
             if (res.IsSubmitted)
@@ -221,15 +261,17 @@ internal static class TuiApp
                     chat.SetTaskRunning(true);
                     LogBridge.Emit("thinking...");
                     var images = new[] { path };
-                    var events = providerId == "Mock"
-                        ? MockCodexAgent.RunAsync(string.Empty, images, InteractiveApp.ApprovalHandler)
+                    agentCts = new CancellationTokenSource();
+                    var imageEvents = providerId == "Mock"
+                        ? MockCodexAgent.RunAsync(string.Empty, images, InteractiveApp.ApprovalHandler, agentCts.Token)
                         : RealCodexAgent.RunAsync(string.Empty,
                             new OpenAIClient(ApiKeyManager.GetKey(ModelProviderInfo.BuiltIns[providerId]),
                                 ModelProviderInfo.BuiltIns[providerId].BaseUrl),
                             opts.Model ?? cfg?.Model ?? "default",
                             InteractiveApp.ApprovalHandler ?? (_ => Task.FromResult(ReviewDecision.Approved)),
-                            images);
-                    await foreach (var ev in events)
+                            images,
+                            agentCts.Token);
+            await foreach (var ev in imageEvents)
                     {
                         processor.ProcessEvent(ev);
                         switch (ev)
@@ -272,6 +314,8 @@ internal static class TuiApp
                                 break;
                         }
                     }
+                    agentCts.Dispose();
+                    agentCts = null;
                     continue;
                 }
 
@@ -281,13 +325,16 @@ internal static class TuiApp
                 chat.SetTaskRunning(true);
                 LogBridge.Emit("thinking...");
 
+                agentCts = new CancellationTokenSource();
                 var events = providerId == "Mock"
-                    ? MockCodexAgent.RunAsync(text, Array.Empty<string>(), InteractiveApp.ApprovalHandler)
+                    ? MockCodexAgent.RunAsync(text, Array.Empty<string>(), InteractiveApp.ApprovalHandler, agentCts.Token)
                     : RealCodexAgent.RunAsync(text,
                         new OpenAIClient(ApiKeyManager.GetKey(ModelProviderInfo.BuiltIns[providerId]),
                             ModelProviderInfo.BuiltIns[providerId].BaseUrl),
                         opts.Model ?? cfg?.Model ?? "default",
-                        InteractiveApp.ApprovalHandler ?? (_ => Task.FromResult(ReviewDecision.Approved)));
+                        InteractiveApp.ApprovalHandler ?? (_ => Task.FromResult(ReviewDecision.Approved)),
+                        Array.Empty<string>(),
+                        agentCts.Token);
 
                 await foreach (var ev in events)
                 {
@@ -363,6 +410,8 @@ internal static class TuiApp
                             break;
                     }
                 }
+                agentCts.Dispose();
+                agentCts = null;
 
                 if (chat.HasActiveView)
                 {
@@ -371,6 +420,7 @@ internal static class TuiApp
             }
 
             chat.Render(Console.WindowHeight);
+        }
         }
         finally
         {

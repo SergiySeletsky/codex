@@ -68,4 +68,19 @@ public class SessionManagerTests
         Assert.Equal("second", entry);
         CodexCli.Util.SessionManager.DeleteSession(id);
     }
+
+    [Fact]
+    public void PersistenceNoneDoesNotWriteFile()
+    {
+        CodexCli.Util.SessionManager.SetPersistence(CodexCli.Config.HistoryPersistence.None);
+        var id = CodexCli.Util.SessionManager.CreateSession();
+        CodexCli.Util.SessionManager.AddEntry(id, "hi");
+        var file = CodexCli.Util.SessionManager.GetHistoryFile(id);
+        Assert.False(File.Exists(file));
+        var hist = CodexCli.Util.SessionManager.GetHistory(id);
+        Assert.Single(hist);
+        Assert.Equal("hi", hist[0]);
+        CodexCli.Util.SessionManager.DeleteSession(id);
+        CodexCli.Util.SessionManager.SetPersistence(CodexCli.Config.HistoryPersistence.SaveAll);
+    }
 }

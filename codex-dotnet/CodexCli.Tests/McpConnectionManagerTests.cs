@@ -31,4 +31,26 @@ public class McpConnectionManagerTests
         Assert.Contains("a", names);
         Assert.Contains("b", names);
     }
+
+    [Fact]
+    public void ListAllToolsAggregates()
+    {
+        var mgr = (McpConnectionManager)Activator.CreateInstance(typeof(McpConnectionManager), true)!;
+        var field = typeof(McpConnectionManager).GetField("_tools", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
+        var tool = new Tool("codex", new ToolInputSchema(null, null, "object"), null, null);
+        field.SetValue(mgr, new Dictionary<string, Tool> { { "srv__OAI_CODEX_MCP__codex", tool } });
+        var all = mgr.ListAllTools();
+        Assert.Single(all);
+        Assert.Equal("codex", all["srv__OAI_CODEX_MCP__codex"].Name);
+    }
+
+    [Fact]
+    public void GetToolNamesReturnsKeys()
+    {
+        var mgr = (McpConnectionManager)Activator.CreateInstance(typeof(McpConnectionManager), true)!;
+        var field = typeof(McpConnectionManager).GetField("_tools", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
+        field.SetValue(mgr, new Dictionary<string, Tool> { { "srv__OAI_CODEX_MCP__codex", new Tool("codex", new ToolInputSchema(null, null, "object"), null, null) } });
+        var names = mgr.GetToolNames().ToList();
+        Assert.Contains("srv__OAI_CODEX_MCP__codex", names);
+    }
 }

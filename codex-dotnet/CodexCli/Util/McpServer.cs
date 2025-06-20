@@ -7,6 +7,10 @@ using CodexCli.Protocol;
 
 namespace CodexCli.Util;
 
+/// <summary>
+/// Mirrors codex-rs/mcp-server/src/message_processor.rs (done; ping and
+/// event stream endpoints tested).
+/// </summary>
 public class McpServer : IDisposable, IAsyncDisposable
 {
     private readonly HttpListener _listener = new();

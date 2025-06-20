@@ -28,4 +28,16 @@ public class ChatComposerEditingTests
         Assert.True(res.IsSubmitted);
         Assert.Equal("i", res.SubmittedText);
     }
+
+    [Fact]
+    public void ShiftEnterInsertsNewline()
+    {
+        var composer = new ChatComposer(true, new AppEventSender(_ => { }));
+        composer.HandleKeyEvent(new ConsoleKeyInfo('h', ConsoleKey.H, false, false, false));
+        composer.HandleKeyEvent(new ConsoleKeyInfo('\n', ConsoleKey.Enter, true, false, false));
+        composer.HandleKeyEvent(new ConsoleKeyInfo('i', ConsoleKey.I, false, false, false));
+        var (res, _) = composer.HandleKeyEvent(new ConsoleKeyInfo('\n', ConsoleKey.Enter, false, false, false));
+        Assert.True(res.IsSubmitted);
+        Assert.Equal("h\ni", res.SubmittedText);
+    }
 }

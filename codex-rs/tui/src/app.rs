@@ -2,7 +2,12 @@
 // (login screen, git warning, slash commands, approval overlay, status
 // indicator, PNG/JPEG dimension parsing and initial + interactive image prompts
 // all done; layout spacing and height clamping done with scroll wheel
-// debouncing via ScrollEventHelper, further polish pending)
+// debouncing via ScrollEventHelper, further polish pending. Mouse wheel
+// escape sequence parsing ported in codex-dotnet/CodexCli/Interactive/AnsiMouseParser.cs (done)
+// non-blocking PTY input mirrored in codex-dotnet/CodexTui/PtyInputReader.cs (done, async with paste cap and timeout flush)
+// key escape parsing ported in codex-dotnet/CodexCli/Interactive/AnsiKeyParser.cs (done)
+// Ctrl+C interrupt forwarded to the codex and Ctrl+D exit handling added
+// in the C# version (done)
 use crate::app_event::AppEvent;
 use crate::app_event_sender::AppEventSender;
 use crate::chatwidget::ChatWidget;
@@ -99,6 +104,7 @@ impl<'a> App<'a> {
                         }) => {
                             scroll_event_helper.scroll_down();
                         }
+                        // mirrored in codex-dotnet/CodexTui/PtyInputReader.cs (done, paste capped and flushed)
                         crossterm::event::Event::Paste(pasted) => {
                             use crossterm::event::KeyModifiers;
 

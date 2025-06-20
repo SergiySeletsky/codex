@@ -59,6 +59,28 @@ public class CrossCliCompatTests
     }
 
     [CrossCliFact]
+    public void TuiCtrlDMatches()
+    {
+        var input = "\u0004";
+        var dotnet = RunProcessWithPty("dotnet run --project ../codex-dotnet/CodexTui --skip-git-repo-check --model-provider Mock", input);
+        var rust = RunProcessWithPty("cargo run --quiet --manifest-path ../../codex-rs/tui/Cargo.toml -- -c model_provider=Mock --skip-git-repo-check", input);
+        var dOut = AnsiEscape.StripAnsi(dotnet.stdout).Trim();
+        var rOut = AnsiEscape.StripAnsi(rust.stdout).Trim();
+        Assert.Equal(rOut, dOut);
+    }
+
+    [CrossCliFact]
+    public void TuiCtrlCMatches()
+    {
+        var input = "hi\n\u0003/quit\n";
+        var dotnet = RunProcessWithPty("dotnet run --project ../codex-dotnet/CodexTui --skip-git-repo-check --model-provider Mock", input);
+        var rust = RunProcessWithPty("cargo run --quiet --manifest-path ../../codex-rs/tui/Cargo.toml -- -c model_provider=Mock --skip-git-repo-check", input);
+        var dOut = AnsiEscape.StripAnsi(dotnet.stdout).Trim();
+        var rOut = AnsiEscape.StripAnsi(rust.stdout).Trim();
+        Assert.Equal(rOut, dOut);
+    }
+
+    [CrossCliFact]
     public void TuiConfigMatches()
     {
         var input = "/config\n/quit\n";
@@ -96,6 +118,28 @@ public class CrossCliCompatTests
     {
         var dotnet = RunProcessWithPty("dotnet run --project ../codex-dotnet/CodexCli interactive hi --model-provider Mock --hide-agent-reasoning --disable-response-storage --no-project-doc", "/quit\n");
         var rust = RunProcessWithPty("cargo run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- interactive hi --model-provider Mock --hide-agent-reasoning --disable-response-storage --no-project-doc", "/quit\n");
+        var dOut = AnsiEscape.StripAnsi(dotnet.stdout).Trim();
+        var rOut = AnsiEscape.StripAnsi(rust.stdout).Trim();
+        Assert.Equal(rOut, dOut);
+    }
+
+    [CrossCliFact]
+    public void InteractiveCtrlDMatches()
+    {
+        var seq = "\u0004";
+        var dotnet = RunProcessWithPty("dotnet run --project ../codex-dotnet/CodexCli interactive hi --model-provider Mock --hide-agent-reasoning --disable-response-storage --no-project-doc", seq);
+        var rust = RunProcessWithPty("cargo run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- interactive hi --model-provider Mock --hide-agent-reasoning --disable-response-storage --no-project-doc", seq);
+        var dOut = AnsiEscape.StripAnsi(dotnet.stdout).Trim();
+        var rOut = AnsiEscape.StripAnsi(rust.stdout).Trim();
+        Assert.Equal(rOut, dOut);
+    }
+
+    [CrossCliFact]
+    public void InteractiveCtrlCMatches()
+    {
+        var seq = "hi\n\u0003/quit\n";
+        var dotnet = RunProcessWithPty("dotnet run --project ../codex-dotnet/CodexCli interactive --model-provider Mock --hide-agent-reasoning --disable-response-storage --no-project-doc", seq);
+        var rust = RunProcessWithPty("cargo run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- interactive --model-provider Mock --hide-agent-reasoning --disable-response-storage --no-project-doc", seq);
         var dOut = AnsiEscape.StripAnsi(dotnet.stdout).Trim();
         var rOut = AnsiEscape.StripAnsi(rust.stdout).Trim();
         Assert.Equal(rOut, dOut);
@@ -304,7 +348,7 @@ public class CrossCliCompatTests
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 
-    private (string stdout, string stderr) RunProcess(string file, string args)
+    private (string stdout, string stderr) RunProcess(string file, string args, Dictionary<string,string>? env = null)
     {
         var psi = new ProcessStartInfo(file, args)
         {
@@ -312,6 +356,9 @@ public class CrossCliCompatTests
             RedirectStandardError = true,
             UseShellExecute = false
         };
+        if (env != null)
+            foreach (var kv in env)
+                psi.Environment[kv.Key] = kv.Value;
         var p = Process.Start(psi)!;
         string stdout = p.StandardOutput.ReadToEnd();
         string stderr = p.StandardError.ReadToEnd();
@@ -319,7 +366,7 @@ public class CrossCliCompatTests
         return (stdout, stderr);
     }
 
-    private (string stdout, string stderr) RunProcessWithPty(string command, string input)
+    private (string stdout, string stderr) RunProcessWithPty(string command, string input, Dictionary<string,string>? env = null)
     {
         var escaped = command.Replace("'", "'\\''");
         var repoRoot = GitUtils.GetRepoRoot(Directory.GetCurrentDirectory())!;
@@ -331,6 +378,9 @@ public class CrossCliCompatTests
             UseShellExecute = false,
             WorkingDirectory = repoRoot
         };
+        if (env != null)
+            foreach (var kv in env)
+                psi.Environment[kv.Key] = kv.Value;
         var p = Process.Start(psi)!;
         if (!string.IsNullOrEmpty(input))
             p.StandardInput.Write(input);
@@ -409,6 +459,30 @@ args = ["run", "--project", "../codex-dotnet/CodexCli", "mcp"]
     }
 
     [CrossCliFact]
+    public void McpClientPingMatches()
+    {
+        var dotnet = RunProcess("dotnet", "run --project ../codex-dotnet/CodexCli mcp-client dotnet --project ../codex-dotnet/CodexCli mcp --ping");
+        var rust = RunProcess("cargo", "run --quiet --manifest-path ../../codex-rs/mcp-client/Cargo.toml -- cargo run --quiet --manifest-path ../../codex-rs/mcp-server/Cargo.toml");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [CrossCliFact]
+    public void McpClientListToolsMatches()
+    {
+        var dotnet = RunProcess("dotnet", "run --project ../codex-dotnet/CodexCli mcp-client dotnet --project ../codex-dotnet/CodexCli mcp");
+        var rust = RunProcess("cargo", "run --quiet --manifest-path ../../codex-rs/mcp-client/Cargo.toml -- cargo run --quiet --manifest-path ../../codex-rs/mcp-server/Cargo.toml");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [CrossCliFact]
+    public void McpClientListRootsMatches()
+    {
+        var dotnet = RunProcess("dotnet", "run --project ../codex-dotnet/CodexCli mcp-client dotnet --project ../codex-dotnet/CodexCli mcp --list-roots --json");
+        var rust = RunProcess("cargo", "run --quiet --manifest-path ../../codex-rs/mcp-client/Cargo.toml -- cargo run --quiet --manifest-path ../../codex-rs/mcp-server/Cargo.toml --list-roots --json");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [CrossCliFact]
     public void HistoryMessagesCountJsonMatches()
     {
         var dotnet = RunProcess("dotnet", "run --project ../codex-dotnet/CodexCli history messages-count --json");
@@ -437,6 +511,16 @@ args = ["run", "--project", "../codex-dotnet/CodexCli", "mcp"]
     {
         var dotnet = RunProcess("dotnet", "run --project ../codex-dotnet/CodexCli history stats --json");
         var rust = RunProcess("cargo", "run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- history stats --json");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [CrossCliFact]
+    public void HistoryCountAfterSessionMatches()
+    {
+        RunProcessWithPty("dotnet run --project ../codex-dotnet/CodexCli interactive hi --model-provider Mock --hide-agent-reasoning --disable-response-storage --no-project-doc", "/quit\n");
+        RunProcessWithPty("cargo run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- interactive hi --model-provider Mock --hide-agent-reasoning --disable-response-storage --no-project-doc", "/quit\n");
+        var dotnet = RunProcess("dotnet", "run --project ../codex-dotnet/CodexCli history messages-count");
+        var rust = RunProcess("cargo", "run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- history messages-count");
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 
@@ -515,6 +599,72 @@ args = ["run", "--project", "../codex-dotnet/CodexCli", "mcp"]
         var input = $"/image {path}\n/quit\n";
         var dotnet = RunProcessWithPty($"dotnet run --project ../codex-dotnet/CodexTui --skip-git-repo-check --model-provider Mock", input);
         var rust = RunProcessWithPty($"cargo run --quiet --manifest-path ../../codex-rs/tui/Cargo.toml -- --skip-git-repo-check -c model_provider=Mock", input);
+        var dOut = AnsiEscape.StripAnsi(dotnet.stdout).Trim();
+        var rOut = AnsiEscape.StripAnsi(rust.stdout).Trim();
+        Assert.Equal(rOut, dOut);
+    }
+
+    [CrossCliFact]
+    public void TuiMouseWheelMatches()
+    {
+        var seq = "\u001b[<64;0;0M\u001b[<65;0;0M/quit\n";
+        var dotnet = RunProcessWithPty($"dotnet run --project ../codex-dotnet/CodexTui --skip-git-repo-check --model-provider Mock", seq);
+        var rust = RunProcessWithPty($"cargo run --quiet --manifest-path ../../codex-rs/tui/Cargo.toml -- --skip-git-repo-check -c model_provider=Mock", seq);
+        var dOut = AnsiEscape.StripAnsi(dotnet.stdout).Trim();
+        var rOut = AnsiEscape.StripAnsi(rust.stdout).Trim();
+        Assert.Equal(rOut, dOut);
+    }
+
+    [CrossCliFact]
+    public void TuiNonBlockingInputMatches()
+    {
+        var input = "hello\n/quit\n";
+        var dotnet = RunProcessWithPty($"dotnet run --project ../codex-dotnet/CodexTui --skip-git-repo-check --model-provider Mock", input);
+        var rust = RunProcessWithPty($"cargo run --quiet --manifest-path ../../codex-rs/tui/Cargo.toml -- --skip-git-repo-check -c model_provider=Mock", input);
+        var dOut = AnsiEscape.StripAnsi(dotnet.stdout).Trim();
+        var rOut = AnsiEscape.StripAnsi(rust.stdout).Trim();
+        Assert.Equal(rOut, dOut);
+    }
+
+    [CrossCliFact]
+    public void InteractiveArrowEditMatches()
+    {
+        var seq = "hi\u001b[Da\n/quit\n";
+        var dotnet = RunProcessWithPty("dotnet run --project ../codex-dotnet/CodexCli interactive --model-provider Mock --hide-agent-reasoning --disable-response-storage --no-project-doc", seq);
+        var rust = RunProcessWithPty("cargo run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- interactive --model-provider Mock --hide-agent-reasoning --disable-response-storage --no-project-doc", seq);
+        var dOut = AnsiEscape.StripAnsi(dotnet.stdout).Trim();
+        var rOut = AnsiEscape.StripAnsi(rust.stdout).Trim();
+        Assert.Equal(rOut, dOut);
+    }
+
+    [CrossCliFact]
+    public void InteractiveHomeEndMatches()
+    {
+        var seq = "hi\u001b[Ha\u001b[Fb\n/quit\n";
+        var dotnet = RunProcessWithPty("dotnet run --project ../codex-dotnet/CodexCli interactive --model-provider Mock --hide-agent-reasoning --disable-response-storage --no-project-doc", seq);
+        var rust = RunProcessWithPty("cargo run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- interactive --model-provider Mock --hide-agent-reasoning --disable-response-storage --no-project-doc", seq);
+        var dOut = AnsiEscape.StripAnsi(dotnet.stdout).Trim();
+        var rOut = AnsiEscape.StripAnsi(rust.stdout).Trim();
+        Assert.Equal(rOut, dOut);
+    }
+
+    [Fact]
+    public void InteractivePasteMatches()
+    {
+        var seq = "\u001b[200~hi\nthere\u001b[201~\n/quit\n";
+        var dotnet = RunProcessWithPty("dotnet run --project ../codex-dotnet/CodexCli interactive --model-provider Mock --hide-agent-reasoning --disable-response-storage --no-project-doc", seq);
+        var rust = RunProcessWithPty("cargo run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- interactive --model-provider Mock --hide-agent-reasoning --disable-response-storage --no-project-doc", seq);
+        var dOut = AnsiEscape.StripAnsi(dotnet.stdout).Trim();
+        var rOut = AnsiEscape.StripAnsi(rust.stdout).Trim();
+        Assert.Equal(rOut, dOut);
+    }
+
+    [CrossCliFact]
+    public void InteractiveInvalidPasteMatches()
+    {
+        var seq = "\u001b[200Xab\n/quit\n";
+        var dotnet = RunProcessWithPty("dotnet run --project ../codex-dotnet/CodexCli interactive --model-provider Mock --hide-agent-reasoning --disable-response-storage --no-project-doc", seq);
+        var rust = RunProcessWithPty("cargo run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- interactive --model-provider Mock --hide-agent-reasoning --disable-response-storage --no-project-doc", seq);
         var dOut = AnsiEscape.StripAnsi(dotnet.stdout).Trim();
         var rOut = AnsiEscape.StripAnsi(rust.stdout).Trim();
         Assert.Equal(rOut, dOut);

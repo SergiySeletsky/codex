@@ -1069,3 +1069,109 @@
      source comments. Added ChatWidget.HandleScrollDelta with unit test.
 881. TODO next run: parse real terminal mouse sequences and finish scroll
      integration polish.
+882. Added `AnsiMouseParser` to decode xterm mouse wheel sequences and wired it
+     into `TuiApp` so real scroll events feed `ScrollEventHelper`.
+883. Updated `app.rs` comment referencing the C# parser and marked the feature
+     done.
+884. Created `AnsiMouseParserTests` and integration test ensuring scroll events
+     are emitted correctly.
+885. Added cross-language test `TuiMouseWheelMatches` verifying wheel sequence
+     parity between Rust and .NET TUIs.
+886. TODO next run: refine PTY input handling and continue polishing TUI event
+     loop.
+887. Updated `AnsiMouseParser` to dispatch scroll events via `ScrollEventHelper`
+     and return `bool` when sequences are consumed.
+888. Revised unit test to assert scroll event emission and enabled it.
+889. Documented PTY input reader improvements as next step.
+890. Fixed TuiApp build by closing try block and referencing CodexCli project
+     without linked sources. Renamed local variables and stabilized
+     `AnsiMouseParserTests`.
+891. Implemented `PtyInputReader` for non-blocking console input and integrated
+     it into `TuiApp`. Updated source comments referencing Rust event loop.
+892. Revised `AnsiMouseParserTests` to verify emitted scroll events and added
+     `PtyInputReaderTests` ensuring normal characters propagate.
+893. Added cross-language test `TuiNonBlockingInputMatches` verifying typed
+     input parity between Rust and .NET TUIs.
+894. TODO next run: expand escape sequence parsing for arrow keys.
+895. Implemented `AnsiKeyParser` for arrow key sequences and integrated it
+     into `PtyInputReader`.
+896. Added unit tests `AnsiKeyParserTests` and extended `PtyInputReaderTests`
+     with arrow sequence coverage.
+897. Added cross-language test `InteractiveArrowEditMatches` verifying cursor
+     movement parity between Rust and .NET TUIs.
+898. TODO next run: support additional escape sequences and polish event loop.
+899. Added Home/End/Delete/PageUp/PageDown parsing in `AnsiKeyParser` and wired
+     it through `PtyInputReader`.
+900. Updated unit tests to cover the new key sequences and `PtyInputReader`
+     behaviour.
+901. Added cross-language test `InteractiveHomeEndMatches` ensuring parity for
+     Home/End editing.
+902. TODO next run: handle paste events and continue event loop polish.
+
+903. Implemented BracketedPasteCapture enabling bracketed paste mode and documented cross-file mapping.
+904. PtyInputReader now decodes bracketed paste sequences and queues shifted newline events.
+905. BasicTextArea and ChatComposer handle Shift+Enter for newline insertion.
+906. Added unit tests for paste parsing and newline handling plus cross-language test `InteractivePasteMatches`.
+907. TODO next run: refine paste buffering and improve test stability.
+908. Documented bracketed paste status comments in ChatComposer and Rust source.
+909. Added unit test `HandlesInvalidPasteSequence` verifying escape fallback.
+910. TODO next run: cap paste buffer length and unskip interactive parity test.
+911. Implemented `MaxPasteLength` in `PtyInputReader` to limit buffered paste text.
+912. Unskipped `InteractivePasteMatches` and added `PasteBufferIsCapped` test.
+913. TODO next run: polish paste flushing behaviour and expand CLI parity.
+914. Added partial paste buffer flush on dispose in `PtyInputReader` and marked
+     Rust comment accordingly.
+915. Added unit test `FlushesPartialPasteOnDispose` and cross-language test
+     `InteractiveInvalidPasteMatches` validating fallback behaviour.
+916. TODO next run: finish paste integration polish and revisit event loop
+     optimizations.
+917. Added timed flush for partial paste sequences in `PtyInputReader` and
+     exposed `HasPendingKeys` helper.
+918. Updated Rust comments to note timeout flushing and updated status comment
+     in `PtyInputReader`.
+919. Added unit test `FlushesPartialPasteOnTimeout` verifying the new logic.
+920. TODO next run: profile event loop CPU usage and consider async reads.
+921. Converted `PtyInputReader` to use an async background task for lower CPU
+     usage and updated status comments.
+922. Updated `TuiApp` and `app.rs` comments to reference the async reader.
+923. TODO next run: add Ctrl+C interrupt and Ctrl+D exit handling.
+924. Added Ctrl+C interrupt via `SignalUtils.NotifyOnSigInt` and Ctrl+D exit
+     handling in `TuiApp` with matching status comments.
+925. Added cross-language test `InteractiveCtrlDMatches` verifying exit
+     behaviour.
+926. Forwarded Ctrl+C interrupts to active agents using cancellation tokens and
+     updated both C# and Rust comments.
+927. Added unit test `MockCodexAgentInterrupted` and cross-language test
+     `InteractiveCtrlCMatches` verifying interrupt parity.
+928. TODO next run: polish cancellation behaviour and expand CLI parity tests.
+929. Added OperationCanceledException handling in `OpenAIClient.ChatStreamAsync`
+     and `RealCodexAgent.RunAsync` for graceful interruption.
+930. Documented streaming client mapping in `core/src/client.rs` with status
+     comment and updated C# counterpart.
+931. Added cross-language test `TuiCtrlCMatches` verifying Ctrl+C behaviour in
+     the TUI implementations.
+932. TODO next run: improve history persistence tests and finalize parity suite.
+933. Added `PersistenceNoneDoesNotWriteFile` unit test covering SessionManager
+     behaviour and cross-language test `HistoryCountAfterSessionMatches` to
+     verify persistent message logging parity.
+934. TODO next run: port remaining MCP utilities and stabilise the parity
+     suite.
+935. Added PingRequestReturnsResult test verifying MCP server ping handling.
+936. Documented McpClient.cs mapping to Rust source with status comment.
+937. TODO next run: expand MCP client tests and finalize parity suite.
+938. Added McpClient handshake unit test verifying StartAsync communication.
+939. TODO next run: cover additional MCP client APIs with tests.
+940. Added McpClient ListRootsAsync and ListToolsAsync tests verifying results.
+941. TODO next run: finalize MCP client parity and expand CLI coverage.
+942. Added McpClient PingAsync unit test verifying basic request handling.
+943. Updated status comments in McpServer.cs and Rust counterpart noting ping
+     coverage.
+944. TODO next run: integrate MCP ping command in CLI parity tests.
+945. Added cross-language test `McpClientPingMatches` exercising the new `mcp-client --ping` command.
+946. Updated mapping comments in `McpClientCommand.cs` and `codex-rs/mcp-client/src/main.rs` noting ping CLI parity.
+947. TODO next run: expand MCP manager coverage and clean up skipped tests.
+948. Added cross-language test `McpClientListToolsMatches` verifying list tools parity and unit tests for McpConnectionManager aggregation.
+949. TODO next run: extend MCP command coverage and unblock skipped tests.
+950. Added cross-language test `McpClientListRootsMatches` checking list roots CLI parity.
+951. Updated status comments noting list-roots coverage in CLI sources.
+952. TODO next run: expand MCP manager tests and revisit skipped server cases.

@@ -7,16 +7,5 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../CodexCli/CodexCli.csproj" />
-    <Compile Include="..\CodexCli\Interactive\Widgets\ChatWidget.cs" Link="ChatWidget.cs" />
-    <Compile Include="..\CodexCli\Interactive\Widgets\StatusIndicatorWidget.cs" Link="StatusIndicatorWidget.cs" />
-    <Compile Include="..\CodexCli\Interactive\AppEventSender.cs" Link="AppEventSender.cs" />
-    <Compile Include="..\CodexCli\Interactive\Widgets\BottomPane.cs" Link="BottomPane.cs" />
-    <Compile Include="..\CodexCli\Interactive\Widgets\BottomPaneView.cs" Link="BottomPaneView.cs" />
-    <Compile Include="..\CodexCli\Interactive\Widgets\ChatComposer.cs" Link="ChatComposer.cs" />
-    <Compile Include="..\CodexCli\Interactive\Widgets\ChatComposerHistory.cs" Link="ChatComposerHistory.cs" />
-    <Compile Include="..\CodexCli\Interactive\Widgets\StatusIndicatorView.cs" Link="StatusIndicatorView.cs" />
-    <Compile Include="..\CodexCli\Interactive\Widgets\ApprovalModalView.cs" Link="ApprovalModalView.cs" />
-    <Compile Include="..\CodexCli\Interactive\SlashCommand.cs" Link="SlashCommand.cs" />
-    <Compile Include="..\CodexCli\Interactive\Widgets\CommandPopup.cs" Link="CommandPopup.cs" />
   </ItemGroup>
 </Project>

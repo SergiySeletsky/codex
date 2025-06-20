@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
+using System.Threading;
 
 namespace CodexCli.Util;
 
@@ -35,7 +36,8 @@ public class OpenAIClient
         return result ?? string.Empty;
     }
 
-    public async IAsyncEnumerable<string> ChatStreamAsync(string prompt)
+    public async IAsyncEnumerable<string> ChatStreamAsync(string prompt,
+        [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancel = default)
     {
         if (string.IsNullOrWhiteSpace(_apiKey))
             throw new InvalidOperationException("API key not set");
@@ -50,14 +52,22 @@ public class OpenAIClient
         var json = System.Text.Json.JsonSerializer.Serialize(payload);
         using var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
         using var req = new HttpRequestMessage(HttpMethod.Post, $"{_baseUrl}/chat/completions") { Content = content };
-        using var resp = await http.SendAsync(req, HttpCompletionOption.ResponseHeadersRead);
+        using var resp = await http.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, cancel);
         resp.EnsureSuccessStatusCode();
-        await using var stream = await resp.Content.ReadAsStreamAsync();
+        await using var stream = await resp.Content.ReadAsStreamAsync(cancel);
         using var reader = new StreamReader(stream);
-        while (!reader.EndOfStream)
+        while (!reader.EndOfStream && !cancel.IsCancellationRequested)
         {
-            var line = await reader.ReadLineAsync();
-            if (string.IsNullOrWhiteSpace(line) || !line.StartsWith("data:"))
+            string? line;
+            try
+            {
+                line = await reader.ReadLineAsync();
+            }
+            catch (OperationCanceledException)
+            {
+                yield break;
+            }
+            if (string.IsNullOrWhiteSpace(line) || !line!.StartsWith("data:"))
                 continue;
             var data = line.Substring(5).Trim();
             if (data == "[DONE]")

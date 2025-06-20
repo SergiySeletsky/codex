@@ -5,6 +5,8 @@ using System.Text.Json;
 using System.Linq;
 using System;
 
+// C# port of `codex-rs/mcp-client/src/main.rs` (ping, list-roots and list-tools CLI parity tested)
+
 namespace CodexCli.Commands;
 
 public static class McpClientCommand

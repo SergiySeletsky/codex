@@ -36,6 +36,8 @@ public static class InteractiveApp
             StreamWriter? logWriter = null;
             if (opts.EventLogFile != null)
                 logWriter = new StreamWriter(opts.EventLogFile, append: false);
+            using var ctrlC = SignalUtils.NotifyOnSigInt();
+            CancellationTokenSource? agentCts = null;
 
             bool withAnsi = !Console.IsOutputRedirected;
             bool hideReason = opts.HideAgentReasoning ?? cfg?.HideAgentReasoning ?? false;
@@ -68,7 +70,17 @@ public static class InteractiveApp
             }
             while (true)
             {
+                if (ctrlC.IsCancellationRequested)
+                {
+                    agentCts?.Cancel();
+                    break;
+                }
                 var prompt = AnsiConsole.Ask<string>("cmd> ");
+                if (ctrlC.IsCancellationRequested)
+                {
+                    agentCts?.Cancel();
+                    break;
+                }
                 if (prompt.Equals("/quit", StringComparison.OrdinalIgnoreCase))
                     break;
                 if (prompt.Equals("/history", StringComparison.OrdinalIgnoreCase))
@@ -231,9 +243,10 @@ public static class InteractiveApp
 
                 var approvalHandler = ApprovalHandler ?? DefaultApproval;
 
+                agentCts = new CancellationTokenSource();
                 var events = (info.Name == "Mock")
-                    ? CodexCli.Protocol.MockCodexAgent.RunAsync(prompt, Array.Empty<string>(), approvalHandler)
-                    : CodexCli.Protocol.RealCodexAgent.RunAsync(prompt, client, opts.Model ?? cfg?.Model ?? "default", approvalHandler, Array.Empty<string>());
+                    ? CodexCli.Protocol.MockCodexAgent.RunAsync(prompt, Array.Empty<string>(), approvalHandler, agentCts.Token)
+                    : CodexCli.Protocol.RealCodexAgent.RunAsync(prompt, client, opts.Model ?? cfg?.Model ?? "default", approvalHandler, Array.Empty<string>(), agentCts.Token);
                 await foreach (var ev in events)
                 {
                     processor.ProcessEvent(ev);
@@ -282,6 +295,8 @@ public static class InteractiveApp
                     if (logWriter != null)
                         await logWriter.WriteLineAsync(System.Text.Json.JsonSerializer.Serialize(ev));
                 }
+                agentCts.Dispose();
+                agentCts = null;
                 }
             if (logWriter != null)
             {
