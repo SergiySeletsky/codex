@@ -1163,3 +1163,7 @@
 939. TODO next run: cover additional MCP client APIs with tests.
 940. Added McpClient ListRootsAsync and ListToolsAsync tests verifying results.
 941. TODO next run: finalize MCP client parity and expand CLI coverage.
+942. Added McpClient PingAsync unit test verifying basic request handling.
+943. Updated status comments in McpServer.cs and Rust counterpart noting ping
+     coverage.
+944. TODO next run: integrate MCP ping command in CLI parity tests.

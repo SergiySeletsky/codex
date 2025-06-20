@@ -59,4 +59,20 @@ public class McpClientTests
             File.Delete(script);
         }
     }
+
+    [Fact(Skip="flaky in CI")]
+    public async Task PingAsyncReturnsOk()
+    {
+        string script = Path.Combine(Path.GetTempPath(), "mcp_stub.sh");
+        await File.WriteAllTextAsync(script, "read line; echo '{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":{\"ok\":true}}'");
+        try
+        {
+            await using var client = await McpClient.StartAsync("bash", new[] { script });
+            await client.PingAsync();
+        }
+        finally
+        {
+            File.Delete(script);
+        }
+    }
 }

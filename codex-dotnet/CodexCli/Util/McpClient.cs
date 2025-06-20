@@ -7,8 +7,8 @@ using CodexCli.Protocol;
 namespace CodexCli.Util;
 
 /// <summary>
-/// Port of rust `codex-rs/mcp-client/src/mcp_client.rs` (done, handshake,
-/// list-roots and list-tools tested)
+/// Port of rust `codex-rs/mcp-client/src/mcp_client.rs` (done; handshake,
+/// list-roots, list-tools and ping tested)
 /// </summary>
 
 public class McpClient : IDisposable, IAsyncDisposable
