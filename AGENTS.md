@@ -1167,3 +1167,6 @@
 943. Updated status comments in McpServer.cs and Rust counterpart noting ping
      coverage.
 944. TODO next run: integrate MCP ping command in CLI parity tests.
+945. Added cross-language test `McpClientPingMatches` exercising the new `mcp-client --ping` command.
+946. Updated mapping comments in `McpClientCommand.cs` and `codex-rs/mcp-client/src/main.rs` noting ping CLI parity.
+947. TODO next run: expand MCP manager coverage and clean up skipped tests.
