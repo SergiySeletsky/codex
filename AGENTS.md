@@ -1159,3 +1159,5 @@
 935. Added PingRequestReturnsResult test verifying MCP server ping handling.
 936. Documented McpClient.cs mapping to Rust source with status comment.
 937. TODO next run: expand MCP client tests and finalize parity suite.
+938. Added McpClient handshake unit test verifying StartAsync communication.
+939. TODO next run: cover additional MCP client APIs with tests.
