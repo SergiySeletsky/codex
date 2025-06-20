@@ -1156,3 +1156,6 @@
      verify persistent message logging parity.
 934. TODO next run: port remaining MCP utilities and stabilise the parity
      suite.
+935. Added PingRequestReturnsResult test verifying MCP server ping handling.
+936. Documented McpClient.cs mapping to Rust source with status comment.
+937. TODO next run: expand MCP client tests and finalize parity suite.

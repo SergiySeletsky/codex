@@ -6,6 +6,10 @@ using CodexCli.Protocol;
 
 namespace CodexCli.Util;
 
+/// <summary>
+/// Port of rust `codex-rs/mcp-client/src/mcp_client.rs` (done)
+/// </summary>
+
 public class McpClient : IDisposable, IAsyncDisposable
 {
     private readonly Process _process;

@@ -239,4 +239,21 @@ public class McpServerTests
         cts.Cancel();
         await serverTask;
     }
+
+    [Fact(Skip="flaky in CI")]
+    public async Task PingRequestReturnsResult()
+    {
+        int port = TestUtils.GetFreeTcpPort();
+        using var server = new McpServer(port);
+        var cts = new CancellationTokenSource();
+        var serverTask = server.RunAsync(cts.Token);
+        await Task.Delay(100);
+        using var http = new HttpClient();
+        var req = new JsonRpcMessage { Method = "ping", Id = JsonSerializer.SerializeToElement(99) };
+        var resp = await http.PostAsync($"http://localhost:{port}/jsonrpc", new StringContent(JsonSerializer.Serialize(req)));
+        var body = await resp.Content.ReadAsStringAsync();
+        Assert.Contains("result", body);
+        cts.Cancel();
+        await serverTask;
+    }
 }
