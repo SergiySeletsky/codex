@@ -22,7 +22,8 @@ namespace CodexTui;
 /// parsing via <see cref="AnsiMouseParser"/> with arrow and navigation keys parsed in
 /// <see cref="AnsiKeyParser"/> and non-blocking PTY input handled by
 /// <see cref="PtyInputReader"/> with bracketed paste enabled via
-/// <see cref="BracketedPasteCapture"/> (done; further polish pending).
+/// <see cref="BracketedPasteCapture"/> and a paste buffer capped at
+/// <see cref="PtyInputReader.MaxPasteLength"/> characters (done; further polish pending).
 /// </summary>
 internal static class TuiApp
 {

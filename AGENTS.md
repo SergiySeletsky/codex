@@ -1116,3 +1116,6 @@
 908. Documented bracketed paste status comments in ChatComposer and Rust source.
 909. Added unit test `HandlesInvalidPasteSequence` verifying escape fallback.
 910. TODO next run: cap paste buffer length and unskip interactive parity test.
+911. Implemented `MaxPasteLength` in `PtyInputReader` to limit buffered paste text.
+912. Unskipped `InteractivePasteMatches` and added `PasteBufferIsCapped` test.
+913. TODO next run: polish paste flushing behaviour and expand CLI parity.

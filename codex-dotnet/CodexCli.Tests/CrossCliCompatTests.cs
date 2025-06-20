@@ -564,7 +564,7 @@ args = ["run", "--project", "../codex-dotnet/CodexCli", "mcp"]
         Assert.Equal(rOut, dOut);
     }
 
-    [CrossCliFact]
+    [Fact]
     public void InteractivePasteMatches()
     {
         var seq = "\u001b[200~hi\nthere\u001b[201~\n/quit\n";

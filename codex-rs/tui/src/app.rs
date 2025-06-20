@@ -4,7 +4,7 @@
 // all done; layout spacing and height clamping done with scroll wheel
 // debouncing via ScrollEventHelper, further polish pending. Mouse wheel
 // escape sequence parsing ported in codex-dotnet/CodexCli/Interactive/AnsiMouseParser.cs (done)
-// non-blocking PTY input mirrored in codex-dotnet/CodexTui/PtyInputReader.cs (done)
+// non-blocking PTY input mirrored in codex-dotnet/CodexTui/PtyInputReader.cs (done, paste capped)
 // and key escape parsing ported in codex-dotnet/CodexCli/Interactive/AnsiKeyParser.cs (done)
 use crate::app_event::AppEvent;
 use crate::app_event_sender::AppEventSender;
@@ -102,7 +102,7 @@ impl<'a> App<'a> {
                         }) => {
                             scroll_event_helper.scroll_down();
                         }
-                        // mirrored in codex-dotnet/CodexTui/PtyInputReader.cs (done)
+                        // mirrored in codex-dotnet/CodexTui/PtyInputReader.cs (done, paste capped)
                         crossterm::event::Event::Paste(pasted) => {
                             use crossterm::event::KeyModifiers;
 

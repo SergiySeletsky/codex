@@ -18,6 +18,8 @@ public sealed class PtyInputReader : IDisposable
     private readonly AnsiMouseParser _mouseParser;
     private readonly AnsiKeyParser _keyParser = new();
     private readonly StringBuilder _pasteBuf = new();
+    /// <summary>Maximum characters buffered while parsing a paste.</summary>
+    public const int MaxPasteLength = 4096;
     private bool _detectPaste;
     private bool _inPaste;
     private readonly ConcurrentQueue<ConsoleKeyInfo> _keys = new();
@@ -46,6 +48,14 @@ public sealed class PtyInputReader : IDisposable
                 if (_inPaste)
                 {
                     _pasteBuf.Append(c);
+                    if (_pasteBuf.Length > MaxPasteLength)
+                    {
+                        foreach (var pc in _pasteBuf.ToString())
+                            HandleChar(pc);
+                        _pasteBuf.Clear();
+                        _inPaste = false;
+                        continue;
+                    }
                     if (_pasteBuf.Length >= 6 && _pasteBuf.ToString().EndsWith("\u001b[201~"))
                     {
                         var text = _pasteBuf.ToString(0, _pasteBuf.Length - 6);
@@ -65,6 +75,15 @@ public sealed class PtyInputReader : IDisposable
                 if (_detectPaste)
                 {
                     _pasteBuf.Append(c);
+                    if (_pasteBuf.Length > MaxPasteLength)
+                    {
+                        HandleChar('\u001b');
+                        foreach (var pc in _pasteBuf.ToString())
+                            HandleChar(pc);
+                        _pasteBuf.Clear();
+                        _detectPaste = false;
+                        continue;
+                    }
                     var str = _pasteBuf.ToString();
                     if ("[200~".StartsWith(str))
                     {

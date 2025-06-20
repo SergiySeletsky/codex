@@ -3,7 +3,7 @@ use std::io::Stdout;
 use std::io::stdout;
 
 use codex_core::config::Config;
-// C# analog implemented in codex-dotnet/CodexCli/Interactive/BracketedPasteCapture.cs (done)
+// C# analog implemented in codex-dotnet/CodexCli/Interactive/BracketedPasteCapture.cs (done, paste cap)
 use crossterm::event::DisableBracketedPaste;
 use crossterm::event::DisableMouseCapture;
 use crossterm::event::EnableBracketedPaste;
