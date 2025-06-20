@@ -9,9 +9,9 @@ using CodexCli.Interactive;
 namespace CodexTui;
 
 /// <summary>
-/// Simple PTY input reader running on a background thread. Mirrors the
+/// Simple PTY input reader running on a background task. Mirrors the
 /// crossterm event loop in codex-rs/tui/src/app.rs (done, paste capped
-/// and flushed on dispose with timeout handling).
+/// and flushed on dispose with timeout handling using async reads).
 /// </summary>
 public sealed class PtyInputReader : IDisposable
 {
@@ -25,7 +25,7 @@ public sealed class PtyInputReader : IDisposable
     private bool _inPaste;
     private readonly ConcurrentQueue<ConsoleKeyInfo> _keys = new();
     private readonly CancellationTokenSource _cts = new();
-    private readonly Thread _thread;
+    private readonly Task _task;
     private DateTime _lastInput = DateTime.UtcNow;
 
     /// <summary>Milliseconds to wait before flushing a partial paste.</summary>
@@ -35,17 +35,20 @@ public sealed class PtyInputReader : IDisposable
     {
         _reader = reader;
         _mouseParser = parser;
-        _thread = new Thread(ReadLoop) { IsBackground = true };
-        _thread.Start();
+        _task = Task.Run(ReadLoopAsync);
     }
 
-    private void ReadLoop()
+    private async Task ReadLoopAsync()
     {
         try
         {
+            var buffer = new char[1];
             while (!_cts.IsCancellationRequested)
             {
-                int ch = _reader.Read();
+                int read = await _reader.ReadAsync(buffer.AsMemory(0, 1));
+                if (read == 0)
+                    break;
+                int ch = buffer[0];
                 if (ch == -1)
                     break;
                 _lastInput = DateTime.UtcNow;
@@ -162,7 +165,7 @@ public sealed class PtyInputReader : IDisposable
     public void Dispose()
     {
         _cts.Cancel();
-        try { _thread.Join(100); } catch { }
+        try { _task.Wait(100); } catch { }
         FlushPartialPaste();
     }
 

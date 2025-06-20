@@ -1131,3 +1131,7 @@
      in `PtyInputReader`.
 919. Added unit test `FlushesPartialPasteOnTimeout` verifying the new logic.
 920. TODO next run: profile event loop CPU usage and consider async reads.
+921. Converted `PtyInputReader` to use an async background task for lower CPU
+     usage and updated status comments.
+922. Updated `TuiApp` and `app.rs` comments to reference the async reader.
+923. TODO next run: add Ctrl+C interrupt and Ctrl+D exit handling.
