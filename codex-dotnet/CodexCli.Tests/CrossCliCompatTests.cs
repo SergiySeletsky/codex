@@ -475,6 +475,14 @@ args = ["run", "--project", "../codex-dotnet/CodexCli", "mcp"]
     }
 
     [CrossCliFact]
+    public void McpClientListRootsMatches()
+    {
+        var dotnet = RunProcess("dotnet", "run --project ../codex-dotnet/CodexCli mcp-client dotnet --project ../codex-dotnet/CodexCli mcp --list-roots --json");
+        var rust = RunProcess("cargo", "run --quiet --manifest-path ../../codex-rs/mcp-client/Cargo.toml -- cargo run --quiet --manifest-path ../../codex-rs/mcp-server/Cargo.toml --list-roots --json");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [CrossCliFact]
     public void HistoryMessagesCountJsonMatches()
     {
         var dotnet = RunProcess("dotnet", "run --project ../codex-dotnet/CodexCli history messages-count --json");

@@ -1172,3 +1172,6 @@
 947. TODO next run: expand MCP manager coverage and clean up skipped tests.
 948. Added cross-language test `McpClientListToolsMatches` verifying list tools parity and unit tests for McpConnectionManager aggregation.
 949. TODO next run: extend MCP command coverage and unblock skipped tests.
+950. Added cross-language test `McpClientListRootsMatches` checking list roots CLI parity.
+951. Updated status comments noting list-roots coverage in CLI sources.
+952. TODO next run: expand MCP manager tests and revisit skipped server cases.
