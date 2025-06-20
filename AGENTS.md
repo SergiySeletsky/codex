@@ -1175,3 +1175,6 @@
 950. Added cross-language test `McpClientListRootsMatches` checking list roots CLI parity.
 951. Updated status comments noting list-roots coverage in CLI sources.
 952. TODO next run: expand MCP manager tests and revisit skipped server cases.
+953. Added McpClientCallCodexTests covering CallCodexAsync result handling.
+954. Updated Rust and C# MCP client command comments to note call-codex parity.
+955. TODO next run: add cross-language test for mcp-manager call and unskip ReplayCommand tests.
