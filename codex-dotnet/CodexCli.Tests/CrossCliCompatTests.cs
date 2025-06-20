@@ -59,6 +59,17 @@ public class CrossCliCompatTests
     }
 
     [CrossCliFact]
+    public void TuiCtrlDMatches()
+    {
+        var input = "\u0004";
+        var dotnet = RunProcessWithPty("dotnet run --project ../codex-dotnet/CodexTui --skip-git-repo-check --model-provider Mock", input);
+        var rust = RunProcessWithPty("cargo run --quiet --manifest-path ../../codex-rs/tui/Cargo.toml -- -c model_provider=Mock --skip-git-repo-check", input);
+        var dOut = AnsiEscape.StripAnsi(dotnet.stdout).Trim();
+        var rOut = AnsiEscape.StripAnsi(rust.stdout).Trim();
+        Assert.Equal(rOut, dOut);
+    }
+
+    [CrossCliFact]
     public void TuiConfigMatches()
     {
         var input = "/config\n/quit\n";
@@ -96,6 +107,17 @@ public class CrossCliCompatTests
     {
         var dotnet = RunProcessWithPty("dotnet run --project ../codex-dotnet/CodexCli interactive hi --model-provider Mock --hide-agent-reasoning --disable-response-storage --no-project-doc", "/quit\n");
         var rust = RunProcessWithPty("cargo run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- interactive hi --model-provider Mock --hide-agent-reasoning --disable-response-storage --no-project-doc", "/quit\n");
+        var dOut = AnsiEscape.StripAnsi(dotnet.stdout).Trim();
+        var rOut = AnsiEscape.StripAnsi(rust.stdout).Trim();
+        Assert.Equal(rOut, dOut);
+    }
+
+    [CrossCliFact]
+    public void InteractiveCtrlDMatches()
+    {
+        var seq = "\u0004";
+        var dotnet = RunProcessWithPty("dotnet run --project ../codex-dotnet/CodexCli interactive hi --model-provider Mock --hide-agent-reasoning --disable-response-storage --no-project-doc", seq);
+        var rust = RunProcessWithPty("cargo run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- interactive hi --model-provider Mock --hide-agent-reasoning --disable-response-storage --no-project-doc", seq);
         var dOut = AnsiEscape.StripAnsi(dotnet.stdout).Trim();
         var rOut = AnsiEscape.StripAnsi(rust.stdout).Trim();
         Assert.Equal(rOut, dOut);

@@ -5,7 +5,8 @@
 // debouncing via ScrollEventHelper, further polish pending. Mouse wheel
 // escape sequence parsing ported in codex-dotnet/CodexCli/Interactive/AnsiMouseParser.cs (done)
 // non-blocking PTY input mirrored in codex-dotnet/CodexTui/PtyInputReader.cs (done, async with paste cap and timeout flush)
-// and key escape parsing ported in codex-dotnet/CodexCli/Interactive/AnsiKeyParser.cs (done)
+// key escape parsing ported in codex-dotnet/CodexCli/Interactive/AnsiKeyParser.cs (done)
+// Ctrl+C interrupt and Ctrl+D exit handling added in the C# version (done)
 use crate::app_event::AppEvent;
 use crate::app_event_sender::AppEventSender;
 use crate::chatwidget::ChatWidget;

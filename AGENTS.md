@@ -1135,3 +1135,8 @@
      usage and updated status comments.
 922. Updated `TuiApp` and `app.rs` comments to reference the async reader.
 923. TODO next run: add Ctrl+C interrupt and Ctrl+D exit handling.
+924. Added Ctrl+C interrupt via `SignalUtils.NotifyOnSigInt` and Ctrl+D exit
+     handling in `TuiApp` with matching status comments.
+925. Added cross-language test `InteractiveCtrlDMatches` verifying exit
+     behaviour.
+926. TODO next run: forward interrupt operations to the agent and refine tests.

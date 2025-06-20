@@ -23,7 +23,9 @@ namespace CodexTui;
 /// <see cref="AnsiKeyParser"/> and non-blocking PTY input handled by
 /// <see cref="PtyInputReader"/> (now async) with bracketed paste enabled via
 /// <see cref="BracketedPasteCapture"/> and a paste buffer capped at
-/// <see cref="PtyInputReader.MaxPasteLength"/> characters (done; further polish pending).
+/// <see cref="PtyInputReader.MaxPasteLength"/> characters. Handles Ctrl+C
+/// interrupts via <see cref="SignalUtils.NotifyOnSigInt"/> and exits on Ctrl+D
+/// (done; further polish pending).
 /// </summary>
 internal static class TuiApp
 {
@@ -37,6 +39,7 @@ internal static class TuiApp
         using var mouse = new MouseCapture(!(cfg?.Tui.DisableMouseCapture ?? false));
         using var paste = new BracketedPasteCapture(true);
         using var input = new PtyInputReader(Console.In, mouseParser);
+        using var ctrlC = SignalUtils.NotifyOnSigInt();
         LogBridge.LatestLog += chat.UpdateLatestLog;
 
         var sessionId = SessionManager.CreateSession();
@@ -126,6 +129,8 @@ internal static class TuiApp
         {
         while (true)
         {
+            if (ctrlC.IsCancellationRequested)
+                break;
             bool scrolled = false;
             while (queue.TryDequeue(out var ev))
             {
@@ -142,6 +147,16 @@ internal static class TuiApp
             {
                 await Task.Delay(10);
                 continue;
+            }
+
+            if (key.Modifiers == ConsoleModifiers.Control && key.Key == ConsoleKey.C)
+            {
+                chat.AddSystemMessage("Interrupted");
+                continue;
+            }
+            if ((key.Modifiers == ConsoleModifiers.Control && key.Key == ConsoleKey.D) || key.KeyChar == '\u0004')
+            {
+                break;
             }
 
             if (mouseParser.ProcessChar(key.KeyChar))
