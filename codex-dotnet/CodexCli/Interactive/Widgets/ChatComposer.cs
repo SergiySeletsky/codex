@@ -8,7 +8,8 @@ namespace CodexCli.Interactive;
 
 /// <summary>
 /// Minimal chat composer with cursor-aware editing and command popup.
-/// Mirrors codex-rs/tui/src/bottom_pane/chat_composer.rs (input logic and history hook done).
+/// Mirrors codex-rs/tui/src/bottom_pane/chat_composer.rs (input logic,
+/// history hook and bracketed paste handling done).
 /// </summary>
 public class ChatComposer
 {

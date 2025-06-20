@@ -10,7 +10,7 @@ namespace CodexTui;
 
 /// <summary>
 /// Simple PTY input reader running on a background thread. Mirrors the
-/// crossterm event loop in codex-rs/tui/src/app.rs (pending).
+/// crossterm event loop in codex-rs/tui/src/app.rs (done).
 /// </summary>
 public sealed class PtyInputReader : IDisposable
 {

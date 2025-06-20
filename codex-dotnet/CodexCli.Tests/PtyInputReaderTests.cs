@@ -49,4 +49,16 @@ public class PtyInputReaderTests
         Assert.Equal(ConsoleModifiers.Shift, keys[1].Modifiers);
         Assert.Equal('b', keys[2].KeyChar);
     }
+
+    [Fact]
+    public async Task HandlesInvalidPasteSequence()
+    {
+        using var reader = new StringReader("\u001b[200Xab");
+        var helper = new ScrollEventHelper(new AppEventSender(_ => { }));
+        var parser = new AnsiMouseParser(helper);
+        using var input = new PtyInputReader(reader, parser);
+
+        await Task.Delay(100);
+        Assert.False(input.TryRead(out _));
+    }
 }

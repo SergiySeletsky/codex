@@ -1113,3 +1113,6 @@
 905. BasicTextArea and ChatComposer handle Shift+Enter for newline insertion.
 906. Added unit tests for paste parsing and newline handling plus cross-language test `InteractivePasteMatches`.
 907. TODO next run: refine paste buffering and improve test stability.
+908. Documented bracketed paste status comments in ChatComposer and Rust source.
+909. Added unit test `HandlesInvalidPasteSequence` verifying escape fallback.
+910. TODO next run: cap paste buffer length and unskip interactive parity test.

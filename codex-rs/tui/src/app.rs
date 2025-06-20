@@ -102,6 +102,7 @@ impl<'a> App<'a> {
                         }) => {
                             scroll_event_helper.scroll_down();
                         }
+                        // mirrored in codex-dotnet/CodexTui/PtyInputReader.cs (done)
                         crossterm::event::Event::Paste(pasted) => {
                             use crossterm::event::KeyModifiers;
 
