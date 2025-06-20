@@ -70,6 +70,17 @@ public class CrossCliCompatTests
     }
 
     [CrossCliFact]
+    public void TuiCtrlCMatches()
+    {
+        var input = "hi\n\u0003/quit\n";
+        var dotnet = RunProcessWithPty("dotnet run --project ../codex-dotnet/CodexTui --skip-git-repo-check --model-provider Mock", input);
+        var rust = RunProcessWithPty("cargo run --quiet --manifest-path ../../codex-rs/tui/Cargo.toml -- -c model_provider=Mock --skip-git-repo-check", input);
+        var dOut = AnsiEscape.StripAnsi(dotnet.stdout).Trim();
+        var rOut = AnsiEscape.StripAnsi(rust.stdout).Trim();
+        Assert.Equal(rOut, dOut);
+    }
+
+    [CrossCliFact]
     public void TuiConfigMatches()
     {
         var input = "/config\n/quit\n";

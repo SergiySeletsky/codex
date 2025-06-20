@@ -1144,3 +1144,10 @@
 927. Added unit test `MockCodexAgentInterrupted` and cross-language test
      `InteractiveCtrlCMatches` verifying interrupt parity.
 928. TODO next run: polish cancellation behaviour and expand CLI parity tests.
+929. Added OperationCanceledException handling in `OpenAIClient.ChatStreamAsync`
+     and `RealCodexAgent.RunAsync` for graceful interruption.
+930. Documented streaming client mapping in `core/src/client.rs` with status
+     comment and updated C# counterpart.
+931. Added cross-language test `TuiCtrlCMatches` verifying Ctrl+C behaviour in
+     the TUI implementations.
+932. TODO next run: improve history persistence tests and finalize parity suite.

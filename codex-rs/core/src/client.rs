@@ -1,3 +1,5 @@
+// C# analog implemented in codex-dotnet/CodexCli/Protocol/RealCodexAgent.cs
+// (streaming model client with Ctrl+C cancellation parity done)
 use std::io::BufRead;
 use std::path::Path;
 use std::time::Duration;
@@ -269,7 +271,8 @@ where
             // Individual output item finalised. Forward immediately so the
             // rest of the agent can stream assistant text/functions *live*
             // instead of waiting for the final `response.completed` envelope.
-            //
+// C# analog implemented in codex-dotnet/CodexCli/Protocol/RealCodexAgent.cs
+// (streaming model client with Ctrl+C cancellation parity done)
             // IMPORTANT: We used to ignore these events and forward the
             // duplicated `output` array embedded in the `response.completed`
             // payload.  That produced two concrete issues:

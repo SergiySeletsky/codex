@@ -58,8 +58,16 @@ public class OpenAIClient
         using var reader = new StreamReader(stream);
         while (!reader.EndOfStream && !cancel.IsCancellationRequested)
         {
-            var line = await reader.ReadLineAsync();
-            if (string.IsNullOrWhiteSpace(line) || !line.StartsWith("data:"))
+            string? line;
+            try
+            {
+                line = await reader.ReadLineAsync();
+            }
+            catch (OperationCanceledException)
+            {
+                yield break;
+            }
+            if (string.IsNullOrWhiteSpace(line) || !line!.StartsWith("data:"))
                 continue;
             var data = line.Substring(5).Trim();
             if (data == "[DONE]")
