@@ -5,7 +5,7 @@ using System.Text.Json;
 using System.Linq;
 using System;
 
-// C# port of `codex-rs/mcp-client/src/main.rs` (ping CLI parity tested)
+// C# port of `codex-rs/mcp-client/src/main.rs` (ping and list-tools CLI parity tested)
 
 namespace CodexCli.Commands;
 

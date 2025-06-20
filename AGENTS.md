@@ -1170,3 +1170,5 @@
 945. Added cross-language test `McpClientPingMatches` exercising the new `mcp-client --ping` command.
 946. Updated mapping comments in `McpClientCommand.cs` and `codex-rs/mcp-client/src/main.rs` noting ping CLI parity.
 947. TODO next run: expand MCP manager coverage and clean up skipped tests.
+948. Added cross-language test `McpClientListToolsMatches` verifying list tools parity and unit tests for McpConnectionManager aggregation.
+949. TODO next run: extend MCP command coverage and unblock skipped tests.
