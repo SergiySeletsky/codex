@@ -1,4 +1,6 @@
 //! Types used to define the fields of [`crate::config::Config`].
+//!
+//! C# port implemented in `codex-dotnet/CodexCli/Config/{History.cs,ShellEnvironmentPolicy.cs,Tui.cs,UriBasedFileOpener.cs,ReasoningModels.cs}` (done)
 
 // Note this file should generally be restricted to simple struct/enum
 // definitions that do not contain business logic.

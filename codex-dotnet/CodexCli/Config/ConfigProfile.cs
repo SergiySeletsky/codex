@@ -1,4 +1,8 @@
 using CodexCli.Commands;
+
+/// <summary>
+/// Port of codex-rs/core/src/config_profile.rs (done).
+/// </summary>
 namespace CodexCli.Config;
 
 public class ConfigProfile

@@ -1,3 +1,4 @@
+// C# port implemented in codex-dotnet/CodexCli/Config/ConfigProfile.cs (done)
 use serde::Deserialize;
 
 use crate::protocol::AskForApproval;

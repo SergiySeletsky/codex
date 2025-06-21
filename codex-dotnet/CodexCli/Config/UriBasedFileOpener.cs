@@ -1,3 +1,6 @@
+/// <summary>
+/// Port of codex-rs/core/src/config_types.rs UriBasedFileOpener (done).
+/// </summary>
 namespace CodexCli.Config;
 
 public enum UriBasedFileOpener

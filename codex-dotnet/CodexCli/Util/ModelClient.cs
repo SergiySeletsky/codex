@@ -3,6 +3,9 @@ using CodexCli.Models;
 using CodexCli.Commands;
 using System.Linq;
 
+/// <summary>
+/// Port of codex-rs/core/src/client_common.rs ModelClient logic (done).
+/// </summary>
 namespace CodexCli.Util;
 
 public class ModelClient

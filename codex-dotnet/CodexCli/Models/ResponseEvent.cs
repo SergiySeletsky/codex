@@ -1,5 +1,8 @@
 using System.Threading.Channels;
 
+/// <summary>
+/// Port of codex-rs/core/src/client_common.rs ResponseEvent and ResponseStream (done).
+/// </summary>
 namespace CodexCli.Models;
 
 public abstract record ResponseEvent;

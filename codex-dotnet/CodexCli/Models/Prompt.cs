@@ -1,3 +1,6 @@
+/// <summary>
+/// Port of codex-rs/core/src/client_common.rs Prompt (done).
+/// </summary>
 namespace CodexCli.Models;
 
 using System.Collections.Generic;
