@@ -1,6 +1,6 @@
 // C# port implemented in `codex-dotnet/CodexCli/Util/McpServer.cs` (ping,
-// event, watch-events, messages add/clear, resource write and prompt/root add
-// parity tested)
+// event, watch-events, messages add/clear, resource write/update subscribe and
+// prompt/root add parity tested)
 use std::path::PathBuf;
 
 use crate::codex_tool_config::CodexToolCallParam;

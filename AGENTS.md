@@ -1228,3 +1228,7 @@
 995. Updated status comments in McpServer.cs and message_processor.rs noting
      prompt/root add parity.
 996. TODO next run: continue porting MCP features and expand CLI parity tests.
+997. Added WriteSubscribedResourceSendsUpdatedEvent unit test and CLI test
+     McpManagerSubscribeResourceWatchEventsMatches ensuring parity.
+998. Updated status comments noting resource subscribe parity in server sources.
+999. TODO next run: cover remaining MCP notifications and polish SSE handling.
