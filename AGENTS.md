@@ -1210,3 +1210,7 @@
      `McpManagerClearWatchEventsMatches` ensuring parity.
 982. TODO next run: stabilize new watch-events tests and continue
      refining MCP server features.
+983. Fixed cross-CLI replay test array type.
+984. Added missing protocol imports in watch-events tests.
+985. Documented progress and updated TODO list.
+986. TODO next run: finalize SSE event features and stabilize tests.
