@@ -556,6 +556,22 @@ args = ["run", "--project", "../codex-dotnet/CodexCli", "mcp"]
     }
 
     [CrossCliFact]
+    public void ReplayFollowMatches()
+    {
+        string dotPath = Path.GetTempFileName();
+        string rustPath = Path.GetTempFileName();
+        var first = JsonSerializer.Serialize(new MessageItem("assistant", new List<ContentItem>{ new("output_text","a1") }));
+        var second = JsonSerializer.Serialize(new MessageItem("assistant", new List<ContentItem>{ new("output_text","a2") }));
+        File.WriteAllText(dotPath, first + "\n");
+        File.WriteAllText(rustPath, first + "\n");
+        var dotnet = RunProcess("bash", $"-c \"(sleep 0.2; echo '{second}' >> {dotPath}) & dotnet run --project ../codex-dotnet/CodexCli replay {dotPath} --json --follow --max-items 2\"");
+        var rust = RunProcess("bash", $"-c \"(sleep 0.2; echo '{second}' >> {rustPath}) & cargo run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- replay {rustPath} --json --follow --max-items 2\"");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+        File.Delete(dotPath);
+        File.Delete(rustPath);
+    }
+
+    [CrossCliFact]
     public void HistoryCountAfterSessionMatches()
     {
         RunProcessWithPty("dotnet run --project ../codex-dotnet/CodexCli interactive hi --model-provider Mock --hide-agent-reasoning --disable-response-storage --no-project-doc", "/quit\n");

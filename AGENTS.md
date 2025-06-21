@@ -1188,3 +1188,8 @@
 962. Added ReplayMessagesOnly unit test and CLI parity test.
 963. Updated ReplayCommand.cs and rollout.rs comments to mention messages-only parity.
 964. TODO next run: implement follow event replay and finalize MCP server features.
+965. Added RolloutReplayer follow unit test verifying appended lines.
+966. Added ReplayCommand follow integration test.
+967. Implemented cross-language test `ReplayFollowMatches` ensuring follow parity.
+968. Updated mapping comments noting follow parity in Program.cs and rollout sources.
+969. TODO next run: expand watch-events coverage and polish MCP server stubs.

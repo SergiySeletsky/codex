@@ -5,7 +5,7 @@ using CodexCli.Models;
 using Spectre.Console;
 using System;
 
-// Port of Rust `codex-rs/core/src/rollout.rs` replay logic (json and messages-only parity tested)
+// Port of Rust `codex-rs/core/src/rollout.rs` replay logic (json, messages-only and follow parity tested)
 
 namespace CodexCli.Commands;
 
