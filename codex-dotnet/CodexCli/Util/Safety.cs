@@ -1,3 +1,4 @@
+// Port of codex-rs/core/src/safety.rs (simplified, done)
 using CodexCli.ApplyPatch;
 using CodexCli.Protocol;
 using CodexCli.Models;
@@ -37,7 +38,7 @@ public static class Safety
 
     public static SafetyCheck AssessCommandSafety(List<string> command, ApprovalMode policy, SandboxPolicy sandbox, HashSet<List<string>> approved)
     {
-        if (approved.Contains(command))
+        if (SafeCommand.IsKnownSafeCommand(command) || approved.Contains(command))
             return SafetyCheck.AutoApprove;
 
         if (sandbox.IsUnrestricted())

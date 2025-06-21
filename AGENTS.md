@@ -10,9 +10,11 @@
 - Added parity for prompt and resource removal plus logging set-level events with
   matching server and cross-language tests.
 - Ported exec_command helper as ExecCommandUtils with tests and integrated user approval prompt.
+- Ported is_safe_command helpers as SafeCommand with parity tests and integrated safety checks.
 
 ## Rust to C# Mapping
 - codex-rs/tui/src/exec_command.rs -> codex-dotnet/CodexCli/Util/ExecCommandUtils.cs (done)
+- codex-rs/core/src/is_safe_command.rs -> codex-dotnet/CodexCli/Util/SafeCommand.cs (done)
 
 ## TODO Next Run
 - Continue porting remaining Rust CLI features
@@ -25,6 +27,7 @@
 - Finalize JSON serialization schema and update tests
 - Stabilize new message server features
 430. TODO next run: refine replay output formatting and migrate remaining MCP utilities
+- Continue refining SafeCommand parser and extend CLI parity tests
 458. TODO next run: port more MCP utilities and improve test stability
 474. TODO next run: port more MCP utilities and stabilise tests
 500. TODO next run: refine MCP integration and handle SSE events
