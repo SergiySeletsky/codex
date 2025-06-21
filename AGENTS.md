@@ -14,6 +14,8 @@
 - Ported protocol event types and serialization helpers with parity tests.
 - Ported AppConfig loader and integrated CodexWrapper into CodexToolRunner.
 - Implemented Codex spawn interface and added unit and CLI parity tests.
+- Ported model client agent (RealCodexAgent) with streaming tests.
+- Ported response and rollout models with RolloutRecorder and replay parity tests.
 
 ## Rust to C# Mapping
 - codex-rs/tui/src/exec_command.rs -> codex-dotnet/CodexCli/Util/ExecCommandUtils.cs (done)
@@ -42,6 +44,9 @@
 - codex-rs/core/src/codex_wrapper.rs -> codex-dotnet/CodexCli/Util/CodexWrapper.cs (done)
 - codex-rs/core/src/protocol.rs -> codex-dotnet/CodexCli/Protocol/Event.cs (done)
 - codex-rs/core/src/codex.rs -> codex-dotnet/CodexCli/Util/Codex.cs (partial)
+- codex-rs/core/src/client.rs -> codex-dotnet/CodexCli/Protocol/RealCodexAgent.cs (done)
+- codex-rs/core/src/models.rs -> codex-dotnet/CodexCli/Models/ResponseItem.cs (done)
+- codex-rs/core/src/rollout.rs -> codex-dotnet/CodexCli/Util/RolloutRecorder.cs and Commands/ReplayCommand.cs (done)
 
 ## TODO
 - Integrate newly ported utilities throughout CLI commands and finalize SSE handling.
@@ -51,3 +56,5 @@
 - Implement CLI comparitive tests ensuring .NET and Rust outputs match for chat aggregation.
 - Integrate CodexWrapper into other CLI commands.
 - Add AppConfig loading parity tests and wire into remaining commands.
+- Port remaining Codex session workflow (submission loop, rollout persistence) to .NET.
+- Expand ResponseItem coverage with integration tests for new event types.

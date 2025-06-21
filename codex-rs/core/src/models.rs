@@ -1,3 +1,4 @@
+// C# port: codex-dotnet/CodexCli/Models/ResponseItem.cs
 use std::collections::HashMap;
 
 use base64::Engine;
