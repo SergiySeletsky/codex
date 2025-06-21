@@ -1184,3 +1184,7 @@
 959. Added cross-language test `ReplayJsonMatches` verifying replay CLI parity.
 960. Noted replay parity in Program.cs and rollout.rs status comments.
 961. TODO next run: refine MCP server stubs and expand replay tests.
+
+962. Added ReplayMessagesOnly unit test and CLI parity test.
+963. Updated ReplayCommand.cs and rollout.rs comments to mention messages-only parity.
+964. TODO next run: implement follow event replay and finalize MCP server features.

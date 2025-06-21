@@ -4,6 +4,7 @@ using System.IO;
 using CodexCli.Util;
 using CodexCli.Models;
 using System.Text.Json;
+using System.Linq;
 using Xunit;
 
 public class CrossCliCompatTests
@@ -534,6 +535,22 @@ args = ["run", "--project", "../codex-dotnet/CodexCli", "mcp"]
         File.WriteAllText(path, JsonSerializer.Serialize(item, item.GetType()) + "\n");
         var dotnet = RunProcess("dotnet", $"run --project ../codex-dotnet/CodexCli replay {path} --json");
         var rust = RunProcess("cargo", $"run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- replay {path} --json");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+        File.Delete(path);
+    }
+
+    [CrossCliFact]
+    public void ReplayMessagesOnlyMatches()
+    {
+        string path = Path.GetTempFileName();
+        var items = new []
+        {
+            new MessageItem("user", new List<ContentItem>{ new("output_text","hi") }),
+            new FunctionCallItem("tool","{}","1")
+        };
+        File.WriteAllLines(path, items.Select(i => JsonSerializer.Serialize(i, i.GetType())));
+        var dotnet = RunProcess("dotnet", $"run --project ../codex-dotnet/CodexCli replay {path} --messages-only");
+        var rust = RunProcess("cargo", $"run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- replay {path} --messages-only");
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
         File.Delete(path);
     }
