@@ -5,6 +5,8 @@ using CodexCli.Util;
 using System;
 using System.Linq;
 
+// C# port of Rust `codex-rs/cli/src/main.rs` mcp-manager options (call parity tested)
+
 namespace CodexCli.Commands;
 
 public static class McpManagerCommand

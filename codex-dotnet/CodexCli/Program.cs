@@ -2,6 +2,8 @@ using CodexCli.Commands;
 using System.CommandLine;
 using CodexCli.Util;
 
+// Rust CLI implemented in codex-rs/cli/src/main.rs (replay messages-only and follow parity tested)
+
 namespace CodexCli;
 
 public class Program

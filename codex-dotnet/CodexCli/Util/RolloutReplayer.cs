@@ -4,6 +4,7 @@ using System.IO;
 
 namespace CodexCli.Util;
 
+// C# port of `codex-rs/core/src/rollout.rs` replayer (json, messages-only and follow parity tested)
 public static class RolloutReplayer
 {
     public static async IAsyncEnumerable<string> ReplayLinesAsync(string path, bool follow = false)

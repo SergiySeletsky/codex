@@ -29,4 +29,19 @@ public class RolloutReplayerTests
             Assert.Equal("assistant", msg.Role);
         }
     }
+
+    [Fact]
+    public async Task FollowYieldsAppendedLines()
+    {
+        var tmp = Path.GetTempFileName();
+        await File.WriteAllTextAsync(tmp, "first\n");
+        await using var enumerator = RolloutReplayer.ReplayLinesAsync(tmp, true).GetAsyncEnumerator();
+        Assert.True(await enumerator.MoveNextAsync());
+        Assert.Equal("first", enumerator.Current);
+        var nextTask = enumerator.MoveNextAsync().AsTask();
+        await Task.Delay(100);
+        await File.AppendAllTextAsync(tmp, "second\n");
+        Assert.True(await nextTask);
+        Assert.Equal("second", enumerator.Current);
+    }
 }

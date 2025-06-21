@@ -61,6 +61,32 @@ public class ReplayCommandTests
         File.Delete(file);
     }
 
+    [Fact]
+    public async Task MessagesOnlyFiltersNonMessages()
+    {
+        var items = new ResponseItem[]
+        {
+            new MessageItem("assistant", new List<ContentItem>{ new("output_text","hi") }),
+            new FunctionCallItem("tool","{}","1")
+        };
+        var file = Path.GetTempFileName();
+        await using (var w = new StreamWriter(file))
+        {
+            foreach (var i in items)
+                await w.WriteLineAsync(System.Text.Json.JsonSerializer.Serialize(i, i.GetType()));
+        }
+        var cmd = ReplayCommand.Create();
+        var parser = new CommandLineBuilder(cmd).Build();
+        var sw = new StringWriter();
+        var original = Console.Out;
+        Console.SetOut(sw);
+        await parser.InvokeAsync(new[] { "--messages-only", file });
+        Console.SetOut(original);
+        sw.Flush();
+        Assert.DoesNotContain("Function", sw.ToString());
+        File.Delete(file);
+    }
+
     [Fact(Skip="fails in CI")]
     public async Task StartEndRoleFilters()
     {
@@ -167,5 +193,27 @@ public class ReplayCommandTests
         File.Delete(file);
         Assert.DoesNotContain("system:", text1);
         Assert.Contains("system:", text2);
+    }
+
+    [Fact]
+    public async Task FollowOutputsAppendedLines()
+    {
+        var item1 = new MessageItem("assistant", new List<ContentItem>{ new("output_text","a1") });
+        var item2 = new MessageItem("assistant", new List<ContentItem>{ new("output_text","a2") });
+        var file = Path.GetTempFileName();
+        await File.WriteAllTextAsync(file, System.Text.Json.JsonSerializer.Serialize(item1, item1.GetType()) + "\n");
+        var cmd = ReplayCommand.Create();
+        var parser = new CommandLineBuilder(cmd).Build();
+        var sw = new StringWriter();
+        Console.SetOut(sw);
+        var invokeTask = parser.InvokeAsync(new[] { "--json", "--follow", "--max-items", "2", file });
+        await Task.Delay(100);
+        await File.AppendAllTextAsync(file, System.Text.Json.JsonSerializer.Serialize(item2, item2.GetType()) + "\n");
+        await invokeTask;
+        Console.SetOut(Console.Out);
+        var output = sw.ToString();
+        Assert.Contains("a1", output);
+        Assert.Contains("a2", output);
+        File.Delete(file);
     }
 }

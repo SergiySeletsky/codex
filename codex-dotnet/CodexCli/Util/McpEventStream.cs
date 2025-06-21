@@ -10,6 +10,9 @@ using CodexCli.Models;
 
 namespace CodexCli.Util;
 
+// Based on `codex-rs/mcp-server/src/message_processor.rs` SSE helpers
+// (watch-events parity tested)
+
 public static class McpEventStream
 {
     public static async IAsyncEnumerable<string> ReadLinesAsync(string baseUrl, [EnumeratorCancellation] CancellationToken token = default)

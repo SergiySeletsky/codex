@@ -1175,3 +1175,32 @@
 950. Added cross-language test `McpClientListRootsMatches` checking list roots CLI parity.
 951. Updated status comments noting list-roots coverage in CLI sources.
 952. TODO next run: expand MCP manager tests and revisit skipped server cases.
+953. Added McpClientCallCodexTests covering CallCodexAsync result handling.
+954. Updated Rust and C# MCP client command comments to note call-codex parity.
+955. TODO next run: add cross-language test for mcp-manager call and unskip ReplayCommand tests.
+956. Added cross-language test `McpManagerCallMatches` verifying tool invocation parity.
+957. Updated McpClient.cs and mcp_client.rs comments to mention call-codex test coverage.
+958. TODO next run: revisit ReplayCommand parity and polish MCP server stubs.
+959. Added cross-language test `ReplayJsonMatches` verifying replay CLI parity.
+960. Noted replay parity in Program.cs and rollout.rs status comments.
+961. TODO next run: refine MCP server stubs and expand replay tests.
+
+962. Added ReplayMessagesOnly unit test and CLI parity test.
+963. Updated ReplayCommand.cs and rollout.rs comments to mention messages-only parity.
+964. TODO next run: implement follow event replay and finalize MCP server features.
+965. Added RolloutReplayer follow unit test verifying appended lines.
+966. Added ReplayCommand follow integration test.
+967. Implemented cross-language test `ReplayFollowMatches` ensuring follow parity.
+968. Updated mapping comments noting follow parity in Program.cs and rollout sources.
+969. TODO next run: expand watch-events coverage and polish MCP server stubs.
+970. Added HistoryWatchEventsTests and cross-language test `McpManagerWatchEventsMatches`.
+971. Updated mapping comments noting watch-events parity in server sources.
+972. Documented SSE helper mapping in McpEventStream.cs.
+973. TODO next run: finalize server stubs and extend watch-events CLI parity.
+
+974. Added cross-language test `HistoryWatchEventsMatches` verifying history watch-events parity.
+975. Added HistoryEntryWatchEventsTests covering messages-entry watch mode.
+976. Updated mapping comments for HistoryCommand and MessageHistory sources.
+977. TODO next run: stabilize watch-events tests and polish server stubs.
+978. Added `install-dotnet.sh` script to install the .NET 8 SDK.
+979. TODO next run: execute `install-dotnet.sh` before running `dotnet` commands.

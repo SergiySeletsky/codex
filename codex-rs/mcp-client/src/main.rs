@@ -1,6 +1,6 @@
 //! Simple command-line utility to exercise `McpClient`.
 //!
-//! C# version implemented in `codex-dotnet/CodexCli/Commands/McpClientCommand.cs` (ping, list-roots and list-tools CLI parity tested)
+//! C# version implemented in `codex-dotnet/CodexCli/Commands/McpClientCommand.cs` (ping, list-roots, list-tools and call-codex CLI parity tested)
 //!
 //! Example usage:
 //!

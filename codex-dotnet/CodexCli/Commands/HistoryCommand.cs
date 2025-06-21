@@ -3,6 +3,8 @@ using CodexCli.Util;
 using CodexCli.Config;
 using CodexCli.Protocol;
 
+// C# port of Rust history command (watch-events parity tested)
+
 namespace CodexCli.Commands;
 
 public static class HistoryCommand

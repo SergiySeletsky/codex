@@ -2,6 +2,7 @@
 //! [`ResponseItem`] objects exchanged during a session – to disk so that
 //! sessions can be replayed or inspected later (mirrors the behaviour of the
 //! upstream TypeScript implementation).
+// C# equivalent in `codex-dotnet/CodexCli/Commands/ReplayCommand.cs` (json, messages-only and follow parity tested)
 
 use std::fs::File;
 use std::fs::{self};

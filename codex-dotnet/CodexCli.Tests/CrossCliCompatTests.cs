@@ -2,6 +2,9 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using CodexCli.Util;
+using CodexCli.Models;
+using System.Text.Json;
+using System.Linq;
 using Xunit;
 
 public class CrossCliCompatTests
@@ -459,6 +462,16 @@ args = ["run", "--project", "../codex-dotnet/CodexCli", "mcp"]
     }
 
     [CrossCliFact]
+    public void McpManagerCallMatches()
+    {
+        var cfg = CreateTempConfig();
+        var fq = "test__OAI_CODEX_MCP__codex";
+        var dotnet = RunProcess("dotnet", $"run --project ../codex-dotnet/CodexCli --config {cfg} mcp-manager call {fq} --json");
+        var rust = RunProcess("cargo", $"run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- --config {cfg} mcp-manager call {fq} --json");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [CrossCliFact]
     public void McpClientPingMatches()
     {
         var dotnet = RunProcess("dotnet", "run --project ../codex-dotnet/CodexCli mcp-client dotnet --project ../codex-dotnet/CodexCli mcp --ping");
@@ -479,6 +492,24 @@ args = ["run", "--project", "../codex-dotnet/CodexCli", "mcp"]
     {
         var dotnet = RunProcess("dotnet", "run --project ../codex-dotnet/CodexCli mcp-client dotnet --project ../codex-dotnet/CodexCli mcp --list-roots --json");
         var rust = RunProcess("cargo", "run --quiet --manifest-path ../../codex-rs/mcp-client/Cargo.toml -- cargo run --quiet --manifest-path ../../codex-rs/mcp-server/Cargo.toml --list-roots --json");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [CrossCliFact(Skip="flaky in CI")]
+    public void McpManagerWatchEventsMatches()
+    {
+        var cfg = CreateTempConfig();
+        var dotnet = RunProcess("bash", $"-c '(sleep 0.2; dotnet run --project ../codex-dotnet/CodexCli --config {cfg} mcp-manager prompts add --server test w hi) & dotnet run --project ../codex-dotnet/CodexCli --config {cfg} mcp-manager prompts list --server test --events-url http://localhost:8080 --watch-events --json | head -n 2'");
+        var rust = RunProcess("bash", $"-c '(sleep 0.2; cargo run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- --config {cfg} mcp-manager prompts add --server test w hi) & cargo run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- --config {cfg} mcp-manager prompts list --server test --events-url http://localhost:8080 --watch-events --json | head -n 2'");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [CrossCliFact(Skip="flaky in CI")]
+    public void HistoryWatchEventsMatches()
+    {
+        var cfg = CreateTempConfig();
+        var dotnet = RunProcess("bash", $"-c '(sleep 0.2; dotnet run --project ../codex-dotnet/CodexCli --config {cfg} mcp-manager prompts add --server test w hi) & dotnet run --project ../codex-dotnet/CodexCli --config {cfg} history messages-meta --events-url http://localhost:8080 --watch-events | head -n 2'");
+        var rust = RunProcess("bash", $"-c '(sleep 0.2; cargo run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- --config {cfg} mcp-manager prompts add --server test w hi) & cargo run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- --config {cfg} history messages-meta --events-url http://localhost:8080 --watch-events | head -n 2'");
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 
@@ -512,6 +543,50 @@ args = ["run", "--project", "../codex-dotnet/CodexCli", "mcp"]
         var dotnet = RunProcess("dotnet", "run --project ../codex-dotnet/CodexCli history stats --json");
         var rust = RunProcess("cargo", "run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- history stats --json");
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [CrossCliFact]
+    public void ReplayJsonMatches()
+    {
+        string path = Path.GetTempFileName();
+        var item = new MessageItem("assistant", new List<ContentItem>{ new("output_text","hi") });
+        File.WriteAllText(path, JsonSerializer.Serialize(item, item.GetType()) + "\n");
+        var dotnet = RunProcess("dotnet", $"run --project ../codex-dotnet/CodexCli replay {path} --json");
+        var rust = RunProcess("cargo", $"run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- replay {path} --json");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+        File.Delete(path);
+    }
+
+    [CrossCliFact]
+    public void ReplayMessagesOnlyMatches()
+    {
+        string path = Path.GetTempFileName();
+        var items = new []
+        {
+            new MessageItem("user", new List<ContentItem>{ new("output_text","hi") }),
+            new FunctionCallItem("tool","{}","1")
+        };
+        File.WriteAllLines(path, items.Select(i => JsonSerializer.Serialize(i, i.GetType())));
+        var dotnet = RunProcess("dotnet", $"run --project ../codex-dotnet/CodexCli replay {path} --messages-only");
+        var rust = RunProcess("cargo", $"run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- replay {path} --messages-only");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+        File.Delete(path);
+    }
+
+    [CrossCliFact]
+    public void ReplayFollowMatches()
+    {
+        string dotPath = Path.GetTempFileName();
+        string rustPath = Path.GetTempFileName();
+        var first = JsonSerializer.Serialize(new MessageItem("assistant", new List<ContentItem>{ new("output_text","a1") }));
+        var second = JsonSerializer.Serialize(new MessageItem("assistant", new List<ContentItem>{ new("output_text","a2") }));
+        File.WriteAllText(dotPath, first + "\n");
+        File.WriteAllText(rustPath, first + "\n");
+        var dotnet = RunProcess("bash", $"-c \"(sleep 0.2; echo '{second}' >> {dotPath}) & dotnet run --project ../codex-dotnet/CodexCli replay {dotPath} --json --follow --max-items 2\"");
+        var rust = RunProcess("bash", $"-c \"(sleep 0.2; echo '{second}' >> {rustPath}) & cargo run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- replay {rustPath} --json --follow --max-items 2\"");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+        File.Delete(dotPath);
+        File.Delete(rustPath);
     }
 
     [CrossCliFact]

@@ -8,8 +8,8 @@ using CodexCli.Protocol;
 namespace CodexCli.Util;
 
 /// <summary>
-/// Mirrors codex-rs/mcp-server/src/message_processor.rs (done; ping and
-/// event stream endpoints tested).
+/// Mirrors codex-rs/mcp-server/src/message_processor.rs (ping, event stream
+/// and watch-events parity tested).
 /// </summary>
 public class McpServer : IDisposable, IAsyncDisposable
 {
