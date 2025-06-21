@@ -10,6 +10,7 @@
 - Implemented ChatCompletions aggregator and hooked it into ModelClient with new unit and integration tests.
 - Fixed recursion bug in ResponseStream.Aggregate and verified aggregation tests pass.
 - Ported Codex error enums and EnvVarError helper with new unit tests.
+- Implemented CodexWrapper session initialization with unit and CLI parity tests.
 
 ## Rust to C# Mapping
 - codex-rs/tui/src/exec_command.rs -> codex-dotnet/CodexCli/Util/ExecCommandUtils.cs (done)
@@ -34,6 +35,7 @@
 - codex-rs/core/src/mcp_tool_call.rs -> codex-dotnet/CodexCli/Util/McpToolCall.cs (done)
 - codex-rs/core/src/chat_completions.rs -> codex-dotnet/CodexCli/Util/ChatCompletions.cs (done)
 - codex-rs/core/src/error.rs -> codex-dotnet/CodexCli/Util/CodexErr.cs (done)
+- codex-rs/core/src/codex_wrapper.rs -> codex-dotnet/CodexCli/Util/CodexWrapper.cs (done)
 
 ## TODO
 - Integrate newly ported utilities throughout CLI commands and finalize SSE handling.
@@ -41,4 +43,4 @@
 - Add sandbox enforcement logic and wire ApprovalModeCliArg and ExecEnv into command execution.
 - Improve API key login flow using OpenAiApiKey helper and implement Ctrl+C handling via SignalUtils.
 - Implement CLI comparitive tests ensuring .NET and Rust outputs match for chat aggregation.
-- Finish port of session initialization via CodexWrapper.
+- Integrate CodexWrapper into CodexToolRunner and other CLI commands.
