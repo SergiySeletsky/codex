@@ -1,4 +1,5 @@
 //! Registry of model providers supported by Codex.
+//! C# port in `codex-dotnet/CodexCli/Config/ModelProviderInfo.cs` (done)
 //!
 //! Providers can be defined in two places:
 //!   1. Built-in defaults compiled into the binary so Codex works out-of-the-box.

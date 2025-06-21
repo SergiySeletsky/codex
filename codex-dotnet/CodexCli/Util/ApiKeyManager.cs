@@ -65,6 +65,8 @@ public static class ApiKeyManager
             var map = JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(AuthFile)) ?? new();
             var removed = map.Remove(provider);
             File.WriteAllText(AuthFile, JsonSerializer.Serialize(map));
+            if (provider == "openai")
+                OpenAiApiKey.Set(string.Empty);
             return removed;
         }
         catch { return false; }

@@ -19,6 +19,7 @@
 - Ported project_doc.rs as ProjectDoc with doc discovery helpers and tests.
 - Ported user_notification.rs as UserNotification with JSON serialization tests.
 - Ported flags.rs as EnvFlags with environment defaults and tests.
+- Ported model_provider_info.rs as ModelProviderInfo.cs with built-in provider registry and tests.
 
 ## Rust to C# Mapping
 - codex-rs/tui/src/exec_command.rs -> codex-dotnet/CodexCli/Util/ExecCommandUtils.cs (done)
@@ -31,6 +32,7 @@
 - codex-rs/core/src/project_doc.rs -> codex-dotnet/CodexCli/Util/ProjectDoc.cs (done)
 - codex-rs/core/src/user_notification.rs -> codex-dotnet/CodexCli/Util/UserNotification.cs (done)
 - codex-rs/core/src/flags.rs -> codex-dotnet/CodexCli/Config/EnvFlags.cs (done)
+- codex-rs/core/src/model_provider_info.rs -> codex-dotnet/CodexCli/Config/ModelProviderInfo.cs (done)
 
 ## TODO Next Run
 - Continue porting remaining Rust CLI features
@@ -44,6 +46,7 @@
 - Integrate EnvFlags into configuration and port environment flag tests
 - Use OpenAiTools when formatting tool payloads and add parity tests
 - Integrate UserNotification triggers in CLI and add parity tests
+- Extend ModelProviderInfo integration with ApiKeyManager and add CLI parity tests
 - Add more MCP client features and tests
 - Implement remaining sandbox enforcement logic
 - Finalize JSON serialization schema and update tests

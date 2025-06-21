@@ -17,7 +17,9 @@ public static class OpenAiApiKey
 
     public static void Set(string value)
     {
-        if (!string.IsNullOrEmpty(value))
+        if (string.IsNullOrEmpty(value))
+            _key = null;
+        else
             _key = value;
     }
 }
