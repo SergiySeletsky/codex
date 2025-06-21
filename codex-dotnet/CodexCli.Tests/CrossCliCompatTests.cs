@@ -532,6 +532,24 @@ args = ["run", "--project", "../codex-dotnet/CodexCli", "mcp"]
     }
 
     [CrossCliFact(Skip="flaky in CI")]
+    public void McpManagerAddPromptWatchEventsMatches()
+    {
+        var cfg = CreateTempConfig();
+        var dotnet = RunProcess("bash", $"-c 'dotnet run --project ../codex-dotnet/CodexCli --config {cfg} mcp-manager prompts add --server test p1 hi --events-url http://localhost:8080 --watch-events | head -n 2'");
+        var rust = RunProcess("bash", $"-c 'cargo run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- --config {cfg} mcp-manager prompts add --server test p1 hi --events-url http://localhost:8080 --watch-events | head -n 2'");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [CrossCliFact(Skip="flaky in CI")]
+    public void McpManagerAddRootWatchEventsMatches()
+    {
+        var cfg = CreateTempConfig();
+        var dotnet = RunProcess("bash", $"-c 'dotnet run --project ../codex-dotnet/CodexCli --config {cfg} mcp-manager roots add --server test r3 --events-url http://localhost:8080 --watch-events | head -n 2'");
+        var rust = RunProcess("bash", $"-c 'cargo run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- --config {cfg} mcp-manager roots add --server test r3 --events-url http://localhost:8080 --watch-events | head -n 2'");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [CrossCliFact(Skip="flaky in CI")]
     public void McpManagerWriteResourceWatchEventsMatches()
     {
         var cfg = CreateTempConfig();

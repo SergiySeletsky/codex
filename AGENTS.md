@@ -1223,3 +1223,8 @@
 991. Created cross-language test `McpManagerWriteResourceWatchEventsMatches` verifying watch-events parity.
 992. Updated mapping comments noting resource write event parity in server sources.
 993. TODO next run: refine SSE robustness and port remaining MCP features.
+994. Added cross-language tests `McpManagerAddPromptWatchEventsMatches` and
+     `McpManagerAddRootWatchEventsMatches` verifying event parity.
+995. Updated status comments in McpServer.cs and message_processor.rs noting
+     prompt/root add parity.
+996. TODO next run: continue porting MCP features and expand CLI parity tests.
