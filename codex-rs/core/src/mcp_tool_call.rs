@@ -1,3 +1,4 @@
+// C# port implemented in codex-dotnet/CodexCli/Util/McpToolCall.cs (done)
 use std::time::Duration;
 
 use tracing::error;

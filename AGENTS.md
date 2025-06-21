@@ -28,6 +28,7 @@
 - Ported approval_mode_cli_arg.rs as ApprovalModeCliArg.cs with sandbox permission parsing tests.
 - Ported config_override.rs as ConfigOverrides.cs with CLI override parser and tests.
 - Ported elapsed.rs as Elapsed.cs with duration formatting helpers and tests.
+- Ported mcp_tool_call.rs as McpToolCall.cs with tool call wrapper and tests.
 
 ## Rust to C# Mapping
 - codex-rs/tui/src/exec_command.rs -> codex-dotnet/CodexCli/Util/ExecCommandUtils.cs (done)
@@ -49,6 +50,7 @@
 - codex-rs/common/src/approval_mode_cli_arg.rs -> codex-dotnet/CodexCli/Commands/ApprovalModeCliArg.cs (done)
 - codex-rs/common/src/config_override.rs -> codex-dotnet/CodexCli/Config/ConfigOverrides.cs (done)
 - codex-rs/common/src/elapsed.rs -> codex-dotnet/CodexCli/Util/Elapsed.cs (done)
+- codex-rs/core/src/mcp_tool_call.rs -> codex-dotnet/CodexCli/Util/McpToolCall.cs (done)
 
 ## TODO Next Run
 - Continue porting remaining Rust CLI features
@@ -64,6 +66,7 @@
 - Use OpenAiTools when formatting tool payloads and add parity tests
 - Integrate UserNotification triggers in CLI and add parity tests
 - Extend ModelProviderInfo integration with ApiKeyManager and add CLI parity tests
+- Hook McpToolCall into commands and emit begin/end events with tests
 - Port chat_completions.rs to ChatClient.cs with streaming tests
 - Add more MCP client features and tests
 - Integrate ConfigOverrides into command parsing and expand tests
