@@ -405,9 +405,30 @@ public static class McpManagerCommand
                     Console.WriteLine(JsonSerializer.Serialize(ev));
         }, configOption, prmServerOpt, prmJsonOpt, prmEventsOpt, prmWatchOpt, prmNameArg, prmMsgArg);
 
+        var prmRemove = new Command("remove", "Remove prompt");
+        prmRemove.AddOption(prmServerOpt);
+        prmRemove.AddOption(prmJsonOpt);
+        prmRemove.AddOption(prmEventsOpt);
+        prmRemove.AddOption(prmWatchOpt);
+        prmRemove.AddArgument(prmNameArg);
+        prmRemove.SetHandler(async (string? cfgPath, string server, bool json, string? eventsUrl, bool watch, string name) =>
+        {
+            var cfg = cfgPath != null ? AppConfig.Load(cfgPath) : new AppConfig();
+            var (mgr, _) = await McpConnectionManager.CreateAsync(cfg.McpServers);
+            await mgr.RemovePromptAsync(server, name);
+            if (json)
+                Console.WriteLine(JsonSerializer.Serialize(new { status = "ok" }));
+            else
+                Console.WriteLine("ok");
+            if (watch && eventsUrl != null)
+                await foreach (var ev in McpEventStream.ReadEventsAsync(eventsUrl))
+                    Console.WriteLine(JsonSerializer.Serialize(ev));
+        }, configOption, prmServerOpt, prmJsonOpt, prmEventsOpt, prmWatchOpt, prmNameArg);
+
         prmCmd.AddCommand(prmList);
         prmCmd.AddCommand(prmGet);
         prmCmd.AddCommand(prmAdd);
+        prmCmd.AddCommand(prmRemove);
         root.AddCommand(prmCmd);
 
         // resources subcommand
@@ -519,11 +540,32 @@ public static class McpManagerCommand
                     Console.WriteLine(JsonSerializer.Serialize(ev));
         }, configOption, resServerOpt, resJsonOpt, resEventsOpt, resWatchOpt, resUriArg);
 
+        var resRemove = new Command("remove", "Remove resource");
+        resRemove.AddOption(resServerOpt);
+        resRemove.AddOption(resJsonOpt);
+        resRemove.AddOption(resEventsOpt);
+        resRemove.AddOption(resWatchOpt);
+        resRemove.AddArgument(resUriArg);
+        resRemove.SetHandler(async (string? cfgPath, string server, bool json, string? eventsUrl, bool watch, string uri) =>
+        {
+            var cfg = cfgPath != null ? AppConfig.Load(cfgPath) : new AppConfig();
+            var (mgr, _) = await McpConnectionManager.CreateAsync(cfg.McpServers);
+            await mgr.RemoveResourceAsync(server, uri);
+            if (json)
+                Console.WriteLine(JsonSerializer.Serialize(new { status = "ok" }));
+            else
+                Console.WriteLine("ok");
+            if (watch && eventsUrl != null)
+                await foreach (var ev in McpEventStream.ReadEventsAsync(eventsUrl))
+                    Console.WriteLine(JsonSerializer.Serialize(ev));
+        }, configOption, resServerOpt, resJsonOpt, resEventsOpt, resWatchOpt, resUriArg);
+
         resCmd.AddCommand(resList);
         resCmd.AddCommand(resRead);
         resCmd.AddCommand(resWrite);
         resCmd.AddCommand(resSub);
         resCmd.AddCommand(resUnsub);
+        resCmd.AddCommand(resRemove);
         root.AddCommand(resCmd);
 
         // templates subcommand

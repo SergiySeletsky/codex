@@ -9,7 +9,7 @@ namespace CodexCli.Util;
 
 /// <summary>
 /// Mirrors codex-rs/mcp-server/src/message_processor.rs (ping, event stream,
-/// watch-events, messages add/clear, resource write/update subscribe and
+/// watch-events, messages add/clear, resource write/update/subscribe/remove and
 /// prompt/root add/remove event parity tested).
 /// </summary>
 public class McpServer : IDisposable, IAsyncDisposable
@@ -176,11 +176,13 @@ public class McpServer : IDisposable, IAsyncDisposable
             "resources/templates/list" => Task.FromResult(CreateResponse(id, new { resourceTemplates = _templates.Select(t => new { uri = t.Uri, description = t.Description }), nextCursor = (string?)null })),
             "resources/read" => HandleReadResourceAsync(req),
             "resources/write" => HandleWriteResourceAsync(req),
+            "resources/remove" => HandleRemoveResourceAsync(req),
             "resources/subscribe" => HandleSubscribeAsync(req),
             "resources/unsubscribe" => HandleUnsubscribeAsync(req),
             "prompts/list" => Task.FromResult(CreateResponse(id, new { prompts = _prompts.Keys.Select(n => new { name = n, description = (string?)null }), nextCursor = (string?)null })),
             "prompts/get" => HandleGetPromptAsync(req),
             "prompts/add" => HandleAddPromptAsync(req),
+            "prompts/remove" => HandleRemovePromptAsync(req),
             "logging/setLevel" => HandleSetLevelAsync(req),
             "completion/complete" => HandleCompleteAsync(req),
             "sampling/createMessage" => HandleCreateMessageAsync(req),
@@ -295,6 +297,25 @@ public class McpServer : IDisposable, IAsyncDisposable
         return Task.FromResult(CreateResponse(id, new { }));
     }
 
+    private Task<JsonRpcMessage> HandleRemoveResourceAsync(JsonRpcMessage req)
+    {
+        var id = req.Id ?? JsonDocument.Parse("0").RootElement;
+        if (req.Params == null) return Task.FromResult(CreateResponse(id, new { }));
+        if (!req.Params.Value.TryGetProperty("uri", out var u))
+            return Task.FromResult(CreateResponse(id, new { }));
+        var uri = u.GetString();
+        if (string.IsNullOrEmpty(uri))
+            return Task.FromResult(CreateResponse(id, new { }));
+        if (_resources.Remove(uri))
+        {
+            var path = UriToPath(uri);
+            if (path != null && File.Exists(path)) File.Delete(path);
+            SaveResources();
+            EmitEvent(new ResourceListChangedEvent(Guid.NewGuid().ToString()));
+        }
+        return Task.FromResult(CreateResponse(id, new { }));
+    }
+
     private Task<JsonRpcMessage> HandleGetPromptAsync(JsonRpcMessage req)
     {
         var id = req.Id ?? JsonDocument.Parse("0").RootElement;
@@ -322,6 +343,24 @@ public class McpServer : IDisposable, IAsyncDisposable
         _prompts[name] = new List<PromptMessage> { new("system", message) };
         SavePrompts();
         EmitEvent(new PromptListChangedEvent(Guid.NewGuid().ToString()));
+        return Task.FromResult(CreateResponse(id, new { }));
+    }
+
+    private Task<JsonRpcMessage> HandleRemovePromptAsync(JsonRpcMessage req)
+    {
+        var id = req.Id ?? JsonDocument.Parse("0").RootElement;
+        if (req.Params == null) return Task.FromResult(CreateResponse(id, new { }));
+        var obj = req.Params.Value;
+        if (!obj.TryGetProperty("name", out var n))
+            return Task.FromResult(CreateResponse(id, new { }));
+        var name = n.GetString();
+        if (string.IsNullOrEmpty(name))
+            return Task.FromResult(CreateResponse(id, new { }));
+        if (_prompts.Remove(name))
+        {
+            SavePrompts();
+            EmitEvent(new PromptListChangedEvent(Guid.NewGuid().ToString()));
+        }
         return Task.FromResult(CreateResponse(id, new { }));
     }
 

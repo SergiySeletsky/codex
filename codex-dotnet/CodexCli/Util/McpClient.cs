@@ -174,6 +174,9 @@ public class McpClient : IDisposable, IAsyncDisposable
     public Task<Result> AddPromptAsync(AddPromptRequestParams p, int timeoutSeconds = 10)
         => SendRequestAsync<Result>("prompts/add", p, timeoutSeconds);
 
+    public Task<Result> RemovePromptAsync(string name, int timeoutSeconds = 10)
+        => SendRequestAsync<Result>("prompts/remove", new { name }, timeoutSeconds);
+
     public Task<Result> SetLevelAsync(string level, int timeoutSeconds = 10)
         => SendRequestAsync<Result>("logging/setLevel", new SetLevelRequestParams(level), timeoutSeconds);
 
@@ -209,6 +212,9 @@ public class McpClient : IDisposable, IAsyncDisposable
 
     public Task<Result> RemoveRootAsync(string uri, int timeoutSeconds = 10)
         => SendRequestAsync<Result>("roots/remove", new { uri }, timeoutSeconds);
+
+    public Task<Result> RemoveResourceAsync(string uri, int timeoutSeconds = 10)
+        => SendRequestAsync<Result>("resources/remove", new { uri }, timeoutSeconds);
 
     public Task<CallToolResult> CallCodexAsync(CodexToolCallParam param, int timeoutSeconds = 10)
     {

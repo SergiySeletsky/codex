@@ -1237,3 +1237,8 @@
 1001. Updated status comments in McpServer.cs and message_processor.rs noting
      root remove parity.
 1002. TODO next run: finalize SSE notifications for prompts and resources.
+1003. Implemented prompt and resource removal SSE notifications with unit and
+     cross-language tests.
+1004. Updated status comments in McpServer.cs and message_processor.rs noting
+     prompt/resource remove parity.
+1005. TODO next run: stabilize new SSE handlers and extend CLI coverage.

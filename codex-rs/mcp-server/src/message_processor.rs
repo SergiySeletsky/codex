@@ -1,5 +1,5 @@
 // C# port implemented in `codex-dotnet/CodexCli/Util/McpServer.cs` (ping,
-// event, watch-events, messages add/clear, resource write/update subscribe and
+// event, watch-events, messages add/clear, resource write/update/subscribe/remove and
 // prompt/root add/remove parity tested)
 use std::path::PathBuf;
 

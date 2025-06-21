@@ -255,6 +255,20 @@ public class McpConnectionManager
         await client.AddPromptAsync(new AddPromptRequestParams(name, message));
     }
 
+    public async Task RemovePromptAsync(string server, string name)
+    {
+        if(!_clients.TryGetValue(server, out var client))
+            throw new InvalidOperationException($"unknown MCP server '{server}'");
+        await client.RemovePromptAsync(name);
+    }
+
+    public async Task RemoveResourceAsync(string server, string uri)
+    {
+        if(!_clients.TryGetValue(server, out var client))
+            throw new InvalidOperationException($"unknown MCP server '{server}'");
+        await client.RemoveResourceAsync(uri);
+    }
+
     public static string FullyQualifiedToolName(string server, string tool) => $"{server}{Delimiter}{tool}";
     public static bool TryParseFullyQualifiedToolName(string fq, out string server, out string tool)
     {
