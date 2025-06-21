@@ -1214,3 +1214,7 @@
 984. Added missing protocol imports in watch-events tests.
 985. Documented progress and updated TODO list.
 986. TODO next run: finalize SSE event features and stabilize tests.
+987. Added AddMessageSendsEvent unit test and CLI test
+     McpManagerAddMessageWatchEventsMatches ensuring parity.
+988. Updated status comments noting messages add parity in server sources.
+989. TODO next run: improve SSE event robustness and continue porting.
