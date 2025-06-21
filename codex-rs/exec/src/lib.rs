@@ -1,3 +1,4 @@
+// C# port: codex-dotnet/CodexCli/Commands/ExecCommand.cs (partial)
 mod cli;
 mod event_processor;
 

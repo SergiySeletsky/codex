@@ -1,6 +1,7 @@
 using System.CommandLine;
 using CodexCli.Config;
 using CodexCli.Util;
+// Partial port of codex-rs/exec/src/lib.rs Exec command (CodexWrapper integration)
 using CodexCli.Protocol;
 using System;
 using CodexCli.ApplyPatch;
@@ -8,6 +9,8 @@ using CodexCli.Models;
 using System.Linq;
 using System.Collections.Generic;
 using System.Text.Json;
+using System.Threading;
+using System.Runtime.CompilerServices;
 
 namespace CodexCli.Commands;
 
@@ -242,9 +245,17 @@ public static class ExecCommand
             }
             else
             {
-                events = providerId == "mock"
-                    ? CodexCli.Protocol.MockCodexAgent.RunAsync(prompt, imagePaths)
-                    : CodexCli.Protocol.RealCodexAgent.RunAsync(prompt, client, opts.Model ?? cfg?.Model ?? "default", null, imagePaths);
+                Func<string, OpenAIClient, string, CancellationToken, IAsyncEnumerable<Event>>? agent = null;
+                if (providerId == "mock")
+                    agent = (p, c, m, t) => MockCodexAgent.RunAsync(p, imagePaths, null, t);
+                var (stream, first, _ctrlC) = await CodexWrapper.InitCodexAsync(prompt, client, opts.Model ?? cfg?.Model ?? "default", agent);
+                async IAsyncEnumerable<Event> EnumerateInit([EnumeratorCancellation] CancellationToken cancel = default)
+                {
+                    yield return first;
+                    await foreach (var e in stream.WithCancellation(cancel))
+                        yield return e;
+                }
+                events = EnumerateInit();
             }
             await foreach (var ev in events)
             {
