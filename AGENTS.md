@@ -1202,3 +1202,5 @@
 975. Added HistoryEntryWatchEventsTests covering messages-entry watch mode.
 976. Updated mapping comments for HistoryCommand and MessageHistory sources.
 977. TODO next run: stabilize watch-events tests and polish server stubs.
+978. Added `install-dotnet.sh` script to install the .NET 8 SDK.
+979. TODO next run: execute `install-dotnet.sh` before running `dotnet` commands.
