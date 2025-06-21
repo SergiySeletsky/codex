@@ -1,3 +1,6 @@
+/// <summary>
+/// Port of codex-rs/core/src/client_common.rs reasoning enums (done).
+/// </summary>
 namespace CodexCli.Models;
 
 using System.Text.Json.Serialization;

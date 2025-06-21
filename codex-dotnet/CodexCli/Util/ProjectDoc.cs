@@ -1,3 +1,4 @@
+// Ported from codex-rs/core/src/project_doc.rs (done)
 using CodexCli.Config;
 
 namespace CodexCli.Util;

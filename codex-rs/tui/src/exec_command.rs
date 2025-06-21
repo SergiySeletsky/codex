@@ -1,3 +1,4 @@
+// C# port implemented in codex-dotnet/CodexCli/Util/ExecCommandUtils.cs (done)
 use std::path::Path;
 use std::path::PathBuf;
 

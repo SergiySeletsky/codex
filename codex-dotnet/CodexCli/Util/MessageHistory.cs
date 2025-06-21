@@ -1,3 +1,4 @@
+// Ported from codex-rs/core/src/message_history.rs (done)
 using System.Text.Json;
 using System.Collections.Generic;
 using CodexCli.Config;

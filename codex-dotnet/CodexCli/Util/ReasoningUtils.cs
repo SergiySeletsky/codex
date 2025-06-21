@@ -1,6 +1,9 @@
 using CodexCli.Commands;
 using CodexCli.Models;
 
+/// <summary>
+/// Port of codex-rs/core/src/client_common.rs reasoning helpers (done).
+/// </summary>
 namespace CodexCli.Util;
 
 public static class ReasoningUtils

@@ -22,12 +22,16 @@ public static class ApiKeyManager
         }
         map[provider] = key.Trim();
         File.WriteAllText(AuthFile, JsonSerializer.Serialize(map));
+        if (provider == "openai")
+            OpenAiApiKey.Set(key.Trim());
     }
 
     public static string? GetKey(ModelProviderInfo provider)
     {
         var envVar = provider.EnvKey ?? DefaultEnvKey;
-        var env = Environment.GetEnvironmentVariable(envVar);
+        string? env = envVar == OpenAiApiKey.EnvVar
+            ? OpenAiApiKey.Get()
+            : Environment.GetEnvironmentVariable(envVar);
         if (!string.IsNullOrEmpty(env)) return env;
         if (File.Exists(AuthFile))
         {
@@ -61,6 +65,8 @@ public static class ApiKeyManager
             var map = JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(AuthFile)) ?? new();
             var removed = map.Remove(provider);
             File.WriteAllText(AuthFile, JsonSerializer.Serialize(map));
+            if (provider == "openai")
+                OpenAiApiKey.Set(string.Empty);
             return removed;
         }
         catch { return false; }

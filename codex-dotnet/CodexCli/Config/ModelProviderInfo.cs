@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 
+// Ported from codex-rs/core/src/model_provider_info.rs (done)
+
 namespace CodexCli.Config;
 
 public enum WireApi

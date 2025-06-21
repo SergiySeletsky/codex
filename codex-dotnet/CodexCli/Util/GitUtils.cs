@@ -1,3 +1,4 @@
+// Ported from codex-rs/core/src/util.rs (done)
 namespace CodexCli.Util;
 
 public static class GitUtils

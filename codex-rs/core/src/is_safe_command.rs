@@ -1,3 +1,4 @@
+// C# port implemented in codex-dotnet/CodexCli/Util/SafeCommand.cs (done)
 use tree_sitter::Parser;
 use tree_sitter::Tree;
 use tree_sitter_bash::LANGUAGE as BASH;

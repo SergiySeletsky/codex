@@ -4,6 +4,9 @@ using CodexCli.Models;
 
 namespace CodexCli.Util;
 
+/// <summary>
+/// Port of codex-rs/core/src/mcp_tool_call.rs (done).
+/// </summary>
 public static class McpToolCall
 {
     public static async Task<ResponseInputItem> HandleMcpToolCallAsync(McpClient client, string callId, string toolName, JsonElement? args, int timeoutSeconds = 10)

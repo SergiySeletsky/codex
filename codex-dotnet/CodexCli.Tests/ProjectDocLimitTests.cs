@@ -3,7 +3,7 @@ using CodexCli.Util;
 
 public class ProjectDocLimitTests
 {
-    [Fact(Skip="fails in container")]
+    [Fact]
     public void TruncatesProjectDoc()
     {
         var dir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());

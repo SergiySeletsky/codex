@@ -1,3 +1,4 @@
+// C# port implemented in codex-dotnet/CodexCli/Models/{Prompt.cs,ResponseEvent.cs,ReasoningModels.cs} and codex-dotnet/CodexCli/Util/{ReasoningUtils.cs,ModelClient.cs} (done)
 use crate::config_types::ReasoningEffort as ReasoningEffortConfig;
 use crate::config_types::ReasoningSummary as ReasoningSummaryConfig;
 use crate::error::Result;

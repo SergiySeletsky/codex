@@ -25,4 +25,14 @@ public class ApiKeyManagerTests
         Console.SetOut(orig);
         Assert.Contains("FOO", sw.ToString());
     }
+
+    [Fact]
+    public void GetKeyUsesProviderEnvVar()
+    {
+        var provider = new ModelProviderInfo { EnvKey = "TEST_KEY" };
+        Environment.SetEnvironmentVariable("TEST_KEY", "v1");
+        var key = ApiKeyManager.GetKey(provider);
+        Environment.SetEnvironmentVariable("TEST_KEY", null);
+        Assert.Equal("v1", key);
+    }
 }

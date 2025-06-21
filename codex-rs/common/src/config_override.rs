@@ -6,6 +6,7 @@
 //! string. Helper methods are provided to convert the raw strings into
 //! key/value pairs as well as to apply them onto a mutable
 //! `serde_json::Value` representing the configuration tree.
+// Ported to C# as `codex-dotnet/CodexCli/Config/ConfigOverrides.cs`
 
 use clap::ArgAction;
 use clap::Parser;

@@ -1,3 +1,4 @@
+// C# ports in codex-dotnet/CodexCli/Util/{Backoff.cs,GitUtils.cs,SignalUtils.cs} (done)
 use std::sync::Arc;
 use std::time::Duration;
 
