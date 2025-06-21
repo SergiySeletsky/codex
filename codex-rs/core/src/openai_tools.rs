@@ -1,3 +1,4 @@
+// C# port implemented in codex-dotnet/CodexCli/Util/OpenAiTools.cs (done)
 use serde::Serialize;
 use serde_json::json;
 use std::collections::BTreeMap;

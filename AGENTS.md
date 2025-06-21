@@ -14,6 +14,7 @@
 - Ported exec.rs as ExecRunner with timeout and sandbox env vars plus tests.
 - Ported exec_env.rs as ExecEnv with environment policy logic and tests.
 - Ported openai_api_key.rs as OpenAiApiKey with caching and ApiKeyManager hook.
+- Ported openai_tools.rs as OpenAiTools with helpers for OpenAI tool JSON.
 
 ## Rust to C# Mapping
 - codex-rs/tui/src/exec_command.rs -> codex-dotnet/CodexCli/Util/ExecCommandUtils.cs (done)
@@ -21,6 +22,7 @@
 - codex-rs/core/src/exec.rs -> codex-dotnet/CodexCli/Util/ExecRunner.cs (done)
 - codex-rs/core/src/exec_env.rs -> codex-dotnet/CodexCli/Util/ExecEnv.cs (done)
 - codex-rs/core/src/openai_api_key.rs -> codex-dotnet/CodexCli/Util/OpenAiApiKey.cs (done)
+- codex-rs/core/src/openai_tools.rs -> codex-dotnet/CodexCli/Util/OpenAiTools.cs (done)
 
 ## TODO Next Run
 - Continue porting remaining Rust CLI features
@@ -30,6 +32,7 @@
 - Continue integrating new utilities into commands
 - Wire ExecEnv into ExecCommand for environment overrides and expand CLI tests
 - Integrate OpenAiApiKey with login flow and expand key retrieval tests
+- Use OpenAiTools when formatting tool payloads and add parity tests
 - Add more MCP client features and tests
 - Implement remaining sandbox enforcement logic
 - Finalize JSON serialization schema and update tests
