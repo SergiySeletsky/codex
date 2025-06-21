@@ -12,6 +12,7 @@
 - Ported Codex error enums and EnvVarError helper with new unit tests.
 - Implemented CodexWrapper session initialization with unit and CLI parity tests.
 - Ported protocol event types and serialization helpers with parity tests.
+- Ported AppConfig loader and integrated CodexWrapper into CodexToolRunner.
 
 ## Rust to C# Mapping
 - codex-rs/tui/src/exec_command.rs -> codex-dotnet/CodexCli/Util/ExecCommandUtils.cs (done)
@@ -27,6 +28,7 @@
 - codex-rs/core/src/model_provider_info.rs -> codex-dotnet/CodexCli/Config/ModelProviderInfo.cs (done)
 - codex-rs/core/src/config_profile.rs -> codex-dotnet/CodexCli/Config/ConfigProfile.cs (done)
 - codex-rs/core/src/config_types.rs -> codex-dotnet/CodexCli/Config/{History.cs,ShellEnvironmentPolicy.cs,Tui.cs,UriBasedFileOpener.cs,ReasoningModels.cs} (done)
+- codex-rs/core/src/config.rs -> codex-dotnet/CodexCli/Config/AppConfig.cs (done)
 - codex-rs/core/src/client_common.rs -> codex-dotnet/CodexCli/{Models/{Prompt.cs,ResponseEvent.cs,ReasoningModels.cs},Util/{ReasoningUtils.cs,ModelClient.cs}} (done)
 - codex-rs/core/src/conversation_history.rs -> codex-dotnet/CodexCli/Util/ConversationHistory.cs (done)
 - codex-rs/core/src/message_history.rs -> codex-dotnet/CodexCli/Util/MessageHistory.cs (done)
@@ -45,5 +47,6 @@
 - Add sandbox enforcement logic and wire ApprovalModeCliArg and ExecEnv into command execution.
 - Improve API key login flow using OpenAiApiKey helper and implement Ctrl+C handling via SignalUtils.
 - Implement CLI comparitive tests ensuring .NET and Rust outputs match for chat aggregation.
-- Integrate CodexWrapper into CodexToolRunner and other CLI commands.
+- Integrate CodexWrapper into other CLI commands.
 - Port Codex high-level spawn interface from codex.rs and update integration tests.
+- Add AppConfig loading parity tests and wire into remaining commands.
