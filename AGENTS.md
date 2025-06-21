@@ -1181,3 +1181,6 @@
 956. Added cross-language test `McpManagerCallMatches` verifying tool invocation parity.
 957. Updated McpClient.cs and mcp_client.rs comments to mention call-codex test coverage.
 958. TODO next run: revisit ReplayCommand parity and polish MCP server stubs.
+959. Added cross-language test `ReplayJsonMatches` verifying replay CLI parity.
+960. Noted replay parity in Program.cs and rollout.rs status comments.
+961. TODO next run: refine MCP server stubs and expand replay tests.
