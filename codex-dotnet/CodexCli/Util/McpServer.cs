@@ -9,7 +9,7 @@ namespace CodexCli.Util;
 
 /// <summary>
 /// Mirrors codex-rs/mcp-server/src/message_processor.rs (ping, event stream,
-/// watch-events and messages add/clear event parity tested).
+/// watch-events, messages add/clear and resource write event parity tested).
 /// </summary>
 public class McpServer : IDisposable, IAsyncDisposable
 {

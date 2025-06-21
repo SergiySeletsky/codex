@@ -1218,3 +1218,8 @@
      McpManagerAddMessageWatchEventsMatches ensuring parity.
 988. Updated status comments noting messages add parity in server sources.
 989. TODO next run: improve SSE event robustness and continue porting.
+
+990. Added ResourceListChangedEvent parity tests for resources write.
+991. Created cross-language test `McpManagerWriteResourceWatchEventsMatches` verifying watch-events parity.
+992. Updated mapping comments noting resource write event parity in server sources.
+993. TODO next run: refine SSE robustness and port remaining MCP features.
