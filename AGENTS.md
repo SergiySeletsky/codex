@@ -7,6 +7,8 @@
 - Ported the TUI with chat, status and bottom pane widgets plus approval handling.
 - Implemented MCP client/server features with SSE watch-events and parity tests.
 - Updated Rust and C# files with status comments marking migrated components done.
+- Added parity for prompt and resource removal plus logging set-level events with
+  matching server and cross-language tests.
 
 ## TODO Next Run
 - Continue porting remaining Rust CLI features

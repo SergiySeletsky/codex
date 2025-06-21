@@ -594,6 +594,15 @@ args = ["run", "--project", "../codex-dotnet/CodexCli", "mcp"]
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 
+    [CrossCliFact(Skip="flaky in CI")]
+    public void McpManagerSetLevelWatchEventsMatches()
+    {
+        var cfg = CreateTempConfig();
+        var dotnet = RunProcess("bash", $"-c 'dotnet run --project ../codex-dotnet/CodexCli --config {cfg} mcp-manager set-level --server test debug --events-url http://localhost:8080 --watch-events | head -n 2'");
+        var rust = RunProcess("bash", $"-c 'cargo run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- --config {cfg} mcp-manager set-level --server test debug --events-url http://localhost:8080 --watch-events | head -n 2'");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
     [CrossCliFact]
     public void HistoryMessagesCountJsonMatches()
     {
