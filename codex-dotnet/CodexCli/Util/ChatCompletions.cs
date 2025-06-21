@@ -49,7 +49,7 @@ public static class ChatCompletions
         var aggregated = new ResponseStream();
         _ = Task.Run(async () =>
         {
-            await foreach (var ev in stream.Aggregate())
+            await foreach (var ev in ChatCompletions.Aggregate((IAsyncEnumerable<ResponseEvent>)stream))
                 aggregated.Writer.TryWrite(ev);
             aggregated.Writer.Complete();
         });

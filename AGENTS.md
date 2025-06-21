@@ -8,6 +8,7 @@
 - Ported project documentation, user notifications, environment flags, model provider registry, config profile helpers, configuration types, conversation and message history, approval mode parsing, config overrides, elapsed time helpers and MCP tool call.
 - Updated Rust and C# sources with status comments and added parity tests for each port.
 - Implemented ChatCompletions aggregator and hooked it into ModelClient with new unit and integration tests.
+- Fixed recursion bug in ResponseStream.Aggregate and verified aggregation tests pass.
 
 ## Rust to C# Mapping
 - codex-rs/tui/src/exec_command.rs -> codex-dotnet/CodexCli/Util/ExecCommandUtils.cs (done)
@@ -37,3 +38,4 @@
 - Expand CLI and cross-language parity tests and fix flakes, including chat aggregation.
 - Add sandbox enforcement logic and wire ApprovalModeCliArg and ExecEnv into command execution.
 - Improve API key login flow using OpenAiApiKey helper and implement Ctrl+C handling via SignalUtils.
+- Implement CLI comparitive tests ensuring .NET and Rust outputs match for chat aggregation.
