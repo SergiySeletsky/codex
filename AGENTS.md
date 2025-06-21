@@ -1232,3 +1232,8 @@
      McpManagerSubscribeResourceWatchEventsMatches ensuring parity.
 998. Updated status comments noting resource subscribe parity in server sources.
 999. TODO next run: cover remaining MCP notifications and polish SSE handling.
+1000. Added cross-language test `McpManagerRemoveRootWatchEventsMatches` verifying
+     root removal events parity.
+1001. Updated status comments in McpServer.cs and message_processor.rs noting
+     root remove parity.
+1002. TODO next run: finalize SSE notifications for prompts and resources.
