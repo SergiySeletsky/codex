@@ -459,6 +459,16 @@ args = ["run", "--project", "../codex-dotnet/CodexCli", "mcp"]
     }
 
     [CrossCliFact]
+    public void McpManagerCallMatches()
+    {
+        var cfg = CreateTempConfig();
+        var fq = "test__OAI_CODEX_MCP__codex";
+        var dotnet = RunProcess("dotnet", $"run --project ../codex-dotnet/CodexCli --config {cfg} mcp-manager call {fq} --json");
+        var rust = RunProcess("cargo", $"run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- --config {cfg} mcp-manager call {fq} --json");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [CrossCliFact]
     public void McpClientPingMatches()
     {
         var dotnet = RunProcess("dotnet", "run --project ../codex-dotnet/CodexCli mcp-client dotnet --project ../codex-dotnet/CodexCli mcp --ping");

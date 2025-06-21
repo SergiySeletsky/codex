@@ -1178,3 +1178,6 @@
 953. Added McpClientCallCodexTests covering CallCodexAsync result handling.
 954. Updated Rust and C# MCP client command comments to note call-codex parity.
 955. TODO next run: add cross-language test for mcp-manager call and unskip ReplayCommand tests.
+956. Added cross-language test `McpManagerCallMatches` verifying tool invocation parity.
+957. Updated McpClient.cs and mcp_client.rs comments to mention call-codex test coverage.
+958. TODO next run: revisit ReplayCommand parity and polish MCP server stubs.
