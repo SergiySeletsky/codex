@@ -62,7 +62,7 @@ class Program
         {
             return Task.FromResult(ev switch
             {
-                ExecApprovalRequestEvent e => widget.PromptExec(e.Command.ToArray(), Environment.CurrentDirectory),
+                ExecApprovalRequestEvent e => widget.PromptExec(e.Command.ToArray(), Environment.CurrentDirectory, null),
                 PatchApplyApprovalRequestEvent p => widget.PromptPatch(p.PatchSummary),
                 _ => ReviewDecision.Denied
             });

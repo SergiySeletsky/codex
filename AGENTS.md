@@ -9,6 +9,10 @@
 - Updated Rust and C# files with status comments marking migrated components done.
 - Added parity for prompt and resource removal plus logging set-level events with
   matching server and cross-language tests.
+- Ported exec_command helper as ExecCommandUtils with tests and integrated user approval prompt.
+
+## Rust to C# Mapping
+- codex-rs/tui/src/exec_command.rs -> codex-dotnet/CodexCli/Util/ExecCommandUtils.cs (done)
 
 ## TODO Next Run
 - Continue porting remaining Rust CLI features
@@ -155,3 +159,4 @@
 999. TODO next run: cover remaining MCP notifications and polish SSE handling.
 1002. TODO next run: finalize SSE notifications for prompts and resources.
 1005. TODO next run: stabilize new SSE handlers and extend CLI coverage.
+1008. TODO next run: wire ExecCommandUtils into more commands and extend tests.

@@ -33,7 +33,7 @@ public class ApprovalModalView : IBottomPaneView
         {
             case ExecApprovalRequestEvent e:
                 _summary = string.Join(' ', e.Command);
-                Decision = _widget.PromptExec(e.Command.ToArray(), Environment.CurrentDirectory);
+                Decision = _widget.PromptExec(e.Command.ToArray(), Environment.CurrentDirectory, null);
                 break;
             case PatchApplyApprovalRequestEvent p:
                 _summary = p.PatchSummary;

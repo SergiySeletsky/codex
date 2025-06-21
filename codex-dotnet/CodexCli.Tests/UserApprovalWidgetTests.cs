@@ -8,7 +8,7 @@ public class UserApprovalWidgetTests
     public void ApproveExecWhenYes()
     {
         var widget = new UserApprovalWidget(() => "y");
-        var dec = widget.PromptExec(new[]{"ls","-l"}, "/tmp");
+        var dec = widget.PromptExec(new[]{"ls","-l"}, "/tmp", null);
         Assert.Equal(ReviewDecision.Approved, dec);
     }
 

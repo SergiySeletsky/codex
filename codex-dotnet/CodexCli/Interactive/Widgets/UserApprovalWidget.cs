@@ -1,5 +1,6 @@
 using Spectre.Console;
 using CodexCli.Protocol;
+using CodexCli.Util;
 
 namespace CodexCli.Interactive;
 
@@ -16,10 +17,16 @@ public class UserApprovalWidget
         _readLine = readLine ?? Console.ReadLine;
     }
 
-    public ReviewDecision PromptExec(string[] command, string cwd)
+    public ReviewDecision PromptExec(string[] command, string cwd, string? reason = null)
     {
+        var cmd = ExecCommandUtils.StripBashLcAndEscape(command);
+        var cwdDisp = ExecCommandUtils.RelativizeToHome(cwd);
+        cwdDisp = cwdDisp != null ? $"~/{cwdDisp}" : cwd;
+
         AnsiConsole.MarkupLine("[bold]Shell Command[/]");
-        AnsiConsole.MarkupLine($"[dim]{cwd}$[/] {string.Join(' ', command)}");
+        AnsiConsole.MarkupLine($"[dim]{cwdDisp}$[/] {cmd}");
+        if (!string.IsNullOrEmpty(reason))
+            AnsiConsole.MarkupLine(reason);
         AnsiConsole.Markup(Markup.Escape("Allow command? [y/a/n/q] "));
         var input = _readLine()?.Trim().ToLowerInvariant();
         return input switch
