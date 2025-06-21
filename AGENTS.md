@@ -13,6 +13,7 @@
 - Implemented CodexWrapper session initialization with unit and CLI parity tests.
 - Ported protocol event types and serialization helpers with parity tests.
 - Ported AppConfig loader and integrated CodexWrapper into CodexToolRunner.
+- Implemented Codex spawn interface and added unit and CLI parity tests.
 
 ## Rust to C# Mapping
 - codex-rs/tui/src/exec_command.rs -> codex-dotnet/CodexCli/Util/ExecCommandUtils.cs (done)
@@ -40,6 +41,7 @@
 - codex-rs/core/src/error.rs -> codex-dotnet/CodexCli/Util/CodexErr.cs (done)
 - codex-rs/core/src/codex_wrapper.rs -> codex-dotnet/CodexCli/Util/CodexWrapper.cs (done)
 - codex-rs/core/src/protocol.rs -> codex-dotnet/CodexCli/Protocol/Event.cs (done)
+- codex-rs/core/src/codex.rs -> codex-dotnet/CodexCli/Util/Codex.cs (partial)
 
 ## TODO
 - Integrate newly ported utilities throughout CLI commands and finalize SSE handling.
@@ -48,5 +50,4 @@
 - Improve API key login flow using OpenAiApiKey helper and implement Ctrl+C handling via SignalUtils.
 - Implement CLI comparitive tests ensuring .NET and Rust outputs match for chat aggregation.
 - Integrate CodexWrapper into other CLI commands.
-- Port Codex high-level spawn interface from codex.rs and update integration tests.
 - Add AppConfig loading parity tests and wire into remaining commands.

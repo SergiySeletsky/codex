@@ -712,6 +712,14 @@ args = ["run", "--project", "../codex-dotnet/CodexCli", "mcp"]
         var rust = RunProcess("cargo", "run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- exec hi -c model_provider=Mock");
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
+    [CrossCliFact]
+    public void ExecAggregatedMatches()
+    {
+        var dotnet = RunProcess("dotnet", "run --project ../codex-dotnet/CodexCli exec hi --model-provider Mock");
+        var rust = RunProcess("cargo", "run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- exec hi -c model_provider=Mock");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
 
     [CrossCliFact]
     public void ExecImageUploadMatches()
