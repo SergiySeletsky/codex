@@ -1,4 +1,5 @@
 //! Defines the protocol for a Codex session between a client and an agent.
+//! C# port implemented in `codex-dotnet/CodexCli/Protocol/Event.cs` (done)
 //!
 //! Uses a SQ (Submission Queue) / EQ (Event Queue) pattern to asynchronously communicate
 //! between user and agent.

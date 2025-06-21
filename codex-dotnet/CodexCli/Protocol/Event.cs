@@ -1,4 +1,4 @@
-
+// Rust analog: codex-rs/core/src/protocol.rs (done)
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
