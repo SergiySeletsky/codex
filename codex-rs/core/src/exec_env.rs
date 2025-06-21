@@ -1,3 +1,4 @@
+// C# port implemented in codex-dotnet/CodexCli/Util/ExecEnv.cs (done)
 use crate::config_types::EnvironmentVariablePattern;
 use crate::config_types::ShellEnvironmentPolicy;
 use crate::config_types::ShellEnvironmentPolicyInherit;
