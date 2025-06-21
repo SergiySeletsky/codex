@@ -1,3 +1,4 @@
+//! C# version implemented in `codex-dotnet/CodexCli/Config/EnvFlags.cs` (done)
 use std::time::Duration;
 
 use env_flags::env_flags;

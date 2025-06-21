@@ -18,6 +18,7 @@
 - Ported util.rs helpers as Backoff, GitUtils and SignalUtils with tests.
 - Ported project_doc.rs as ProjectDoc with doc discovery helpers and tests.
 - Ported user_notification.rs as UserNotification with JSON serialization tests.
+- Ported flags.rs as EnvFlags with environment defaults and tests.
 
 ## Rust to C# Mapping
 - codex-rs/tui/src/exec_command.rs -> codex-dotnet/CodexCli/Util/ExecCommandUtils.cs (done)
@@ -29,6 +30,7 @@
 - codex-rs/core/src/util.rs -> codex-dotnet/CodexCli/Util/{Backoff.cs,GitUtils.cs,SignalUtils.cs} (done)
 - codex-rs/core/src/project_doc.rs -> codex-dotnet/CodexCli/Util/ProjectDoc.cs (done)
 - codex-rs/core/src/user_notification.rs -> codex-dotnet/CodexCli/Util/UserNotification.cs (done)
+- codex-rs/core/src/flags.rs -> codex-dotnet/CodexCli/Config/EnvFlags.cs (done)
 
 ## TODO Next Run
 - Continue porting remaining Rust CLI features
@@ -39,6 +41,7 @@
 - Wire ExecEnv into ExecCommand for environment overrides and expand CLI tests
 - Integrate OpenAiApiKey with login flow and expand key retrieval tests
 - Integrate SignalUtils for Ctrl+C handling and add cancellation tests
+- Integrate EnvFlags into configuration and port environment flag tests
 - Use OpenAiTools when formatting tool payloads and add parity tests
 - Integrate UserNotification triggers in CLI and add parity tests
 - Add more MCP client features and tests
