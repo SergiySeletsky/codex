@@ -11,10 +11,12 @@
   matching server and cross-language tests.
 - Ported exec_command helper as ExecCommandUtils with tests and integrated user approval prompt.
 - Ported is_safe_command helpers as SafeCommand with parity tests and integrated safety checks.
+- Ported exec.rs as ExecRunner with timeout and sandbox env vars plus tests.
 
 ## Rust to C# Mapping
 - codex-rs/tui/src/exec_command.rs -> codex-dotnet/CodexCli/Util/ExecCommandUtils.cs (done)
 - codex-rs/core/src/is_safe_command.rs -> codex-dotnet/CodexCli/Util/SafeCommand.cs (done)
+- codex-rs/core/src/exec.rs -> codex-dotnet/CodexCli/Util/ExecRunner.cs (done)
 
 ## TODO Next Run
 - Continue porting remaining Rust CLI features
@@ -163,3 +165,4 @@
 1002. TODO next run: finalize SSE notifications for prompts and resources.
 1005. TODO next run: stabilize new SSE handlers and extend CLI coverage.
 1008. TODO next run: wire ExecCommandUtils into more commands and extend tests.
+1011. TODO next run: integrate ExecRunner throughout CLI and port Linux sandbox tests for parity.

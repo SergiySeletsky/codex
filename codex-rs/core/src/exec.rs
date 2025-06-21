@@ -1,3 +1,4 @@
+// C# port implemented in codex-dotnet/CodexCli/Util/ExecRunner.cs (done)
 #[cfg(unix)]
 use std::os::unix::process::ExitStatusExt;
 

@@ -3,6 +3,10 @@ using CodexCli.Protocol;
 
 namespace CodexCli.Util;
 
+/// <summary>
+/// Simplified port of codex-rs/core/src/exec.rs (done).
+/// </summary>
+
 public static class ExecRunner
 {
     public const string NetworkDisabledEnv = "CODEX_SANDBOX_NETWORK_DISABLED";
@@ -36,7 +40,15 @@ public static class ExecRunner
         var start = DateTime.UtcNow;
         var stdoutTask = ReadCappedAsync(proc.StandardOutput, cts.Token, p.MaxOutputBytes ?? DefaultMaxOutputBytes, p.MaxOutputLines ?? DefaultMaxOutputLines);
         var stderrTask = ReadCappedAsync(proc.StandardError, cts.Token, p.MaxOutputBytes ?? DefaultMaxOutputBytes, p.MaxOutputLines ?? DefaultMaxOutputLines);
-        await proc.WaitForExitAsync(cts.Token).ConfigureAwait(false);
+        try
+        {
+            await proc.WaitForExitAsync(cts.Token).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException)
+        {
+            try { proc.Kill(entireProcessTree: true); } catch { }
+            throw;
+        }
         var stdout = await stdoutTask;
         var stderr = await stderrTask;
         return new ExecToolCallOutput(proc.ExitCode, stdout, stderr, DateTime.UtcNow-start);
