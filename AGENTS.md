@@ -1197,3 +1197,8 @@
 971. Updated mapping comments noting watch-events parity in server sources.
 972. Documented SSE helper mapping in McpEventStream.cs.
 973. TODO next run: finalize server stubs and extend watch-events CLI parity.
+
+974. Added cross-language test `HistoryWatchEventsMatches` verifying history watch-events parity.
+975. Added HistoryEntryWatchEventsTests covering messages-entry watch mode.
+976. Updated mapping comments for HistoryCommand and MessageHistory sources.
+977. TODO next run: stabilize watch-events tests and polish server stubs.

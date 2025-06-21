@@ -6,7 +6,7 @@ namespace CodexCli.Util;
 
 /// <summary>
 /// Persistence layer for the global append-only message history file.
-/// Mirrors codex-rs/core/src/message_history.rs (done).
+/// Mirrors codex-rs/core/src/message_history.rs (watch-events parity tested).
 /// </summary>
 public static class MessageHistory
 {
