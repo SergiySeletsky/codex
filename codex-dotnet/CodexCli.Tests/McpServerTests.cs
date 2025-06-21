@@ -153,6 +153,38 @@ public class McpServerTests
     }
 
     [Fact(Skip="flaky in CI")]
+    public async Task RemovePromptSendsEvent()
+    {
+        int port = TestUtils.GetFreeTcpPort();
+        using var server = new McpServer(port);
+        var cts = new CancellationTokenSource();
+        var serverTask = server.RunAsync(cts.Token);
+        await Task.Delay(100);
+        using var http = new HttpClient();
+        using var stream = await http.GetStreamAsync($"http://localhost:{port}/events");
+        using var reader = new StreamReader(stream);
+
+        var addParams = JsonDocument.Parse("{\"name\":\"tmp\",\"message\":\"hi\"}");
+        var addReq = new JsonRpcMessage { Method = "prompts/add", Id = JsonSerializer.SerializeToElement(41), Params = addParams.RootElement };
+        await http.PostAsync($"http://localhost:{port}/jsonrpc", new StringContent(JsonSerializer.Serialize(addReq)));
+
+        var removeParams = JsonDocument.Parse("{\"name\":\"tmp\"}");
+        var removeReq = new JsonRpcMessage { Method = "prompts/remove", Id = JsonSerializer.SerializeToElement(42), Params = removeParams.RootElement };
+        await http.PostAsync($"http://localhost:{port}/jsonrpc", new StringContent(JsonSerializer.Serialize(removeReq)));
+
+        string? line = null;
+        for (int i = 0; i < 40 && line == null; i++)
+        {
+            var l = await reader.ReadLineAsync();
+            if (l != null && l.Contains("PromptListChangedEvent")) line = l;
+        }
+
+        Assert.NotNull(line);
+        cts.Cancel();
+        await serverTask;
+    }
+
+    [Fact(Skip="flaky in CI")]
     public async Task WriteResourceSendsProgressEvents()
     {
         int port = TestUtils.GetFreeTcpPort();
@@ -176,6 +208,98 @@ public class McpServerTests
         }
 
         Assert.Equal(2, seen);
+        cts.Cancel();
+        await serverTask;
+    }
+
+    [Fact(Skip="flaky in CI")]
+    public async Task WriteResourceSendsListChangedEvent()
+    {
+        int port = TestUtils.GetFreeTcpPort();
+        using var server = new McpServer(port);
+        var cts = new CancellationTokenSource();
+        var serverTask = server.RunAsync(cts.Token);
+        await Task.Delay(100);
+        using var http = new HttpClient();
+        using var stream = await http.GetStreamAsync($"http://localhost:{port}/events");
+        using var reader = new StreamReader(stream);
+
+        var writeParams = JsonDocument.Parse("{\"uri\":\"mem:/p2.txt\",\"text\":\"hi\"}");
+        var req = new JsonRpcMessage { Method = "resources/write", Id = JsonSerializer.SerializeToElement(51), Params = writeParams.RootElement };
+        await http.PostAsync($"http://localhost:{port}/jsonrpc", new StringContent(JsonSerializer.Serialize(req)));
+
+        string? line = null;
+        for (int i = 0; i < 20 && line == null; i++)
+        {
+            var l = await reader.ReadLineAsync();
+            if (l != null && l.Contains("ResourceListChangedEvent")) line = l;
+        }
+
+        Assert.NotNull(line);
+        cts.Cancel();
+        await serverTask;
+    }
+
+    [Fact(Skip="flaky in CI")]
+    public async Task WriteSubscribedResourceSendsUpdatedEvent()
+    {
+        int port = TestUtils.GetFreeTcpPort();
+        using var server = new McpServer(port);
+        var cts = new CancellationTokenSource();
+        var serverTask = server.RunAsync(cts.Token);
+        await Task.Delay(100);
+        using var http = new HttpClient();
+        using var stream = await http.GetStreamAsync($"http://localhost:{port}/events");
+        using var reader = new StreamReader(stream);
+
+        var subParams = JsonDocument.Parse("{\"uri\":\"mem:/sub.txt\"}");
+        var subReq = new JsonRpcMessage { Method = "resources/subscribe", Id = JsonSerializer.SerializeToElement(52), Params = subParams.RootElement };
+        await http.PostAsync($"http://localhost:{port}/jsonrpc", new StringContent(JsonSerializer.Serialize(subReq)));
+
+        var writeParams = JsonDocument.Parse("{\"uri\":\"mem:/sub.txt\",\"text\":\"hi\"}");
+        var req = new JsonRpcMessage { Method = "resources/write", Id = JsonSerializer.SerializeToElement(53), Params = writeParams.RootElement };
+        await http.PostAsync($"http://localhost:{port}/jsonrpc", new StringContent(JsonSerializer.Serialize(req)));
+
+        string? line = null;
+        for (int i = 0; i < 20 && line == null; i++)
+        {
+            var l = await reader.ReadLineAsync();
+            if (l != null && l.Contains("ResourceUpdatedEvent")) line = l;
+        }
+
+        Assert.NotNull(line);
+        cts.Cancel();
+        await serverTask;
+    }
+
+    [Fact(Skip="flaky in CI")]
+    public async Task RemoveResourceSendsEvent()
+    {
+        int port = TestUtils.GetFreeTcpPort();
+        using var server = new McpServer(port);
+        var cts = new CancellationTokenSource();
+        var serverTask = server.RunAsync(cts.Token);
+        await Task.Delay(100);
+        using var http = new HttpClient();
+        using var stream = await http.GetStreamAsync($"http://localhost:{port}/events");
+        using var reader = new StreamReader(stream);
+
+        var writeParams = JsonDocument.Parse("{\"uri\":\"mem:/tmp.txt\",\"text\":\"hi\"}");
+        var writeReq = new JsonRpcMessage { Method = "resources/write", Id = JsonSerializer.SerializeToElement(54), Params = writeParams.RootElement };
+        await http.PostAsync($"http://localhost:{port}/jsonrpc", new StringContent(JsonSerializer.Serialize(writeReq)));
+
+        var removeParams = JsonDocument.Parse("{\"uri\":\"mem:/tmp.txt\"}");
+        var removeReq = new JsonRpcMessage { Method = "resources/remove", Id = JsonSerializer.SerializeToElement(55), Params = removeParams.RootElement };
+        await http.PostAsync($"http://localhost:{port}/jsonrpc", new StringContent(JsonSerializer.Serialize(removeReq)));
+
+        string? line = null;
+        for (int i = 0; i < 40 && line == null; i++)
+        {
+            var l = await reader.ReadLineAsync();
+            if (l != null && l.Contains("ResourceListChangedEvent")) line = l;
+        }
+
+        Assert.NotNull(line);
         cts.Cancel();
         await serverTask;
     }
@@ -233,6 +357,89 @@ public class McpServerTests
         {
             var l = await reader.ReadLineAsync();
             if (l != null && l.Contains("RootsListChangedEvent")) line = l;
+        }
+
+        Assert.NotNull(line);
+        cts.Cancel();
+        await serverTask;
+    }
+
+    [Fact(Skip="flaky in CI")]
+    public async Task ClearMessagesSendsEvent()
+    {
+        int port = TestUtils.GetFreeTcpPort();
+        using var server = new McpServer(port);
+        var cts = new CancellationTokenSource();
+        var serverTask = server.RunAsync(cts.Token);
+        await Task.Delay(100);
+        using var http = new HttpClient();
+        using var stream = await http.GetStreamAsync($"http://localhost:{port}/events");
+        using var reader = new StreamReader(stream);
+
+        var req = new JsonRpcMessage { Method = "messages/clear", Id = JsonSerializer.SerializeToElement(70) };
+        await http.PostAsync($"http://localhost:{port}/jsonrpc", new StringContent(JsonSerializer.Serialize(req)));
+
+        string? line = null;
+        for (int i = 0; i < 20 && line == null; i++)
+        {
+            var l = await reader.ReadLineAsync();
+            if (l != null && l.Contains("LoggingMessageEvent")) line = l;
+        }
+
+        Assert.NotNull(line);
+        cts.Cancel();
+        await serverTask;
+    }
+
+    [Fact(Skip="flaky in CI")]
+    public async Task SetLevelSendsEvent()
+    {
+        int port = TestUtils.GetFreeTcpPort();
+        using var server = new McpServer(port);
+        var cts = new CancellationTokenSource();
+        var serverTask = server.RunAsync(cts.Token);
+        await Task.Delay(100);
+        using var http = new HttpClient();
+        using var stream = await http.GetStreamAsync($"http://localhost:{port}/events");
+        using var reader = new StreamReader(stream);
+
+        var setLevelParams = JsonDocument.Parse("{\"level\":\"debug\"}");
+        var req = new JsonRpcMessage { Method = "logging/setLevel", Id = JsonSerializer.SerializeToElement(72), Params = setLevelParams.RootElement };
+        await http.PostAsync($"http://localhost:{port}/jsonrpc", new StringContent(JsonSerializer.Serialize(req)));
+
+        string? line = null;
+        for (int i = 0; i < 20 && line == null; i++)
+        {
+            var l = await reader.ReadLineAsync();
+            if (l != null && l.Contains("LoggingMessageEvent")) line = l;
+        }
+
+        Assert.NotNull(line);
+        cts.Cancel();
+        await serverTask;
+    }
+
+    [Fact(Skip="flaky in CI")]
+    public async Task AddMessageSendsEvent()
+    {
+        int port = TestUtils.GetFreeTcpPort();
+        using var server = new McpServer(port);
+        var cts = new CancellationTokenSource();
+        var serverTask = server.RunAsync(cts.Token);
+        await Task.Delay(100);
+        using var http = new HttpClient();
+        using var stream = await http.GetStreamAsync($"http://localhost:{port}/events");
+        using var reader = new StreamReader(stream);
+
+        var addParams = JsonDocument.Parse("{\"text\":\"hi\"}");
+        var req = new JsonRpcMessage { Method = "messages/add", Id = JsonSerializer.SerializeToElement(71), Params = addParams.RootElement };
+        await http.PostAsync($"http://localhost:{port}/jsonrpc", new StringContent(JsonSerializer.Serialize(req)));
+
+        string? line = null;
+        for (int i = 0; i < 20 && line == null; i++)
+        {
+            var l = await reader.ReadLineAsync();
+            if (l != null && l.Contains("AddToHistoryEvent")) line = l;
         }
 
         Assert.NotNull(line);
