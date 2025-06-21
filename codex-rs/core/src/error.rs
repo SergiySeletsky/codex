@@ -1,3 +1,4 @@
+// C# port in `codex-dotnet/CodexCli/Util/CodexErr.cs` (done)
 use reqwest::StatusCode;
 use serde_json;
 use std::io;
