@@ -1,3 +1,4 @@
+// Ported from codex-rs/core/src/rollout.rs (persistence logic)
 using System.Text.Json;
 using CodexCli.Config;
 using CodexCli.Models;

@@ -1,3 +1,4 @@
+// C# port implemented in codex-dotnet/CodexCli/Config/AppConfig.cs (done)
 use crate::config_profile::ConfigProfile;
 use crate::config_types::History;
 use crate::config_types::McpServerConfig;

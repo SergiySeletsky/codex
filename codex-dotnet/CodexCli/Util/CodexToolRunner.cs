@@ -1,4 +1,6 @@
 using System.Text.Json;
+using System.Collections.Generic;
+using System.Threading;
 using CodexCli.Protocol;
 using CodexCli.Config;
 
@@ -22,10 +24,14 @@ public static class CodexToolRunner
         var apiKey = ApiKeyManager.GetKey(providerInfo);
         var client = new OpenAIClient(apiKey, providerInfo.BaseUrl);
 
-        await foreach (var ev in RealCodexAgent.RunAsync(param.Prompt, client, param.Model ?? "gpt-3.5-turbo", null, Array.Empty<string>()))
-        {
+        Func<string, OpenAIClient, string, CancellationToken, IAsyncEnumerable<Event>>? agent = null;
+        if (providerId == "mock")
+            agent = (p, c, m, t) => MockCodexAgent.RunAsync(p, Array.Empty<string>(), null, t);
+
+        var (stream, first, _ctrlC) = await CodexWrapper.InitCodexAsync(param.Prompt, client, param.Model ?? "gpt-3.5-turbo", agent);
+        emit(first);
+        await foreach (var ev in stream)
             emit(ev);
-        }
 
         return new CallToolResult(
             new List<JsonElement> { JsonSerializer.SerializeToElement("codex done") },

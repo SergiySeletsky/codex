@@ -3,8 +3,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-/// Mirrors codex-rs/core/src/client.rs (streaming model client done; cancellation
-/// handling with OperationCanceledException parity implemented).
+/// Ported from codex-rs/core/src/client.rs (streaming model client with Ctrl+C parity)
 
 namespace CodexCli.Protocol;
 

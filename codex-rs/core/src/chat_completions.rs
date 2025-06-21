@@ -1,3 +1,4 @@
+// C# port: aggregator implemented in `codex-dotnet/CodexCli/Util/ChatCompletions.cs` (done)
 use std::time::Duration;
 
 use bytes::Bytes;
