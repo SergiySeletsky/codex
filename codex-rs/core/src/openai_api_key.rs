@@ -1,3 +1,4 @@
+// C# port implemented in codex-dotnet/CodexCli/Util/OpenAiApiKey.cs (done)
 use std::env;
 use std::sync::LazyLock;
 use std::sync::RwLock;
