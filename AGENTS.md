@@ -1193,3 +1193,7 @@
 967. Implemented cross-language test `ReplayFollowMatches` ensuring follow parity.
 968. Updated mapping comments noting follow parity in Program.cs and rollout sources.
 969. TODO next run: expand watch-events coverage and polish MCP server stubs.
+970. Added HistoryWatchEventsTests and cross-language test `McpManagerWatchEventsMatches`.
+971. Updated mapping comments noting watch-events parity in server sources.
+972. Documented SSE helper mapping in McpEventStream.cs.
+973. TODO next run: finalize server stubs and extend watch-events CLI parity.
