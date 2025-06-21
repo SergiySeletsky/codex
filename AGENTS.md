@@ -7,6 +7,7 @@
 - Migrated utilities such as ExecCommandUtils, SafeCommand, ExecRunner/ExecEnv, OpenAiApiKey, OpenAiTools, Backoff, GitUtils and SignalUtils.
 - Ported project documentation, user notifications, environment flags, model provider registry, config profile helpers, configuration types, conversation and message history, approval mode parsing, config overrides, elapsed time helpers and MCP tool call.
 - Updated Rust and C# sources with status comments and added parity tests for each port.
+- Implemented ChatCompletions aggregator and hooked it into ModelClient with new unit and integration tests.
 
 ## Rust to C# Mapping
 - codex-rs/tui/src/exec_command.rs -> codex-dotnet/CodexCli/Util/ExecCommandUtils.cs (done)
@@ -29,10 +30,10 @@
 - codex-rs/common/src/config_override.rs -> codex-dotnet/CodexCli/Config/ConfigOverrides.cs (done)
 - codex-rs/common/src/elapsed.rs -> codex-dotnet/CodexCli/Util/Elapsed.cs (done)
 - codex-rs/core/src/mcp_tool_call.rs -> codex-dotnet/CodexCli/Util/McpToolCall.cs (done)
+- codex-rs/core/src/chat_completions.rs -> codex-dotnet/CodexCli/Util/ChatCompletions.cs (done)
 
 ## TODO
-- Integrate newly ported utilities throughout CLI commands.
-- Port remaining MCP features such as chat_completions.rs to ChatClient.cs and finalize SSE handling.
-- Expand CLI and cross-language parity tests and fix flakes.
+- Integrate newly ported utilities throughout CLI commands and finalize SSE handling.
+- Expand CLI and cross-language parity tests and fix flakes, including chat aggregation.
 - Add sandbox enforcement logic and wire ApprovalModeCliArg and ExecEnv into command execution.
 - Improve API key login flow using OpenAiApiKey helper and implement Ctrl+C handling via SignalUtils.

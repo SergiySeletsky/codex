@@ -43,6 +43,6 @@ public class ModelClient
             }
             stream.Writer.Complete();
         });
-        return stream;
+        return ChatCompletions.Aggregate(stream);
     }
 }
