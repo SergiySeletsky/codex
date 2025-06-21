@@ -1,5 +1,7 @@
 namespace CodexCli.Util;
 
+// Ported from codex-rs/common/src/elapsed.rs
+
 /// <summary>
 /// Helper functions for formatting elapsed durations in a human readable form.
 /// Mirrors the behavior of the Rust implementation.

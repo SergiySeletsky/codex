@@ -1,5 +1,6 @@
 use std::time::Duration;
 use std::time::Instant;
+// Ported to C# as `codex-dotnet/CodexCli/Util/Elapsed.cs`
 
 /// Returns a string representing the elapsed time since `start_time` like
 /// "1m15s" or "1.50s".

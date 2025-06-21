@@ -26,6 +26,8 @@
 - Ported conversation_history.rs as ConversationHistory.cs with transcript helpers and tests.
 - Ported message_history.rs as MessageHistory.cs with append-only log watchers.
 - Ported approval_mode_cli_arg.rs as ApprovalModeCliArg.cs with sandbox permission parsing tests.
+- Ported config_override.rs as ConfigOverrides.cs with CLI override parser and tests.
+- Ported elapsed.rs as Elapsed.cs with duration formatting helpers and tests.
 
 ## Rust to C# Mapping
 - codex-rs/tui/src/exec_command.rs -> codex-dotnet/CodexCli/Util/ExecCommandUtils.cs (done)
@@ -45,6 +47,8 @@
 - codex-rs/core/src/conversation_history.rs -> codex-dotnet/CodexCli/Util/ConversationHistory.cs (done)
 - codex-rs/core/src/message_history.rs -> codex-dotnet/CodexCli/Util/MessageHistory.cs (done)
 - codex-rs/common/src/approval_mode_cli_arg.rs -> codex-dotnet/CodexCli/Commands/ApprovalModeCliArg.cs (done)
+- codex-rs/common/src/config_override.rs -> codex-dotnet/CodexCli/Config/ConfigOverrides.cs (done)
+- codex-rs/common/src/elapsed.rs -> codex-dotnet/CodexCli/Util/Elapsed.cs (done)
 
 ## TODO Next Run
 - Continue porting remaining Rust CLI features
@@ -62,6 +66,7 @@
 - Extend ModelProviderInfo integration with ApiKeyManager and add CLI parity tests
 - Port chat_completions.rs to ChatClient.cs with streaming tests
 - Add more MCP client features and tests
+- Integrate ConfigOverrides into command parsing and expand tests
 - Implement remaining sandbox enforcement logic
 - Finalize JSON serialization schema and update tests
 - Stabilize new message server features
