@@ -1,3 +1,4 @@
+// Ported from codex-rs/cli/src/exit_status.rs (done)
 namespace CodexCli.Util;
 
 public static class ExitStatus

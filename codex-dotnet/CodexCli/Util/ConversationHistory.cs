@@ -1,3 +1,4 @@
+// Ported from codex-rs/core/src/conversation_history.rs (done)
 using CodexCli.Models;
 
 namespace CodexCli.Util;

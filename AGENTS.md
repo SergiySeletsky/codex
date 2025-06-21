@@ -23,6 +23,9 @@
 - Ported config_profile.rs as ConfigProfile.cs with profile helpers and tests.
 - Ported config_types.rs as History.cs, ShellEnvironmentPolicy.cs, Tui.cs and UriBasedFileOpener.cs with tests.
 - Ported client_common.rs as Prompt, ResponseEvent, ModelClient and ReasoningUtils with new parity tests.
+- Ported conversation_history.rs as ConversationHistory.cs with transcript helpers and tests.
+- Ported message_history.rs as MessageHistory.cs with append-only log watchers.
+- Ported approval_mode_cli_arg.rs as ApprovalModeCliArg.cs with sandbox permission parsing tests.
 
 ## Rust to C# Mapping
 - codex-rs/tui/src/exec_command.rs -> codex-dotnet/CodexCli/Util/ExecCommandUtils.cs (done)
@@ -39,6 +42,9 @@
 - codex-rs/core/src/config_profile.rs -> codex-dotnet/CodexCli/Config/ConfigProfile.cs (done)
 - codex-rs/core/src/config_types.rs -> codex-dotnet/CodexCli/Config/{History.cs,ShellEnvironmentPolicy.cs,Tui.cs,UriBasedFileOpener.cs,ReasoningModels.cs} (done)
 - codex-rs/core/src/client_common.rs -> codex-dotnet/CodexCli/{Models/{Prompt.cs,ResponseEvent.cs,ReasoningModels.cs},Util/{ReasoningUtils.cs,ModelClient.cs}} (done)
+- codex-rs/core/src/conversation_history.rs -> codex-dotnet/CodexCli/Util/ConversationHistory.cs (done)
+- codex-rs/core/src/message_history.rs -> codex-dotnet/CodexCli/Util/MessageHistory.cs (done)
+- codex-rs/common/src/approval_mode_cli_arg.rs -> codex-dotnet/CodexCli/Commands/ApprovalModeCliArg.cs (done)
 
 ## TODO Next Run
 - Continue porting remaining Rust CLI features
@@ -46,6 +52,7 @@
 - Port remaining core utilities from Rust such as conversation replay
 - Expand unit tests for new utilities
 - Continue integrating new utilities into commands
+- Integrate ApprovalModeCliArg with Exec and Interactive options
 - Wire ExecEnv into ExecCommand for environment overrides and expand CLI tests
 - Integrate OpenAiApiKey with login flow and expand key retrieval tests
 - Integrate SignalUtils for Ctrl+C handling and add cancellation tests
