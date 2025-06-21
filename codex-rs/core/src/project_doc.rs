@@ -1,4 +1,5 @@
 //! Project-level documentation discovery.
+// C# port implemented in codex-dotnet/CodexCli/Util/ProjectDoc.cs (done)
 //!
 //! Project-level documentation can be stored in a file named `AGENTS.md`.
 //! Currently, we include only the contents of the first file found as follows:

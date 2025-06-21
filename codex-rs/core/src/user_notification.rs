@@ -1,3 +1,4 @@
+// C# port implemented in codex-dotnet/CodexCli/Util/UserNotification.cs (done)
 use serde::Serialize;
 
 /// User can configure a program that will receive notifications. Each
