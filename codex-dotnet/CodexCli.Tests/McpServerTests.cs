@@ -241,6 +241,33 @@ public class McpServerTests
     }
 
     [Fact(Skip="flaky in CI")]
+    public async Task ClearMessagesSendsEvent()
+    {
+        int port = TestUtils.GetFreeTcpPort();
+        using var server = new McpServer(port);
+        var cts = new CancellationTokenSource();
+        var serverTask = server.RunAsync(cts.Token);
+        await Task.Delay(100);
+        using var http = new HttpClient();
+        using var stream = await http.GetStreamAsync($"http://localhost:{port}/events");
+        using var reader = new StreamReader(stream);
+
+        var req = new JsonRpcMessage { Method = "messages/clear", Id = JsonSerializer.SerializeToElement(70) };
+        await http.PostAsync($"http://localhost:{port}/jsonrpc", new StringContent(JsonSerializer.Serialize(req)));
+
+        string? line = null;
+        for (int i = 0; i < 20 && line == null; i++)
+        {
+            var l = await reader.ReadLineAsync();
+            if (l != null && l.Contains("LoggingMessageEvent")) line = l;
+        }
+
+        Assert.NotNull(line);
+        cts.Cancel();
+        await serverTask;
+    }
+
+    [Fact(Skip="flaky in CI")]
     public async Task PingRequestReturnsResult()
     {
         int port = TestUtils.GetFreeTcpPort();

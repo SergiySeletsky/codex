@@ -513,6 +513,15 @@ args = ["run", "--project", "../codex-dotnet/CodexCli", "mcp"]
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 
+    [CrossCliFact(Skip="flaky in CI")]
+    public void McpManagerClearWatchEventsMatches()
+    {
+        var cfg = CreateTempConfig();
+        var dotnet = RunProcess("bash", $"-c '(sleep 0.2; dotnet run --project ../codex-dotnet/CodexCli --config {cfg} mcp-manager messages add --server test hi) & dotnet run --project ../codex-dotnet/CodexCli --config {cfg} mcp-manager messages clear --server test --events-url http://localhost:8080 --watch-events | head -n 2'");
+        var rust = RunProcess("bash", $"-c '(sleep 0.2; cargo run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- --config {cfg} mcp-manager messages add --server test hi) & cargo run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- --config {cfg} mcp-manager messages clear --server test --events-url http://localhost:8080 --watch-events | head -n 2'");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
     [CrossCliFact]
     public void HistoryMessagesCountJsonMatches()
     {
@@ -561,7 +570,7 @@ args = ["run", "--project", "../codex-dotnet/CodexCli", "mcp"]
     public void ReplayMessagesOnlyMatches()
     {
         string path = Path.GetTempFileName();
-        var items = new []
+        var items = new ResponseItem[]
         {
             new MessageItem("user", new List<ContentItem>{ new("output_text","hi") }),
             new FunctionCallItem("tool","{}","1")

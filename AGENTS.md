@@ -1204,3 +1204,9 @@
 977. TODO next run: stabilize watch-events tests and polish server stubs.
 978. Added `install-dotnet.sh` script to install the .NET 8 SDK.
 979. TODO next run: execute `install-dotnet.sh` before running `dotnet` commands.
+980. Added LoggingMessageEvent emission on `messages/clear` in `McpServer` and
+     updated status comments in both Rust and C# sources.
+981. Created `ClearMessagesSendsEvent` unit test and CLI test
+     `McpManagerClearWatchEventsMatches` ensuring parity.
+982. TODO next run: stabilize new watch-events tests and continue
+     refining MCP server features.

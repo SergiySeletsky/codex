@@ -2,6 +2,7 @@ using CodexCli.Commands;
 using CodexCli.Util;
 using System.CommandLine.Builder;
 using System.CommandLine.Parsing;
+using CodexCli.Protocol;
 using Xunit;
 
 public class HistoryEntryWatchEventsTests

@@ -8,8 +8,8 @@ using CodexCli.Protocol;
 namespace CodexCli.Util;
 
 /// <summary>
-/// Mirrors codex-rs/mcp-server/src/message_processor.rs (ping, event stream
-/// and watch-events parity tested).
+/// Mirrors codex-rs/mcp-server/src/message_processor.rs (ping, event stream,
+/// watch-events and messages clear event parity tested).
 /// </summary>
 public class McpServer : IDisposable, IAsyncDisposable
 {
@@ -437,6 +437,7 @@ public class McpServer : IDisposable, IAsyncDisposable
         var id = req.Id ?? JsonDocument.Parse("0").RootElement;
         _messages.Clear();
         SaveMessages();
+        EmitEvent(new LoggingMessageEvent(Guid.NewGuid().ToString(), "messages cleared"));
         return Task.FromResult(CreateResponse(id, new { }));
     }
 
