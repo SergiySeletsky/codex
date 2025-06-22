@@ -1,4 +1,6 @@
 using CodexCli.Models;
+using CodexCli.Protocol;
+using System.Threading.Tasks;
 
 namespace CodexCli.Util;
 
@@ -14,6 +16,7 @@ public class CodexState
     public bool HasCurrentTask { get; set; }
     public AgentTask? CurrentTask { get; set; }
     public List<ResponseInputItem> PendingInput { get; } = new();
+    public Dictionary<string, TaskCompletionSource<ReviewDecision>> PendingApprovals { get; } = new();
 
     public CodexState PartialClone(bool retainZdrTranscript)
     {

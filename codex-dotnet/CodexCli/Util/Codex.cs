@@ -357,4 +357,51 @@ public class Codex
         await RecordRolloutItemsAsync(recorder, items);
         transcript?.RecordItems(items);
     }
+
+    /// <summary>
+    /// Ported from codex-rs/core/src/codex.rs `request_command_approval` (done).
+    /// Returns a task that completes with the user's decision and the approval event.
+    /// </summary>
+    public static (Task<ReviewDecision> Task, ExecApprovalRequestEvent Event) RequestCommandApproval(
+        CodexState state, string subId, List<string> command, string cwd, string? reason)
+    {
+        var tcs = new TaskCompletionSource<ReviewDecision>();
+        state.PendingApprovals[subId] = tcs;
+        var ev = new ExecApprovalRequestEvent(subId, command);
+        return (tcs.Task, ev);
+    }
+
+    /// <summary>
+    /// Ported from codex-rs/core/src/codex.rs `request_patch_approval` (done).
+    /// </summary>
+    public static (Task<ReviewDecision> Task, PatchApplyApprovalRequestEvent Event) RequestPatchApproval(
+        CodexState state, string subId, ApplyPatchAction action, string? reason, string? grantRoot)
+    {
+        var tcs = new TaskCompletionSource<ReviewDecision>();
+        state.PendingApprovals[subId] = tcs;
+        var summary = string.Join(", ", action.Changes.Keys);
+        var ev = new PatchApplyApprovalRequestEvent(subId, summary);
+        return (tcs.Task, ev);
+    }
+
+    /// <summary>
+    /// Ported from codex-rs/core/src/codex.rs `notify_approval` (done).
+    /// Completes the pending approval task if present.
+    /// </summary>
+    public static void NotifyApproval(CodexState state, string subId, ReviewDecision decision)
+    {
+        if (state.PendingApprovals.TryGetValue(subId, out var tcs))
+        {
+            state.PendingApprovals.Remove(subId);
+            tcs.TrySetResult(decision);
+        }
+    }
+
+    /// <summary>
+    /// Ported from codex-rs/core/src/codex.rs `add_approved_command` (done).
+    /// </summary>
+    public static void AddApprovedCommand(CodexState state, List<string> command)
+    {
+        state.ApprovedCommands.Add(command);
+    }
 }

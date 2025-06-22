@@ -242,6 +242,7 @@ impl Session {
         }
     }
 
+    // C# port in codex-dotnet/CodexCli/Util/Codex.cs RequestCommandApproval (done)
     pub async fn request_command_approval(
         &self,
         sub_id: String,
@@ -266,6 +267,7 @@ impl Session {
         rx_approve
     }
 
+    // C# port in codex-dotnet/CodexCli/Util/Codex.cs RequestPatchApproval (done)
     pub async fn request_patch_approval(
         &self,
         sub_id: String,
@@ -290,6 +292,7 @@ impl Session {
         rx_approve
     }
 
+    // C# port in codex-dotnet/CodexCli/Util/Codex.cs NotifyApproval (done)
     pub fn notify_approval(&self, sub_id: &str, decision: ReviewDecision) {
         let mut state = self.state.lock().unwrap();
         if let Some(tx_approve) = state.pending_approvals.remove(sub_id) {
@@ -297,6 +300,7 @@ impl Session {
         }
     }
 
+    // C# port in codex-dotnet/CodexCli/Util/Codex.cs AddApprovedCommand (done)
     pub fn add_approved_command(&self, cmd: Vec<String>) {
         let mut state = self.state.lock().unwrap();
         state.approved_commands.insert(cmd);

@@ -51,6 +51,7 @@
 - Ported `prompt.md` base instructions and `APPLY_PATCH_TOOL_INSTRUCTIONS` constant to C# with runtime loading.
 - Marked prompt and apply_patch instruction markdown files with port comments for traceability.
 - Ported `record_conversation_items` and `record_rollout_items` helpers as `Codex.RecordConversationItemsAsync` and `Codex.RecordRolloutItemsAsync` with new unit tests.
+- Ported `request_command_approval`, `request_patch_approval`, `notify_approval` and `add_approved_command` helpers as `Codex` methods with new unit tests.
 
 ## Rust to C# Mapping
 
@@ -119,6 +120,10 @@
 - codex-rs/core/src/codex.rs remove_task -> codex-dotnet/CodexCli/Util/Codex.cs RemoveTask (done)
 - codex-rs/core/src/codex.rs record_rollout_items -> codex-dotnet/CodexCli/Util/Codex.cs RecordRolloutItemsAsync (done)
 - codex-rs/core/src/codex.rs record_conversation_items -> codex-dotnet/CodexCli/Util/Codex.cs RecordConversationItemsAsync (done)
+- codex-rs/core/src/codex.rs request_command_approval -> codex-dotnet/CodexCli/Util/Codex.cs RequestCommandApproval (done)
+- codex-rs/core/src/codex.rs request_patch_approval -> codex-dotnet/CodexCli/Util/Codex.cs RequestPatchApproval (done)
+- codex-rs/core/src/codex.rs notify_approval -> codex-dotnet/CodexCli/Util/Codex.cs NotifyApproval (done)
+- codex-rs/core/src/codex.rs add_approved_command -> codex-dotnet/CodexCli/Util/Codex.cs AddApprovedCommand (done)
 - codex-rs/core/src/codex.rs -> codex-dotnet/CodexCli/Util/Codex.cs (partial)
 - codex-rs/exec/src/lib.rs -> codex-dotnet/CodexCli/Commands/ExecCommand.cs (partial, safety and Ctrl+C integrated)
 - codex-rs/core/src/client.rs -> codex-dotnet/CodexCli/Protocol/RealCodexAgent.cs (done)
@@ -151,5 +156,7 @@
 - Integrate Codex.InjectInput and GetPendingInput into session input workflow.
 - Integrate Codex.ResolvePath into command path handling.
 - Integrate Codex.SetTask and Codex.RemoveTask into session task workflow.
+- Integrate Codex.RequestCommandApproval and RequestPatchApproval into approval workflow.
+- Integrate Codex.NotifyApproval and AddApprovedCommand into approval workflow.
 - Integrate Codex.RecordConversationItemsAsync and RecordRolloutItemsAsync into session recording workflow.
 - Integrate Prompt base and apply_patch instructions loading into Prompt.GetFullInstructions.
