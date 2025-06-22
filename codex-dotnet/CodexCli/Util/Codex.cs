@@ -126,4 +126,41 @@ public class Codex
         }
         return result;
     }
+
+    /// <summary>
+    /// Ported from codex-rs/core/src/codex.rs `first_offending_path` (done).
+    /// Returns the first path in the apply_patch action that is not under any
+    /// writable root. Paths may be relative to <paramref name="cwd"/>.
+    /// </summary>
+    public static string? FirstOffendingPath(ApplyPatchAction action, List<string> writableRoots, string cwd)
+    {
+        foreach (var kv in action.Changes)
+        {
+            var change = kv.Value;
+            var candidate = change.Kind switch
+            {
+                "add" => kv.Key,
+                "delete" => kv.Key,
+                "update" => change.MovePath ?? kv.Key,
+                _ => kv.Key
+            };
+
+            var abs = Path.GetFullPath(Path.IsPathRooted(candidate) ? candidate : Path.Combine(cwd, candidate));
+            bool allowed = false;
+            foreach (var root in writableRoots)
+            {
+                var rootAbs = Path.GetFullPath(Path.IsPathRooted(root) ? root : Path.Combine(cwd, root));
+                if (abs.StartsWith(rootAbs))
+                {
+                    allowed = true;
+                    break;
+                }
+            }
+
+            if (!allowed)
+                return candidate;
+        }
+
+        return null;
+    }
 }

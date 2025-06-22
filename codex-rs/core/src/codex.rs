@@ -1710,6 +1710,7 @@ async fn apply_patch(
 /// Return the first path in `hunks` that is NOT under any of the
 /// `writable_roots` (after normalising). If all paths are acceptable,
 /// returns None.
+// C# port in codex-dotnet/CodexCli/Util/Codex.cs FirstOffendingPath (done)
 fn first_offending_path(
     action: &ApplyPatchAction,
     writable_roots: &[PathBuf],

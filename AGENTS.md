@@ -36,6 +36,7 @@
 - Ported `get_last_assistant_message_from_turn` and `record_conversation_history` helpers as `Codex` methods with new unit tests.
 - Ported `convert_apply_patch_to_protocol` helper as `Codex.ConvertApplyPatchToProtocol` with unit, integration and CLI tests.
 - Ported `print_summary` helper as `PatchSummary.PrintSummary` with new unit and CLI tests.
+- Ported `first_offending_path` helper as `Codex.FirstOffendingPath` with new unit tests.
 
 ## Rust to C# Mapping
 
@@ -78,6 +79,7 @@
 - codex-rs/core/src/codex.rs get_last_assistant_message_from_turn -> codex-dotnet/CodexCli/Util/Codex.cs GetLastAssistantMessageFromTurn (done)
 - codex-rs/core/src/codex.rs record_conversation_history -> codex-dotnet/CodexCli/Util/Codex.cs RecordConversationHistory (done)
 - codex-rs/core/src/codex.rs convert_apply_patch_to_protocol -> codex-dotnet/CodexCli/Util/Codex.cs ConvertApplyPatchToProtocol (done)
+- codex-rs/core/src/codex.rs first_offending_path -> codex-dotnet/CodexCli/Util/Codex.cs FirstOffendingPath (done)
 - codex-rs/apply-patch/src/lib.rs print_summary -> codex-dotnet/CodexCli/ApplyPatch/PatchSummary.cs PrintSummary (done)
 - codex-rs/core/src/codex.rs -> codex-dotnet/CodexCli/Util/Codex.cs (partial)
 - codex-rs/exec/src/lib.rs -> codex-dotnet/CodexCli/Commands/ExecCommand.cs (partial, safety and Ctrl+C integrated)
