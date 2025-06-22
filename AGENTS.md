@@ -48,6 +48,7 @@
 - Ported `inject_input` and `get_pending_input` helpers as `Codex.InjectInput` and `Codex.GetPendingInput` with new unit tests.
 - Ported `resolve_path` helper as `Codex.ResolvePath` with new unit tests.
 - Ported `set_task` and `remove_task` helpers as `Codex.SetTask` and `Codex.RemoveTask` with new unit tests.
+- Ported `prompt.md` base instructions and `APPLY_PATCH_TOOL_INSTRUCTIONS` constant to C# with runtime loading.
 
 ## Rust to C# Mapping
 
@@ -87,6 +88,10 @@
 - codex-rs/core/src/safety.rs get_platform_sandbox -> codex-dotnet/CodexCli/Util/Safety.cs GetPlatformSandbox (done)
 - codex-rs/core/src/codex_wrapper.rs -> codex-dotnet/CodexCli/Util/CodexWrapper.cs (done)
 - codex-rs/core/src/protocol.rs -> codex-dotnet/CodexCli/Protocol/Event.cs (done)
+- codex-rs/core/prompt.md -> codex-dotnet/CodexCli/prompt.md (done)
+- codex-rs/apply-patch/apply_patch_tool_instructions.md -> codex-dotnet/CodexCli/ApplyPatch/apply_patch_tool_instructions.md (done)
+- codex-rs/apply-patch/src/lib.rs APPLY_PATCH_TOOL_INSTRUCTIONS -> codex-dotnet/CodexCli/Models/Prompt.cs ApplyPatchToolInstructions (done)
+- codex-rs/core/src/client_common.rs BASE_INSTRUCTIONS -> codex-dotnet/CodexCli/Models/Prompt.cs BaseInstructions (done)
 - codex-rs/core/src/codex.rs format_exec_output -> codex-dotnet/CodexCli/Util/Codex.cs FormatExecOutput (done)
 - codex-rs/core/src/codex.rs get_writable_roots -> codex-dotnet/CodexCli/Util/Codex.cs GetWritableRoots (done)
 - codex-rs/core/src/codex.rs get_last_assistant_message_from_turn -> codex-dotnet/CodexCli/Util/Codex.cs GetLastAssistantMessageFromTurn (done)
@@ -142,3 +147,4 @@
 - Integrate Codex.InjectInput and GetPendingInput into session input workflow.
 - Integrate Codex.ResolvePath into command path handling.
 - Integrate Codex.SetTask and Codex.RemoveTask into session task workflow.
+- Integrate Prompt base and apply_patch instructions loading into Prompt.GetFullInstructions.

@@ -5,6 +5,8 @@ namespace CodexCli.Models;
 
 using System.Collections.Generic;
 using System.Text;
+using System.IO;
+using System;
 using CodexCli.Util;
 
 public class Prompt
@@ -15,7 +17,7 @@ public class Prompt
     public bool Store { get; set; }
     public Dictionary<string, Tool> ExtraTools { get; } = new();
 
-    private const string BaseInstructions = "You are Codex, a coding assistant."; // from prompt.md
+    private static readonly string BaseInstructions = LoadInstructions("prompt.md");
 
     public string GetFullInstructions(string model)
     {
@@ -27,5 +29,11 @@ public class Prompt
         return string.Join('\n', sections);
     }
 
-    private const string ApplyPatchToolInstructions = "ApplyPatch tool usage";
+    private static readonly string ApplyPatchToolInstructions = LoadInstructions(Path.Combine("ApplyPatch", "apply_patch_tool_instructions.md"));
+
+    private static string LoadInstructions(string relative)
+    {
+        var path = Path.Combine(AppContext.BaseDirectory, relative);
+        return File.Exists(path) ? File.ReadAllText(path) : "";
+    }
 }
