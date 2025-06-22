@@ -1,3 +1,4 @@
+// Ported from codex-rs/execpolicy/src/lib.rs default policy loader
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 
