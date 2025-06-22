@@ -89,6 +89,18 @@ public static class Safety
         return SafetyCheck.AskUser;
     }
 
+    /// <summary>
+    /// Ported from codex-rs/core/src/safety.rs `get_platform_sandbox` (done).
+    /// Returns the default sandbox type for the current platform if supported.
+    /// </summary>
+    public static SandboxType? GetPlatformSandbox()
+    {
+        if (OperatingSystem.IsMacOS()) return SandboxType.MacosSeatbelt;
+        if (OperatingSystem.IsLinux()) return SandboxType.LinuxSeccomp;
+        return null;
+    }
+
     // Helpers for earlier versions retained for completeness, though not used
     // in current ports.
 }
+

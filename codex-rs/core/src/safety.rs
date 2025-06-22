@@ -104,6 +104,7 @@ pub fn assess_command_safety(
     }
 }
 
+// C# port in codex-dotnet/CodexCli/Util/Safety.cs GetPlatformSandbox (done)
 pub fn get_platform_sandbox() -> Option<SandboxType> {
     if cfg!(target_os = "macos") {
         Some(SandboxType::MacosSeatbelt)

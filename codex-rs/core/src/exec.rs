@@ -64,6 +64,7 @@ pub struct ExecParams {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
+// C# port in codex-dotnet/CodexCli/Protocol/SandboxType.cs (done)
 pub enum SandboxType {
     None,
 

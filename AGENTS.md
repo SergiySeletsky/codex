@@ -41,6 +41,7 @@
 - Ported `apply_patch` helper as `PatchApplier.ApplyAndReport` with new unit, integration and CLI tests.
 - Ported `is_write_patch_constrained_to_writable_paths` helper as `Safety.IsWritePatchConstrainedToWritableRoots` with new unit test.
 - Ported `to_exec_params` and `parse_container_exec_arguments` helpers as `Codex.ToExecParams` and `Codex.TryParseContainerExecArguments` with new unit tests.
+- Ported platform sandbox detection as `Safety.GetPlatformSandbox` with new unit test.
 
 ## Rust to C# Mapping
 
@@ -76,6 +77,8 @@
 - codex-rs/cli/src/debug_sandbox.rs -> codex-dotnet/CodexCli/Commands/DebugCommand.cs (done)
 - codex-rs/cli/src/proto.rs -> codex-dotnet/CodexCli/Commands/ProtoCommand.cs (done)
 - codex-rs/core/src/safety.rs -> codex-dotnet/CodexCli/Util/Safety.cs (done)
+- codex-rs/core/src/exec.rs SandboxType -> codex-dotnet/CodexCli/Protocol/SandboxType.cs (done)
+- codex-rs/core/src/safety.rs get_platform_sandbox -> codex-dotnet/CodexCli/Util/Safety.cs GetPlatformSandbox (done)
 - codex-rs/core/src/codex_wrapper.rs -> codex-dotnet/CodexCli/Util/CodexWrapper.cs (done)
 - codex-rs/core/src/protocol.rs -> codex-dotnet/CodexCli/Protocol/Event.cs (done)
 - codex-rs/core/src/codex.rs format_exec_output -> codex-dotnet/CodexCli/Util/Codex.cs FormatExecOutput (done)
