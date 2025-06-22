@@ -37,7 +37,7 @@ public static class Safety
         };
     }
 
-    internal static bool IsWritePatchConstrainedToWritableRoots(ApplyPatchAction action, List<string> writableRoots, string cwd)
+    public static bool IsWritePatchConstrainedToWritableRoots(ApplyPatchAction action, List<string> writableRoots, string cwd)
     {
         if (writableRoots.Count == 0)
             return false;

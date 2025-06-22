@@ -40,6 +40,7 @@
 - Ported `apply_changes_from_apply_patch` and `apply_changes_from_apply_patch_and_report` as `PatchApplier.ApplyAction` and `PatchApplier.ApplyActionAndReport` with new unit tests.
 - Ported `apply_patch` helper as `PatchApplier.ApplyAndReport` with new unit, integration and CLI tests.
 - Ported `is_write_patch_constrained_to_writable_paths` helper as `Safety.IsWritePatchConstrainedToWritableRoots` with new unit test.
+- Ported `to_exec_params` and `parse_container_exec_arguments` helpers as `Codex.ToExecParams` and `Codex.TryParseContainerExecArguments` with new unit tests.
 
 ## Rust to C# Mapping
 
@@ -84,6 +85,8 @@
 - codex-rs/core/src/codex.rs convert_apply_patch_to_protocol -> codex-dotnet/CodexCli/Util/Codex.cs ConvertApplyPatchToProtocol (done)
 - codex-rs/core/src/codex.rs first_offending_path -> codex-dotnet/CodexCli/Util/Codex.cs FirstOffendingPath (done)
 - codex-rs/core/src/safety.rs is_write_patch_constrained_to_writable_paths -> codex-dotnet/CodexCli/Util/Safety.cs IsWritePatchConstrainedToWritableRoots (done)
+- codex-rs/core/src/codex.rs to_exec_params -> codex-dotnet/CodexCli/Util/Codex.cs ToExecParams (done)
+- codex-rs/core/src/codex.rs parse_container_exec_arguments -> codex-dotnet/CodexCli/Util/Codex.cs TryParseContainerExecArguments (done)
 - codex-rs/apply-patch/src/lib.rs print_summary -> codex-dotnet/CodexCli/ApplyPatch/PatchSummary.cs PrintSummary (done)
 - codex-rs/core/src/codex.rs apply_changes_from_apply_patch -> codex-dotnet/CodexCli/ApplyPatch/PatchApplier.cs ApplyAction (done)
 - codex-rs/core/src/codex.rs apply_changes_from_apply_patch_and_report -> codex-dotnet/CodexCli/ApplyPatch/PatchApplier.cs ApplyActionAndReport (done)
@@ -111,6 +114,7 @@
 - Integrate Codex.GetWritableRoots into spawn workflow.
 - Integrate Codex.GetLastAssistantMessageFromTurn and RecordConversationHistory into conversation logic.
 - Integrate Codex.ConvertApplyPatchToProtocol into ExecCommand patch handling.
+- Integrate Codex.ToExecParams and TryParseContainerExecArguments into ExecCommand function call handling.
 - Integrate PatchSummary.PrintSummary into patch application workflow.
 - Integrate PatchApplier.ApplyActionAndReport into CLI patch workflows.
 - Integrate PatchApplier.ApplyAndReport into CLI patch workflows.

@@ -1219,6 +1219,7 @@ async fn handle_function_call(
     }
 }
 
+// C# port in codex-dotnet/CodexCli/Util/Codex.cs ToExecParams (done)
 fn to_exec_params(params: ShellToolCallParams, sess: &Session) -> ExecParams {
     ExecParams {
         command: params.command,
@@ -1228,6 +1229,7 @@ fn to_exec_params(params: ShellToolCallParams, sess: &Session) -> ExecParams {
     }
 }
 
+// C# port in codex-dotnet/CodexCli/Util/Codex.cs ParseContainerExecArguments (done)
 fn parse_container_exec_arguments(
     arguments: String,
     sess: &Session,

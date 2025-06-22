@@ -163,4 +163,42 @@ public class Codex
 
         return null;
     }
+
+    /// <summary>
+    /// Ported from codex-rs/core/src/codex.rs `to_exec_params` (done).
+    /// Converts shell tool call parameters to ExecParams using the provided
+    /// environment policy and working directory.
+    /// </summary>
+    public static ExecParams ToExecParams(ShellToolCallParams p, ShellEnvironmentPolicy policy, string cwd)
+    {
+        var workdir = p.Workdir != null
+            ? (Path.IsPathRooted(p.Workdir) ? p.Workdir : Path.Combine(cwd, p.Workdir))
+            : cwd;
+        workdir = Path.GetFullPath(workdir);
+        return new ExecParams(p.Command, workdir, p.TimeoutMs, ExecEnv.Create(policy));
+    }
+
+    /// <summary>
+    /// Ported from codex-rs/core/src/codex.rs `parse_container_exec_arguments` (done).
+    /// Attempts to parse function call arguments into ExecParams. On failure
+    /// returns a FunctionCallOutputInputItem mirroring the Rust error pathway.
+    /// </summary>
+    public static bool TryParseContainerExecArguments(string arguments, ShellEnvironmentPolicy policy, string cwd, string callId, out ExecParams? execParams, out ResponseInputItem? error)
+    {
+        try
+        {
+            var shellParams = JsonSerializer.Deserialize<ShellToolCallParams>(arguments);
+            if (shellParams == null)
+                throw new JsonException("null parameters");
+            execParams = ToExecParams(shellParams, policy, cwd);
+            error = null;
+            return true;
+        }
+        catch (Exception e)
+        {
+            execParams = null;
+            error = new FunctionCallOutputInputItem(callId, new FunctionCallOutputPayload($"failed to parse function arguments: {e.Message}", null));
+            return false;
+        }
+    }
 }
