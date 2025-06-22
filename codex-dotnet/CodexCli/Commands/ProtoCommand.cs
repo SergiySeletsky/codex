@@ -1,6 +1,8 @@
 using System.CommandLine;
 using CodexCli.Config;
 
+// Ported from codex-rs/cli/src/proto.rs
+
 namespace CodexCli.Commands;
 
 public static class ProtoCommand

@@ -2,6 +2,8 @@ using System.CommandLine;
 using CodexCli.Config;
 using CodexCli.Util;
 
+// Ported from codex-rs/cli/src/debug_sandbox.rs
+
 namespace CodexCli.Commands;
 
 public static class DebugCommand
