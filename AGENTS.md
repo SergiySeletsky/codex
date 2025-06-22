@@ -34,6 +34,7 @@
 - Ported `format_exec_output` helper as `Codex.FormatExecOutput` with new unit test.
 - Ported `get_writable_roots` helper as `Codex.GetWritableRoots` with new unit test.
 - Ported `get_last_assistant_message_from_turn` and `record_conversation_history` helpers as `Codex` methods with new unit tests.
+- Ported `convert_apply_patch_to_protocol` helper as `Codex.ConvertApplyPatchToProtocol` with unit, integration and CLI tests.
 
 ## Rust to C# Mapping
 
@@ -75,6 +76,7 @@
 - codex-rs/core/src/codex.rs get_writable_roots -> codex-dotnet/CodexCli/Util/Codex.cs GetWritableRoots (done)
 - codex-rs/core/src/codex.rs get_last_assistant_message_from_turn -> codex-dotnet/CodexCli/Util/Codex.cs GetLastAssistantMessageFromTurn (done)
 - codex-rs/core/src/codex.rs record_conversation_history -> codex-dotnet/CodexCli/Util/Codex.cs RecordConversationHistory (done)
+- codex-rs/core/src/codex.rs convert_apply_patch_to_protocol -> codex-dotnet/CodexCli/Util/Codex.cs ConvertApplyPatchToProtocol (done)
 - codex-rs/core/src/codex.rs -> codex-dotnet/CodexCli/Util/Codex.cs (partial)
 - codex-rs/exec/src/lib.rs -> codex-dotnet/CodexCli/Commands/ExecCommand.cs (partial, safety and Ctrl+C integrated)
 - codex-rs/core/src/client.rs -> codex-dotnet/CodexCli/Protocol/RealCodexAgent.cs (done)
@@ -97,3 +99,4 @@
 - Integrate Codex.FormatExecOutput into ExecCommand parity tests.
 - Integrate Codex.GetWritableRoots into spawn workflow.
 - Integrate Codex.GetLastAssistantMessageFromTurn and RecordConversationHistory into conversation logic.
+- Integrate Codex.ConvertApplyPatchToProtocol into ExecCommand patch handling.

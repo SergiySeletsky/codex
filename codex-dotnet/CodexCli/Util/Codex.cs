@@ -3,6 +3,7 @@
 using CodexCli.Protocol;
 using CodexCli.Models;
 using CodexCli.Config;
+using CodexCli.ApplyPatch;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -103,5 +104,26 @@ public class Codex
         if (disableResponseStorage)
             return true;
         return wireApi == WireApi.Chat;
+    }
+
+    /// <summary>
+    /// Ported from codex-rs/core/src/codex.rs `convert_apply_patch_to_protocol` (done).
+    /// </summary>
+    public static Dictionary<string, FileChange> ConvertApplyPatchToProtocol(ApplyPatchAction action)
+    {
+        var result = new Dictionary<string, FileChange>(action.Changes.Count);
+        foreach (var kv in action.Changes)
+        {
+            var c = kv.Value;
+            FileChange fc = c.Kind switch
+            {
+                "add" => new AddFileChange(c.Content ?? string.Empty),
+                "delete" => new DeleteFileChange(),
+                "update" => new UpdateFileChange(c.UnifiedDiff ?? string.Empty, c.MovePath),
+                _ => throw new InvalidOperationException($"unknown change kind {c.Kind}")
+            };
+            result[kv.Key] = fc;
+        }
+        return result;
     }
 }
