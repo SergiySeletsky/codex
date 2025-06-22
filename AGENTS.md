@@ -25,6 +25,7 @@
 - Fixed ExecEnv to ignore duplicate environment variables and removed default log level output to match Rust CLI.
 - Added unit test covering duplicate environment variable handling in ExecEnv.
 - Ported json_to_toml helper and added unit tests verifying TOML conversion.
+- Ported ChatGptLogin helper and added unit test ensuring script deployment.
 
 ## Rust to C# Mapping
 - codex-rs/tui/src/exec_command.rs -> codex-dotnet/CodexCli/Util/ExecCommandUtils.cs (done)
@@ -52,6 +53,7 @@
 - codex-rs/mcp-server/src/json_to_toml.rs -> codex-dotnet/CodexCli/Util/JsonToToml.cs (done)
 - codex-rs/core/src/chat_completions.rs -> codex-dotnet/CodexCli/Util/ChatCompletions.cs (done)
 - codex-rs/core/src/error.rs -> codex-dotnet/CodexCli/Util/CodexErr.cs (done)
+- codex-rs/login/src/lib.rs -> codex-dotnet/CodexCli/Util/ChatGptLogin.cs (done)
 - codex-rs/core/src/safety.rs -> codex-dotnet/CodexCli/Util/Safety.cs (done)
 - codex-rs/core/src/codex_wrapper.rs -> codex-dotnet/CodexCli/Util/CodexWrapper.cs (done)
 - codex-rs/core/src/protocol.rs -> codex-dotnet/CodexCli/Protocol/Event.cs (done)
@@ -72,3 +74,4 @@
 - Add AppConfig loading parity tests and wire into remaining commands.
 - Port remaining Codex session workflow (submission loop, rollout persistence) to .NET.
 - Expand ResponseItem coverage with integration tests for new event types.
+- Hook ChatGptLogin into LoginCommand and validate login flow.
