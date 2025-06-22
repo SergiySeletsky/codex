@@ -1909,6 +1909,7 @@ fn format_exec_output(output: &str, exit_code: i32, duration: std::time::Duratio
     serde_json::to_string(&payload).expect("serialize ExecOutput")
 }
 
+// C# port in codex-dotnet/CodexCli/Util/Codex.cs GetLastAssistantMessageFromTurn (done)
 fn get_last_assistant_message_from_turn(responses: &[ResponseItem]) -> Option<String> {
     responses.iter().rev().find_map(|item| {
         if let ResponseItem::Message { role, content } = item {
@@ -1930,6 +1931,7 @@ fn get_last_assistant_message_from_turn(responses: &[ResponseItem]) -> Option<St
 }
 
 /// See [`ConversationHistory`] for details.
+// C# port in codex-dotnet/CodexCli/Util/Codex.cs RecordConversationHistory (done)
 fn record_conversation_history(disable_response_storage: bool, wire_api: WireApi) -> bool {
     if disable_response_storage {
         return true;

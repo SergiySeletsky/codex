@@ -1,6 +1,8 @@
 // Rust analog: codex-rs/core/src/codex.rs (partial)
 // Ported from codex-rs/core/src/codex.rs spawn interface (partial)
 using CodexCli.Protocol;
+using CodexCli.Models;
+using CodexCli.Config;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -71,5 +73,35 @@ public class Codex
         }
         roots.Add(cwd);
         return roots;
+    }
+
+    /// <summary>
+    /// Ported from codex-rs/core/src/codex.rs `get_last_assistant_message_from_turn` (done).
+    /// </summary>
+    public static string? GetLastAssistantMessageFromTurn(List<ResponseItem> responses)
+    {
+        for (int i = responses.Count - 1; i >= 0; i--)
+        {
+            if (responses[i] is MessageItem mi && mi.Role == "assistant")
+            {
+                for (int j = mi.Content.Count - 1; j >= 0; j--)
+                {
+                    var ci = mi.Content[j];
+                    if (ci.Type == "output_text")
+                        return ci.Text;
+                }
+            }
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// Ported from codex-rs/core/src/codex.rs `record_conversation_history` (done).
+    /// </summary>
+    public static bool RecordConversationHistory(bool disableResponseStorage, WireApi wireApi)
+    {
+        if (disableResponseStorage)
+            return true;
+        return wireApi == WireApi.Chat;
     }
 }
