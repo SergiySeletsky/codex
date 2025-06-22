@@ -17,6 +17,7 @@
 - Ported model client agent (RealCodexAgent) with streaming tests.
 - Ported response and rollout models with RolloutRecorder and replay parity tests.
 - Integrated CodexWrapper into ExecCommand for session startup parity.
+- Ported safety check helpers and updated cross-CLI tests for interactive save.
 
 ## Rust to C# Mapping
 - codex-rs/tui/src/exec_command.rs -> codex-dotnet/CodexCli/Util/ExecCommandUtils.cs (done)
@@ -40,8 +41,10 @@
 - codex-rs/common/src/config_override.rs -> codex-dotnet/CodexCli/Config/ConfigOverrides.cs (done)
 - codex-rs/common/src/elapsed.rs -> codex-dotnet/CodexCli/Util/Elapsed.cs (done)
 - codex-rs/core/src/mcp_tool_call.rs -> codex-dotnet/CodexCli/Util/McpToolCall.cs (done)
+- codex-rs/core/src/mcp_connection_manager.rs -> codex-dotnet/CodexCli/Util/McpConnectionManager.cs (done)
 - codex-rs/core/src/chat_completions.rs -> codex-dotnet/CodexCli/Util/ChatCompletions.cs (done)
 - codex-rs/core/src/error.rs -> codex-dotnet/CodexCli/Util/CodexErr.cs (done)
+- codex-rs/core/src/safety.rs -> codex-dotnet/CodexCli/Util/Safety.cs (done)
 - codex-rs/core/src/codex_wrapper.rs -> codex-dotnet/CodexCli/Util/CodexWrapper.cs (done)
 - codex-rs/core/src/protocol.rs -> codex-dotnet/CodexCli/Protocol/Event.cs (done)
 - codex-rs/core/src/codex.rs -> codex-dotnet/CodexCli/Util/Codex.cs (partial)
@@ -54,6 +57,7 @@
 - Integrate newly ported utilities throughout CLI commands and finalize SSE handling.
 - Expand CLI and cross-language parity tests and fix flakes, including chat aggregation.
 - Add sandbox enforcement logic and wire ApprovalModeCliArg and ExecEnv into command execution.
+- Integrate Safety checks into ExecCommand for patch and command approval.
 - Improve API key login flow using OpenAiApiKey helper and implement Ctrl+C handling via SignalUtils.
 - Implement CLI comparitive tests ensuring .NET and Rust outputs match for chat aggregation.
 - Integrate CodexWrapper into remaining CLI commands like interactive mode.

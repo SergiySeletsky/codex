@@ -1,3 +1,4 @@
+// C# port: codex-dotnet/CodexCli/Util/Safety.cs (done)
 use std::collections::HashSet;
 use std::path::Component;
 use std::path::Path;

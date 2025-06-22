@@ -851,6 +851,20 @@ args = ["run", "--project", "../codex-dotnet/CodexCli", "mcp"]
         Assert.Equal(rOut, dOut);
     }
 
+    [CrossCliFact]
+    public void InteractiveSaveMatches()
+    {
+        var tmp = Path.GetTempFileName();
+        File.Delete(tmp);
+        var seq = $"/save {tmp}\n/quit\n";
+        var dotnet = RunProcessWithPty($"dotnet run --project ../codex-dotnet/CodexCli interactive hi --model-provider Mock --hide-agent-reasoning --disable-response-storage --no-project-doc", seq);
+        var rust = RunProcessWithPty($"cargo run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- interactive hi --model-provider Mock --hide-agent-reasoning --disable-response-storage --no-project-doc", seq);
+        File.Delete(tmp);
+        var dOut = AnsiEscape.StripAnsi(dotnet.stdout).Trim();
+        var rOut = AnsiEscape.StripAnsi(rust.stdout).Trim();
+        Assert.Equal(rOut, dOut);
+    }
+
     private string CreateTempImage()
     {
         var tmp = Path.GetTempFileName() + ".png";
