@@ -1,5 +1,6 @@
 using CodexCli.Util;
 using System.Text.Json;
+using Xunit;
 
 public class CodexFormatExecOutputTests
 {

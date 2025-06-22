@@ -3,6 +3,7 @@
 using CodexCli.Protocol;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text.Json;
 using System.Threading;
 
@@ -53,5 +54,22 @@ public class Codex
             }
         };
         return JsonSerializer.Serialize(payload);
+    }
+
+    /// <summary>
+    /// Ported from codex-rs/core/src/codex.rs `get_writable_roots` (done).
+    /// </summary>
+    public static List<string> GetWritableRoots(string cwd)
+    {
+        var roots = new List<string>();
+        if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
+        {
+            roots.Add(Path.GetTempPath());
+            var home = Environment.GetEnvironmentVariable("HOME");
+            if (!string.IsNullOrEmpty(home))
+                roots.Add(Path.Combine(home, ".pyenv"));
+        }
+        roots.Add(cwd);
+        return roots;
     }
 }

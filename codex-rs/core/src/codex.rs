@@ -1851,6 +1851,7 @@ fn apply_changes_from_apply_patch(action: &ApplyPatchAction) -> anyhow::Result<A
     })
 }
 
+// C# port in codex-dotnet/CodexCli/Util/Codex.cs GetWritableRoots (done)
 fn get_writable_roots(cwd: &Path) -> Vec<std::path::PathBuf> {
     let mut writable_roots = Vec::new();
     if cfg!(target_os = "macos") {

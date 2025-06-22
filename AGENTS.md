@@ -32,6 +32,7 @@
 - Ported debug sandbox and proto commands with a new ProtoCommand unit test.
 - Implemented MCP event streaming helpers (McpEventStream) and added watch-events tests.
 - Ported `format_exec_output` helper as `Codex.FormatExecOutput` with new unit test.
+- Ported `get_writable_roots` helper as `Codex.GetWritableRoots` with new unit test.
 
 ## Rust to C# Mapping
 
@@ -70,6 +71,7 @@
 - codex-rs/core/src/codex_wrapper.rs -> codex-dotnet/CodexCli/Util/CodexWrapper.cs (done)
 - codex-rs/core/src/protocol.rs -> codex-dotnet/CodexCli/Protocol/Event.cs (done)
 - codex-rs/core/src/codex.rs format_exec_output -> codex-dotnet/CodexCli/Util/Codex.cs FormatExecOutput (done)
+- codex-rs/core/src/codex.rs get_writable_roots -> codex-dotnet/CodexCli/Util/Codex.cs GetWritableRoots (done)
 - codex-rs/core/src/codex.rs -> codex-dotnet/CodexCli/Util/Codex.cs (partial)
 - codex-rs/exec/src/lib.rs -> codex-dotnet/CodexCli/Commands/ExecCommand.cs (partial, safety and Ctrl+C integrated)
 - codex-rs/core/src/client.rs -> codex-dotnet/CodexCli/Protocol/RealCodexAgent.cs (done)
@@ -90,3 +92,4 @@
 - Expand ResponseItem coverage with integration tests for new event types.
 - Wire DebugCommand and ProtoCommand into parity tests and CLI workflows.
 - Integrate Codex.FormatExecOutput into ExecCommand parity tests.
+- Integrate Codex.GetWritableRoots into spawn workflow.
