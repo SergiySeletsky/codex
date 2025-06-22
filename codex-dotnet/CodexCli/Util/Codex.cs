@@ -78,6 +78,17 @@ public class Codex
     }
 
     /// <summary>
+    /// Ported from codex-rs/core/src/codex.rs `resolve_path` (done).
+    /// Joins <paramref name="path"/> to <paramref name="cwd"/> if provided, otherwise returns <paramref name="cwd"/>.
+    /// </summary>
+    public static string ResolvePath(string cwd, string? path)
+    {
+        if (string.IsNullOrEmpty(path))
+            return cwd;
+        return Path.IsPathRooted(path) ? path : Path.Combine(cwd, path);
+    }
+
+    /// <summary>
     /// Ported from codex-rs/core/src/codex.rs `get_last_assistant_message_from_turn` (done).
     /// </summary>
     public static string? GetLastAssistantMessageFromTurn(List<ResponseItem> responses)

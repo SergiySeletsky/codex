@@ -46,6 +46,7 @@
 - Ported `maybe_notify` helper as `Codex.MaybeNotify` with new unit test.
 - Ported `notify_exec_command_begin`, `notify_exec_command_end`, and `notify_background_event` helpers as `Codex.NotifyExecCommandBegin`, `Codex.NotifyExecCommandEnd` and `Codex.NotifyBackgroundEvent` with new unit tests.
 - Ported `inject_input` and `get_pending_input` helpers as `Codex.InjectInput` and `Codex.GetPendingInput` with new unit tests.
+- Ported `resolve_path` helper as `Codex.ResolvePath` with new unit tests.
 
 ## Rust to C# Mapping
 
@@ -94,6 +95,7 @@
 - codex-rs/core/src/safety.rs is_write_patch_constrained_to_writable_paths -> codex-dotnet/CodexCli/Util/Safety.cs IsWritePatchConstrainedToWritableRoots (done)
 - codex-rs/core/src/codex.rs to_exec_params -> codex-dotnet/CodexCli/Util/Codex.cs ToExecParams (done)
 - codex-rs/core/src/codex.rs parse_container_exec_arguments -> codex-dotnet/CodexCli/Util/Codex.cs TryParseContainerExecArguments (done)
+- codex-rs/core/src/codex.rs resolve_path -> codex-dotnet/CodexCli/Util/Codex.cs ResolvePath (done)
 - codex-rs/apply-patch/src/lib.rs print_summary -> codex-dotnet/CodexCli/ApplyPatch/PatchSummary.cs PrintSummary (done)
 - codex-rs/core/src/codex.rs apply_changes_from_apply_patch -> codex-dotnet/CodexCli/ApplyPatch/PatchApplier.cs ApplyAction (done)
 - codex-rs/core/src/codex.rs apply_changes_from_apply_patch_and_report -> codex-dotnet/CodexCli/ApplyPatch/PatchApplier.cs ApplyActionAndReport (done)
@@ -135,3 +137,4 @@
 - Integrate Codex.MaybeNotify into session event notifications.
 - Integrate Codex.NotifyExecCommandBegin, NotifyExecCommandEnd and NotifyBackgroundEvent into session event workflow.
 - Integrate Codex.InjectInput and GetPendingInput into session input workflow.
+- Integrate Codex.ResolvePath into command path handling.

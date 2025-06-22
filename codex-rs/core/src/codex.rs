@@ -195,6 +195,7 @@ pub(crate) struct Session {
 }
 
 impl Session {
+    // C# port in codex-dotnet/CodexCli/Util/Codex.cs ResolvePath (done)
     fn resolve_path(&self, path: Option<String>) -> PathBuf {
         path.as_ref()
             .map(PathBuf::from)
