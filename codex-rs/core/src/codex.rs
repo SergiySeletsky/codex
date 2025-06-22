@@ -327,6 +327,7 @@ impl Session {
         }
     }
 
+    // C# port in codex-dotnet/CodexCli/Util/Codex.cs NotifyExecCommandBegin (done)
     async fn notify_exec_command_begin(&self, sub_id: &str, call_id: &str, params: &ExecParams) {
         let event = Event {
             id: sub_id.to_string(),
@@ -339,6 +340,7 @@ impl Session {
         let _ = self.tx_event.send(event).await;
     }
 
+    // C# port in codex-dotnet/CodexCli/Util/Codex.cs NotifyExecCommandEnd (done)
     async fn notify_exec_command_end(
         &self,
         sub_id: &str,
@@ -365,6 +367,7 @@ impl Session {
     /// Helper that emits a BackgroundEvent with the given message. This keeps
     /// the call‑sites terse so adding more diagnostics does not clutter the
     /// core agent logic.
+    // C# port in codex-dotnet/CodexCli/Util/Codex.cs NotifyBackgroundEvent (done)
     async fn notify_background_event(&self, sub_id: &str, message: impl Into<String>) {
         let event = Event {
             id: sub_id.to_string(),

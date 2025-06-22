@@ -236,4 +236,34 @@ public class Codex
             Console.Error.WriteLine($"failed to spawn notifier '{notifyCommand[0]}': {e.Message}");
         }
     }
+
+    /// <summary>
+    /// Ported from codex-rs/core/src/codex.rs `notify_exec_command_begin` (done).
+    /// Creates an ExecCommandBeginEvent for the given parameters.
+    /// </summary>
+    public static ExecCommandBeginEvent NotifyExecCommandBegin(string subId, string callId, ExecParams parameters)
+    {
+        return new ExecCommandBeginEvent(subId, parameters.Command, parameters.Cwd);
+    }
+
+    /// <summary>
+    /// Ported from codex-rs/core/src/codex.rs `notify_exec_command_end` (done).
+    /// Creates an ExecCommandEndEvent with truncated output streams.
+    /// </summary>
+    public static ExecCommandEndEvent NotifyExecCommandEnd(string subId, string callId, string stdout, string stderr, int exitCode)
+    {
+        const int MaxStreamOutput = 5 * 1024;
+        var outTrunc = stdout.Length > MaxStreamOutput ? stdout[..MaxStreamOutput] : stdout;
+        var errTrunc = stderr.Length > MaxStreamOutput ? stderr[..MaxStreamOutput] : stderr;
+        return new ExecCommandEndEvent(subId, outTrunc, errTrunc, exitCode);
+    }
+
+    /// <summary>
+    /// Ported from codex-rs/core/src/codex.rs `notify_background_event` (done).
+    /// Creates a BackgroundEvent with the provided message.
+    /// </summary>
+    public static BackgroundEvent NotifyBackgroundEvent(string subId, string message)
+    {
+        return new BackgroundEvent(subId, message);
+    }
 }

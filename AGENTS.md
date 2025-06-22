@@ -44,6 +44,7 @@
 - Ported platform sandbox detection as `Safety.GetPlatformSandbox` with new unit test.
 - Ported `State.partial_clone` helper as `CodexState.PartialClone` with new unit test.
 - Ported `maybe_notify` helper as `Codex.MaybeNotify` with new unit test.
+- Ported `notify_exec_command_begin`, `notify_exec_command_end`, and `notify_background_event` helpers as `Codex.NotifyExecCommandBegin`, `Codex.NotifyExecCommandEnd` and `Codex.NotifyBackgroundEvent` with new unit tests.
 
 ## Rust to C# Mapping
 
@@ -98,6 +99,9 @@
 - codex-rs/apply-patch/src/lib.rs apply_patch -> codex-dotnet/CodexCli/ApplyPatch/PatchApplier.cs ApplyAndReport (done)
 - codex-rs/core/src/codex.rs State.partial_clone -> codex-dotnet/CodexCli/Util/CodexState.cs PartialClone (done)
 - codex-rs/core/src/codex.rs maybe_notify -> codex-dotnet/CodexCli/Util/Codex.cs MaybeNotify (done)
+- codex-rs/core/src/codex.rs notify_exec_command_begin -> codex-dotnet/CodexCli/Util/Codex.cs NotifyExecCommandBegin (done)
+- codex-rs/core/src/codex.rs notify_exec_command_end -> codex-dotnet/CodexCli/Util/Codex.cs NotifyExecCommandEnd (done)
+- codex-rs/core/src/codex.rs notify_background_event -> codex-dotnet/CodexCli/Util/Codex.cs NotifyBackgroundEvent (done)
 - codex-rs/core/src/codex.rs -> codex-dotnet/CodexCli/Util/Codex.cs (partial)
 - codex-rs/exec/src/lib.rs -> codex-dotnet/CodexCli/Commands/ExecCommand.cs (partial, safety and Ctrl+C integrated)
 - codex-rs/core/src/client.rs -> codex-dotnet/CodexCli/Protocol/RealCodexAgent.cs (done)
@@ -126,3 +130,4 @@
 - Integrate PatchApplier.ApplyActionAndReport into CLI patch workflows.
 - Integrate PatchApplier.ApplyAndReport into CLI patch workflows.
 - Integrate Codex.MaybeNotify into session event notifications.
+- Integrate Codex.NotifyExecCommandBegin, NotifyExecCommandEnd and NotifyBackgroundEvent into session event workflow.
