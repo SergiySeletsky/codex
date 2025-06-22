@@ -45,7 +45,6 @@ public class Program
         }
 
         var logLevel = EnvUtils.GetLogLevel(root.Parse(args).GetValueForOption(logLevelOption));
-        Console.WriteLine($"Log level: {logLevel}");
         return await root.InvokeAsync(args);
     }
 }

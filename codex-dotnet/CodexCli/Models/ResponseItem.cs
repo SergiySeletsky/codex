@@ -1,3 +1,4 @@
+// Ported from codex-rs/core/src/models.rs (response item schema)
 namespace CodexCli.Models;
 
 using System.Text.Json.Serialization;

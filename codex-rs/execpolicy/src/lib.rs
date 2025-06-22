@@ -1,5 +1,6 @@
 #![allow(clippy::type_complexity)]
 #![allow(clippy::too_many_arguments)]
+// C# port implemented in codex-dotnet/CodexCli/Util/ExecPolicy.cs (done)
 #[macro_use]
 extern crate starlark;
 

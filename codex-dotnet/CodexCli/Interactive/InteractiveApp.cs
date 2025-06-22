@@ -10,7 +10,8 @@ using SessionManager = CodexCli.Util.SessionManager;
 
 /// <summary>
 /// Mirrors codex-rs/tui/src/lib.rs interactive app.
-/// Basic event loop with /log and /version commands implemented (done).
+/// Basic event loop with /log and /version commands implemented and
+/// session startup routed through CodexWrapper (done).
 /// </summary>
 
 namespace CodexCli.Interactive;
@@ -243,11 +244,15 @@ public static class InteractiveApp
 
                 var approvalHandler = ApprovalHandler ?? DefaultApproval;
 
-                agentCts = new CancellationTokenSource();
-                var events = (info.Name == "Mock")
-                    ? CodexCli.Protocol.MockCodexAgent.RunAsync(prompt, Array.Empty<string>(), approvalHandler, agentCts.Token)
-                    : CodexCli.Protocol.RealCodexAgent.RunAsync(prompt, client, opts.Model ?? cfg?.Model ?? "default", approvalHandler, Array.Empty<string>(), agentCts.Token);
-                await foreach (var ev in events)
+                Func<string, OpenAIClient, string, CancellationToken, IAsyncEnumerable<Event>> factory = info.Name == "Mock"
+                    ? (p, c, m, t) => CodexCli.Protocol.MockCodexAgent.RunAsync(p, Array.Empty<string>(), approvalHandler, t)
+                    : (p, c, m, t) => CodexCli.Protocol.RealCodexAgent.RunAsync(p, c, m, approvalHandler, Array.Empty<string>(), t);
+
+                var (stream, first, cts) = await CodexWrapper.InitCodexAsync(prompt, client, opts.Model ?? cfg?.Model ?? "default", factory);
+                agentCts = cts;
+
+                processor.ProcessEvent(first);
+                await foreach (var ev in stream)
                 {
                     processor.ProcessEvent(ev);
                     switch (ev)

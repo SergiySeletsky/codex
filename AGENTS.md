@@ -7,7 +7,29 @@
 - Migrated utilities such as ExecCommandUtils, SafeCommand, ExecRunner/ExecEnv, OpenAiApiKey, OpenAiTools, Backoff, GitUtils and SignalUtils.
 - Ported project documentation, user notifications, environment flags, model provider registry, config profile helpers, configuration types, conversation and message history, approval mode parsing, config overrides, elapsed time helpers and MCP tool call.
 - Updated Rust and C# sources with status comments and added parity tests for each port.
-
+- Implemented ChatCompletions aggregator and hooked it into ModelClient with new unit and integration tests.
+- Fixed recursion bug in ResponseStream.Aggregate and verified aggregation tests pass.
+- Ported Codex error enums and EnvVarError helper with new unit tests.
+- Implemented CodexWrapper session initialization with unit and CLI parity tests.
+- Ported protocol event types and serialization helpers with parity tests.
+- Ported AppConfig loader and integrated CodexWrapper into CodexToolRunner.
+- Implemented Codex spawn interface and added unit and CLI parity tests.
+- Ported model client agent (RealCodexAgent) with streaming tests.
+- Ported response and rollout models with RolloutRecorder and replay parity tests.
+- Integrated CodexWrapper into ExecCommand for session startup parity.
+- Ported safety check helpers and updated cross-CLI tests for interactive save.
+- Integrated CodexWrapper into InteractiveApp for session startup parity.
+- Integrated safety checks into ExecCommand using sandbox-aware policies and added SequenceEqualityComparer helper.
+- Added Ctrl+C signal handling to ExecCommand via SignalUtils and verified cancellation with new tests.
+- Fixed project paths in cross-language tests so MSBuild can locate the .NET projects.
+- Fixed ExecEnv to ignore duplicate environment variables and removed default log level output to match Rust CLI.
+- Added unit test covering duplicate environment variable handling in ExecEnv.
+- Ported json_to_toml helper and added unit tests verifying TOML conversion.
+- Ported ChatGptLogin helper and added unit test ensuring script deployment.
+- Ported ExecPolicy loader and added unit tests verifying command filtering.
+- Connected ChatGptLogin into LoginCommand with injectable delegate and added new unit test.
+- Ported debug sandbox and proto commands with a new ProtoCommand unit test.
+- Implemented MCP event streaming helpers (McpEventStream) and added watch-events tests.
 ## Rust to C# Mapping
 - codex-rs/tui/src/exec_command.rs -> codex-dotnet/CodexCli/Util/ExecCommandUtils.cs (done)
 - codex-rs/core/src/is_safe_command.rs -> codex-dotnet/CodexCli/Util/SafeCommand.cs (done)
@@ -22,6 +44,7 @@
 - codex-rs/core/src/model_provider_info.rs -> codex-dotnet/CodexCli/Config/ModelProviderInfo.cs (done)
 - codex-rs/core/src/config_profile.rs -> codex-dotnet/CodexCli/Config/ConfigProfile.cs (done)
 - codex-rs/core/src/config_types.rs -> codex-dotnet/CodexCli/Config/{History.cs,ShellEnvironmentPolicy.cs,Tui.cs,UriBasedFileOpener.cs,ReasoningModels.cs} (done)
+- codex-rs/core/src/config.rs -> codex-dotnet/CodexCli/Config/AppConfig.cs (done)
 - codex-rs/core/src/client_common.rs -> codex-dotnet/CodexCli/{Models/{Prompt.cs,ResponseEvent.cs,ReasoningModels.cs},Util/{ReasoningUtils.cs,ModelClient.cs}} (done)
 - codex-rs/core/src/conversation_history.rs -> codex-dotnet/CodexCli/Util/ConversationHistory.cs (done)
 - codex-rs/core/src/message_history.rs -> codex-dotnet/CodexCli/Util/MessageHistory.cs (done)
@@ -29,10 +52,34 @@
 - codex-rs/common/src/config_override.rs -> codex-dotnet/CodexCli/Config/ConfigOverrides.cs (done)
 - codex-rs/common/src/elapsed.rs -> codex-dotnet/CodexCli/Util/Elapsed.cs (done)
 - codex-rs/core/src/mcp_tool_call.rs -> codex-dotnet/CodexCli/Util/McpToolCall.cs (done)
+- codex-rs/core/src/mcp_connection_manager.rs -> codex-dotnet/CodexCli/Util/McpConnectionManager.cs (done)
+- codex-rs/mcp-server/src/json_to_toml.rs -> codex-dotnet/CodexCli/Util/JsonToToml.cs (done)
+- codex-rs/mcp-server/src/message_processor.rs -> codex-dotnet/CodexCli/Util/McpEventStream.cs (done)
+- codex-rs/execpolicy/src/lib.rs -> codex-dotnet/CodexCli/Util/ExecPolicy.cs (done)
+- codex-rs/core/src/chat_completions.rs -> codex-dotnet/CodexCli/Util/ChatCompletions.cs (done)
+- codex-rs/core/src/error.rs -> codex-dotnet/CodexCli/Util/CodexErr.cs (done)
+- codex-rs/login/src/lib.rs -> codex-dotnet/CodexCli/Util/ChatGptLogin.cs (done)
+- codex-rs/cli/src/login.rs -> codex-dotnet/CodexCli/Commands/LoginCommand.cs (done)
+- codex-rs/cli/src/debug_sandbox.rs -> codex-dotnet/CodexCli/Commands/DebugCommand.cs (done)
+- codex-rs/cli/src/proto.rs -> codex-dotnet/CodexCli/Commands/ProtoCommand.cs (done)
+- codex-rs/core/src/safety.rs -> codex-dotnet/CodexCli/Util/Safety.cs (done)
+- codex-rs/core/src/codex_wrapper.rs -> codex-dotnet/CodexCli/Util/CodexWrapper.cs (done)
+- codex-rs/core/src/protocol.rs -> codex-dotnet/CodexCli/Protocol/Event.cs (done)
+- codex-rs/core/src/codex.rs -> codex-dotnet/CodexCli/Util/Codex.cs (partial)
+ - codex-rs/exec/src/lib.rs -> codex-dotnet/CodexCli/Commands/ExecCommand.cs (partial, safety and Ctrl+C integrated)
+- codex-rs/core/src/client.rs -> codex-dotnet/CodexCli/Protocol/RealCodexAgent.cs (done)
+- codex-rs/core/src/models.rs -> codex-dotnet/CodexCli/Models/ResponseItem.cs (done)
+- codex-rs/core/src/rollout.rs -> codex-dotnet/CodexCli/Util/RolloutRecorder.cs and Commands/ReplayCommand.cs (done)
+- codex-rs/tui/src/lib.rs -> codex-dotnet/CodexCli/Interactive/InteractiveApp.cs (done)
 
 ## TODO
-- Integrate newly ported utilities throughout CLI commands.
-- Port remaining MCP features such as chat_completions.rs to ChatClient.cs and finalize SSE handling.
-- Expand CLI and cross-language parity tests and fix flakes.
+- Integrate newly ported utilities throughout CLI commands and finalize SSE handling.
+- Expand CLI and cross-language parity tests and fix flakes, including chat aggregation.
+- Resolve exec parity test failures by aligning provider configuration between implementations.
 - Add sandbox enforcement logic and wire ApprovalModeCliArg and ExecEnv into command execution.
-- Improve API key login flow using OpenAiApiKey helper and implement Ctrl+C handling via SignalUtils.
+- Improve API key login flow using OpenAiApiKey helper and implement Ctrl+C handling via SignalUtils (partial: ExecCommand).
+- Implement CLI comparitive tests ensuring .NET and Rust outputs match for chat aggregation.
+- Add AppConfig loading parity tests and wire into remaining commands.
+- Port remaining Codex session workflow (submission loop, rollout persistence) to .NET.
+- Expand ResponseItem coverage with integration tests for new event types.
+- Wire DebugCommand and ProtoCommand into parity tests and CLI workflows.

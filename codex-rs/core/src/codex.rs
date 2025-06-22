@@ -1,3 +1,4 @@
+// C# partial port: codex-dotnet/CodexCli/Util/Codex.cs
 // Poisoned mutex should fail the program
 #![allow(clippy::unwrap_used)]
 

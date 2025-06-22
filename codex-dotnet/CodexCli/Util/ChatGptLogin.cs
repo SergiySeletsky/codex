@@ -1,3 +1,4 @@
+// Ported from codex-rs/login/src/lib.rs (done)
 using System.Diagnostics;
 using System.ComponentModel;
 using System.Text.Json;

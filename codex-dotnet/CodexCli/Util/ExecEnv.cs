@@ -11,14 +11,19 @@ public static class ExecEnv
 {
     public static Dictionary<string,string> Create(ShellEnvironmentPolicy policy)
     {
-        IEnumerable<KeyValuePair<string,string>> vars = Environment.GetEnvironmentVariables()
-            .Cast<DictionaryEntry>().ToDictionary(d => (string)d.Key, d => (string)d.Value);
+        var vars = new List<KeyValuePair<string,string>>();
+        foreach (DictionaryEntry de in Environment.GetEnvironmentVariables())
+        {
+            vars.Add(new KeyValuePair<string,string>((string)de.Key, (string)de.Value));
+        }
         return CreateFrom(vars, policy);
     }
 
     public static Dictionary<string,string> CreateFrom(IEnumerable<KeyValuePair<string,string>> vars, ShellEnvironmentPolicy policy)
     {
-        var varsMap = new Dictionary<string,string>(vars, StringComparer.OrdinalIgnoreCase);
+        var varsMap = new Dictionary<string,string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var kv in vars)
+            varsMap[kv.Key] = kv.Value;
 
         Dictionary<string,string> map = policy.Inherit switch
         {

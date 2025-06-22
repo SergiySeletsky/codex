@@ -1,3 +1,4 @@
+// C# port implemented in codex-dotnet/CodexCli/Util/ChatGptLogin.cs (done)
 use chrono::DateTime;
 use chrono::Utc;
 use serde::Deserialize;
