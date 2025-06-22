@@ -1,3 +1,4 @@
+// Ported from codex-rs/mcp-server/src/message_processor.rs SSE helpers
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;

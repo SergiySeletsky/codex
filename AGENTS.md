@@ -29,6 +29,7 @@
 - Ported ExecPolicy loader and added unit tests verifying command filtering.
 - Connected ChatGptLogin into LoginCommand with injectable delegate and added new unit test.
 - Ported debug sandbox and proto commands with a new ProtoCommand unit test.
+- Implemented MCP event streaming helpers (McpEventStream) and added watch-events tests.
 ## Rust to C# Mapping
 - codex-rs/tui/src/exec_command.rs -> codex-dotnet/CodexCli/Util/ExecCommandUtils.cs (done)
 - codex-rs/core/src/is_safe_command.rs -> codex-dotnet/CodexCli/Util/SafeCommand.cs (done)
@@ -53,6 +54,7 @@
 - codex-rs/core/src/mcp_tool_call.rs -> codex-dotnet/CodexCli/Util/McpToolCall.cs (done)
 - codex-rs/core/src/mcp_connection_manager.rs -> codex-dotnet/CodexCli/Util/McpConnectionManager.cs (done)
 - codex-rs/mcp-server/src/json_to_toml.rs -> codex-dotnet/CodexCli/Util/JsonToToml.cs (done)
+- codex-rs/mcp-server/src/message_processor.rs -> codex-dotnet/CodexCli/Util/McpEventStream.cs (done)
 - codex-rs/execpolicy/src/lib.rs -> codex-dotnet/CodexCli/Util/ExecPolicy.cs (done)
 - codex-rs/core/src/chat_completions.rs -> codex-dotnet/CodexCli/Util/ChatCompletions.cs (done)
 - codex-rs/core/src/error.rs -> codex-dotnet/CodexCli/Util/CodexErr.cs (done)
