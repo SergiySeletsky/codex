@@ -49,6 +49,7 @@
 - Ported `resolve_path` helper as `Codex.ResolvePath` with new unit tests.
 - Ported `set_task` and `remove_task` helpers as `Codex.SetTask` and `Codex.RemoveTask` with new unit tests.
 - Ported `prompt.md` base instructions and `APPLY_PATCH_TOOL_INSTRUCTIONS` constant to C# with runtime loading.
+- Marked prompt and apply_patch instruction markdown files with port comments for traceability.
 
 ## Rust to C# Mapping
 
