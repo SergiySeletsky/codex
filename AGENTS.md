@@ -21,6 +21,7 @@
 - Integrated CodexWrapper into InteractiveApp for session startup parity.
 - Integrated safety checks into ExecCommand using sandbox-aware policies and added SequenceEqualityComparer helper.
 - Added Ctrl+C signal handling to ExecCommand via SignalUtils and verified cancellation with new tests.
+- Fixed project paths in cross-language tests so MSBuild can locate the .NET projects.
 
 ## Rust to C# Mapping
 - codex-rs/tui/src/exec_command.rs -> codex-dotnet/CodexCli/Util/ExecCommandUtils.cs (done)
