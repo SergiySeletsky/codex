@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 // Ports of apply_changes_from_apply_patch and apply_changes_from_apply_patch_and_report
-// from codex-rs/core/src/codex.rs.
+// from codex-rs/core/src/codex.rs. Also ports apply_patch from codex-rs/apply-patch/src/lib.rs.
 
 namespace CodexCli.ApplyPatch;
 
@@ -141,6 +141,23 @@ public static class PatchApplier
             PatchSummary.PrintSummary(affected, stdout);
         }
         catch (Exception e)
+        {
+            stderr.WriteLine(e.Message);
+        }
+    }
+
+    /// <summary>
+    /// Ported from codex-rs/apply-patch/src/lib.rs `apply_patch` (done).
+    /// Parses a patch string and prints the result to the provided writers.
+    /// </summary>
+    public static void ApplyAndReport(string patch, string cwd, TextWriter stdout, TextWriter stderr)
+    {
+        try
+        {
+            var result = ApplyWithSummary(patch, cwd);
+            PatchSummary.PrintSummary(result.Affected, stdout);
+        }
+        catch (PatchParseException e)
         {
             stderr.WriteLine(e.Message);
         }

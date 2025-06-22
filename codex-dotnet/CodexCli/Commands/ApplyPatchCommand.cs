@@ -25,11 +25,7 @@ public static class ApplyPatchCommand
             cwd ??= Directory.GetCurrentDirectory();
             try
             {
-                var result = PatchApplier.ApplyWithSummary(patchText, cwd);
-                using var sw = new StringWriter();
-                PatchSummary.PrintSummary(result.Affected, sw);
-                var summaryText = sw.ToString();
-                Console.WriteLine(summaryText);
+                PatchApplier.ApplyAndReport(patchText, cwd, Console.Out, Console.Error);
             }
             catch (PatchParseException e)
             {

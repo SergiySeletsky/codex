@@ -38,6 +38,7 @@
 - Ported `print_summary` helper as `PatchSummary.PrintSummary` with new unit and CLI tests.
 - Ported `first_offending_path` helper as `Codex.FirstOffendingPath` with new unit tests.
 - Ported `apply_changes_from_apply_patch` and `apply_changes_from_apply_patch_and_report` as `PatchApplier.ApplyAction` and `PatchApplier.ApplyActionAndReport` with new unit tests.
+- Ported `apply_patch` helper as `PatchApplier.ApplyAndReport` with new unit, integration and CLI tests.
 
 ## Rust to C# Mapping
 
@@ -84,6 +85,7 @@
 - codex-rs/apply-patch/src/lib.rs print_summary -> codex-dotnet/CodexCli/ApplyPatch/PatchSummary.cs PrintSummary (done)
 - codex-rs/core/src/codex.rs apply_changes_from_apply_patch -> codex-dotnet/CodexCli/ApplyPatch/PatchApplier.cs ApplyAction (done)
 - codex-rs/core/src/codex.rs apply_changes_from_apply_patch_and_report -> codex-dotnet/CodexCli/ApplyPatch/PatchApplier.cs ApplyActionAndReport (done)
+- codex-rs/apply-patch/src/lib.rs apply_patch -> codex-dotnet/CodexCli/ApplyPatch/PatchApplier.cs ApplyAndReport (done)
 - codex-rs/core/src/codex.rs -> codex-dotnet/CodexCli/Util/Codex.cs (partial)
 - codex-rs/exec/src/lib.rs -> codex-dotnet/CodexCli/Commands/ExecCommand.cs (partial, safety and Ctrl+C integrated)
 - codex-rs/core/src/client.rs -> codex-dotnet/CodexCli/Protocol/RealCodexAgent.cs (done)
@@ -109,3 +111,4 @@
 - Integrate Codex.ConvertApplyPatchToProtocol into ExecCommand patch handling.
 - Integrate PatchSummary.PrintSummary into patch application workflow.
 - Integrate PatchApplier.ApplyActionAndReport into CLI patch workflows.
+- Integrate PatchApplier.ApplyAndReport into CLI patch workflows.
