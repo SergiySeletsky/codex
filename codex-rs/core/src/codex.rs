@@ -456,6 +456,7 @@ impl Drop for Session {
 }
 
 impl State {
+    // C# port in codex-dotnet/CodexCli/Util/CodexState.cs PartialClone (done)
     pub fn partial_clone(&self, retain_zdr_transcript: bool) -> Self {
         Self {
             approved_commands: self.approved_commands.clone(),
