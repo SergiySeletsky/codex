@@ -18,6 +18,7 @@
 - Ported response and rollout models with RolloutRecorder and replay parity tests.
 - Integrated CodexWrapper into ExecCommand for session startup parity.
 - Ported safety check helpers and updated cross-CLI tests for interactive save.
+- Integrated CodexWrapper into InteractiveApp for session startup parity.
 
 ## Rust to C# Mapping
 - codex-rs/tui/src/exec_command.rs -> codex-dotnet/CodexCli/Util/ExecCommandUtils.cs (done)
@@ -52,6 +53,7 @@
 - codex-rs/core/src/client.rs -> codex-dotnet/CodexCli/Protocol/RealCodexAgent.cs (done)
 - codex-rs/core/src/models.rs -> codex-dotnet/CodexCli/Models/ResponseItem.cs (done)
 - codex-rs/core/src/rollout.rs -> codex-dotnet/CodexCli/Util/RolloutRecorder.cs and Commands/ReplayCommand.cs (done)
+- codex-rs/tui/src/lib.rs -> codex-dotnet/CodexCli/Interactive/InteractiveApp.cs (done)
 
 ## TODO
 - Integrate newly ported utilities throughout CLI commands and finalize SSE handling.
@@ -60,7 +62,6 @@
 - Integrate Safety checks into ExecCommand for patch and command approval.
 - Improve API key login flow using OpenAiApiKey helper and implement Ctrl+C handling via SignalUtils.
 - Implement CLI comparitive tests ensuring .NET and Rust outputs match for chat aggregation.
-- Integrate CodexWrapper into remaining CLI commands like interactive mode.
 - Add AppConfig loading parity tests and wire into remaining commands.
 - Port remaining Codex session workflow (submission loop, rollout persistence) to .NET.
 - Expand ResponseItem coverage with integration tests for new event types.
