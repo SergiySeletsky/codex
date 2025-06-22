@@ -251,11 +251,13 @@ public static class ExecCommand
                 Func<string, OpenAIClient, string, CancellationToken, IAsyncEnumerable<Event>>? agent = null;
                 if (providerId == "mock")
                     agent = (p, c, m, t) => MockCodexAgent.RunAsync(p, imagePaths, null, t);
-                var (stream, first, _ctrlC) = await CodexWrapper.InitCodexAsync(prompt, client, opts.Model ?? cfg?.Model ?? "default", agent);
-                async IAsyncEnumerable<Event> EnumerateInit([EnumeratorCancellation] CancellationToken cancel = default)
+                var sigint = SignalUtils.NotifyOnSigInt();
+                var (stream, first, codexCts) = await CodexWrapper.InitCodexAsync(prompt, client, opts.Model ?? cfg?.Model ?? "default", agent);
+                sigint.Token.Register(() => codexCts.Cancel());
+                async IAsyncEnumerable<Event> EnumerateInit()
                 {
                     yield return first;
-                    await foreach (var e in stream.WithCancellation(cancel))
+                    await foreach (var e in stream.WithCancellation(codexCts.Token))
                         yield return e;
                 }
                 events = EnumerateInit();
