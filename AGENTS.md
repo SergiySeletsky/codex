@@ -39,6 +39,7 @@
 - Ported `first_offending_path` helper as `Codex.FirstOffendingPath` with new unit tests.
 - Ported `apply_changes_from_apply_patch` and `apply_changes_from_apply_patch_and_report` as `PatchApplier.ApplyAction` and `PatchApplier.ApplyActionAndReport` with new unit tests.
 - Ported `apply_patch` helper as `PatchApplier.ApplyAndReport` with new unit, integration and CLI tests.
+- Ported `is_write_patch_constrained_to_writable_paths` helper as `Safety.IsWritePatchConstrainedToWritableRoots` with new unit test.
 
 ## Rust to C# Mapping
 
@@ -82,6 +83,7 @@
 - codex-rs/core/src/codex.rs record_conversation_history -> codex-dotnet/CodexCli/Util/Codex.cs RecordConversationHistory (done)
 - codex-rs/core/src/codex.rs convert_apply_patch_to_protocol -> codex-dotnet/CodexCli/Util/Codex.cs ConvertApplyPatchToProtocol (done)
 - codex-rs/core/src/codex.rs first_offending_path -> codex-dotnet/CodexCli/Util/Codex.cs FirstOffendingPath (done)
+- codex-rs/core/src/safety.rs is_write_patch_constrained_to_writable_paths -> codex-dotnet/CodexCli/Util/Safety.cs IsWritePatchConstrainedToWritableRoots (done)
 - codex-rs/apply-patch/src/lib.rs print_summary -> codex-dotnet/CodexCli/ApplyPatch/PatchSummary.cs PrintSummary (done)
 - codex-rs/core/src/codex.rs apply_changes_from_apply_patch -> codex-dotnet/CodexCli/ApplyPatch/PatchApplier.cs ApplyAction (done)
 - codex-rs/core/src/codex.rs apply_changes_from_apply_patch_and_report -> codex-dotnet/CodexCli/ApplyPatch/PatchApplier.cs ApplyActionAndReport (done)
