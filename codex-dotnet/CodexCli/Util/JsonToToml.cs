@@ -4,6 +4,9 @@ using Tomlyn;
 
 namespace CodexCli.Util;
 
+/// <summary>
+/// C# port of codex-rs/mcp-server/src/json_to_toml.rs (done).
+/// </summary>
 public static class JsonToToml
 {
     public static string ConvertToToml(JsonElement element)

@@ -24,6 +24,7 @@
 - Fixed project paths in cross-language tests so MSBuild can locate the .NET projects.
 - Fixed ExecEnv to ignore duplicate environment variables and removed default log level output to match Rust CLI.
 - Added unit test covering duplicate environment variable handling in ExecEnv.
+- Ported json_to_toml helper and added unit tests verifying TOML conversion.
 
 ## Rust to C# Mapping
 - codex-rs/tui/src/exec_command.rs -> codex-dotnet/CodexCli/Util/ExecCommandUtils.cs (done)
@@ -48,6 +49,7 @@
 - codex-rs/common/src/elapsed.rs -> codex-dotnet/CodexCli/Util/Elapsed.cs (done)
 - codex-rs/core/src/mcp_tool_call.rs -> codex-dotnet/CodexCli/Util/McpToolCall.cs (done)
 - codex-rs/core/src/mcp_connection_manager.rs -> codex-dotnet/CodexCli/Util/McpConnectionManager.cs (done)
+- codex-rs/mcp-server/src/json_to_toml.rs -> codex-dotnet/CodexCli/Util/JsonToToml.cs (done)
 - codex-rs/core/src/chat_completions.rs -> codex-dotnet/CodexCli/Util/ChatCompletions.cs (done)
 - codex-rs/core/src/error.rs -> codex-dotnet/CodexCli/Util/CodexErr.cs (done)
 - codex-rs/core/src/safety.rs -> codex-dotnet/CodexCli/Util/Safety.cs (done)
@@ -63,7 +65,6 @@
 ## TODO
 - Integrate newly ported utilities throughout CLI commands and finalize SSE handling.
 - Expand CLI and cross-language parity tests and fix flakes, including chat aggregation.
-- Add CLI parity test for ExecEnv duplicate handling.
 - Resolve exec parity test failures by aligning provider configuration between implementations.
 - Add sandbox enforcement logic and wire ApprovalModeCliArg and ExecEnv into command execution.
 - Improve API key login flow using OpenAiApiKey helper and implement Ctrl+C handling via SignalUtils (partial: ExecCommand).
