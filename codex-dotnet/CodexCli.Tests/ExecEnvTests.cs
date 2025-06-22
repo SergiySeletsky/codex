@@ -92,4 +92,21 @@ public class ExecEnvTests
         Assert.Equal(new[]{"ONLY_VAR"}, env.Keys.ToArray());
         Assert.Equal("yes", env["ONLY_VAR"]);
     }
+
+    [Fact]
+    public void DuplicateVariablesUseLastValue()
+    {
+        var vars = new List<KeyValuePair<string,string>>
+        {
+            new("PATH","/bin"),
+            new("PATH","/usr/bin")
+        };
+        var policy = new ShellEnvironmentPolicy
+        {
+            Inherit = ShellEnvironmentPolicyInherit.All,
+            IgnoreDefaultExcludes = true
+        };
+        var env = ExecEnv.CreateFrom(vars, policy);
+        Assert.Equal("/usr/bin", env["PATH"]);
+    }
 }
