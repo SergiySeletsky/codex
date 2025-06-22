@@ -1774,6 +1774,7 @@ fn convert_apply_patch_to_protocol(action: &ApplyPatchAction) -> HashMap<PathBuf
     result
 }
 
+// C# port in codex-dotnet/CodexCli/ApplyPatch/PatchApplier.cs ApplyActionAndReport (done)
 fn apply_changes_from_apply_patch_and_report(
     action: &ApplyPatchAction,
     stdout: &mut impl std::io::Write,
@@ -1791,6 +1792,7 @@ fn apply_changes_from_apply_patch_and_report(
     Ok(())
 }
 
+// C# port in codex-dotnet/CodexCli/ApplyPatch/PatchApplier.cs ApplyAction (done)
 fn apply_changes_from_apply_patch(action: &ApplyPatchAction) -> anyhow::Result<AffectedPaths> {
     let mut added: Vec<PathBuf> = Vec::new();
     let mut modified: Vec<PathBuf> = Vec::new();
