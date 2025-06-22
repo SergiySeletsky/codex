@@ -22,6 +22,7 @@
 - Integrated safety checks into ExecCommand using sandbox-aware policies and added SequenceEqualityComparer helper.
 - Added Ctrl+C signal handling to ExecCommand via SignalUtils and verified cancellation with new tests.
 - Fixed project paths in cross-language tests so MSBuild can locate the .NET projects.
+- Fixed ExecEnv to ignore duplicate environment variables and removed default log level output to match Rust CLI.
 
 ## Rust to C# Mapping
 - codex-rs/tui/src/exec_command.rs -> codex-dotnet/CodexCli/Util/ExecCommandUtils.cs (done)
@@ -61,6 +62,7 @@
 ## TODO
 - Integrate newly ported utilities throughout CLI commands and finalize SSE handling.
 - Expand CLI and cross-language parity tests and fix flakes, including chat aggregation.
+- Resolve exec parity test failures by aligning provider configuration between implementations.
 - Add sandbox enforcement logic and wire ApprovalModeCliArg and ExecEnv into command execution.
 - Improve API key login flow using OpenAiApiKey helper and implement Ctrl+C handling via SignalUtils (partial: ExecCommand).
 - Implement CLI comparitive tests ensuring .NET and Rust outputs match for chat aggregation.
