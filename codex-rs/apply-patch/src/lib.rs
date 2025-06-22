@@ -604,6 +604,7 @@ pub fn unified_diff_from_chunks_with_context(
 }
 
 /// Print the summary of changes in git-style format.
+/// C# port in codex-dotnet/CodexCli/ApplyPatch/PatchSummary.cs PrintSummary (done)
 /// Write a summary of changes to the given writer.
 pub fn print_summary(
     affected: &AffectedPaths,

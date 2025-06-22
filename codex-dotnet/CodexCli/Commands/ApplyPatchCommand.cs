@@ -1,5 +1,6 @@
 using System.CommandLine;
 using CodexCli.ApplyPatch;
+using System.IO;
 
 namespace CodexCli.Commands;
 
@@ -25,10 +26,10 @@ public static class ApplyPatchCommand
             try
             {
                 var result = PatchApplier.ApplyWithSummary(patchText, cwd);
-                if (summaryOnly)
-                    Console.WriteLine(result.Summary);
-                else
-                    Console.WriteLine(result.Summary);
+                using var sw = new StringWriter();
+                PatchSummary.PrintSummary(result.Affected, sw);
+                var summaryText = sw.ToString();
+                Console.WriteLine(summaryText);
             }
             catch (PatchParseException e)
             {

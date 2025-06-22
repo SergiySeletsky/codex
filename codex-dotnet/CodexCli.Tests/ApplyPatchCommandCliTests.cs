@@ -18,7 +18,9 @@ public class ApplyPatchCommandCliTests
         Console.SetOut(output);
         await parser.InvokeAsync($"apply_patch {patchPath} --cwd {dir.Path}");
         Assert.True(File.Exists(Path.Combine(dir.Path, "foo.txt")));
-        Assert.Contains("added foo.txt", output.ToString());
+        var text = output.ToString();
+        Assert.Contains("Success. Updated the following files:", text);
+        Assert.Contains("A foo.txt", text);
     }
 
     private sealed class TempDir : IDisposable
