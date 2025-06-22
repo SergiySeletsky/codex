@@ -303,4 +303,28 @@ public class Codex
     {
         return new BackgroundEvent(subId, message);
     }
+
+    /// <summary>
+    /// Ported from codex-rs/core/src/codex.rs `set_task` (done).
+    /// Replaces any current task with the provided one, aborting the old task.
+    /// </summary>
+    public static void SetTask(CodexState state, AgentTask task)
+    {
+        state.CurrentTask?.Abort();
+        state.CurrentTask = task;
+        state.HasCurrentTask = true;
+    }
+
+    /// <summary>
+    /// Ported from codex-rs/core/src/codex.rs `remove_task` (done).
+    /// Removes the task if its subId matches.
+    /// </summary>
+    public static void RemoveTask(CodexState state, string subId)
+    {
+        if (state.CurrentTask != null && state.CurrentTask.SubId == subId)
+        {
+            state.CurrentTask = null;
+            state.HasCurrentTask = false;
+        }
+    }
 }

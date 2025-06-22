@@ -12,6 +12,7 @@ public class CodexState
     public string? PreviousResponseId { get; set; }
     public ConversationHistory? ZdrTranscript { get; set; }
     public bool HasCurrentTask { get; set; }
+    public AgentTask? CurrentTask { get; set; }
     public List<ResponseInputItem> PendingInput { get; } = new();
 
     public CodexState PartialClone(bool retainZdrTranscript)
@@ -24,6 +25,7 @@ public class CodexState
         foreach (var cmd in ApprovedCommands)
             clone.ApprovedCommands.Add(new List<string>(cmd));
         clone.HasCurrentTask = this.HasCurrentTask;
+        // current task is intentionally not cloned
         return clone;
     }
 }

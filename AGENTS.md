@@ -47,6 +47,7 @@
 - Ported `notify_exec_command_begin`, `notify_exec_command_end`, and `notify_background_event` helpers as `Codex.NotifyExecCommandBegin`, `Codex.NotifyExecCommandEnd` and `Codex.NotifyBackgroundEvent` with new unit tests.
 - Ported `inject_input` and `get_pending_input` helpers as `Codex.InjectInput` and `Codex.GetPendingInput` with new unit tests.
 - Ported `resolve_path` helper as `Codex.ResolvePath` with new unit tests.
+- Ported `set_task` and `remove_task` helpers as `Codex.SetTask` and `Codex.RemoveTask` with new unit tests.
 
 ## Rust to C# Mapping
 
@@ -107,6 +108,8 @@
 - codex-rs/core/src/codex.rs notify_background_event -> codex-dotnet/CodexCli/Util/Codex.cs NotifyBackgroundEvent (done)
 - codex-rs/core/src/codex.rs inject_input -> codex-dotnet/CodexCli/Util/Codex.cs InjectInput (done)
 - codex-rs/core/src/codex.rs get_pending_input -> codex-dotnet/CodexCli/Util/Codex.cs GetPendingInput (done)
+- codex-rs/core/src/codex.rs set_task -> codex-dotnet/CodexCli/Util/Codex.cs SetTask (done)
+- codex-rs/core/src/codex.rs remove_task -> codex-dotnet/CodexCli/Util/Codex.cs RemoveTask (done)
 - codex-rs/core/src/codex.rs -> codex-dotnet/CodexCli/Util/Codex.cs (partial)
 - codex-rs/exec/src/lib.rs -> codex-dotnet/CodexCli/Commands/ExecCommand.cs (partial, safety and Ctrl+C integrated)
 - codex-rs/core/src/client.rs -> codex-dotnet/CodexCli/Protocol/RealCodexAgent.cs (done)
@@ -138,3 +141,4 @@
 - Integrate Codex.NotifyExecCommandBegin, NotifyExecCommandEnd and NotifyBackgroundEvent into session event workflow.
 - Integrate Codex.InjectInput and GetPendingInput into session input workflow.
 - Integrate Codex.ResolvePath into command path handling.
+- Integrate Codex.SetTask and Codex.RemoveTask into session task workflow.

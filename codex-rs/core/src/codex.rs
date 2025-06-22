@@ -215,6 +215,7 @@ struct State {
 }
 
 impl Session {
+    // C# port in codex-dotnet/CodexCli/Util/Codex.cs SetTask (done)
     pub fn set_task(&self, task: AgentTask) {
         let mut state = self.state.lock().unwrap();
         if let Some(current_task) = state.current_task.take() {
@@ -223,6 +224,7 @@ impl Session {
         state.current_task = Some(task);
     }
 
+    // C# port in codex-dotnet/CodexCli/Util/Codex.cs RemoveTask (done)
     pub fn remove_task(&self, sub_id: &str) {
         let mut state = self.state.lock().unwrap();
         if let Some(task) = &state.current_task {
