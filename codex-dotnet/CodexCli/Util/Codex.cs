@@ -10,6 +10,7 @@ using System.IO;
 using System.Text.Json;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace CodexCli.Util;
 
@@ -326,5 +327,34 @@ public class Codex
             state.CurrentTask = null;
             state.HasCurrentTask = false;
         }
+    }
+
+    /// <summary>
+    /// Ported from codex-rs/core/src/codex.rs `record_rollout_items` (done).
+    /// Appends the items to the rollout recorder if it is not null.
+    /// </summary>
+    public static async Task RecordRolloutItemsAsync(RolloutRecorder? recorder, IEnumerable<ResponseItem> items)
+    {
+        if (recorder == null)
+            return;
+
+        try
+        {
+            await recorder.RecordItemsAsync(items);
+        }
+        catch (Exception e)
+        {
+            Console.Error.WriteLine($"failed to record rollout items: {e.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Ported from codex-rs/core/src/codex.rs `record_conversation_items` (done).
+    /// Records items to the rollout and conversation transcript if provided.
+    /// </summary>
+    public static async Task RecordConversationItemsAsync(RolloutRecorder? recorder, ConversationHistory? transcript, IEnumerable<ResponseItem> items)
+    {
+        await RecordRolloutItemsAsync(recorder, items);
+        transcript?.RecordItems(items);
     }
 }

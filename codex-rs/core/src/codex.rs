@@ -302,6 +302,7 @@ impl Session {
         state.approved_commands.insert(cmd);
     }
 
+    // C# port in codex-dotnet/CodexCli/Util/Codex.cs RecordConversationItemsAsync (done)
     /// Records items to both the rollout and the chat completions/ZDR
     /// transcript, if enabled.
     async fn record_conversation_items(&self, items: &[ResponseItem]) {
@@ -313,6 +314,7 @@ impl Session {
         }
     }
 
+    // C# port in codex-dotnet/CodexCli/Util/Codex.cs RecordRolloutItemsAsync (done)
     /// Append the given items to the session's rollout transcript (if enabled)
     /// and persist them to disk.
     async fn record_rollout_items(&self, items: &[ResponseItem]) {
