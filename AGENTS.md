@@ -43,6 +43,7 @@
 - Ported `to_exec_params` and `parse_container_exec_arguments` helpers as `Codex.ToExecParams` and `Codex.TryParseContainerExecArguments` with new unit tests.
 - Ported platform sandbox detection as `Safety.GetPlatformSandbox` with new unit test.
 - Ported `State.partial_clone` helper as `CodexState.PartialClone` with new unit test.
+- Ported `maybe_notify` helper as `Codex.MaybeNotify` with new unit test.
 
 ## Rust to C# Mapping
 
@@ -96,6 +97,7 @@
 - codex-rs/core/src/codex.rs apply_changes_from_apply_patch_and_report -> codex-dotnet/CodexCli/ApplyPatch/PatchApplier.cs ApplyActionAndReport (done)
 - codex-rs/apply-patch/src/lib.rs apply_patch -> codex-dotnet/CodexCli/ApplyPatch/PatchApplier.cs ApplyAndReport (done)
 - codex-rs/core/src/codex.rs State.partial_clone -> codex-dotnet/CodexCli/Util/CodexState.cs PartialClone (done)
+- codex-rs/core/src/codex.rs maybe_notify -> codex-dotnet/CodexCli/Util/Codex.cs MaybeNotify (done)
 - codex-rs/core/src/codex.rs -> codex-dotnet/CodexCli/Util/Codex.cs (partial)
 - codex-rs/exec/src/lib.rs -> codex-dotnet/CodexCli/Commands/ExecCommand.cs (partial, safety and Ctrl+C integrated)
 - codex-rs/core/src/client.rs -> codex-dotnet/CodexCli/Protocol/RealCodexAgent.cs (done)
@@ -123,3 +125,4 @@
 - Integrate PatchSummary.PrintSummary into patch application workflow.
 - Integrate PatchApplier.ApplyActionAndReport into CLI patch workflows.
 - Integrate PatchApplier.ApplyAndReport into CLI patch workflows.
+- Integrate Codex.MaybeNotify into session event notifications.

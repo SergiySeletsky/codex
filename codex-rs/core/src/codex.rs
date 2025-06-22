@@ -422,6 +422,7 @@ impl Session {
     /// Spawn the configured notifier (if any) with the given JSON payload as
     /// the last argument. Failures are logged but otherwise ignored so that
     /// notification issues do not interfere with the main workflow.
+    // C# port in codex-dotnet/CodexCli/Util/Codex.cs MaybeNotify (done)
     fn maybe_notify(&self, notification: UserNotification) {
         let Some(notify_command) = &self.notify else {
             return;

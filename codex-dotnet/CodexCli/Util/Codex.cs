@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+using System.Diagnostics;
 using System.Threading;
 
 namespace CodexCli.Util;
@@ -199,6 +200,40 @@ public class Codex
             execParams = null;
             error = new FunctionCallOutputInputItem(callId, new FunctionCallOutputPayload($"failed to parse function arguments: {e.Message}", null));
             return false;
+        }
+    }
+
+    /// <summary>
+    /// Ported from codex-rs/core/src/codex.rs `maybe_notify` (done).
+    /// Spawns the configured notifier with the serialized notification payload.
+    /// </summary>
+    public static void MaybeNotify(List<string>? notifyCommand, UserNotification notification)
+    {
+        if (notifyCommand == null || notifyCommand.Count == 0)
+            return;
+
+        string json;
+        try
+        {
+            json = JsonSerializer.Serialize(notification);
+        }
+        catch (Exception)
+        {
+            Console.Error.WriteLine("failed to serialise notification payload");
+            return;
+        }
+
+        try
+        {
+            var psi = new ProcessStartInfo(notifyCommand[0]) { UseShellExecute = false };
+            for (int i = 1; i < notifyCommand.Count; i++)
+                psi.ArgumentList.Add(notifyCommand[i]);
+            psi.ArgumentList.Add(json);
+            Process.Start(psi);
+        }
+        catch (Exception e)
+        {
+            Console.Error.WriteLine($"failed to spawn notifier '{notifyCommand[0]}': {e.Message}");
         }
     }
 }
