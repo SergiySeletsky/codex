@@ -1,7 +1,9 @@
 // Rust analog: codex-rs/core/src/codex.rs (partial)
 // Ported from codex-rs/core/src/codex.rs spawn interface (partial)
 using CodexCli.Protocol;
+using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using System.Threading;
 
 namespace CodexCli.Util;
@@ -35,4 +37,21 @@ public class Codex
     }
 
     public void Cancel() => _ctrlC.Cancel();
+
+    /// <summary>
+    /// Ported from codex-rs/core/src/codex.rs `format_exec_output` (done).
+    /// </summary>
+    public static string FormatExecOutput(string output, int exitCode, TimeSpan duration)
+    {
+        var payload = new
+        {
+            output,
+            metadata = new
+            {
+                exit_code = exitCode,
+                duration_seconds = Math.Round(duration.TotalSeconds * 10) / 10
+            }
+        };
+        return JsonSerializer.Serialize(payload);
+    }
 }

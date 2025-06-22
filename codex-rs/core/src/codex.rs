@@ -1878,6 +1878,7 @@ fn get_writable_roots(cwd: &Path) -> Vec<std::path::PathBuf> {
     writable_roots
 }
 
+// C# port in codex-dotnet/CodexCli/Util/Codex.cs FormatExecOutput (done)
 /// Exec output is a pre-serialized JSON payload
 fn format_exec_output(output: &str, exit_code: i32, duration: std::time::Duration) -> String {
     #[derive(Serialize)]
