@@ -1,3 +1,5 @@
+using CodexCli.Models;
+
 namespace CodexCli.Util;
 
 /// <summary>
@@ -9,6 +11,8 @@ public class CodexState
     public HashSet<List<string>> ApprovedCommands { get; } = new();
     public string? PreviousResponseId { get; set; }
     public ConversationHistory? ZdrTranscript { get; set; }
+    public bool HasCurrentTask { get; set; }
+    public List<ResponseInputItem> PendingInput { get; } = new();
 
     public CodexState PartialClone(bool retainZdrTranscript)
     {
@@ -19,6 +23,7 @@ public class CodexState
         };
         foreach (var cmd in ApprovedCommands)
             clone.ApprovedCommands.Add(new List<string>(cmd));
+        clone.HasCurrentTask = this.HasCurrentTask;
         return clone;
     }
 }

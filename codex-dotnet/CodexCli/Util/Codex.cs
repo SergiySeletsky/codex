@@ -238,6 +238,32 @@ public class Codex
     }
 
     /// <summary>
+    /// Ported from codex-rs/core/src/codex.rs `inject_input` (done).
+    /// Adds user input to the pending queue if a task is running.
+    /// Returns true if the input was queued, otherwise false.
+    /// </summary>
+    public static bool InjectInput(CodexState state, List<InputItem> input)
+    {
+        if (state.HasCurrentTask)
+        {
+            state.PendingInput.Add(InputItem.ToResponse(input));
+            return true;
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Ported from codex-rs/core/src/codex.rs `get_pending_input` (done).
+    /// Returns any queued input and clears the pending list.
+    /// </summary>
+    public static List<ResponseInputItem> GetPendingInput(CodexState state)
+    {
+        var ret = new List<ResponseInputItem>(state.PendingInput);
+        state.PendingInput.Clear();
+        return ret;
+    }
+
+    /// <summary>
     /// Ported from codex-rs/core/src/codex.rs `notify_exec_command_begin` (done).
     /// Creates an ExecCommandBeginEvent for the given parameters.
     /// </summary>

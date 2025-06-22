@@ -45,6 +45,7 @@
 - Ported `State.partial_clone` helper as `CodexState.PartialClone` with new unit test.
 - Ported `maybe_notify` helper as `Codex.MaybeNotify` with new unit test.
 - Ported `notify_exec_command_begin`, `notify_exec_command_end`, and `notify_background_event` helpers as `Codex.NotifyExecCommandBegin`, `Codex.NotifyExecCommandEnd` and `Codex.NotifyBackgroundEvent` with new unit tests.
+- Ported `inject_input` and `get_pending_input` helpers as `Codex.InjectInput` and `Codex.GetPendingInput` with new unit tests.
 
 ## Rust to C# Mapping
 
@@ -102,6 +103,8 @@
 - codex-rs/core/src/codex.rs notify_exec_command_begin -> codex-dotnet/CodexCli/Util/Codex.cs NotifyExecCommandBegin (done)
 - codex-rs/core/src/codex.rs notify_exec_command_end -> codex-dotnet/CodexCli/Util/Codex.cs NotifyExecCommandEnd (done)
 - codex-rs/core/src/codex.rs notify_background_event -> codex-dotnet/CodexCli/Util/Codex.cs NotifyBackgroundEvent (done)
+- codex-rs/core/src/codex.rs inject_input -> codex-dotnet/CodexCli/Util/Codex.cs InjectInput (done)
+- codex-rs/core/src/codex.rs get_pending_input -> codex-dotnet/CodexCli/Util/Codex.cs GetPendingInput (done)
 - codex-rs/core/src/codex.rs -> codex-dotnet/CodexCli/Util/Codex.cs (partial)
 - codex-rs/exec/src/lib.rs -> codex-dotnet/CodexCli/Commands/ExecCommand.cs (partial, safety and Ctrl+C integrated)
 - codex-rs/core/src/client.rs -> codex-dotnet/CodexCli/Protocol/RealCodexAgent.cs (done)
@@ -131,3 +134,4 @@
 - Integrate PatchApplier.ApplyAndReport into CLI patch workflows.
 - Integrate Codex.MaybeNotify into session event notifications.
 - Integrate Codex.NotifyExecCommandBegin, NotifyExecCommandEnd and NotifyBackgroundEvent into session event workflow.
+- Integrate Codex.InjectInput and GetPendingInput into session input workflow.

@@ -379,6 +379,7 @@ impl Session {
     }
 
     /// Returns the input if there was no task running to inject into
+    // C# port in codex-dotnet/CodexCli/Util/Codex.cs InjectInput (done)
     pub fn inject_input(&self, input: Vec<InputItem>) -> Result<(), Vec<InputItem>> {
         let mut state = self.state.lock().unwrap();
         if state.current_task.is_some() {
@@ -389,6 +390,7 @@ impl Session {
         }
     }
 
+    // C# port in codex-dotnet/CodexCli/Util/Codex.cs GetPendingInput (done)
     pub fn get_pending_input(&self) -> Vec<ResponseInputItem> {
         let mut state = self.state.lock().unwrap();
         if state.pending_input.is_empty() {
