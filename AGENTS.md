@@ -27,7 +27,7 @@
 - Ported json_to_toml helper and added unit tests verifying TOML conversion.
 - Ported ChatGptLogin helper and added unit test ensuring script deployment.
 - Ported ExecPolicy loader and added unit tests verifying command filtering.
-
+- Connected ChatGptLogin into LoginCommand with injectable delegate and added new unit test.
 ## Rust to C# Mapping
 - codex-rs/tui/src/exec_command.rs -> codex-dotnet/CodexCli/Util/ExecCommandUtils.cs (done)
 - codex-rs/core/src/is_safe_command.rs -> codex-dotnet/CodexCli/Util/SafeCommand.cs (done)
@@ -56,6 +56,7 @@
 - codex-rs/core/src/chat_completions.rs -> codex-dotnet/CodexCli/Util/ChatCompletions.cs (done)
 - codex-rs/core/src/error.rs -> codex-dotnet/CodexCli/Util/CodexErr.cs (done)
 - codex-rs/login/src/lib.rs -> codex-dotnet/CodexCli/Util/ChatGptLogin.cs (done)
+- codex-rs/cli/src/login.rs -> codex-dotnet/CodexCli/Commands/LoginCommand.cs (done)
 - codex-rs/core/src/safety.rs -> codex-dotnet/CodexCli/Util/Safety.cs (done)
 - codex-rs/core/src/codex_wrapper.rs -> codex-dotnet/CodexCli/Util/CodexWrapper.cs (done)
 - codex-rs/core/src/protocol.rs -> codex-dotnet/CodexCli/Protocol/Event.cs (done)
@@ -76,4 +77,3 @@
 - Add AppConfig loading parity tests and wire into remaining commands.
 - Port remaining Codex session workflow (submission loop, rollout persistence) to .NET.
 - Expand ResponseItem coverage with integration tests for new event types.
-- Hook ChatGptLogin into LoginCommand and validate login flow.

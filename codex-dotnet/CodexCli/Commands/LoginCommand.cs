@@ -1,3 +1,4 @@
+// Ported from codex-rs/cli/src/login.rs (done)
 using System.CommandLine;
 using CodexCli.Config;
 using CodexCli.Util;
@@ -6,6 +7,8 @@ namespace CodexCli.Commands;
 
 public static class LoginCommand
 {
+    public static Func<string, bool, IDictionary<string, string>?, Task<string>> LoginWithChatGptAsync { get; set; } = ChatGptLogin.LoginAsync;
+
     public static Command Create(Option<string?> configOption, Option<string?> cdOption)
     {
         var overridesOpt = new Option<string[]>("-c") { AllowMultipleArgumentsPerToken = true, Description = "Config overrides" };
@@ -73,7 +76,7 @@ public static class LoginCommand
                 Console.WriteLine("Launching browser login...");
                 try
                 {
-                    apiKey = await ChatGptLogin.LoginAsync(EnvUtils.FindCodexHome(), false, envMap);
+                    apiKey = await LoginWithChatGptAsync(EnvUtils.FindCodexHome(), false, envMap);
                 }
                 catch (Exception ex)
                 {
