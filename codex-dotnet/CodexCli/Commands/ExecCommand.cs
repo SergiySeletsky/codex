@@ -1,7 +1,8 @@
 using System.CommandLine;
 using CodexCli.Config;
 using CodexCli.Util;
-// Partial port of codex-rs/exec/src/lib.rs Exec command (CodexWrapper integration)
+// Partial port of codex-rs/exec/src/lib.rs Exec command
+// CodexWrapper and safety checks integrated
 using CodexCli.Protocol;
 using System;
 using CodexCli.ApplyPatch;
@@ -102,6 +103,8 @@ public static class ExecCommand
             SessionManager.SetPersistence(cfg?.History.Persistence ?? HistoryPersistence.SaveAll);
             var sessionId = opts.SessionId ?? SessionManager.CreateSession();
             var history = new ConversationHistory();
+            var approvedCommands = new HashSet<List<string>>(new SequenceEqualityComparer<string>());
+            var approvalPolicy = opts.Approval ?? cfg?.ApprovalPolicy ?? ApprovalMode.OnFailure;
             RolloutRecorder? recorder = null;
             StreamWriter? logWriter = null;
             if (opts.EventLogFile != null)
@@ -295,10 +298,22 @@ public static class ExecCommand
                             Console.WriteLine($"Denied '{string.Join(" ", ar.Command)}' (unverified)");
                             break;
                         }
-                        Console.Write($"Run '{string.Join(" ", ar.Command)}'? [y/N] ");
-                        var resp = Console.ReadLine();
-                        if (!resp?.StartsWith("y", StringComparison.OrdinalIgnoreCase) ?? true)
+                        var safety = Safety.AssessCommandSafety(ar.Command.ToList(), approvalPolicy, sandboxPolicy, approvedCommands);
+                        if (safety == SafetyCheck.Reject)
+                        {
                             Console.WriteLine("Denied");
+                            break;
+                        }
+                        if (safety == SafetyCheck.AskUser)
+                        {
+                            Console.Write($"Run '{string.Join(" ", ar.Command)}'? [y/a/N] ");
+                            var resp = Console.ReadLine();
+                            if (resp?.StartsWith("a", StringComparison.OrdinalIgnoreCase) == true)
+                                approvedCommands.Add(ar.Command.ToList());
+                            if (!(resp?.StartsWith("y", StringComparison.OrdinalIgnoreCase) == true ||
+                                  resp?.StartsWith("a", StringComparison.OrdinalIgnoreCase) == true))
+                                Console.WriteLine("Denied");
+                        }
                         break;
                     case ExecCommandBeginEvent begin:
                         var argv = begin.Command.ToArray();
@@ -307,6 +322,24 @@ public static class ExecCommand
                             ApplyPatchCommandParser.MaybeParseApplyPatchVerified(argv, begin.Cwd, out var action) == MaybeApplyPatchVerified.Body &&
                             action != null)
                         {
+                            var roots = sandboxPolicy.GetWritableRootsWithCwd(begin.Cwd);
+                            var patchSafety = Safety.AssessPatchSafety(action, approvalPolicy, roots, begin.Cwd);
+                            if (patchSafety == SafetyCheck.Reject)
+                            {
+                                Console.WriteLine("Patch denied");
+                                break;
+                            }
+                            bool autoApproved = patchSafety == SafetyCheck.AutoApprove;
+                            if (patchSafety == SafetyCheck.AskUser)
+                            {
+                                Console.Write("Apply patch? [y/N] ");
+                                var respPatch = Console.ReadLine();
+                                if (!respPatch?.StartsWith("y", StringComparison.OrdinalIgnoreCase) ?? true)
+                                {
+                                    Console.WriteLine("Patch denied");
+                                    break;
+                                }
+                            }
                             var changes = new Dictionary<string, FileChange>();
                             foreach (var kv in action.Changes)
                             {
@@ -319,7 +352,7 @@ public static class ExecCommand
                                 };
                                 changes[kv.Key] = fc;
                             }
-                            var pbEvent = new PatchApplyBeginEvent(Guid.NewGuid().ToString(), true, changes);
+                            var pbEvent = new PatchApplyBeginEvent(Guid.NewGuid().ToString(), autoApproved, changes);
                             if (opts.Json)
                                 Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(pbEvent));
                             else
@@ -362,10 +395,17 @@ public static class ExecCommand
                         }
                         break;
                     case PatchApplyApprovalRequestEvent pr:
-                        Console.Write($"Apply patch? [y/N] ");
-                        var r = Console.ReadLine();
-                        if (!r?.StartsWith("y", StringComparison.OrdinalIgnoreCase) ?? true)
+                        if (approvalPolicy == ApprovalMode.Never)
+                        {
                             Console.WriteLine("Patch denied");
+                        }
+                        else
+                        {
+                            Console.Write($"Apply patch? [y/N] ");
+                            var r = Console.ReadLine();
+                            if (!r?.StartsWith("y", StringComparison.OrdinalIgnoreCase) ?? true)
+                                Console.WriteLine("Patch denied");
+                        }
                         break;
                     case PatchApplyBeginEvent pb:
                         foreach (var kv in pb.Changes)

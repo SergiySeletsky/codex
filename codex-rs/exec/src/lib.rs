@@ -1,4 +1,4 @@
-// C# port: codex-dotnet/CodexCli/Commands/ExecCommand.cs (partial)
+// C# port: codex-dotnet/CodexCli/Commands/ExecCommand.cs (partial, safety integrated)
 mod cli;
 mod event_processor;
 
