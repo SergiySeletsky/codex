@@ -61,6 +61,7 @@
 - Ported `append_entry` helper as `MessageHistory.AppendEntryAsync` with file locking and permissions handling.
 - Integrated `Codex.MaybeNotify` into RealCodexAgent and CLI loops with new parity tests.
 - Ported MCP tool name helpers `fully_qualified_tool_name` and `try_parse_fully_qualified_tool_name` with unit tests verifying round-trip parsing.
+- Integrated MessageHistory.HistoryMetadataAsync into HistoryCommand `messages-entry` for parity.
 
 ## Rust to C# Mapping
 
@@ -180,4 +181,4 @@
 - Integrate Codex.Abort into session lifecycle management.
 - Integrate Codex.RecordConversationItemsAsync and RecordRolloutItemsAsync into session recording workflow.
 - Integrate Prompt base and apply_patch instructions loading into Prompt.GetFullInstructions.
-- Integrate MessageHistory.HistoryMetadataAsync and LookupEntry into history CLI workflows.
+- Integrate MessageHistory.HistoryMetadataAsync and LookupEntry into history CLI workflows. (done)

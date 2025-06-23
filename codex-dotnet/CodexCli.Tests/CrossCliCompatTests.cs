@@ -651,6 +651,14 @@ args = ["run", "--project", "codex-dotnet/CodexCli", "mcp"]
     }
 
     [CrossCliFact]
+    public void HistoryMessagesEntryMatches()
+    {
+        var dotnet = RunProcess("dotnet", "run --project codex-dotnet/CodexCli history messages-entry 0");
+        var rust = RunProcess("cargo", "run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- history messages-entry 0");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [CrossCliFact]
     public void HistoryStatsJsonMatches()
     {
         var dotnet = RunProcess("dotnet", "run --project codex-dotnet/CodexCli history stats --json");
