@@ -30,24 +30,52 @@ public static class MessageHistory
         public string Text { get; set; } = string.Empty;
     }
 
+    private const int MaxRetries = 10;
+    private static readonly TimeSpan RetrySleep = TimeSpan.FromMilliseconds(100);
+
     public static async Task AppendEntryAsync(string text, string sessionId, AppConfig cfg)
     {
         if (cfg.History.Persistence == HistoryPersistence.None)
             return;
+
         var path = GetHistoryPath(cfg);
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+
         var entry = new HistoryEntry
         {
             SessionId = sessionId,
             Ts = (ulong)DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
             Text = text
         };
-        var line = JsonSerializer.Serialize(entry) + "\n";
-        await File.AppendAllTextAsync(path, line);
+        var lineBytes = System.Text.Encoding.UTF8.GetBytes(JsonSerializer.Serialize(entry) + "\n");
+
+        using var fs = new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
+
+        // Ensure permissions before locking/writing
         if (!OperatingSystem.IsWindows())
         {
             try { File.SetUnixFileMode(path, UnixFileMode.UserRead | UnixFileMode.UserWrite); } catch {}
         }
+
+        for (int i = 0; i < MaxRetries; i++)
+        {
+            try
+            {
+                fs.Lock(0, 0);
+                break;
+            }
+            catch (IOException)
+            {
+                if (i == MaxRetries - 1)
+                    throw;
+                await Task.Delay(RetrySleep);
+            }
+        }
+
+        fs.Seek(0, SeekOrigin.End);
+        await fs.WriteAsync(lineBytes, 0, lineBytes.Length);
+        await fs.FlushAsync();
+        try { fs.Unlock(0, 0); } catch { }
     }
 
     private static ulong GetFileId(string path)

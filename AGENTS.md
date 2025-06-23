@@ -58,6 +58,7 @@
 - Ported `send_event` helper as `Codex.SendEventAsync` with new unit tests.
 - Added event notifications in `McpToolCall.HandleMcpToolCallAsync` with unit tests verifying begin/end events.
 - Ported `history_metadata` and `lookup` helpers as `MessageHistory.HistoryMetadataAsync` and `MessageHistory.LookupEntry` with new unit tests.
+- Ported `append_entry` helper as `MessageHistory.AppendEntryAsync` with file locking and permissions handling.
 
 ## Rust to C# Mapping
 
@@ -80,6 +81,7 @@
 - codex-rs/core/src/message_history.rs -> codex-dotnet/CodexCli/Util/MessageHistory.cs (done)
 - codex-rs/core/src/message_history.rs history_metadata -> codex-dotnet/CodexCli/Util/MessageHistory.cs HistoryMetadataAsync (done)
 - codex-rs/core/src/message_history.rs lookup -> codex-dotnet/CodexCli/Util/MessageHistory.cs LookupEntry (done)
+- codex-rs/core/src/message_history.rs append_entry -> codex-dotnet/CodexCli/Util/MessageHistory.cs AppendEntryAsync (done)
 - codex-rs/common/src/approval_mode_cli_arg.rs -> codex-dotnet/CodexCli/Commands/ApprovalModeCliArg.cs (done)
 - codex-rs/common/src/config_override.rs -> codex-dotnet/CodexCli/Config/ConfigOverrides.cs (done)
 - codex-rs/common/src/elapsed.rs -> codex-dotnet/CodexCli/Util/Elapsed.cs (done)

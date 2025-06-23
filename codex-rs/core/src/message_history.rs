@@ -58,6 +58,7 @@ fn history_filepath(config: &Config) -> PathBuf {
 /// Append a `text` entry associated with `session_id` to the history file. Uses
 /// advisory file locking to ensure that concurrent writes do not interleave,
 /// which entails a small amount of blocking I/O internally.
+/// C# port in `codex-dotnet/CodexCli/Util/MessageHistory.cs` AppendEntryAsync (done)
 pub(crate) async fn append_entry(text: &str, session_id: &Uuid, config: &Config) -> Result<()> {
     match config.history.persistence {
         HistoryPersistence::SaveAll => {
