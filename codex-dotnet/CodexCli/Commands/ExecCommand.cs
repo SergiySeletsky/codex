@@ -283,8 +283,8 @@ public static class ExecCommand
                     await logWriter.WriteLineAsync(System.Text.Json.JsonSerializer.Serialize(ev));
                 if (ResponseItemFactory.FromEvent(ev) is { } ri)
                 {
-                    history.RecordItems(new[] { ri });
-                    if (recorder != null) await recorder.RecordItemsAsync(new[] { ri });
+                    // use Codex.RecordConversationItemsAsync for parity with Rust session recording
+                    await Codex.RecordConversationItemsAsync(recorder, history, new[] { ri });
                 }
                 switch (ev)
                 {

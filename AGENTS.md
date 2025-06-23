@@ -65,6 +65,7 @@
 - Integrated Codex.CallToolAsync into ExecCommand remote workflow for parity.
 - Integrated Codex.NotifyExecCommandBegin/End and NotifyBackgroundEvent into ExecCommand for denial diagnostics with new cross-CLI test.
 - Integrated Codex.ResolvePath into ExecCommand path handling for logs and instructions.
+- Integrated Codex.RecordConversationItemsAsync into ExecCommand event loop for session recording parity.
 
 ## Rust to C# Mapping
 
@@ -183,6 +184,6 @@
 - Integrate Codex.CallToolAsync into CLI tool-call workflow. (done)
 - Integrate Codex.SendEventAsync into MCP tool call notifications. (done)
 - Integrate Codex.Abort into session lifecycle management.
-- Integrate Codex.RecordConversationItemsAsync and RecordRolloutItemsAsync into session recording workflow.
+- Integrate Codex.RecordConversationItemsAsync and RecordRolloutItemsAsync into session recording workflow. (done)
 - Integrate Prompt base and apply_patch instructions loading into Prompt.GetFullInstructions.
 - Integrate MessageHistory.HistoryMetadataAsync and LookupEntry into history CLI workflows. (done)
