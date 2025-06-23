@@ -743,6 +743,20 @@ args = ["run", "--project", "codex-dotnet/CodexCli", "mcp"]
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 
+    [CrossCliFact]
+    public void ExecNotifyRunsScript()
+    {
+        var tmp = Path.GetTempFileName();
+        File.Delete(tmp);
+        var script = Path.GetTempFileName();
+        File.WriteAllText(script, $"echo done > {tmp}");
+        RunProcess("bash", $"-c 'chmod +x {script}; dotnet run --project codex-dotnet/CodexCli exec hi --model-provider Mock --notify {script}'");
+        Assert.True(File.Exists(tmp));
+        File.Delete(tmp);
+        RunProcess("bash", $"-c 'chmod +x {script}; cargo run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- exec hi -c model_provider=Mock --notify {script}'");
+        Assert.True(File.Exists(tmp));
+    }
+
 
     [CrossCliFact]
     public void ExecImageUploadMatches()

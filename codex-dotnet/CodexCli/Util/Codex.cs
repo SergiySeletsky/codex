@@ -30,9 +30,10 @@ public class Codex
         string prompt,
         OpenAIClient client,
         string model,
-        Func<string, OpenAIClient, string, CancellationToken, IAsyncEnumerable<Event>>? agent = null)
+        Func<string, OpenAIClient, string, CancellationToken, IAsyncEnumerable<Event>>? agent = null,
+        IReadOnlyList<string>? notifyCommand = null)
     {
-        var (stream, sc, cts) = await CodexWrapper.InitCodexAsync(prompt, client, model, agent);
+        var (stream, sc, cts) = await CodexWrapper.InitCodexAsync(prompt, client, model, agent, notifyCommand);
         return (new Codex(stream.GetAsyncEnumerator(cts.Token), cts), sc.Id);
     }
 

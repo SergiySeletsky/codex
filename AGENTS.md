@@ -59,6 +59,7 @@
 - Added event notifications in `McpToolCall.HandleMcpToolCallAsync` with unit tests verifying begin/end events.
 - Ported `history_metadata` and `lookup` helpers as `MessageHistory.HistoryMetadataAsync` and `MessageHistory.LookupEntry` with new unit tests.
 - Ported `append_entry` helper as `MessageHistory.AppendEntryAsync` with file locking and permissions handling.
+- Integrated `Codex.MaybeNotify` into RealCodexAgent and CLI loops with new parity tests.
 
 ## Rust to C# Mapping
 
@@ -164,7 +165,7 @@
 - Integrate PatchSummary.PrintSummary into patch application workflow.
 - Integrate PatchApplier.ApplyActionAndReport into CLI patch workflows.
 - Integrate PatchApplier.ApplyAndReport into CLI patch workflows.
-- Integrate Codex.MaybeNotify into session event notifications.
+- Integrate Codex.MaybeNotify into session event notifications. (done)
 - Integrate Codex.NotifyExecCommandBegin, NotifyExecCommandEnd and NotifyBackgroundEvent into session event workflow.
 - Integrate Codex.InjectInput and GetPendingInput into session input workflow.
 - Integrate Codex.ResolvePath into command path handling.
