@@ -1,5 +1,6 @@
 using System.CommandLine;
 using CodexCli.ApplyPatch;
+using System.IO;
 
 namespace CodexCli.Commands;
 
@@ -24,11 +25,7 @@ public static class ApplyPatchCommand
             cwd ??= Directory.GetCurrentDirectory();
             try
             {
-                var result = PatchApplier.ApplyWithSummary(patchText, cwd);
-                if (summaryOnly)
-                    Console.WriteLine(result.Summary);
-                else
-                    Console.WriteLine(result.Summary);
+                PatchApplier.ApplyAndReport(patchText, cwd, Console.Out, Console.Error);
             }
             catch (PatchParseException e)
             {

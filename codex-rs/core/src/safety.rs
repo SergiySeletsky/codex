@@ -104,6 +104,7 @@ pub fn assess_command_safety(
     }
 }
 
+// C# port in codex-dotnet/CodexCli/Util/Safety.cs GetPlatformSandbox (done)
 pub fn get_platform_sandbox() -> Option<SandboxType> {
     if cfg!(target_os = "macos") {
         Some(SandboxType::MacosSeatbelt)
@@ -114,6 +115,7 @@ pub fn get_platform_sandbox() -> Option<SandboxType> {
     }
 }
 
+// C# port in codex-dotnet/CodexCli/Util/Safety.cs IsWritePatchConstrainedToWritableRoots (done)
 fn is_write_patch_constrained_to_writable_paths(
     action: &ApplyPatchAction,
     writable_roots: &[PathBuf],

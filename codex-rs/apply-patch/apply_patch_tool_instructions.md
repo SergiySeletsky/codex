@@ -1,3 +1,4 @@
+<!-- C# port: codex-dotnet/CodexCli/ApplyPatch/apply_patch_tool_instructions.md (done) -->
 To edit files, ALWAYS use the `shell` tool with `apply_patch` CLI.  `apply_patch` effectively allows you to execute a diff/patch against a file, but the format of the diff specification is unique to this task, so pay careful attention to these instructions. To use the `apply_patch` CLI, you should call the shell tool with the following structure:
 
 ```bash

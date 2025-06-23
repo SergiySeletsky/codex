@@ -14,5 +14,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Login/login_with_chatgpt.py" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="prompt.md" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="ApplyPatch/apply_patch_tool_instructions.md" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

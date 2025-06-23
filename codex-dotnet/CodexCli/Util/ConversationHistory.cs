@@ -24,4 +24,11 @@ public class ConversationHistory
         LocalShellCallItem => true,
         _ => false
     };
+
+    public ConversationHistory Clone()
+    {
+        var clone = new ConversationHistory();
+        clone._items.AddRange(_items);
+        return clone;
+    }
 }

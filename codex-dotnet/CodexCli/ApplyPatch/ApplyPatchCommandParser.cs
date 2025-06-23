@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
+// Ported from codex-rs/apply-patch/src/lib.rs maybe_parse_apply_patch functions and heredoc parser (done).
+
 namespace CodexCli.ApplyPatch;
 
 public enum MaybeApplyPatch

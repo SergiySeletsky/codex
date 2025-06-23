@@ -15,6 +15,7 @@ use tokio::sync::mpsc;
 
 /// The `instructions` field in the payload sent to a model should always start
 /// with this content.
+// C# port embedded as CodexCli/prompt.md (done)
 const BASE_INSTRUCTIONS: &str = include_str!("../prompt.md");
 
 /// API request payload for a single model turn.

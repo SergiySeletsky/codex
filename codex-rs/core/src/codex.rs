@@ -195,6 +195,7 @@ pub(crate) struct Session {
 }
 
 impl Session {
+    // C# port in codex-dotnet/CodexCli/Util/Codex.cs ResolvePath (done)
     fn resolve_path(&self, path: Option<String>) -> PathBuf {
         path.as_ref()
             .map(PathBuf::from)
@@ -214,6 +215,7 @@ struct State {
 }
 
 impl Session {
+    // C# port in codex-dotnet/CodexCli/Util/Codex.cs SetTask (done)
     pub fn set_task(&self, task: AgentTask) {
         let mut state = self.state.lock().unwrap();
         if let Some(current_task) = state.current_task.take() {
@@ -222,6 +224,7 @@ impl Session {
         state.current_task = Some(task);
     }
 
+    // C# port in codex-dotnet/CodexCli/Util/Codex.cs RemoveTask (done)
     pub fn remove_task(&self, sub_id: &str) {
         let mut state = self.state.lock().unwrap();
         if let Some(task) = &state.current_task {
@@ -239,6 +242,7 @@ impl Session {
         }
     }
 
+    // C# port in codex-dotnet/CodexCli/Util/Codex.cs RequestCommandApproval (done)
     pub async fn request_command_approval(
         &self,
         sub_id: String,
@@ -263,6 +267,7 @@ impl Session {
         rx_approve
     }
 
+    // C# port in codex-dotnet/CodexCli/Util/Codex.cs RequestPatchApproval (done)
     pub async fn request_patch_approval(
         &self,
         sub_id: String,
@@ -287,6 +292,7 @@ impl Session {
         rx_approve
     }
 
+    // C# port in codex-dotnet/CodexCli/Util/Codex.cs NotifyApproval (done)
     pub fn notify_approval(&self, sub_id: &str, decision: ReviewDecision) {
         let mut state = self.state.lock().unwrap();
         if let Some(tx_approve) = state.pending_approvals.remove(sub_id) {
@@ -294,11 +300,13 @@ impl Session {
         }
     }
 
+    // C# port in codex-dotnet/CodexCli/Util/Codex.cs AddApprovedCommand (done)
     pub fn add_approved_command(&self, cmd: Vec<String>) {
         let mut state = self.state.lock().unwrap();
         state.approved_commands.insert(cmd);
     }
 
+    // C# port in codex-dotnet/CodexCli/Util/Codex.cs RecordConversationItemsAsync (done)
     /// Records items to both the rollout and the chat completions/ZDR
     /// transcript, if enabled.
     async fn record_conversation_items(&self, items: &[ResponseItem]) {
@@ -310,6 +318,7 @@ impl Session {
         }
     }
 
+    // C# port in codex-dotnet/CodexCli/Util/Codex.cs RecordRolloutItemsAsync (done)
     /// Append the given items to the session's rollout transcript (if enabled)
     /// and persist them to disk.
     async fn record_rollout_items(&self, items: &[ResponseItem]) {
@@ -327,6 +336,7 @@ impl Session {
         }
     }
 
+    // C# port in codex-dotnet/CodexCli/Util/Codex.cs NotifyExecCommandBegin (done)
     async fn notify_exec_command_begin(&self, sub_id: &str, call_id: &str, params: &ExecParams) {
         let event = Event {
             id: sub_id.to_string(),
@@ -339,6 +349,7 @@ impl Session {
         let _ = self.tx_event.send(event).await;
     }
 
+    // C# port in codex-dotnet/CodexCli/Util/Codex.cs NotifyExecCommandEnd (done)
     async fn notify_exec_command_end(
         &self,
         sub_id: &str,
@@ -365,6 +376,7 @@ impl Session {
     /// Helper that emits a BackgroundEvent with the given message. This keeps
     /// the call‑sites terse so adding more diagnostics does not clutter the
     /// core agent logic.
+    // C# port in codex-dotnet/CodexCli/Util/Codex.cs NotifyBackgroundEvent (done)
     async fn notify_background_event(&self, sub_id: &str, message: impl Into<String>) {
         let event = Event {
             id: sub_id.to_string(),
@@ -376,6 +388,7 @@ impl Session {
     }
 
     /// Returns the input if there was no task running to inject into
+    // C# port in codex-dotnet/CodexCli/Util/Codex.cs InjectInput (done)
     pub fn inject_input(&self, input: Vec<InputItem>) -> Result<(), Vec<InputItem>> {
         let mut state = self.state.lock().unwrap();
         if state.current_task.is_some() {
@@ -386,6 +399,7 @@ impl Session {
         }
     }
 
+    // C# port in codex-dotnet/CodexCli/Util/Codex.cs GetPendingInput (done)
     pub fn get_pending_input(&self) -> Vec<ResponseInputItem> {
         let mut state = self.state.lock().unwrap();
         if state.pending_input.is_empty() {
@@ -422,6 +436,7 @@ impl Session {
     /// Spawn the configured notifier (if any) with the given JSON payload as
     /// the last argument. Failures are logged but otherwise ignored so that
     /// notification issues do not interfere with the main workflow.
+    // C# port in codex-dotnet/CodexCli/Util/Codex.cs MaybeNotify (done)
     fn maybe_notify(&self, notification: UserNotification) {
         let Some(notify_command) = &self.notify else {
             return;
@@ -456,6 +471,7 @@ impl Drop for Session {
 }
 
 impl State {
+    // C# port in codex-dotnet/CodexCli/Util/CodexState.cs PartialClone (done)
     pub fn partial_clone(&self, retain_zdr_transcript: bool) -> Self {
         Self {
             approved_commands: self.approved_commands.clone(),
@@ -1219,6 +1235,7 @@ async fn handle_function_call(
     }
 }
 
+// C# port in codex-dotnet/CodexCli/Util/Codex.cs ToExecParams (done)
 fn to_exec_params(params: ShellToolCallParams, sess: &Session) -> ExecParams {
     ExecParams {
         command: params.command,
@@ -1228,6 +1245,7 @@ fn to_exec_params(params: ShellToolCallParams, sess: &Session) -> ExecParams {
     }
 }
 
+// C# port in codex-dotnet/CodexCli/Util/Codex.cs ParseContainerExecArguments (done)
 fn parse_container_exec_arguments(
     arguments: String,
     sess: &Session,
@@ -1710,6 +1728,7 @@ async fn apply_patch(
 /// Return the first path in `hunks` that is NOT under any of the
 /// `writable_roots` (after normalising). If all paths are acceptable,
 /// returns None.
+// C# port in codex-dotnet/CodexCli/Util/Codex.cs FirstOffendingPath (done)
 fn first_offending_path(
     action: &ApplyPatchAction,
     writable_roots: &[PathBuf],
@@ -1749,6 +1768,7 @@ fn first_offending_path(
     None
 }
 
+// C# port in codex-dotnet/CodexCli/Util/Codex.cs ConvertApplyPatchToProtocol (done)
 fn convert_apply_patch_to_protocol(action: &ApplyPatchAction) -> HashMap<PathBuf, FileChange> {
     let changes = action.changes();
     let mut result = HashMap::with_capacity(changes.len());
@@ -1772,6 +1792,7 @@ fn convert_apply_patch_to_protocol(action: &ApplyPatchAction) -> HashMap<PathBuf
     result
 }
 
+// C# port in codex-dotnet/CodexCli/ApplyPatch/PatchApplier.cs ApplyActionAndReport (done)
 fn apply_changes_from_apply_patch_and_report(
     action: &ApplyPatchAction,
     stdout: &mut impl std::io::Write,
@@ -1789,6 +1810,7 @@ fn apply_changes_from_apply_patch_and_report(
     Ok(())
 }
 
+// C# port in codex-dotnet/CodexCli/ApplyPatch/PatchApplier.cs ApplyAction (done)
 fn apply_changes_from_apply_patch(action: &ApplyPatchAction) -> anyhow::Result<AffectedPaths> {
     let mut added: Vec<PathBuf> = Vec::new();
     let mut modified: Vec<PathBuf> = Vec::new();
@@ -1851,6 +1873,7 @@ fn apply_changes_from_apply_patch(action: &ApplyPatchAction) -> anyhow::Result<A
     })
 }
 
+// C# port in codex-dotnet/CodexCli/Util/Codex.cs GetWritableRoots (done)
 fn get_writable_roots(cwd: &Path) -> Vec<std::path::PathBuf> {
     let mut writable_roots = Vec::new();
     if cfg!(target_os = "macos") {
@@ -1878,6 +1901,7 @@ fn get_writable_roots(cwd: &Path) -> Vec<std::path::PathBuf> {
     writable_roots
 }
 
+// C# port in codex-dotnet/CodexCli/Util/Codex.cs FormatExecOutput (done)
 /// Exec output is a pre-serialized JSON payload
 fn format_exec_output(output: &str, exit_code: i32, duration: std::time::Duration) -> String {
     #[derive(Serialize)]
@@ -1907,6 +1931,7 @@ fn format_exec_output(output: &str, exit_code: i32, duration: std::time::Duratio
     serde_json::to_string(&payload).expect("serialize ExecOutput")
 }
 
+// C# port in codex-dotnet/CodexCli/Util/Codex.cs GetLastAssistantMessageFromTurn (done)
 fn get_last_assistant_message_from_turn(responses: &[ResponseItem]) -> Option<String> {
     responses.iter().rev().find_map(|item| {
         if let ResponseItem::Message { role, content } = item {
@@ -1928,6 +1953,7 @@ fn get_last_assistant_message_from_turn(responses: &[ResponseItem]) -> Option<St
 }
 
 /// See [`ConversationHistory`] for details.
+// C# port in codex-dotnet/CodexCli/Util/Codex.cs RecordConversationHistory (done)
 fn record_conversation_history(disable_response_storage: bool, wire_api: WireApi) -> bool {
     if disable_response_storage {
         return true;

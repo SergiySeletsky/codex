@@ -1,8 +1,11 @@
-// Port of codex-rs/core/src/safety.rs (simplified, done)
+// Port of codex-rs/core/src/safety.rs assess_patch_safety and helpers (done)
 using CodexCli.ApplyPatch;
 using CodexCli.Protocol;
 using CodexCli.Models;
 using CodexCli.Commands;
+using System.Collections.Generic;
+using System.Linq;
+using System.IO;
 
 namespace CodexCli.Util;
 
@@ -23,9 +26,7 @@ public static class Safety
         if (policy == ApprovalMode.UnlessAllowListed)
             return SafetyCheck.AskUser;
 
-        bool allWritable = action.Changes.Keys.All(p => IsPathWritable(Path.Combine(cwd, p), writableRoots));
-
-        if (allWritable)
+        if (IsWritePatchConstrainedToWritableRoots(action, writableRoots, cwd))
             return SafetyCheck.AutoApprove;
 
         return policy switch
@@ -34,6 +35,44 @@ public static class Safety
             ApprovalMode.Never => SafetyCheck.Reject,
             _ => SafetyCheck.AskUser
         };
+    }
+
+    public static bool IsWritePatchConstrainedToWritableRoots(ApplyPatchAction action, List<string> writableRoots, string cwd)
+    {
+        if (writableRoots.Count == 0)
+            return false;
+
+        bool IsWritable(string path)
+        {
+            var abs = Path.GetFullPath(Path.IsPathRooted(path) ? path : Path.Combine(cwd, path));
+            return writableRoots.Any(root =>
+            {
+                var rootAbs = Path.GetFullPath(Path.IsPathRooted(root) ? root : Path.Combine(cwd, root));
+                return abs.StartsWith(rootAbs);
+            });
+        }
+
+        foreach (var kv in action.Changes)
+        {
+            var path = kv.Key;
+            var change = kv.Value;
+            switch (change.Kind)
+            {
+                case "add":
+                case "delete":
+                    if (!IsWritable(path))
+                        return false;
+                    break;
+                case "update":
+                    if (!IsWritable(path))
+                        return false;
+                    if (change.MovePath != null && !IsWritable(change.MovePath))
+                        return false;
+                    break;
+            }
+        }
+
+        return true;
     }
 
     public static SafetyCheck AssessCommandSafety(List<string> command, ApprovalMode policy, SandboxPolicy sandbox, HashSet<List<string>> approved)
@@ -50,6 +89,18 @@ public static class Safety
         return SafetyCheck.AskUser;
     }
 
-    private static bool IsPathWritable(string path, List<string> roots)
-        => roots.Count == 0 || roots.Any(r => Path.GetFullPath(path).StartsWith(Path.GetFullPath(r)));
+    /// <summary>
+    /// Ported from codex-rs/core/src/safety.rs `get_platform_sandbox` (done).
+    /// Returns the default sandbox type for the current platform if supported.
+    /// </summary>
+    public static SandboxType? GetPlatformSandbox()
+    {
+        if (OperatingSystem.IsMacOS()) return SandboxType.MacosSeatbelt;
+        if (OperatingSystem.IsLinux()) return SandboxType.LinuxSeccomp;
+        return null;
+    }
+
+    // Helpers for earlier versions retained for completeness, though not used
+    // in current ports.
 }
+

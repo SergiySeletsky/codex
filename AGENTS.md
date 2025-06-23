@@ -1,6 +1,7 @@
 # Migration Plan: Rust Codex CLI to .NET
 
 ## Completed Summary
+
 - Bootstrapped the .NET CLI with configuration loading, interactive mode, history management, sandbox enforcement and patch replay.
 - Ported provider management, API key handling and TUI widgets with approval workflow.
 - Added MCP client/server support with SSE events and cross-language tests.
@@ -30,7 +31,31 @@
 - Connected ChatGptLogin into LoginCommand with injectable delegate and added new unit test.
 - Ported debug sandbox and proto commands with a new ProtoCommand unit test.
 - Implemented MCP event streaming helpers (McpEventStream) and added watch-events tests.
+- Ported `format_exec_output` helper as `Codex.FormatExecOutput` with new unit test.
+- Ported `get_writable_roots` helper as `Codex.GetWritableRoots` with new unit test.
+- Ported `get_last_assistant_message_from_turn` and `record_conversation_history` helpers as `Codex` methods with new unit tests.
+- Ported `convert_apply_patch_to_protocol` helper as `Codex.ConvertApplyPatchToProtocol` with unit, integration and CLI tests.
+- Ported `print_summary` helper as `PatchSummary.PrintSummary` with new unit and CLI tests.
+- Ported `first_offending_path` helper as `Codex.FirstOffendingPath` with new unit tests.
+- Ported `apply_changes_from_apply_patch` and `apply_changes_from_apply_patch_and_report` as `PatchApplier.ApplyAction` and `PatchApplier.ApplyActionAndReport` with new unit tests.
+- Ported `apply_patch` helper as `PatchApplier.ApplyAndReport` with new unit, integration and CLI tests.
+- Ported `is_write_patch_constrained_to_writable_paths` helper as `Safety.IsWritePatchConstrainedToWritableRoots` with new unit test.
+- Ported `to_exec_params` and `parse_container_exec_arguments` helpers as `Codex.ToExecParams` and `Codex.TryParseContainerExecArguments` with new unit tests.
+- Ported platform sandbox detection as `Safety.GetPlatformSandbox` with new unit test.
+- Ported `State.partial_clone` helper as `CodexState.PartialClone` with new unit test.
+- Ported `maybe_notify` helper as `Codex.MaybeNotify` with new unit test.
+- Ported `notify_exec_command_begin`, `notify_exec_command_end`, and `notify_background_event` helpers as `Codex.NotifyExecCommandBegin`, `Codex.NotifyExecCommandEnd` and `Codex.NotifyBackgroundEvent` with new unit tests.
+- Ported `inject_input` and `get_pending_input` helpers as `Codex.InjectInput` and `Codex.GetPendingInput` with new unit tests.
+- Ported `resolve_path` helper as `Codex.ResolvePath` with new unit tests.
+- Ported `set_task` and `remove_task` helpers as `Codex.SetTask` and `Codex.RemoveTask` with new unit tests.
+- Ported `prompt.md` base instructions and `APPLY_PATCH_TOOL_INSTRUCTIONS` constant to C# with runtime loading.
+- Marked prompt and apply_patch instruction markdown files with port comments for traceability.
+- Ported `record_conversation_items` and `record_rollout_items` helpers as `Codex.RecordConversationItemsAsync` and `Codex.RecordRolloutItemsAsync` with new unit tests.
+- Ported `request_command_approval`, `request_patch_approval`, `notify_approval` and `add_approved_command` helpers as `Codex` methods with new unit tests.
+- Updated Prompt instruction loader to strip HTML comments so tests consume the same text as Rust.
+
 ## Rust to C# Mapping
+
 - codex-rs/tui/src/exec_command.rs -> codex-dotnet/CodexCli/Util/ExecCommandUtils.cs (done)
 - codex-rs/core/src/is_safe_command.rs -> codex-dotnet/CodexCli/Util/SafeCommand.cs (done)
 - codex-rs/core/src/exec.rs -> codex-dotnet/CodexCli/Util/ExecRunner.cs (done)
@@ -63,16 +88,52 @@
 - codex-rs/cli/src/debug_sandbox.rs -> codex-dotnet/CodexCli/Commands/DebugCommand.cs (done)
 - codex-rs/cli/src/proto.rs -> codex-dotnet/CodexCli/Commands/ProtoCommand.cs (done)
 - codex-rs/core/src/safety.rs -> codex-dotnet/CodexCli/Util/Safety.cs (done)
+- codex-rs/core/src/exec.rs SandboxType -> codex-dotnet/CodexCli/Protocol/SandboxType.cs (done)
+- codex-rs/core/src/safety.rs get_platform_sandbox -> codex-dotnet/CodexCli/Util/Safety.cs GetPlatformSandbox (done)
 - codex-rs/core/src/codex_wrapper.rs -> codex-dotnet/CodexCli/Util/CodexWrapper.cs (done)
 - codex-rs/core/src/protocol.rs -> codex-dotnet/CodexCli/Protocol/Event.cs (done)
+- codex-rs/core/prompt.md -> codex-dotnet/CodexCli/prompt.md (done)
+- codex-rs/apply-patch/apply_patch_tool_instructions.md -> codex-dotnet/CodexCli/ApplyPatch/apply_patch_tool_instructions.md (done)
+- codex-rs/apply-patch/src/lib.rs APPLY_PATCH_TOOL_INSTRUCTIONS -> codex-dotnet/CodexCli/Models/Prompt.cs ApplyPatchToolInstructions (done)
+- codex-rs/core/src/client_common.rs BASE_INSTRUCTIONS -> codex-dotnet/CodexCli/Models/Prompt.cs BaseInstructions (done)
+- codex-rs/core/src/codex.rs format_exec_output -> codex-dotnet/CodexCli/Util/Codex.cs FormatExecOutput (done)
+- codex-rs/core/src/codex.rs get_writable_roots -> codex-dotnet/CodexCli/Util/Codex.cs GetWritableRoots (done)
+- codex-rs/core/src/codex.rs get_last_assistant_message_from_turn -> codex-dotnet/CodexCli/Util/Codex.cs GetLastAssistantMessageFromTurn (done)
+- codex-rs/core/src/codex.rs record_conversation_history -> codex-dotnet/CodexCli/Util/Codex.cs RecordConversationHistory (done)
+- codex-rs/core/src/codex.rs convert_apply_patch_to_protocol -> codex-dotnet/CodexCli/Util/Codex.cs ConvertApplyPatchToProtocol (done)
+- codex-rs/core/src/codex.rs first_offending_path -> codex-dotnet/CodexCli/Util/Codex.cs FirstOffendingPath (done)
+- codex-rs/core/src/safety.rs is_write_patch_constrained_to_writable_paths -> codex-dotnet/CodexCli/Util/Safety.cs IsWritePatchConstrainedToWritableRoots (done)
+- codex-rs/core/src/codex.rs to_exec_params -> codex-dotnet/CodexCli/Util/Codex.cs ToExecParams (done)
+- codex-rs/core/src/codex.rs parse_container_exec_arguments -> codex-dotnet/CodexCli/Util/Codex.cs TryParseContainerExecArguments (done)
+- codex-rs/core/src/codex.rs resolve_path -> codex-dotnet/CodexCli/Util/Codex.cs ResolvePath (done)
+- codex-rs/apply-patch/src/lib.rs print_summary -> codex-dotnet/CodexCli/ApplyPatch/PatchSummary.cs PrintSummary (done)
+- codex-rs/core/src/codex.rs apply_changes_from_apply_patch -> codex-dotnet/CodexCli/ApplyPatch/PatchApplier.cs ApplyAction (done)
+- codex-rs/core/src/codex.rs apply_changes_from_apply_patch_and_report -> codex-dotnet/CodexCli/ApplyPatch/PatchApplier.cs ApplyActionAndReport (done)
+- codex-rs/apply-patch/src/lib.rs apply_patch -> codex-dotnet/CodexCli/ApplyPatch/PatchApplier.cs ApplyAndReport (done)
+- codex-rs/core/src/codex.rs State.partial_clone -> codex-dotnet/CodexCli/Util/CodexState.cs PartialClone (done)
+- codex-rs/core/src/codex.rs maybe_notify -> codex-dotnet/CodexCli/Util/Codex.cs MaybeNotify (done)
+- codex-rs/core/src/codex.rs notify_exec_command_begin -> codex-dotnet/CodexCli/Util/Codex.cs NotifyExecCommandBegin (done)
+- codex-rs/core/src/codex.rs notify_exec_command_end -> codex-dotnet/CodexCli/Util/Codex.cs NotifyExecCommandEnd (done)
+- codex-rs/core/src/codex.rs notify_background_event -> codex-dotnet/CodexCli/Util/Codex.cs NotifyBackgroundEvent (done)
+- codex-rs/core/src/codex.rs inject_input -> codex-dotnet/CodexCli/Util/Codex.cs InjectInput (done)
+- codex-rs/core/src/codex.rs get_pending_input -> codex-dotnet/CodexCli/Util/Codex.cs GetPendingInput (done)
+- codex-rs/core/src/codex.rs set_task -> codex-dotnet/CodexCli/Util/Codex.cs SetTask (done)
+- codex-rs/core/src/codex.rs remove_task -> codex-dotnet/CodexCli/Util/Codex.cs RemoveTask (done)
+- codex-rs/core/src/codex.rs record_rollout_items -> codex-dotnet/CodexCli/Util/Codex.cs RecordRolloutItemsAsync (done)
+- codex-rs/core/src/codex.rs record_conversation_items -> codex-dotnet/CodexCli/Util/Codex.cs RecordConversationItemsAsync (done)
+- codex-rs/core/src/codex.rs request_command_approval -> codex-dotnet/CodexCli/Util/Codex.cs RequestCommandApproval (done)
+- codex-rs/core/src/codex.rs request_patch_approval -> codex-dotnet/CodexCli/Util/Codex.cs RequestPatchApproval (done)
+- codex-rs/core/src/codex.rs notify_approval -> codex-dotnet/CodexCli/Util/Codex.cs NotifyApproval (done)
+- codex-rs/core/src/codex.rs add_approved_command -> codex-dotnet/CodexCli/Util/Codex.cs AddApprovedCommand (done)
 - codex-rs/core/src/codex.rs -> codex-dotnet/CodexCli/Util/Codex.cs (partial)
- - codex-rs/exec/src/lib.rs -> codex-dotnet/CodexCli/Commands/ExecCommand.cs (partial, safety and Ctrl+C integrated)
+- codex-rs/exec/src/lib.rs -> codex-dotnet/CodexCli/Commands/ExecCommand.cs (partial, safety and Ctrl+C integrated)
 - codex-rs/core/src/client.rs -> codex-dotnet/CodexCli/Protocol/RealCodexAgent.cs (done)
 - codex-rs/core/src/models.rs -> codex-dotnet/CodexCli/Models/ResponseItem.cs (done)
 - codex-rs/core/src/rollout.rs -> codex-dotnet/CodexCli/Util/RolloutRecorder.cs and Commands/ReplayCommand.cs (done)
 - codex-rs/tui/src/lib.rs -> codex-dotnet/CodexCli/Interactive/InteractiveApp.cs (done)
 
 ## TODO
+
 - Integrate newly ported utilities throughout CLI commands and finalize SSE handling.
 - Expand CLI and cross-language parity tests and fix flakes, including chat aggregation.
 - Resolve exec parity test failures by aligning provider configuration between implementations.
@@ -83,3 +144,20 @@
 - Port remaining Codex session workflow (submission loop, rollout persistence) to .NET.
 - Expand ResponseItem coverage with integration tests for new event types.
 - Wire DebugCommand and ProtoCommand into parity tests and CLI workflows.
+- Integrate Codex.FormatExecOutput into ExecCommand parity tests.
+- Integrate Codex.GetWritableRoots into spawn workflow.
+- Integrate Codex.GetLastAssistantMessageFromTurn and RecordConversationHistory into conversation logic.
+- Integrate Codex.ConvertApplyPatchToProtocol into ExecCommand patch handling.
+- Integrate Codex.ToExecParams and TryParseContainerExecArguments into ExecCommand function call handling.
+- Integrate PatchSummary.PrintSummary into patch application workflow.
+- Integrate PatchApplier.ApplyActionAndReport into CLI patch workflows.
+- Integrate PatchApplier.ApplyAndReport into CLI patch workflows.
+- Integrate Codex.MaybeNotify into session event notifications.
+- Integrate Codex.NotifyExecCommandBegin, NotifyExecCommandEnd and NotifyBackgroundEvent into session event workflow.
+- Integrate Codex.InjectInput and GetPendingInput into session input workflow.
+- Integrate Codex.ResolvePath into command path handling.
+- Integrate Codex.SetTask and Codex.RemoveTask into session task workflow.
+- Integrate Codex.RequestCommandApproval and RequestPatchApproval into approval workflow.
+- Integrate Codex.NotifyApproval and AddApprovedCommand into approval workflow.
+- Integrate Codex.RecordConversationItemsAsync and RecordRolloutItemsAsync into session recording workflow.
+- Integrate Prompt base and apply_patch instructions loading into Prompt.GetFullInstructions.

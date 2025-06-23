@@ -20,6 +20,7 @@ use tree_sitter::Parser;
 use tree_sitter_bash::LANGUAGE as BASH;
 
 /// Detailed instructions for gpt-4.1 on how to use the `apply_patch` tool.
+/// C# port embedded as CodexCli/ApplyPatch/apply_patch_tool_instructions.md (done)
 pub const APPLY_PATCH_TOOL_INSTRUCTIONS: &str = include_str!("../apply_patch_tool_instructions.md");
 
 #[derive(Debug, Error, PartialEq)]
@@ -57,6 +58,7 @@ impl PartialEq for IoError {
 }
 
 #[derive(Debug, PartialEq)]
+// C# port in codex-dotnet/CodexCli/ApplyPatch/ApplyPatchCommandParser.cs MaybeParseApplyPatch and MaybeParseApplyPatchVerified (done)
 pub enum MaybeApplyPatch {
     Body(Vec<Hunk>),
     ShellParseError(ExtractHeredocError),
@@ -209,6 +211,7 @@ pub fn maybe_parse_apply_patch_verified(argv: &[String], cwd: &Path) -> MaybeApp
 /// * `Ok(String)` - The heredoc body if the extraction is successful.
 /// * `Err(anyhow::Error)` - An error if the extraction fails.
 ///
+// C# port in codex-dotnet/CodexCli/ApplyPatch/ApplyPatchCommandParser.cs ExtractHeredocBodyFromApplyPatchCommand (done)
 fn extract_heredoc_body_from_apply_patch_command(
     src: &str,
 ) -> std::result::Result<String, ExtractHeredocError> {
@@ -258,6 +261,7 @@ pub enum ExtractHeredocError {
 }
 
 /// Applies the patch and prints the result to stdout/stderr.
+// C# port in codex-dotnet/CodexCli/ApplyPatch/PatchApplier.cs ApplyAndReport (done)
 pub fn apply_patch(
     patch: &str,
     stdout: &mut impl std::io::Write,
@@ -604,6 +608,7 @@ pub fn unified_diff_from_chunks_with_context(
 }
 
 /// Print the summary of changes in git-style format.
+/// C# port in codex-dotnet/CodexCli/ApplyPatch/PatchSummary.cs PrintSummary (done)
 /// Write a summary of changes to the given writer.
 pub fn print_summary(
     affected: &AffectedPaths,

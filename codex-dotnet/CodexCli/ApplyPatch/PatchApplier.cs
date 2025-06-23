@@ -1,4 +1,10 @@
 using System.Text;
+using System.IO;
+using System.Collections.Generic;
+using System.Linq;
+
+// Ports of apply_changes_from_apply_patch and apply_changes_from_apply_patch_and_report
+// from codex-rs/core/src/codex.rs. Also ports apply_patch from codex-rs/apply-patch/src/lib.rs.
 
 namespace CodexCli.ApplyPatch;
 
@@ -73,6 +79,88 @@ public static class PatchApplier
 
         var summary = stdout.ToString();
         return (new AffectedPaths(added, modified, deleted), summary);
+    }
+
+    /// <summary>
+    /// Ported from codex-rs/core/src/codex.rs `apply_changes_from_apply_patch` (done).
+    /// Applies an already-parsed patch action.
+    /// </summary>
+    public static AffectedPaths ApplyAction(ApplyPatchAction action)
+    {
+        var added = new List<string>();
+        var modified = new List<string>();
+        var deleted = new List<string>();
+        foreach (var kv in action.Changes)
+        {
+            var path = kv.Key;
+            var change = kv.Value;
+            switch (change.Kind)
+            {
+                case "add":
+                    Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+                    File.WriteAllText(path, change.Content ?? string.Empty);
+                    added.Add(path);
+                    break;
+                case "delete":
+                    if (File.Exists(path))
+                    {
+                        File.Delete(path);
+                        deleted.Add(path);
+                    }
+                    break;
+                case "update":
+                    var lines = File.Exists(path) ? File.ReadAllLines(path).ToList() : new List<string>();
+                    var diffLines = PatchParser.ParseUnified(change.UnifiedDiff ?? string.Empty);
+                    lines = ApplyUnifiedDiff(lines, diffLines);
+                    var outPath = path;
+                    if (change.MovePath != null)
+                    {
+                        Directory.CreateDirectory(Path.GetDirectoryName(change.MovePath)!);
+                        File.Move(path, change.MovePath, true);
+                        outPath = change.MovePath;
+                        deleted.Add(path);
+                    }
+                    File.WriteAllLines(outPath, lines);
+                    modified.Add(outPath);
+                    break;
+            }
+        }
+
+        return new AffectedPaths(added, modified, deleted);
+    }
+
+    /// <summary>
+    /// Ported from codex-rs/core/src/codex.rs `apply_changes_from_apply_patch_and_report` (done).
+    /// Writes a summary or error to the provided writers.
+    /// </summary>
+    public static void ApplyActionAndReport(ApplyPatchAction action, TextWriter stdout, TextWriter stderr)
+    {
+        try
+        {
+            var affected = ApplyAction(action);
+            PatchSummary.PrintSummary(affected, stdout);
+        }
+        catch (Exception e)
+        {
+            stderr.WriteLine(e.Message);
+        }
+    }
+
+    /// <summary>
+    /// Ported from codex-rs/apply-patch/src/lib.rs `apply_patch` (done).
+    /// Parses a patch string and prints the result to the provided writers.
+    /// </summary>
+    public static void ApplyAndReport(string patch, string cwd, TextWriter stdout, TextWriter stderr)
+    {
+        try
+        {
+            var result = ApplyWithSummary(patch, cwd);
+            PatchSummary.PrintSummary(result.Affected, stdout);
+        }
+        catch (PatchParseException e)
+        {
+            stderr.WriteLine(e.Message);
+        }
     }
 
     private static List<string> ApplyUnifiedDiff(List<string> original, List<string> diffLines)
