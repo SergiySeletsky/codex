@@ -424,6 +424,7 @@ impl Session {
             .await
     }
 
+    // C# port in codex-dotnet/CodexCli/Util/Codex.cs Abort (done)
     pub fn abort(&self) {
         info!("Aborting existing session");
         let mut state = self.state.lock().unwrap();

@@ -345,6 +345,22 @@ public class Codex
     }
 
     /// <summary>
+    /// Ported from codex-rs/core/src/codex.rs `abort` (done).
+    /// Clears pending approvals and input and aborts any running task.
+    /// </summary>
+    public static void Abort(CodexState state)
+    {
+        state.PendingApprovals.Clear();
+        state.PendingInput.Clear();
+        if (state.CurrentTask != null)
+        {
+            state.CurrentTask.Abort();
+            state.CurrentTask = null;
+            state.HasCurrentTask = false;
+        }
+    }
+
+    /// <summary>
     /// Ported from codex-rs/core/src/codex.rs `record_rollout_items` (done).
     /// Appends the items to the rollout recorder if it is not null.
     /// </summary>
