@@ -58,6 +58,7 @@ fn history_filepath(config: &Config) -> PathBuf {
 /// Append a `text` entry associated with `session_id` to the history file. Uses
 /// advisory file locking to ensure that concurrent writes do not interleave,
 /// which entails a small amount of blocking I/O internally.
+/// C# port in `codex-dotnet/CodexCli/Util/MessageHistory.cs` AppendEntryAsync (done)
 pub(crate) async fn append_entry(text: &str, session_id: &Uuid, config: &Config) -> Result<()> {
     match config.history.persistence {
         HistoryPersistence::SaveAll => {
@@ -147,6 +148,7 @@ async fn acquire_exclusive_lock_with_retry(file: &std::fs::File) -> Result<()> {
 
 /// Asynchronously fetch the history file's *identifier* (inode on Unix) and
 /// the current number of entries by counting newline characters.
+/// C# port in codex-dotnet/CodexCli/Util/MessageHistory.cs HistoryMetadataAsync (done)
 pub(crate) async fn history_metadata(config: &Config) -> (u64, usize) {
     let path = history_filepath(config);
 
@@ -193,6 +195,7 @@ pub(crate) async fn history_metadata(config: &Config) -> (u64, usize) {
 ///
 /// Note this function is not async because it uses a sync advisory file
 /// locking API.
+/// C# port in codex-dotnet/CodexCli/Util/MessageHistory.cs LookupEntry (done)
 #[cfg(unix)]
 pub(crate) fn lookup(log_id: u64, offset: usize, config: &Config) -> Option<HistoryEntry> {
     use std::io::BufRead;
@@ -251,6 +254,7 @@ pub(crate) fn lookup(log_id: u64, offset: usize, config: &Config) -> Option<Hist
 }
 
 /// Fallback stub for non-Unix systems: currently always returns `None`.
+/// C# port in codex-dotnet/CodexCli/Util/MessageHistory.cs LookupEntry (done)
 #[cfg(not(unix))]
 pub(crate) fn lookup(log_id: u64, offset: usize, config: &Config) -> Option<HistoryEntry> {
     let _ = (log_id, offset, config);

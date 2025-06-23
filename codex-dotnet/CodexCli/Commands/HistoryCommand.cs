@@ -94,7 +94,8 @@ public static class HistoryCommand
         msgEntryCmd.SetHandler(async (int offset, string? eventsUrl, bool watch) =>
         {
             var cfg = new AppConfig();
-            var text = MessageHistory.LookupEntry(0, offset, cfg);
+            var meta = await MessageHistory.HistoryMetadataAsync(cfg);
+            var text = MessageHistory.LookupEntry(meta.LogId, offset, cfg);
             if (text != null) Console.WriteLine(text);
             else Console.WriteLine("not found");
             if (watch && eventsUrl != null)

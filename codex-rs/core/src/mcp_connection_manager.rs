@@ -37,10 +37,12 @@ const LIST_TOOLS_TIMEOUT: Duration = Duration::from_secs(10);
 /// spawned successfully.
 pub type ClientStartErrors = HashMap<String, anyhow::Error>;
 
+// C# port in codex-dotnet/CodexCli/Util/McpConnectionManager.cs FullyQualifiedToolName (done)
 fn fully_qualified_tool_name(server: &str, tool: &str) -> String {
     format!("{server}{MCP_TOOL_NAME_DELIMITER}{tool}")
 }
 
+// C# port in codex-dotnet/CodexCli/Util/McpConnectionManager.cs TryParseFullyQualifiedToolName (done)
 pub(crate) fn try_parse_fully_qualified_tool_name(fq_name: &str) -> Option<(String, String)> {
     let (server, tool) = fq_name.split_once(MCP_TOOL_NAME_DELIMITER)?;
     if server.is_empty() || tool.is_empty() {

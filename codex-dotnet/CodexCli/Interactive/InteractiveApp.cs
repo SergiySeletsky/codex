@@ -246,9 +246,9 @@ public static class InteractiveApp
 
                 Func<string, OpenAIClient, string, CancellationToken, IAsyncEnumerable<Event>> factory = info.Name == "Mock"
                     ? (p, c, m, t) => CodexCli.Protocol.MockCodexAgent.RunAsync(p, Array.Empty<string>(), approvalHandler, t)
-                    : (p, c, m, t) => CodexCli.Protocol.RealCodexAgent.RunAsync(p, c, m, approvalHandler, Array.Empty<string>(), t);
+                    : (p, c, m, t) => CodexCli.Protocol.RealCodexAgent.RunAsync(p, c, m, approvalHandler, Array.Empty<string>(), opts.NotifyCommand, t);
 
-                var (stream, first, cts) = await CodexWrapper.InitCodexAsync(prompt, client, opts.Model ?? cfg?.Model ?? "default", factory);
+                var (stream, first, cts) = await CodexWrapper.InitCodexAsync(prompt, client, opts.Model ?? cfg?.Model ?? "default", factory, opts.NotifyCommand);
                 agentCts = cts;
 
                 processor.ProcessEvent(first);
@@ -289,13 +289,16 @@ public static class InteractiveApp
                             chat.AddSystemMessage(ar.Text);
                             break;
                         case TaskCompleteEvent tc:
-                            if (tc.LastAgentMessage != null)
-                            {
-                                chat.AddAgentMessage(tc.LastAgentMessage);
-                                lastMessage = tc.LastAgentMessage;
-                            }
-                            status.UpdateText("ready");
-                            break;
+                        if (tc.LastAgentMessage != null)
+                        {
+                            chat.AddAgentMessage(tc.LastAgentMessage);
+                            lastMessage = tc.LastAgentMessage;
+                        }
+                        status.UpdateText("ready");
+                        if (opts.NotifyCommand.Length > 0)
+                            Codex.MaybeNotify(opts.NotifyCommand.ToList(),
+                                new AgentTurnCompleteNotification(tc.Id, Array.Empty<string>(), tc.LastAgentMessage));
+                        break;
                     }
                     if (logWriter != null)
                         await logWriter.WriteLineAsync(System.Text.Json.JsonSerializer.Serialize(ev));

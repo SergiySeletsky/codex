@@ -13,7 +13,8 @@ public class CodexWrapperTests
             "hi",
             new OpenAIClient(null, "http://localhost"),
             "gpt-4",
-            (p, c, m, t) => MockCodexAgent.RunAsync(p, new string[0], null, t));
+            (p, c, m, t) => MockCodexAgent.RunAsync(p, new string[0], null, t),
+            null);
         Assert.IsType<SessionConfiguredEvent>(first);
         List<Event> list = new();
         await foreach (var ev in stream)
@@ -28,7 +29,8 @@ public class CodexWrapperTests
             "hi",
             new OpenAIClient(null, "http://localhost"),
             "gpt-4",
-            (p, c, m, t) => MockCodexAgent.RunAsync(p, new string[0], null, t));
+            (p, c, m, t) => MockCodexAgent.RunAsync(p, new string[0], null, t),
+            null);
         Assert.IsType<SessionConfiguredEvent>(first);
         cts.Cancel();
         List<Event> list = new();

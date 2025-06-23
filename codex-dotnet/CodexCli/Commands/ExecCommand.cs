@@ -219,7 +219,8 @@ public static class ExecCommand
                 }
                 var param = new CodexToolCallParam(prompt ?? string.Empty, opts.Model ?? cfg?.Model, opts.Profile, Environment.CurrentDirectory, null, sandboxList.Select(s => s.ToString()).ToList(), null, providerId);
                 var paramJson = System.Text.Json.JsonSerializer.SerializeToElement(param);
-                var callTask = mgr.CallToolAsync(McpConnectionManager.FullyQualifiedToolName(opts.McpServer, "codex"), paramJson);
+                // CallToolAsync port from codex-rs core::codex call_tool
+                var callTask = Codex.CallToolAsync(mgr, opts.McpServer!, "codex", paramJson);
                 if (!string.IsNullOrEmpty(opts.EventsUrl))
                 {
                     async IAsyncEnumerable<Event> Stream()
@@ -252,7 +253,7 @@ public static class ExecCommand
                 if (providerId == "mock")
                     agent = (p, c, m, t) => MockCodexAgent.RunAsync(p, imagePaths, null, t);
                 var sigint = SignalUtils.NotifyOnSigInt();
-                var (stream, first, codexCts) = await CodexWrapper.InitCodexAsync(prompt, client, opts.Model ?? cfg?.Model ?? "default", agent);
+                var (stream, first, codexCts) = await CodexWrapper.InitCodexAsync(prompt, client, opts.Model ?? cfg?.Model ?? "default", agent, opts.NotifyCommand);
                 sigint.Token.Register(() => codexCts.Cancel());
                 async IAsyncEnumerable<Event> EnumerateInit()
                 {
@@ -453,14 +454,17 @@ public static class ExecCommand
                     case TaskStartedEvent tsEvent:
                         break;
                     case TaskCompleteEvent tc:
-                        if (providerId == "mock")
-                        {
-                            var aiResp = await client.ChatAsync(prompt);
-                            Console.WriteLine(aiResp);
-                        }
-                        if (opts.LastMessageFile != null)
-                            await File.WriteAllTextAsync(opts.LastMessageFile, tc.LastAgentMessage ?? string.Empty);
-                        break;
+                    if (providerId == "mock")
+                    {
+                        var aiResp = await client.ChatAsync(prompt);
+                        Console.WriteLine(aiResp);
+                    }
+                    if (opts.LastMessageFile != null)
+                        await File.WriteAllTextAsync(opts.LastMessageFile, tc.LastAgentMessage ?? string.Empty);
+                    if (opts.NotifyCommand.Length > 0)
+                        Codex.MaybeNotify(opts.NotifyCommand.ToList(),
+                            new AgentTurnCompleteNotification(tc.Id, Array.Empty<string>(), tc.LastAgentMessage));
+                    break;
                 }
             }
 
