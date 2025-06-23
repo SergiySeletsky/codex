@@ -276,6 +276,21 @@ public class Codex
     }
 
     /// <summary>
+    /// Ported from codex-rs/core/src/codex.rs `call_tool` (done).
+    /// Delegates to <see cref="McpConnectionManager.CallToolAsync"/> using server and tool names.
+    /// </summary>
+    public static Task<CallToolResult> CallToolAsync(
+        McpConnectionManager manager,
+        string server,
+        string tool,
+        JsonElement? arguments = null,
+        TimeSpan? timeout = null)
+    {
+        var fq = McpConnectionManager.FullyQualifiedToolName(server, tool);
+        return manager.CallToolAsync(fq, arguments, timeout);
+    }
+
+    /// <summary>
     /// Ported from codex-rs/core/src/codex.rs `notify_exec_command_begin` (done).
     /// Creates an ExecCommandBeginEvent for the given parameters.
     /// </summary>

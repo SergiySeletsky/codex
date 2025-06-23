@@ -411,6 +411,7 @@ impl Session {
         }
     }
 
+    // C# port in codex-dotnet/CodexCli/Util/Codex.cs CallToolAsync (done)
     pub async fn call_tool(
         &self,
         server: &str,

@@ -499,6 +499,14 @@ args = ["run", "--project", "codex-dotnet/CodexCli", "mcp"]
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 
+    [CrossCliFact]
+    public void McpClientCallCodexMatches()
+    {
+        var dotnet = RunProcess("dotnet", "run --project codex-dotnet/CodexCli mcp-client dotnet --project codex-dotnet/CodexCli mcp --call-codex --codex-prompt hi --codex-provider mock --json");
+        var rust = RunProcess("cargo", "run --quiet --manifest-path ../../codex-rs/mcp-client/Cargo.toml -- --call-codex --codex-prompt hi --codex-provider mock --json");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
     [CrossCliFact(Skip="flaky in CI")]
     public void McpManagerWatchEventsMatches()
     {

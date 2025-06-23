@@ -53,6 +53,7 @@
 - Ported `record_conversation_items` and `record_rollout_items` helpers as `Codex.RecordConversationItemsAsync` and `Codex.RecordRolloutItemsAsync` with new unit tests.
 - Ported `request_command_approval`, `request_patch_approval`, `notify_approval` and `add_approved_command` helpers as `Codex` methods with new unit tests.
 - Updated Prompt instruction loader to strip HTML comments so tests consume the same text as Rust.
+- Ported `call_tool` helper as `Codex.CallToolAsync` with unit, integration and CLI parity tests.
 
 ## Rust to C# Mapping
 
@@ -125,6 +126,7 @@
 - codex-rs/core/src/codex.rs request_patch_approval -> codex-dotnet/CodexCli/Util/Codex.cs RequestPatchApproval (done)
 - codex-rs/core/src/codex.rs notify_approval -> codex-dotnet/CodexCli/Util/Codex.cs NotifyApproval (done)
 - codex-rs/core/src/codex.rs add_approved_command -> codex-dotnet/CodexCli/Util/Codex.cs AddApprovedCommand (done)
+- codex-rs/core/src/codex.rs call_tool -> codex-dotnet/CodexCli/Util/Codex.cs CallToolAsync (done)
 - codex-rs/core/src/codex.rs -> codex-dotnet/CodexCli/Util/Codex.cs (partial)
 - codex-rs/exec/src/lib.rs -> codex-dotnet/CodexCli/Commands/ExecCommand.cs (partial, safety and Ctrl+C integrated)
 - codex-rs/core/src/client.rs -> codex-dotnet/CodexCli/Protocol/RealCodexAgent.cs (done)
@@ -159,5 +161,6 @@
 - Integrate Codex.SetTask and Codex.RemoveTask into session task workflow.
 - Integrate Codex.RequestCommandApproval and RequestPatchApproval into approval workflow.
 - Integrate Codex.NotifyApproval and AddApprovedCommand into approval workflow.
+- Integrate Codex.CallToolAsync into CLI tool-call workflow.
 - Integrate Codex.RecordConversationItemsAsync and RecordRolloutItemsAsync into session recording workflow.
 - Integrate Prompt base and apply_patch instructions loading into Prompt.GetFullInstructions.
