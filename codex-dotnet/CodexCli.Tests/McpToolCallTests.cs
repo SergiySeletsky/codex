@@ -2,8 +2,11 @@ using CodexCli.Util;
 using CodexCli.Models;
 using System.Text.Json;
 using System.IO;
+using System.Collections.Generic;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 using Xunit;
+using CodexCli.Protocol;
 
 public class McpToolCallTests
 {
@@ -14,8 +17,16 @@ public class McpToolCallTests
         await File.WriteAllTextAsync(script, "read line; echo '{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":{\"content\":[{\"value\":\"ok\"}],\"isError\":false}}'");
         try
         {
-            await using var client = await McpClient.StartAsync("bash", new[] { script });
-            var res = await McpToolCall.HandleMcpToolCallAsync(client, "1", "codex", JsonDocument.Parse("{}").RootElement);
+            var servers = new Dictionary<string, McpServerConfig> { { "test", new McpServerConfig("bash", new List<string>{ script }, null) } };
+            var (mgr, _) = await McpConnectionManager.CreateAsync(servers);
+            var ch = Channel.CreateUnbounded<Event>();
+            var res = await McpToolCall.HandleMcpToolCallAsync(mgr, ch.Writer, "s1", "1", "test", "codex", "{}");
+            var begin = await ch.Reader.ReadAsync();
+            Assert.IsType<McpToolCallBeginEvent>(begin);
+            var end = await ch.Reader.ReadAsync();
+            var endEvt = Assert.IsType<McpToolCallEndEvent>(end);
+            Assert.True(endEvt.IsSuccess);
+            Assert.Contains("ok", endEvt.ResultJson);
             var mcp = Assert.IsType<McpToolCallOutputInputItem>(res);
             Assert.Contains("ok", mcp.ResultJson);
         }
@@ -32,8 +43,16 @@ public class McpToolCallTests
         await File.WriteAllTextAsync(script, "read line; echo 'notjson'");
         try
         {
-            await using var client = await McpClient.StartAsync("bash", new[] { script });
-            var res = await McpToolCall.HandleMcpToolCallAsync(client, "2", "codex", null);
+            var servers = new Dictionary<string, McpServerConfig> { { "test", new McpServerConfig("bash", new List<string>{ script }, null) } };
+            var (mgr, _) = await McpConnectionManager.CreateAsync(servers);
+            var ch = Channel.CreateUnbounded<Event>();
+            var res = await McpToolCall.HandleMcpToolCallAsync(mgr, ch.Writer, "s2", "2", "test", "codex", "{}");
+            var begin = await ch.Reader.ReadAsync();
+            Assert.IsType<McpToolCallBeginEvent>(begin);
+            var end = await ch.Reader.ReadAsync();
+            var endEvt = Assert.IsType<McpToolCallEndEvent>(end);
+            Assert.False(endEvt.IsSuccess);
+            Assert.Contains("error", endEvt.ResultJson);
             var mcp = Assert.IsType<McpToolCallOutputInputItem>(res);
             Assert.Contains("error", mcp.ResultJson);
         }

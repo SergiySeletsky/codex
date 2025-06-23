@@ -80,6 +80,7 @@ internal static class TuiApp
                     opts.Model ?? cfg?.Model ?? "default",
                     InteractiveApp.ApprovalHandler ?? (_ => Task.FromResult(ReviewDecision.Approved)),
                     images,
+                    opts.NotifyCommand,
                     agentCts.Token);
             await foreach (var ev in events)
             {
@@ -263,13 +264,14 @@ internal static class TuiApp
                     var images = new[] { path };
                     agentCts = new CancellationTokenSource();
                     var imageEvents = providerId == "Mock"
-                        ? MockCodexAgent.RunAsync(string.Empty, images, InteractiveApp.ApprovalHandler, agentCts.Token)
-                        : RealCodexAgent.RunAsync(string.Empty,
+                    ? MockCodexAgent.RunAsync(string.Empty, images, InteractiveApp.ApprovalHandler, agentCts.Token)
+                    : RealCodexAgent.RunAsync(string.Empty,
                             new OpenAIClient(ApiKeyManager.GetKey(ModelProviderInfo.BuiltIns[providerId]),
                                 ModelProviderInfo.BuiltIns[providerId].BaseUrl),
                             opts.Model ?? cfg?.Model ?? "default",
                             InteractiveApp.ApprovalHandler ?? (_ => Task.FromResult(ReviewDecision.Approved)),
                             images,
+                            opts.NotifyCommand,
                             agentCts.Token);
             await foreach (var ev in imageEvents)
                     {
@@ -334,6 +336,7 @@ internal static class TuiApp
                         opts.Model ?? cfg?.Model ?? "default",
                         InteractiveApp.ApprovalHandler ?? (_ => Task.FromResult(ReviewDecision.Approved)),
                         Array.Empty<string>(),
+                        opts.NotifyCommand,
                         agentCts.Token);
 
                 await foreach (var ev in events)

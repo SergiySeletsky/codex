@@ -252,7 +252,7 @@ public static class ExecCommand
                 if (providerId == "mock")
                     agent = (p, c, m, t) => MockCodexAgent.RunAsync(p, imagePaths, null, t);
                 var sigint = SignalUtils.NotifyOnSigInt();
-                var (stream, first, codexCts) = await CodexWrapper.InitCodexAsync(prompt, client, opts.Model ?? cfg?.Model ?? "default", agent);
+                var (stream, first, codexCts) = await CodexWrapper.InitCodexAsync(prompt, client, opts.Model ?? cfg?.Model ?? "default", agent, opts.NotifyCommand);
                 sigint.Token.Register(() => codexCts.Cancel());
                 async IAsyncEnumerable<Event> EnumerateInit()
                 {
@@ -453,14 +453,17 @@ public static class ExecCommand
                     case TaskStartedEvent tsEvent:
                         break;
                     case TaskCompleteEvent tc:
-                        if (providerId == "mock")
-                        {
-                            var aiResp = await client.ChatAsync(prompt);
-                            Console.WriteLine(aiResp);
-                        }
-                        if (opts.LastMessageFile != null)
-                            await File.WriteAllTextAsync(opts.LastMessageFile, tc.LastAgentMessage ?? string.Empty);
-                        break;
+                    if (providerId == "mock")
+                    {
+                        var aiResp = await client.ChatAsync(prompt);
+                        Console.WriteLine(aiResp);
+                    }
+                    if (opts.LastMessageFile != null)
+                        await File.WriteAllTextAsync(opts.LastMessageFile, tc.LastAgentMessage ?? string.Empty);
+                    if (opts.NotifyCommand.Length > 0)
+                        Codex.MaybeNotify(opts.NotifyCommand.ToList(),
+                            new AgentTurnCompleteNotification(tc.Id, Array.Empty<string>(), tc.LastAgentMessage));
+                    break;
                 }
             }
 

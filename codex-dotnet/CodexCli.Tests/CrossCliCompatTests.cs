@@ -149,6 +149,17 @@ public class CrossCliCompatTests
     }
 
     [CrossCliFact]
+    public void InteractiveCancelImmediatelyMatches()
+    {
+        var seq = "\u0003/quit\n";
+        var dotnet = RunProcessWithPty("dotnet run --project codex-dotnet/CodexCli interactive --model-provider Mock --hide-agent-reasoning --disable-response-storage --no-project-doc", seq);
+        var rust = RunProcessWithPty("cargo run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- interactive --model-provider Mock --hide-agent-reasoning --disable-response-storage --no-project-doc", seq);
+        var dOut = AnsiEscape.StripAnsi(dotnet.stdout).Trim();
+        var rOut = AnsiEscape.StripAnsi(rust.stdout).Trim();
+        Assert.Equal(rOut, dOut);
+    }
+
+    [CrossCliFact]
     public void InteractiveHistoryMatches()
     {
         var input = "/history\n/quit\n";
@@ -499,6 +510,14 @@ args = ["run", "--project", "codex-dotnet/CodexCli", "mcp"]
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 
+    [CrossCliFact]
+    public void McpClientCallCodexMatches()
+    {
+        var dotnet = RunProcess("dotnet", "run --project codex-dotnet/CodexCli mcp-client dotnet --project codex-dotnet/CodexCli mcp --call-codex --codex-prompt hi --codex-provider mock --json");
+        var rust = RunProcess("cargo", "run --quiet --manifest-path ../../codex-rs/mcp-client/Cargo.toml -- --call-codex --codex-prompt hi --codex-provider mock --json");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
     [CrossCliFact(Skip="flaky in CI")]
     public void McpManagerWatchEventsMatches()
     {
@@ -632,6 +651,14 @@ args = ["run", "--project", "codex-dotnet/CodexCli", "mcp"]
     }
 
     [CrossCliFact]
+    public void HistoryMessagesEntryMatches()
+    {
+        var dotnet = RunProcess("dotnet", "run --project codex-dotnet/CodexCli history messages-entry 0");
+        var rust = RunProcess("cargo", "run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- history messages-entry 0");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [CrossCliFact]
     public void HistoryStatsJsonMatches()
     {
         var dotnet = RunProcess("dotnet", "run --project codex-dotnet/CodexCli history stats --json");
@@ -722,6 +749,20 @@ args = ["run", "--project", "codex-dotnet/CodexCli", "mcp"]
         var dotnet = RunProcess("dotnet", "run --project codex-dotnet/CodexCli exec hi --model-provider Mock");
         var rust = RunProcess("cargo", "run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- exec hi -c model_provider=Mock");
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [CrossCliFact]
+    public void ExecNotifyRunsScript()
+    {
+        var tmp = Path.GetTempFileName();
+        File.Delete(tmp);
+        var script = Path.GetTempFileName();
+        File.WriteAllText(script, $"echo done > {tmp}");
+        RunProcess("bash", $"-c 'chmod +x {script}; dotnet run --project codex-dotnet/CodexCli exec hi --model-provider Mock --notify {script}'");
+        Assert.True(File.Exists(tmp));
+        File.Delete(tmp);
+        RunProcess("bash", $"-c 'chmod +x {script}; cargo run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- exec hi -c model_provider=Mock --notify {script}'");
+        Assert.True(File.Exists(tmp));
     }
 
 

@@ -11,6 +11,7 @@ using System.Text.Json;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Threading.Channels;
 
 namespace CodexCli.Util;
 
@@ -29,9 +30,10 @@ public class Codex
         string prompt,
         OpenAIClient client,
         string model,
-        Func<string, OpenAIClient, string, CancellationToken, IAsyncEnumerable<Event>>? agent = null)
+        Func<string, OpenAIClient, string, CancellationToken, IAsyncEnumerable<Event>>? agent = null,
+        IReadOnlyList<string>? notifyCommand = null)
     {
-        var (stream, sc, cts) = await CodexWrapper.InitCodexAsync(prompt, client, model, agent);
+        var (stream, sc, cts) = await CodexWrapper.InitCodexAsync(prompt, client, model, agent, notifyCommand);
         return (new Codex(stream.GetAsyncEnumerator(cts.Token), cts), sc.Id);
     }
 
@@ -276,6 +278,21 @@ public class Codex
     }
 
     /// <summary>
+    /// Ported from codex-rs/core/src/codex.rs `call_tool` (done).
+    /// Delegates to <see cref="McpConnectionManager.CallToolAsync"/> using server and tool names.
+    /// </summary>
+    public static Task<CallToolResult> CallToolAsync(
+        McpConnectionManager manager,
+        string server,
+        string tool,
+        JsonElement? arguments = null,
+        TimeSpan? timeout = null)
+    {
+        var fq = McpConnectionManager.FullyQualifiedToolName(server, tool);
+        return manager.CallToolAsync(fq, arguments, timeout);
+    }
+
+    /// <summary>
     /// Ported from codex-rs/core/src/codex.rs `notify_exec_command_begin` (done).
     /// Creates an ExecCommandBeginEvent for the given parameters.
     /// </summary>
@@ -324,6 +341,38 @@ public class Codex
     {
         if (state.CurrentTask != null && state.CurrentTask.SubId == subId)
         {
+            state.CurrentTask = null;
+            state.HasCurrentTask = false;
+        }
+    }
+
+    /// <summary>
+    /// Ported from codex-rs/core/src/codex.rs `send_event` (done).
+    /// Writes the event to the channel and logs any failure.
+    /// </summary>
+    public static async Task SendEventAsync(ChannelWriter<Event> writer, Event evt)
+    {
+        try
+        {
+            await writer.WriteAsync(evt);
+        }
+        catch (ChannelClosedException e)
+        {
+            Console.Error.WriteLine($"failed to send tool call event: {e.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Ported from codex-rs/core/src/codex.rs `abort` (done).
+    /// Clears pending approvals and input and aborts any running task.
+    /// </summary>
+    public static void Abort(CodexState state)
+    {
+        state.PendingApprovals.Clear();
+        state.PendingInput.Clear();
+        if (state.CurrentTask != null)
+        {
+            state.CurrentTask.Abort();
             state.CurrentTask = null;
             state.HasCurrentTask = false;
         }
