@@ -57,6 +57,7 @@
 - Ported `abort` helper as `Codex.Abort` with unit and CLI parity tests.
 - Ported `send_event` helper as `Codex.SendEventAsync` with new unit tests.
 - Added event notifications in `McpToolCall.HandleMcpToolCallAsync` with unit tests verifying begin/end events.
+- Ported `history_metadata` and `lookup` helpers as `MessageHistory.HistoryMetadataAsync` and `MessageHistory.LookupEntry` with new unit tests.
 
 ## Rust to C# Mapping
 
@@ -77,6 +78,8 @@
 - codex-rs/core/src/client_common.rs -> codex-dotnet/CodexCli/{Models/{Prompt.cs,ResponseEvent.cs,ReasoningModels.cs},Util/{ReasoningUtils.cs,ModelClient.cs}} (done)
 - codex-rs/core/src/conversation_history.rs -> codex-dotnet/CodexCli/Util/ConversationHistory.cs (done)
 - codex-rs/core/src/message_history.rs -> codex-dotnet/CodexCli/Util/MessageHistory.cs (done)
+- codex-rs/core/src/message_history.rs history_metadata -> codex-dotnet/CodexCli/Util/MessageHistory.cs HistoryMetadataAsync (done)
+- codex-rs/core/src/message_history.rs lookup -> codex-dotnet/CodexCli/Util/MessageHistory.cs LookupEntry (done)
 - codex-rs/common/src/approval_mode_cli_arg.rs -> codex-dotnet/CodexCli/Commands/ApprovalModeCliArg.cs (done)
 - codex-rs/common/src/config_override.rs -> codex-dotnet/CodexCli/Config/ConfigOverrides.cs (done)
 - codex-rs/common/src/elapsed.rs -> codex-dotnet/CodexCli/Util/Elapsed.cs (done)
@@ -171,3 +174,4 @@
 - Integrate Codex.Abort into session lifecycle management.
 - Integrate Codex.RecordConversationItemsAsync and RecordRolloutItemsAsync into session recording workflow.
 - Integrate Prompt base and apply_patch instructions loading into Prompt.GetFullInstructions.
+- Integrate MessageHistory.HistoryMetadataAsync and LookupEntry into history CLI workflows.

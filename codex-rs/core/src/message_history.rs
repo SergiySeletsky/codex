@@ -147,6 +147,7 @@ async fn acquire_exclusive_lock_with_retry(file: &std::fs::File) -> Result<()> {
 
 /// Asynchronously fetch the history file's *identifier* (inode on Unix) and
 /// the current number of entries by counting newline characters.
+/// C# port in codex-dotnet/CodexCli/Util/MessageHistory.cs HistoryMetadataAsync (done)
 pub(crate) async fn history_metadata(config: &Config) -> (u64, usize) {
     let path = history_filepath(config);
 
@@ -193,6 +194,7 @@ pub(crate) async fn history_metadata(config: &Config) -> (u64, usize) {
 ///
 /// Note this function is not async because it uses a sync advisory file
 /// locking API.
+/// C# port in codex-dotnet/CodexCli/Util/MessageHistory.cs LookupEntry (done)
 #[cfg(unix)]
 pub(crate) fn lookup(log_id: u64, offset: usize, config: &Config) -> Option<HistoryEntry> {
     use std::io::BufRead;
@@ -251,6 +253,7 @@ pub(crate) fn lookup(log_id: u64, offset: usize, config: &Config) -> Option<Hist
 }
 
 /// Fallback stub for non-Unix systems: currently always returns `None`.
+/// C# port in codex-dotnet/CodexCli/Util/MessageHistory.cs LookupEntry (done)
 #[cfg(not(unix))]
 pub(crate) fn lookup(log_id: u64, offset: usize, config: &Config) -> Option<HistoryEntry> {
     let _ = (log_id, offset, config);
