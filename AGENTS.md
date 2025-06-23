@@ -55,6 +55,7 @@
 - Updated Prompt instruction loader to strip HTML comments so tests consume the same text as Rust.
 - Ported `call_tool` helper as `Codex.CallToolAsync` with unit, integration and CLI parity tests.
 - Ported `abort` helper as `Codex.Abort` with unit and CLI parity tests.
+- Ported `send_event` helper as `Codex.SendEventAsync` with new unit tests.
 
 ## Rust to C# Mapping
 
@@ -129,6 +130,7 @@
 - codex-rs/core/src/codex.rs add_approved_command -> codex-dotnet/CodexCli/Util/Codex.cs AddApprovedCommand (done)
 - codex-rs/core/src/codex.rs call_tool -> codex-dotnet/CodexCli/Util/Codex.cs CallToolAsync (done)
 - codex-rs/core/src/codex.rs abort -> codex-dotnet/CodexCli/Util/Codex.cs Abort (done)
+- codex-rs/core/src/codex.rs send_event -> codex-dotnet/CodexCli/Util/Codex.cs SendEventAsync (done)
 - codex-rs/core/src/codex.rs -> codex-dotnet/CodexCli/Util/Codex.cs (partial)
 - codex-rs/exec/src/lib.rs -> codex-dotnet/CodexCli/Commands/ExecCommand.cs (partial, safety and Ctrl+C integrated)
 - codex-rs/core/src/client.rs -> codex-dotnet/CodexCli/Protocol/RealCodexAgent.cs (done)
@@ -164,6 +166,7 @@
 - Integrate Codex.RequestCommandApproval and RequestPatchApproval into approval workflow.
 - Integrate Codex.NotifyApproval and AddApprovedCommand into approval workflow.
 - Integrate Codex.CallToolAsync into CLI tool-call workflow.
+- Integrate Codex.SendEventAsync into MCP tool call notifications.
 - Integrate Codex.Abort into session lifecycle management.
 - Integrate Codex.RecordConversationItemsAsync and RecordRolloutItemsAsync into session recording workflow.
 - Integrate Prompt base and apply_patch instructions loading into Prompt.GetFullInstructions.

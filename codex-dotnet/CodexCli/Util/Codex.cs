@@ -11,6 +11,7 @@ using System.Text.Json;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Threading.Channels;
 
 namespace CodexCli.Util;
 
@@ -341,6 +342,22 @@ public class Codex
         {
             state.CurrentTask = null;
             state.HasCurrentTask = false;
+        }
+    }
+
+    /// <summary>
+    /// Ported from codex-rs/core/src/codex.rs `send_event` (done).
+    /// Writes the event to the channel and logs any failure.
+    /// </summary>
+    public static async Task SendEventAsync(ChannelWriter<Event> writer, Event evt)
+    {
+        try
+        {
+            await writer.WriteAsync(evt);
+        }
+        catch (ChannelClosedException e)
+        {
+            Console.Error.WriteLine($"failed to send tool call event: {e.Message}");
         }
     }
 

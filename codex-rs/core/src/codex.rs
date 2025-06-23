@@ -234,8 +234,9 @@ impl Session {
         }
     }
 
-    /// Sends the given event to the client and swallows the send event, if
-    /// any, logging it as an error.
+    /// Sends the given event to the client and swallows the send error,
+    /// logging it as an error.
+    // C# port in codex-dotnet/CodexCli/Util/Codex.cs SendEventAsync (done)
     pub(crate) async fn send_event(&self, event: Event) {
         if let Err(e) = self.tx_event.send(event).await {
             error!("failed to send tool call event: {e}");
