@@ -67,6 +67,7 @@
 - Integrated Codex.ResolvePath into ExecCommand path handling for logs and instructions.
 - Integrated Codex.RecordConversationItemsAsync into ExecCommand event loop for session recording parity.
 - Integrated Codex.Abort into ExecCommand and InteractiveApp lifecycle to clear session state on cancel.
+- Added TaskStarted events to RealCodexAgent and wired Codex.SetTask/RemoveTask into CLI loops for parity.
 
 ## Rust to C# Mapping
 
@@ -178,7 +179,7 @@
  - Integrate Codex.NotifyExecCommandBegin, NotifyExecCommandEnd and NotifyBackgroundEvent into session event workflow. (done)
 - Integrate Codex.InjectInput and GetPendingInput into session input workflow.
 - Integrate Codex.ResolvePath into command path handling. (done)
-- Integrate Codex.SetTask and Codex.RemoveTask into session task workflow.
+- Integrate Codex.SetTask and Codex.RemoveTask into session task workflow. (done)
 - Integrate Codex.RequestCommandApproval and RequestPatchApproval into approval workflow.
 - Integrate Codex.NotifyApproval and AddApprovedCommand into approval workflow.
 - Integrate Codex.CallToolAsync into CLI tool-call workflow.

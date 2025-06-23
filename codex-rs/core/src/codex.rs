@@ -820,7 +820,7 @@ async fn run_task(sess: Arc<Session>, sub_id: String, input: Vec<InputItem>) {
     }
     let event = Event {
         id: sub_id.clone(),
-        msg: EventMsg::TaskStarted,
+        msg: EventMsg::TaskStarted, // C# integration in RealCodexAgent.RunAsync (done)
     };
     if sess.tx_event.send(event).await.is_err() {
         return;

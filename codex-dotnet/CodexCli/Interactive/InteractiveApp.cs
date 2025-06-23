@@ -292,6 +292,9 @@ public static class InteractiveApp
                         case AgentReasoningEvent ar when !hideReason:
                             chat.AddSystemMessage(ar.Text);
                             break;
+                        case TaskStartedEvent ts:
+                            Codex.SetTask(state, new AgentTask(ts.Id, () => agentCts?.Cancel()));
+                            break;
                         case TaskCompleteEvent tc:
                         if (tc.LastAgentMessage != null)
                         {
@@ -299,6 +302,7 @@ public static class InteractiveApp
                             lastMessage = tc.LastAgentMessage;
                         }
                         status.UpdateText("ready");
+                        Codex.RemoveTask(state, tc.Id);
                         if (opts.NotifyCommand.Length > 0)
                             Codex.MaybeNotify(opts.NotifyCommand.ToList(),
                                 new AgentTurnCompleteNotification(tc.Id, Array.Empty<string>(), tc.LastAgentMessage));

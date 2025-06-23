@@ -220,6 +220,7 @@ public static class ExecCommand
 
             var imagePaths = opts.Images.Select(i => i.FullName).ToArray();
             IAsyncEnumerable<Event> events;
+            CancellationTokenSource? codexCts = null;
             if (!string.IsNullOrEmpty(opts.McpServer))
             {
                 var (mgr, _) = await McpConnectionManager.CreateAsync(cfg ?? new AppConfig());
@@ -264,8 +265,9 @@ public static class ExecCommand
                 if (providerId == "mock")
                     agent = (p, c, m, t) => MockCodexAgent.RunAsync(p, imagePaths, null, t);
                 var sigint = SignalUtils.NotifyOnSigInt();
-                var (stream, first, codexCts) = await CodexWrapper.InitCodexAsync(prompt, client, opts.Model ?? cfg?.Model ?? "default", agent, opts.NotifyCommand);
-                sigint.Token.Register(() => { codexCts.Cancel(); Codex.Abort(state); });
+                var (stream, first, cts) = await CodexWrapper.InitCodexAsync(prompt, client, opts.Model ?? cfg?.Model ?? "default", agent, opts.NotifyCommand);
+                codexCts = cts;
+                sigint.Token.Register(() => { codexCts!.Cancel(); Codex.Abort(state); });
                 async IAsyncEnumerable<Event> EnumerateInit()
                 {
                     yield return first;
@@ -500,8 +502,10 @@ public static class ExecCommand
                         }
                         break;
                     case TaskStartedEvent tsEvent:
+                        Codex.SetTask(state, new AgentTask(tsEvent.Id, () => codexCts?.Cancel()));
                         break;
                     case TaskCompleteEvent tc:
+                    Codex.RemoveTask(state, tc.Id);
                     if (providerId == "mock")
                     {
                         var aiResp = await client.ChatAsync(prompt);
