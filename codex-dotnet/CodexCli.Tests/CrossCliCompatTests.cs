@@ -792,6 +792,17 @@ args = ["run", "--project", "codex-dotnet/CodexCli", "mcp"]
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 
+    [CrossCliFact]
+    public void ExecCancelImmediatelyMatches()
+    {
+        var seq = "\u0003";
+        var dotnet = RunProcessWithPty("dotnet run --project codex-dotnet/CodexCli exec hi --model-provider Mock", seq);
+        var rust = RunProcessWithPty("cargo run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- exec hi -c model_provider=Mock", seq);
+        var dOut = AnsiEscape.StripAnsi(dotnet.stdout).Trim();
+        var rOut = AnsiEscape.StripAnsi(rust.stdout).Trim();
+        Assert.Equal(rOut, dOut);
+    }
+
 
     [CrossCliFact]
     public void ExecImageUploadMatches()

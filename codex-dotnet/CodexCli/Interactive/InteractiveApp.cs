@@ -26,6 +26,7 @@ public static class InteractiveApp
 
     public static async Task RunAsync(InteractiveOptions opts, AppConfig? cfg)
     {
+        var state = new CodexState();
         bool enableMouse = !(cfg?.Tui.DisableMouseCapture ?? false);
         Console.Write(enableMouse ? "\u001b[?1000h" : "\u001b[?1000l");
         try
@@ -74,12 +75,14 @@ public static class InteractiveApp
                 if (ctrlC.IsCancellationRequested)
                 {
                     agentCts?.Cancel();
+                    Codex.Abort(state);
                     break;
                 }
                 var prompt = AnsiConsole.Ask<string>("cmd> ");
                 if (ctrlC.IsCancellationRequested)
                 {
                     agentCts?.Cancel();
+                    Codex.Abort(state);
                     break;
                 }
                 if (prompt.Equals("/quit", StringComparison.OrdinalIgnoreCase))
@@ -92,6 +95,7 @@ public static class InteractiveApp
                 if (prompt.Equals("/reset", StringComparison.OrdinalIgnoreCase) ||
                     prompt.Equals("/new", StringComparison.OrdinalIgnoreCase))
                 {
+                    Codex.Abort(state);
                     history.Clear();
                     SessionManager.ClearHistory(sessionId);
                     sessionId = SessionManager.CreateSession();
@@ -303,6 +307,7 @@ public static class InteractiveApp
                     if (logWriter != null)
                         await logWriter.WriteLineAsync(System.Text.Json.JsonSerializer.Serialize(ev));
                 }
+                Codex.Abort(state);
                 agentCts.Dispose();
                 agentCts = null;
                 }
@@ -318,6 +323,7 @@ public static class InteractiveApp
         }
         finally
         {
+            Codex.Abort(state);
             Console.Write("\u001b[?1000l");
         }
     }

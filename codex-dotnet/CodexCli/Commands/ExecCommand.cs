@@ -206,6 +206,7 @@ public static class ExecCommand
                 : (sandboxList.Count > 0 ? string.Join(',', sandboxList.Select(s => s.ToString())) : "default");
             var processor = new CodexCli.Protocol.EventProcessor(withAnsi, !hideReason, cfg?.FileOpener ?? UriBasedFileOpener.None, Environment.CurrentDirectory);
             var sandboxPolicy = new SandboxPolicy { Permissions = sandboxList };
+            var state = new CodexState();
             processor.PrintConfigSummary(
                 opts.Model ?? cfg?.Model ?? "default",
                 opts.ModelProvider ?? cfg?.ModelProvider ?? string.Empty,
@@ -264,7 +265,7 @@ public static class ExecCommand
                     agent = (p, c, m, t) => MockCodexAgent.RunAsync(p, imagePaths, null, t);
                 var sigint = SignalUtils.NotifyOnSigInt();
                 var (stream, first, codexCts) = await CodexWrapper.InitCodexAsync(prompt, client, opts.Model ?? cfg?.Model ?? "default", agent, opts.NotifyCommand);
-                sigint.Token.Register(() => codexCts.Cancel());
+                sigint.Token.Register(() => { codexCts.Cancel(); Codex.Abort(state); });
                 async IAsyncEnumerable<Event> EnumerateInit()
                 {
                     yield return first;
@@ -514,6 +515,8 @@ public static class ExecCommand
                     break;
                 }
             }
+
+            Codex.Abort(state);
 
             if (logWriter != null)
             {
