@@ -34,6 +34,13 @@ public class Prompt
     private static string LoadInstructions(string relative)
     {
         var path = Path.Combine(AppContext.BaseDirectory, relative);
-        return File.Exists(path) ? File.ReadAllText(path) : "";
+        if (!File.Exists(path))
+            return string.Empty;
+
+        var lines = File.ReadAllLines(path);
+        int start = 0;
+        while (start < lines.Length && lines[start].TrimStart().StartsWith("<!--"))
+            start++;
+        return string.Join('\n', lines[start..]);
     }
 }

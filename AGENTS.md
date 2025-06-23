@@ -52,6 +52,7 @@
 - Marked prompt and apply_patch instruction markdown files with port comments for traceability.
 - Ported `record_conversation_items` and `record_rollout_items` helpers as `Codex.RecordConversationItemsAsync` and `Codex.RecordRolloutItemsAsync` with new unit tests.
 - Ported `request_command_approval`, `request_patch_approval`, `notify_approval` and `add_approved_command` helpers as `Codex` methods with new unit tests.
+- Updated Prompt instruction loader to strip HTML comments so tests consume the same text as Rust.
 
 ## Rust to C# Mapping
 
