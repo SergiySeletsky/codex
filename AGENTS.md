@@ -64,6 +64,7 @@
 - Integrated MessageHistory.HistoryMetadataAsync into HistoryCommand `messages-entry` for parity.
 - Integrated Codex.CallToolAsync into ExecCommand remote workflow for parity.
 - Integrated Codex.NotifyExecCommandBegin/End and NotifyBackgroundEvent into ExecCommand for denial diagnostics with new cross-CLI test.
+- Integrated Codex.ResolvePath into ExecCommand path handling for logs and instructions.
 
 ## Rust to C# Mapping
 
@@ -174,7 +175,7 @@
 - Integrate Codex.MaybeNotify into session event notifications. (done)
  - Integrate Codex.NotifyExecCommandBegin, NotifyExecCommandEnd and NotifyBackgroundEvent into session event workflow. (done)
 - Integrate Codex.InjectInput and GetPendingInput into session input workflow.
-- Integrate Codex.ResolvePath into command path handling.
+- Integrate Codex.ResolvePath into command path handling. (done)
 - Integrate Codex.SetTask and Codex.RemoveTask into session task workflow.
 - Integrate Codex.RequestCommandApproval and RequestPatchApproval into approval workflow.
 - Integrate Codex.NotifyApproval and AddApprovedCommand into approval workflow.

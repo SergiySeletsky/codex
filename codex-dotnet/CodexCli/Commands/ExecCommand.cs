@@ -109,7 +109,9 @@ public static class ExecCommand
             StreamWriter? logWriter = null;
             if (opts.EventLogFile != null)
             {
-                logWriter = new StreamWriter(opts.EventLogFile, append: false);
+                // Resolve relative log paths using Codex.ResolvePath for parity with Rust
+                var logPath = Codex.ResolvePath(Environment.CurrentDirectory, opts.EventLogFile);
+                logWriter = new StreamWriter(logPath, append: false);
             }
             if (cfg != null)
                 recorder = await RolloutRecorder.CreateAsync(cfg, sessionId, null);
@@ -139,9 +141,17 @@ public static class ExecCommand
             {
                 if (!Console.IsInputRedirected)
                 {
-                    var inst = opts.InstructionsPath != null && File.Exists(opts.InstructionsPath)
-                        ? File.ReadAllText(opts.InstructionsPath)
-                        : cfg != null ? ProjectDoc.GetUserInstructions(cfg, Environment.CurrentDirectory, opts.NoProjectDoc, opts.ProjectDocMaxBytes, opts.ProjectDocPath) : null;
+                    // Use Codex.ResolvePath (port of resolve_path helper) so relative paths
+                    // match Rust CLI behavior.
+                    var instPath = opts.InstructionsPath != null
+                        ? Codex.ResolvePath(Environment.CurrentDirectory, opts.InstructionsPath)
+                        : null;
+                    var projDocPath = opts.ProjectDocPath != null
+                        ? Codex.ResolvePath(Environment.CurrentDirectory, opts.ProjectDocPath)
+                        : null;
+                    var inst = instPath != null && File.Exists(instPath)
+                        ? File.ReadAllText(instPath)
+                        : cfg != null ? ProjectDoc.GetUserInstructions(cfg, Environment.CurrentDirectory, opts.NoProjectDoc, opts.ProjectDocMaxBytes, projDocPath) : null;
                     if (!string.IsNullOrWhiteSpace(inst))
                     {
                         prompt = inst;
