@@ -60,6 +60,7 @@
 - Ported `history_metadata` and `lookup` helpers as `MessageHistory.HistoryMetadataAsync` and `MessageHistory.LookupEntry` with new unit tests.
 - Ported `append_entry` helper as `MessageHistory.AppendEntryAsync` with file locking and permissions handling.
 - Integrated `Codex.MaybeNotify` into RealCodexAgent and CLI loops with new parity tests.
+- Ported MCP tool name helpers `fully_qualified_tool_name` and `try_parse_fully_qualified_tool_name` with unit tests verifying round-trip parsing.
 
 ## Rust to C# Mapping
 
@@ -88,6 +89,8 @@
 - codex-rs/common/src/elapsed.rs -> codex-dotnet/CodexCli/Util/Elapsed.cs (done)
 - codex-rs/core/src/mcp_tool_call.rs -> codex-dotnet/CodexCli/Util/McpToolCall.cs (done)
 - codex-rs/core/src/mcp_connection_manager.rs -> codex-dotnet/CodexCli/Util/McpConnectionManager.cs (done)
+- codex-rs/core/src/mcp_connection_manager.rs fully_qualified_tool_name -> codex-dotnet/CodexCli/Util/McpConnectionManager.cs FullyQualifiedToolName (done)
+- codex-rs/core/src/mcp_connection_manager.rs try_parse_fully_qualified_tool_name -> codex-dotnet/CodexCli/Util/McpConnectionManager.cs TryParseFullyQualifiedToolName (done)
 - codex-rs/mcp-server/src/json_to_toml.rs -> codex-dotnet/CodexCli/Util/JsonToToml.cs (done)
 - codex-rs/mcp-server/src/message_processor.rs -> codex-dotnet/CodexCli/Util/McpEventStream.cs (done)
 - codex-rs/execpolicy/src/lib.rs -> codex-dotnet/CodexCli/Util/ExecPolicy.cs (done)
