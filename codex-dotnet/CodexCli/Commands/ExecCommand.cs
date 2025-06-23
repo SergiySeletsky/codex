@@ -294,17 +294,32 @@ public static class ExecCommand
                         if (execPolicy.IsForbidden(prog))
                         {
                             Console.WriteLine($"Denied '{string.Join(" ", ar.Command)}' ({execPolicy.GetReason(prog)})");
+                            var deniedEv = Codex.NotifyBackgroundEvent(Guid.NewGuid().ToString(), "command denied");
+                            if (opts.Json)
+                                Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(deniedEv));
+                            else
+                                processor.ProcessEvent(deniedEv);
                             break;
                         }
                         if (!execPolicy.VerifyCommand(prog, args))
                         {
                             Console.WriteLine($"Denied '{string.Join(" ", ar.Command)}' (unverified)");
+                            var deniedEv = Codex.NotifyBackgroundEvent(Guid.NewGuid().ToString(), "command denied");
+                            if (opts.Json)
+                                Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(deniedEv));
+                            else
+                                processor.ProcessEvent(deniedEv);
                             break;
                         }
                         var safety = Safety.AssessCommandSafety(ar.Command.ToList(), approvalPolicy, sandboxPolicy, approvedCommands);
                         if (safety == SafetyCheck.Reject)
                         {
                             Console.WriteLine("Denied");
+                            var deniedEv = Codex.NotifyBackgroundEvent(Guid.NewGuid().ToString(), "command denied");
+                            if (opts.Json)
+                                Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(deniedEv));
+                            else
+                                processor.ProcessEvent(deniedEv);
                             break;
                         }
                         if (safety == SafetyCheck.AskUser)
@@ -330,6 +345,11 @@ public static class ExecCommand
                             if (patchSafety == SafetyCheck.Reject)
                             {
                                 Console.WriteLine("Patch denied");
+                                var deniedEv = Codex.NotifyBackgroundEvent(Guid.NewGuid().ToString(), "patch denied");
+                                if (opts.Json)
+                                    Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(deniedEv));
+                                else
+                                    processor.ProcessEvent(deniedEv);
                                 break;
                             }
                             bool autoApproved = patchSafety == SafetyCheck.AutoApprove;
@@ -340,6 +360,11 @@ public static class ExecCommand
                                 if (!respPatch?.StartsWith("y", StringComparison.OrdinalIgnoreCase) ?? true)
                                 {
                                     Console.WriteLine("Patch denied");
+                                    var deniedEv = Codex.NotifyBackgroundEvent(Guid.NewGuid().ToString(), "patch denied");
+                                    if (opts.Json)
+                                        Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(deniedEv));
+                                    else
+                                        processor.ProcessEvent(deniedEv);
                                     break;
                                 }
                             }
@@ -388,7 +413,7 @@ public static class ExecCommand
                         {
                             var execParams = new ExecParams(begin.Command.ToList(), begin.Cwd, null, envMap, null, null, sessionId);
                             var result = await ExecRunner.RunAsync(execParams, CancellationToken.None, sandboxPolicy);
-                            var endEv = new ExecCommandEndEvent(Guid.NewGuid().ToString(), result.Stdout, result.Stderr, result.ExitCode);
+                            var endEv = Codex.NotifyExecCommandEnd(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), result.Stdout, result.Stderr, result.ExitCode);
                             if (opts.Json)
                                 Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(endEv));
                             else
@@ -401,13 +426,25 @@ public static class ExecCommand
                         if (approvalPolicy == ApprovalMode.Never)
                         {
                             Console.WriteLine("Patch denied");
+                            var deniedEv = Codex.NotifyBackgroundEvent(Guid.NewGuid().ToString(), "patch denied");
+                            if (opts.Json)
+                                Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(deniedEv));
+                            else
+                                processor.ProcessEvent(deniedEv);
                         }
                         else
                         {
                             Console.Write($"Apply patch? [y/N] ");
                             var r = Console.ReadLine();
                             if (!r?.StartsWith("y", StringComparison.OrdinalIgnoreCase) ?? true)
+                            {
                                 Console.WriteLine("Patch denied");
+                                var deniedEv = Codex.NotifyBackgroundEvent(Guid.NewGuid().ToString(), "patch denied");
+                                if (opts.Json)
+                                    Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(deniedEv));
+                                else
+                                    processor.ProcessEvent(deniedEv);
+                            }
                         }
                         break;
                     case PatchApplyBeginEvent pb:

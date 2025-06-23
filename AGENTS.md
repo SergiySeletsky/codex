@@ -63,6 +63,7 @@
 - Ported MCP tool name helpers `fully_qualified_tool_name` and `try_parse_fully_qualified_tool_name` with unit tests verifying round-trip parsing.
 - Integrated MessageHistory.HistoryMetadataAsync into HistoryCommand `messages-entry` for parity.
 - Integrated Codex.CallToolAsync into ExecCommand remote workflow for parity.
+- Integrated Codex.NotifyExecCommandBegin/End and NotifyBackgroundEvent into ExecCommand for denial diagnostics with new cross-CLI test.
 
 ## Rust to C# Mapping
 
@@ -171,7 +172,7 @@
 - Integrate PatchApplier.ApplyActionAndReport into CLI patch workflows.
 - Integrate PatchApplier.ApplyAndReport into CLI patch workflows.
 - Integrate Codex.MaybeNotify into session event notifications. (done)
-- Integrate Codex.NotifyExecCommandBegin, NotifyExecCommandEnd and NotifyBackgroundEvent into session event workflow.
+ - Integrate Codex.NotifyExecCommandBegin, NotifyExecCommandEnd and NotifyBackgroundEvent into session event workflow. (done)
 - Integrate Codex.InjectInput and GetPendingInput into session input workflow.
 - Integrate Codex.ResolvePath into command path handling.
 - Integrate Codex.SetTask and Codex.RemoveTask into session task workflow.
