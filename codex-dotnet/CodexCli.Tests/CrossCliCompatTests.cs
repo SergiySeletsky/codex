@@ -831,6 +831,14 @@ args = ["run", "--project", "codex-dotnet/CodexCli", "mcp"]
     }
 
     [CrossCliFact]
+    public void DebugLandlockMatches()
+    {
+        var dotnet = RunProcess("dotnet", "run --project codex-dotnet/CodexCli debug landlock \"echo hi\"");
+        var rust = RunProcess("cargo", "run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- debug landlock \"echo hi\"");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [CrossCliFact]
     public void ProtoHelpMatches()
     {
         var dotnet = RunProcess("dotnet", "run --project codex-dotnet/CodexCli proto --help");

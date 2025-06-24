@@ -71,6 +71,7 @@
 - Integrated Codex.ConvertApplyPatchToProtocol into ExecCommand patch handling with new cross-CLI test.
 - Integrated PatchSummary.PrintSummary into ExecCommand patch workflow.
 - Added cross-CLI test validating DebugCommand seatbelt parity.
+- Added cross-CLI test validating DebugCommand landlock parity.
 - Added cross-CLI test validating ProtoCommand help parity.
 
 ## Rust to C# Mapping
@@ -109,7 +110,7 @@
 - codex-rs/core/src/error.rs -> codex-dotnet/CodexCli/Util/CodexErr.cs (done)
 - codex-rs/login/src/lib.rs -> codex-dotnet/CodexCli/Util/ChatGptLogin.cs (done)
 - codex-rs/cli/src/login.rs -> codex-dotnet/CodexCli/Commands/LoginCommand.cs (done)
-- codex-rs/cli/src/debug_sandbox.rs -> codex-dotnet/CodexCli/Commands/DebugCommand.cs (done, parity tested)
+ - codex-rs/cli/src/debug_sandbox.rs -> codex-dotnet/CodexCli/Commands/DebugCommand.cs (done, seatbelt/landlock parity tested)
 - codex-rs/cli/src/proto.rs -> codex-dotnet/CodexCli/Commands/ProtoCommand.cs (done, parity tested)
 - codex-rs/core/src/safety.rs -> codex-dotnet/CodexCli/Util/Safety.cs (done)
 - codex-rs/core/src/exec.rs SandboxType -> codex-dotnet/CodexCli/Protocol/SandboxType.cs (done)
