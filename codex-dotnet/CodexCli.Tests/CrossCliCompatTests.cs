@@ -783,6 +783,17 @@ args = ["run", "--project", "codex-dotnet/CodexCli", "mcp"]
     }
 
     [CrossCliFact]
+    public void ApplyPatchCliMatches()
+    {
+        using var dir = new TempDir();
+        var patchPath = System.IO.Path.Combine(dir.Path, "p.patch");
+        System.IO.File.WriteAllText(patchPath, "*** Begin Patch\n*** Add File: foo.txt\n+hi\n*** End Patch");
+        var dotnet = RunProcess("dotnet", $"run --project codex-dotnet/CodexCli apply_patch {patchPath} --cwd {dir.Path}");
+        var rust = RunProcess("cargo", $"run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- apply_patch {patchPath} --cwd {dir.Path}");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [CrossCliFact]
     public void ExecHistoryCountMatches()
     {
         RunProcess("dotnet", "run --project codex-dotnet/CodexCli exec hi --model-provider Mock --hide-agent-reasoning --disable-response-storage --no-project-doc");
@@ -962,3 +973,10 @@ args = ["run", "--project", "codex-dotnet/CodexCli", "mcp"]
         return tmp;
     }
 }
+
+    internal sealed class TempDir : IDisposable
+    {
+        public string Path { get; } = System.IO.Path.Combine(System.IO.Path.GetTempPath(), System.IO.Path.GetRandomFileName());
+        public TempDir() { System.IO.Directory.CreateDirectory(Path); }
+        public void Dispose() { System.IO.Directory.Delete(Path, true); }
+    }

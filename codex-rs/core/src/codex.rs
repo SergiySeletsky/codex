@@ -280,7 +280,7 @@ impl Session {
         let event = Event {
             id: sub_id.clone(),
             msg: EventMsg::ApplyPatchApprovalRequest(ApplyPatchApprovalRequestEvent {
-                changes: convert_apply_patch_to_protocol(action),
+                changes: convert_apply_patch_to_protocol(action), // C# integration in codex-dotnet/CodexCli/Commands/ExecCommand.cs
                 reason,
                 grant_root,
             }),

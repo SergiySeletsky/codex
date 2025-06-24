@@ -381,18 +381,8 @@ public static class ExecCommand
                                     break;
                                 }
                             }
-                            var changes = new Dictionary<string, FileChange>();
-                            foreach (var kv in action.Changes)
-                            {
-                                var fc = kv.Value.Kind switch
-                                {
-                                    "add" => (FileChange)new AddFileChange(kv.Value.Content ?? string.Empty),
-                                    "delete" => new DeleteFileChange(),
-                                    "update" => new UpdateFileChange(kv.Value.UnifiedDiff!, kv.Value.MovePath),
-                                    _ => throw new InvalidOperationException()
-                                };
-                                changes[kv.Key] = fc;
-                            }
+                            var changes = Codex.ConvertApplyPatchToProtocol(action);
+                            // Uses Codex.ConvertApplyPatchToProtocol (port of convert_apply_patch_to_protocol)
                             var pbEvent = new PatchApplyBeginEvent(Guid.NewGuid().ToString(), autoApproved, changes);
                             if (opts.Json)
                                 Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(pbEvent));

@@ -68,6 +68,7 @@
 - Integrated Codex.RecordConversationItemsAsync into ExecCommand event loop for session recording parity.
 - Integrated Codex.Abort into ExecCommand and InteractiveApp lifecycle to clear session state on cancel.
 - Added TaskStarted events to RealCodexAgent and wired Codex.SetTask/RemoveTask into CLI loops for parity.
+- Integrated Codex.ConvertApplyPatchToProtocol into ExecCommand patch handling with new cross-CLI test.
 
 ## Rust to C# Mapping
 
@@ -170,7 +171,7 @@
 - Integrate Codex.FormatExecOutput into ExecCommand parity tests.
 - Integrate Codex.GetWritableRoots into spawn workflow.
 - Integrate Codex.GetLastAssistantMessageFromTurn and RecordConversationHistory into conversation logic.
-- Integrate Codex.ConvertApplyPatchToProtocol into ExecCommand patch handling.
+- Integrate Codex.ConvertApplyPatchToProtocol into ExecCommand patch handling. (done)
 - Integrate Codex.ToExecParams and TryParseContainerExecArguments into ExecCommand function call handling.
 - Integrate PatchSummary.PrintSummary into patch application workflow.
 - Integrate PatchApplier.ApplyActionAndReport into CLI patch workflows.
