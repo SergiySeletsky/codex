@@ -3,6 +3,7 @@ using CodexCli.Config;
 using CodexCli.Util;
 // Partial port of codex-rs/exec/src/lib.rs Exec command
 // CodexWrapper and safety checks integrated
+// Cross-CLI parity tested in CrossCliCompatTests.ExecHelpMatches
 using CodexCli.Protocol;
 using System;
 using CodexCli.ApplyPatch;

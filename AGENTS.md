@@ -74,6 +74,7 @@
 - Added cross-CLI test validating DebugCommand landlock parity.
 - Added cross-CLI test validating ProtoCommand help parity.
 - Added cross-CLI test validating LoginCommand help parity.
+- Added cross-CLI test validating ExecCommand help parity.
 
 ## Rust to C# Mapping
 
@@ -155,7 +156,7 @@
 - codex-rs/core/src/codex.rs abort -> codex-dotnet/CodexCli/Util/Codex.cs Abort (done)
 - codex-rs/core/src/codex.rs send_event -> codex-dotnet/CodexCli/Util/Codex.cs SendEventAsync (done)
 - codex-rs/core/src/codex.rs -> codex-dotnet/CodexCli/Util/Codex.cs (partial)
-- codex-rs/exec/src/lib.rs -> codex-dotnet/CodexCli/Commands/ExecCommand.cs (partial, safety and Ctrl+C integrated)
+- codex-rs/exec/src/lib.rs -> codex-dotnet/CodexCli/Commands/ExecCommand.cs (partial, safety and Ctrl+C integrated, help parity tested)
 - codex-rs/core/src/client.rs -> codex-dotnet/CodexCli/Protocol/RealCodexAgent.cs (done)
 - codex-rs/core/src/models.rs -> codex-dotnet/CodexCli/Models/ResponseItem.cs (done)
 - codex-rs/core/src/rollout.rs -> codex-dotnet/CodexCli/Util/RolloutRecorder.cs and Commands/ReplayCommand.cs (done)
@@ -175,6 +176,7 @@
 - Wire ProtoCommand into parity tests and CLI workflows (done).
 - Wire DebugCommand into parity tests and CLI workflows (done).
 - Wire LoginCommand into parity tests and CLI workflows (done).
+- Wire ExecCommand into parity tests and CLI workflows (done).
 - Integrate Codex.FormatExecOutput into ExecCommand parity tests.
 - Integrate Codex.GetWritableRoots into spawn workflow.
 - Integrate Codex.GetLastAssistantMessageFromTurn and RecordConversationHistory into conversation logic.
