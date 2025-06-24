@@ -234,8 +234,9 @@ impl Session {
         }
     }
 
-    /// Sends the given event to the client and swallows the send event, if
-    /// any, logging it as an error.
+    /// Sends the given event to the client and swallows the send error,
+    /// logging it as an error.
+    // C# port in codex-dotnet/CodexCli/Util/Codex.cs SendEventAsync (done)
     pub(crate) async fn send_event(&self, event: Event) {
         if let Err(e) = self.tx_event.send(event).await {
             error!("failed to send tool call event: {e}");
@@ -279,7 +280,7 @@ impl Session {
         let event = Event {
             id: sub_id.clone(),
             msg: EventMsg::ApplyPatchApprovalRequest(ApplyPatchApprovalRequestEvent {
-                changes: convert_apply_patch_to_protocol(action),
+                changes: convert_apply_patch_to_protocol(action), // C# integration in codex-dotnet/CodexCli/Commands/ExecCommand.cs
                 reason,
                 grant_root,
             }),
@@ -411,6 +412,7 @@ impl Session {
         }
     }
 
+    // C# port in codex-dotnet/CodexCli/Util/Codex.cs CallToolAsync (done)
     pub async fn call_tool(
         &self,
         server: &str,
@@ -423,6 +425,7 @@ impl Session {
             .await
     }
 
+    // C# port in codex-dotnet/CodexCli/Util/Codex.cs Abort (done)
     pub fn abort(&self) {
         info!("Aborting existing session");
         let mut state = self.state.lock().unwrap();
@@ -817,7 +820,7 @@ async fn run_task(sess: Arc<Session>, sub_id: String, input: Vec<InputItem>) {
     }
     let event = Event {
         id: sub_id.clone(),
-        msg: EventMsg::TaskStarted,
+        msg: EventMsg::TaskStarted, // C# integration in RealCodexAgent.RunAsync (done)
     };
     if sess.tx_event.send(event).await.is_err() {
         return;
@@ -970,6 +973,7 @@ async fn run_task(sess: Arc<Session>, sub_id: String, input: Vec<InputItem>) {
                     last_agent_message = get_last_assistant_message_from_turn(
                         &items_to_record_in_conversation_history,
                     );
+                    // C# integration in codex-dotnet/CodexCli/Protocol/RealCodexAgent.cs RunAsync (done)
                     sess.maybe_notify(UserNotification::AgentTurnComplete {
                         turn_id: sub_id.clone(),
                         input_messages: turn_input_messages,
@@ -1800,7 +1804,7 @@ fn apply_changes_from_apply_patch_and_report(
 ) -> std::io::Result<()> {
     match apply_changes_from_apply_patch(action) {
         Ok(affected_paths) => {
-            print_summary(&affected_paths, stdout)?;
+            print_summary(&affected_paths, stdout)?; // mirrored in codex-dotnet/CodexCli/Commands/ExecCommand.cs
         }
         Err(err) => {
             writeln!(stderr, "{err:?}")?;

@@ -26,6 +26,7 @@ public static class InteractiveApp
 
     public static async Task RunAsync(InteractiveOptions opts, AppConfig? cfg)
     {
+        var state = new CodexState();
         bool enableMouse = !(cfg?.Tui.DisableMouseCapture ?? false);
         Console.Write(enableMouse ? "\u001b[?1000h" : "\u001b[?1000l");
         try
@@ -74,12 +75,14 @@ public static class InteractiveApp
                 if (ctrlC.IsCancellationRequested)
                 {
                     agentCts?.Cancel();
+                    Codex.Abort(state);
                     break;
                 }
                 var prompt = AnsiConsole.Ask<string>("cmd> ");
                 if (ctrlC.IsCancellationRequested)
                 {
                     agentCts?.Cancel();
+                    Codex.Abort(state);
                     break;
                 }
                 if (prompt.Equals("/quit", StringComparison.OrdinalIgnoreCase))
@@ -92,6 +95,7 @@ public static class InteractiveApp
                 if (prompt.Equals("/reset", StringComparison.OrdinalIgnoreCase) ||
                     prompt.Equals("/new", StringComparison.OrdinalIgnoreCase))
                 {
+                    Codex.Abort(state);
                     history.Clear();
                     SessionManager.ClearHistory(sessionId);
                     sessionId = SessionManager.CreateSession();
@@ -246,9 +250,9 @@ public static class InteractiveApp
 
                 Func<string, OpenAIClient, string, CancellationToken, IAsyncEnumerable<Event>> factory = info.Name == "Mock"
                     ? (p, c, m, t) => CodexCli.Protocol.MockCodexAgent.RunAsync(p, Array.Empty<string>(), approvalHandler, t)
-                    : (p, c, m, t) => CodexCli.Protocol.RealCodexAgent.RunAsync(p, c, m, approvalHandler, Array.Empty<string>(), t);
+                    : (p, c, m, t) => CodexCli.Protocol.RealCodexAgent.RunAsync(p, c, m, approvalHandler, Array.Empty<string>(), opts.NotifyCommand, t);
 
-                var (stream, first, cts) = await CodexWrapper.InitCodexAsync(prompt, client, opts.Model ?? cfg?.Model ?? "default", factory);
+                var (stream, first, cts) = await CodexWrapper.InitCodexAsync(prompt, client, opts.Model ?? cfg?.Model ?? "default", factory, opts.NotifyCommand);
                 agentCts = cts;
 
                 processor.ProcessEvent(first);
@@ -288,18 +292,26 @@ public static class InteractiveApp
                         case AgentReasoningEvent ar when !hideReason:
                             chat.AddSystemMessage(ar.Text);
                             break;
-                        case TaskCompleteEvent tc:
-                            if (tc.LastAgentMessage != null)
-                            {
-                                chat.AddAgentMessage(tc.LastAgentMessage);
-                                lastMessage = tc.LastAgentMessage;
-                            }
-                            status.UpdateText("ready");
+                        case TaskStartedEvent ts:
+                            Codex.SetTask(state, new AgentTask(ts.Id, () => agentCts?.Cancel()));
                             break;
+                        case TaskCompleteEvent tc:
+                        if (tc.LastAgentMessage != null)
+                        {
+                            chat.AddAgentMessage(tc.LastAgentMessage);
+                            lastMessage = tc.LastAgentMessage;
+                        }
+                        status.UpdateText("ready");
+                        Codex.RemoveTask(state, tc.Id);
+                        if (opts.NotifyCommand.Length > 0)
+                            Codex.MaybeNotify(opts.NotifyCommand.ToList(),
+                                new AgentTurnCompleteNotification(tc.Id, Array.Empty<string>(), tc.LastAgentMessage));
+                        break;
                     }
                     if (logWriter != null)
                         await logWriter.WriteLineAsync(System.Text.Json.JsonSerializer.Serialize(ev));
                 }
+                Codex.Abort(state);
                 agentCts.Dispose();
                 agentCts = null;
                 }
@@ -315,6 +327,7 @@ public static class InteractiveApp
         }
         finally
         {
+            Codex.Abort(state);
             Console.Write("\u001b[?1000l");
         }
     }

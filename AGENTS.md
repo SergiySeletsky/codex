@@ -53,6 +53,23 @@
 - Ported `record_conversation_items` and `record_rollout_items` helpers as `Codex.RecordConversationItemsAsync` and `Codex.RecordRolloutItemsAsync` with new unit tests.
 - Ported `request_command_approval`, `request_patch_approval`, `notify_approval` and `add_approved_command` helpers as `Codex` methods with new unit tests.
 - Updated Prompt instruction loader to strip HTML comments so tests consume the same text as Rust.
+- Ported `call_tool` helper as `Codex.CallToolAsync` with unit, integration and CLI parity tests.
+- Ported `abort` helper as `Codex.Abort` with unit and CLI parity tests.
+- Ported `send_event` helper as `Codex.SendEventAsync` with new unit tests.
+- Added event notifications in `McpToolCall.HandleMcpToolCallAsync` with unit tests verifying begin/end events.
+- Ported `history_metadata` and `lookup` helpers as `MessageHistory.HistoryMetadataAsync` and `MessageHistory.LookupEntry` with new unit tests.
+- Ported `append_entry` helper as `MessageHistory.AppendEntryAsync` with file locking and permissions handling.
+- Integrated `Codex.MaybeNotify` into RealCodexAgent and CLI loops with new parity tests.
+- Ported MCP tool name helpers `fully_qualified_tool_name` and `try_parse_fully_qualified_tool_name` with unit tests verifying round-trip parsing.
+- Integrated MessageHistory.HistoryMetadataAsync into HistoryCommand `messages-entry` for parity.
+- Integrated Codex.CallToolAsync into ExecCommand remote workflow for parity.
+- Integrated Codex.NotifyExecCommandBegin/End and NotifyBackgroundEvent into ExecCommand for denial diagnostics with new cross-CLI test.
+- Integrated Codex.ResolvePath into ExecCommand path handling for logs and instructions.
+- Integrated Codex.RecordConversationItemsAsync into ExecCommand event loop for session recording parity.
+- Integrated Codex.Abort into ExecCommand and InteractiveApp lifecycle to clear session state on cancel.
+- Added TaskStarted events to RealCodexAgent and wired Codex.SetTask/RemoveTask into CLI loops for parity.
+- Integrated Codex.ConvertApplyPatchToProtocol into ExecCommand patch handling with new cross-CLI test.
+- Integrated PatchSummary.PrintSummary into ExecCommand patch workflow.
 
 ## Rust to C# Mapping
 
@@ -73,11 +90,16 @@
 - codex-rs/core/src/client_common.rs -> codex-dotnet/CodexCli/{Models/{Prompt.cs,ResponseEvent.cs,ReasoningModels.cs},Util/{ReasoningUtils.cs,ModelClient.cs}} (done)
 - codex-rs/core/src/conversation_history.rs -> codex-dotnet/CodexCli/Util/ConversationHistory.cs (done)
 - codex-rs/core/src/message_history.rs -> codex-dotnet/CodexCli/Util/MessageHistory.cs (done)
+- codex-rs/core/src/message_history.rs history_metadata -> codex-dotnet/CodexCli/Util/MessageHistory.cs HistoryMetadataAsync (done)
+- codex-rs/core/src/message_history.rs lookup -> codex-dotnet/CodexCli/Util/MessageHistory.cs LookupEntry (done)
+- codex-rs/core/src/message_history.rs append_entry -> codex-dotnet/CodexCli/Util/MessageHistory.cs AppendEntryAsync (done)
 - codex-rs/common/src/approval_mode_cli_arg.rs -> codex-dotnet/CodexCli/Commands/ApprovalModeCliArg.cs (done)
 - codex-rs/common/src/config_override.rs -> codex-dotnet/CodexCli/Config/ConfigOverrides.cs (done)
 - codex-rs/common/src/elapsed.rs -> codex-dotnet/CodexCli/Util/Elapsed.cs (done)
 - codex-rs/core/src/mcp_tool_call.rs -> codex-dotnet/CodexCli/Util/McpToolCall.cs (done)
 - codex-rs/core/src/mcp_connection_manager.rs -> codex-dotnet/CodexCli/Util/McpConnectionManager.cs (done)
+- codex-rs/core/src/mcp_connection_manager.rs fully_qualified_tool_name -> codex-dotnet/CodexCli/Util/McpConnectionManager.cs FullyQualifiedToolName (done)
+- codex-rs/core/src/mcp_connection_manager.rs try_parse_fully_qualified_tool_name -> codex-dotnet/CodexCli/Util/McpConnectionManager.cs TryParseFullyQualifiedToolName (done)
 - codex-rs/mcp-server/src/json_to_toml.rs -> codex-dotnet/CodexCli/Util/JsonToToml.cs (done)
 - codex-rs/mcp-server/src/message_processor.rs -> codex-dotnet/CodexCli/Util/McpEventStream.cs (done)
 - codex-rs/execpolicy/src/lib.rs -> codex-dotnet/CodexCli/Util/ExecPolicy.cs (done)
@@ -125,6 +147,9 @@
 - codex-rs/core/src/codex.rs request_patch_approval -> codex-dotnet/CodexCli/Util/Codex.cs RequestPatchApproval (done)
 - codex-rs/core/src/codex.rs notify_approval -> codex-dotnet/CodexCli/Util/Codex.cs NotifyApproval (done)
 - codex-rs/core/src/codex.rs add_approved_command -> codex-dotnet/CodexCli/Util/Codex.cs AddApprovedCommand (done)
+- codex-rs/core/src/codex.rs call_tool -> codex-dotnet/CodexCli/Util/Codex.cs CallToolAsync (done)
+- codex-rs/core/src/codex.rs abort -> codex-dotnet/CodexCli/Util/Codex.cs Abort (done)
+- codex-rs/core/src/codex.rs send_event -> codex-dotnet/CodexCli/Util/Codex.cs SendEventAsync (done)
 - codex-rs/core/src/codex.rs -> codex-dotnet/CodexCli/Util/Codex.cs (partial)
 - codex-rs/exec/src/lib.rs -> codex-dotnet/CodexCli/Commands/ExecCommand.cs (partial, safety and Ctrl+C integrated)
 - codex-rs/core/src/client.rs -> codex-dotnet/CodexCli/Protocol/RealCodexAgent.cs (done)
@@ -147,17 +172,22 @@
 - Integrate Codex.FormatExecOutput into ExecCommand parity tests.
 - Integrate Codex.GetWritableRoots into spawn workflow.
 - Integrate Codex.GetLastAssistantMessageFromTurn and RecordConversationHistory into conversation logic.
-- Integrate Codex.ConvertApplyPatchToProtocol into ExecCommand patch handling.
+- Integrate Codex.ConvertApplyPatchToProtocol into ExecCommand patch handling. (done)
 - Integrate Codex.ToExecParams and TryParseContainerExecArguments into ExecCommand function call handling.
-- Integrate PatchSummary.PrintSummary into patch application workflow.
+ - Integrate PatchSummary.PrintSummary into patch application workflow. (done)
 - Integrate PatchApplier.ApplyActionAndReport into CLI patch workflows.
 - Integrate PatchApplier.ApplyAndReport into CLI patch workflows.
-- Integrate Codex.MaybeNotify into session event notifications.
-- Integrate Codex.NotifyExecCommandBegin, NotifyExecCommandEnd and NotifyBackgroundEvent into session event workflow.
+- Integrate Codex.MaybeNotify into session event notifications. (done)
+ - Integrate Codex.NotifyExecCommandBegin, NotifyExecCommandEnd and NotifyBackgroundEvent into session event workflow. (done)
 - Integrate Codex.InjectInput and GetPendingInput into session input workflow.
-- Integrate Codex.ResolvePath into command path handling.
-- Integrate Codex.SetTask and Codex.RemoveTask into session task workflow.
+- Integrate Codex.ResolvePath into command path handling. (done)
+- Integrate Codex.SetTask and Codex.RemoveTask into session task workflow. (done)
 - Integrate Codex.RequestCommandApproval and RequestPatchApproval into approval workflow.
 - Integrate Codex.NotifyApproval and AddApprovedCommand into approval workflow.
-- Integrate Codex.RecordConversationItemsAsync and RecordRolloutItemsAsync into session recording workflow.
+- Integrate Codex.CallToolAsync into CLI tool-call workflow.
+- Integrate Codex.CallToolAsync into CLI tool-call workflow. (done)
+- Integrate Codex.SendEventAsync into MCP tool call notifications. (done)
+- Integrate Codex.Abort into session lifecycle management. (done)
+- Integrate Codex.RecordConversationItemsAsync and RecordRolloutItemsAsync into session recording workflow. (done)
 - Integrate Prompt base and apply_patch instructions loading into Prompt.GetFullInstructions.
+- Integrate MessageHistory.HistoryMetadataAsync and LookupEntry into history CLI workflows. (done)

@@ -269,7 +269,10 @@ public class McpConnectionManager
         await client.RemoveResourceAsync(uri);
     }
 
+    // Rust analog: codex-rs/core/src/mcp_connection_manager.rs fully_qualified_tool_name (done)
     public static string FullyQualifiedToolName(string server, string tool) => $"{server}{Delimiter}{tool}";
+
+    // Rust analog: codex-rs/core/src/mcp_connection_manager.rs try_parse_fully_qualified_tool_name (done)
     public static bool TryParseFullyQualifiedToolName(string fq, out string server, out string tool)
     {
         var parts = fq.Split(Delimiter);

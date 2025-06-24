@@ -9,11 +9,18 @@ namespace CodexCli.Protocol;
 
 public static class RealCodexAgent
 {
-    public static async IAsyncEnumerable<Event> RunAsync(string prompt, OpenAIClient client, string model,
-        Func<Event, Task<ReviewDecision>>? approvalResponder = null, IReadOnlyList<string>? images = null,
+public static async IAsyncEnumerable<Event> RunAsync(
+        string prompt,
+        OpenAIClient client,
+        string model,
+        Func<Event, Task<ReviewDecision>>? approvalResponder = null,
+        IReadOnlyList<string>? images = null,
+        IReadOnlyList<string>? notifyCommand = null,
         [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancel = default)
     {
         yield return new SessionConfiguredEvent(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), model);
+        var subId = Guid.NewGuid().ToString();
+        yield return new TaskStartedEvent(subId);
         var msgId = Guid.NewGuid().ToString();
         var full = new System.Text.StringBuilder();
         bool interrupted = false;
@@ -33,7 +40,11 @@ public static class RealCodexAgent
         }
         else
         {
-            yield return new TaskCompleteEvent(Guid.NewGuid().ToString(), full.ToString());
+            var complete = new TaskCompleteEvent(subId, full.ToString());
+            yield return complete;
+            // C# integration of Rust sess.maybe_notify
+            Codex.MaybeNotify(notifyCommand?.ToList(),
+                new AgentTurnCompleteNotification(complete.Id, new[] { prompt }, complete.LastAgentMessage));
         }
     }
 }
