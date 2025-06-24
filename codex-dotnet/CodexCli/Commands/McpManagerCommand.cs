@@ -6,6 +6,7 @@ using System;
 using System.Linq;
 
 // C# port of Rust `codex-rs/cli/src/main.rs` mcp-manager options (call parity tested)
+// Cross-CLI help parity tested in CrossCliCompatTests.McpManagerHelpMatches
 
 namespace CodexCli.Commands;
 

@@ -76,6 +76,7 @@
 - Added cross-CLI test validating LoginCommand help parity.
 - Added cross-CLI test validating ExecCommand help parity.
 - Added cross-CLI test validating McpCommand help parity.
+- Added cross-CLI test validating McpManagerCommand help parity.
 
 ## Rust to C# Mapping
 
@@ -116,7 +117,8 @@
  - codex-rs/cli/src/debug_sandbox.rs -> codex-dotnet/CodexCli/Commands/DebugCommand.cs (done, seatbelt/landlock parity tested)
  - codex-rs/cli/src/proto.rs -> codex-dotnet/CodexCli/Commands/ProtoCommand.cs (done, parity tested)
  - codex-rs/cli/src/main.rs MCP subcommand -> codex-dotnet/CodexCli/Commands/McpCommand.cs (done, help parity tested)
-- codex-rs/core/src/safety.rs -> codex-dotnet/CodexCli/Util/Safety.cs (done)
+ - codex-rs/cli/src/main.rs mcp-manager subcommand -> codex-dotnet/CodexCli/Commands/McpManagerCommand.cs (done, help parity tested)
+ - codex-rs/core/src/safety.rs -> codex-dotnet/CodexCli/Util/Safety.cs (done)
 - codex-rs/core/src/exec.rs SandboxType -> codex-dotnet/CodexCli/Protocol/SandboxType.cs (done)
 - codex-rs/core/src/safety.rs get_platform_sandbox -> codex-dotnet/CodexCli/Util/Safety.cs GetPlatformSandbox (done)
 - codex-rs/core/src/codex_wrapper.rs -> codex-dotnet/CodexCli/Util/CodexWrapper.cs (done)
@@ -180,6 +182,7 @@
 - Wire LoginCommand into parity tests and CLI workflows (done).
 - Wire ExecCommand into parity tests and CLI workflows (done).
 - Wire McpCommand into parity tests and CLI workflows (done).
+- Wire McpManagerCommand into parity tests and CLI workflows (done).
 - Integrate Codex.FormatExecOutput into ExecCommand parity tests.
 - Integrate Codex.GetWritableRoots into spawn workflow.
 - Integrate Codex.GetLastAssistantMessageFromTurn and RecordConversationHistory into conversation logic.

@@ -1,4 +1,4 @@
-// C# version in codex-dotnet/CodexCli/Program.cs (done; mcp-manager call and replay follow parity tested)
+// C# version in codex-dotnet/CodexCli/Program.cs (done; mcp-manager call, replay and help parity tested)
 use clap::Parser;
 use codex_cli::LandlockCommand;
 use codex_cli::SeatbeltCommand;
