@@ -1804,7 +1804,7 @@ fn apply_changes_from_apply_patch_and_report(
 ) -> std::io::Result<()> {
     match apply_changes_from_apply_patch(action) {
         Ok(affected_paths) => {
-            print_summary(&affected_paths, stdout)?;
+            print_summary(&affected_paths, stdout)?; // mirrored in codex-dotnet/CodexCli/Commands/ExecCommand.cs
         }
         Err(err) => {
             writeln!(stderr, "{err:?}")?;

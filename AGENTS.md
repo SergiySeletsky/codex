@@ -69,6 +69,7 @@
 - Integrated Codex.Abort into ExecCommand and InteractiveApp lifecycle to clear session state on cancel.
 - Added TaskStarted events to RealCodexAgent and wired Codex.SetTask/RemoveTask into CLI loops for parity.
 - Integrated Codex.ConvertApplyPatchToProtocol into ExecCommand patch handling with new cross-CLI test.
+- Integrated PatchSummary.PrintSummary into ExecCommand patch workflow.
 
 ## Rust to C# Mapping
 
@@ -173,7 +174,7 @@
 - Integrate Codex.GetLastAssistantMessageFromTurn and RecordConversationHistory into conversation logic.
 - Integrate Codex.ConvertApplyPatchToProtocol into ExecCommand patch handling. (done)
 - Integrate Codex.ToExecParams and TryParseContainerExecArguments into ExecCommand function call handling.
-- Integrate PatchSummary.PrintSummary into patch application workflow.
+ - Integrate PatchSummary.PrintSummary into patch application workflow. (done)
 - Integrate PatchApplier.ApplyActionAndReport into CLI patch workflows.
 - Integrate PatchApplier.ApplyAndReport into CLI patch workflows.
 - Integrate Codex.MaybeNotify into session event notifications. (done)

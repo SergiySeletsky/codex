@@ -393,6 +393,7 @@ public static class ExecCommand
                             try
                             {
                                 var result = PatchApplier.ApplyWithSummary(patch, begin.Cwd);
+                                PatchSummary.PrintSummary(result.Affected, Console.Out); // Port of print_summary helper
                                 var peEvent = new PatchApplyEndEvent(Guid.NewGuid().ToString(), result.Summary, string.Empty, true);
                                 if (opts.Json)
                                     Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(peEvent));
