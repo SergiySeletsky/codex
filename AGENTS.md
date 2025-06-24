@@ -75,6 +75,7 @@
 - Added cross-CLI test validating ProtoCommand help parity.
 - Added cross-CLI test validating LoginCommand help parity.
 - Added cross-CLI test validating ExecCommand help parity.
+- Added cross-CLI test validating ExecCommand JSON output parity.
 - Added cross-CLI test validating McpCommand help parity.
 - Added cross-CLI test validating McpManagerCommand help parity.
 - Added cross-CLI tests validating McpClient command parity (ping, list-tools, list-roots, call-codex, help).
@@ -162,7 +163,7 @@
 - codex-rs/core/src/codex.rs abort -> codex-dotnet/CodexCli/Util/Codex.cs Abort (done)
 - codex-rs/core/src/codex.rs send_event -> codex-dotnet/CodexCli/Util/Codex.cs SendEventAsync (done)
 - codex-rs/core/src/codex.rs -> codex-dotnet/CodexCli/Util/Codex.cs (partial)
-- codex-rs/exec/src/lib.rs -> codex-dotnet/CodexCli/Commands/ExecCommand.cs (partial, safety and Ctrl+C integrated, help parity tested)
+ - codex-rs/exec/src/lib.rs -> codex-dotnet/CodexCli/Commands/ExecCommand.cs (partial, safety and Ctrl+C integrated, help/json parity tested)
 - codex-rs/core/src/client.rs -> codex-dotnet/CodexCli/Protocol/RealCodexAgent.cs (done)
 - codex-rs/core/src/models.rs -> codex-dotnet/CodexCli/Models/ResponseItem.cs (done)
 - codex-rs/core/src/rollout.rs -> codex-dotnet/CodexCli/Util/RolloutRecorder.cs and Commands/ReplayCommand.cs (done)
@@ -206,5 +207,5 @@
 - Integrate Codex.SendEventAsync into MCP tool call notifications. (done)
 - Integrate Codex.Abort into session lifecycle management. (done)
 - Integrate Codex.RecordConversationItemsAsync and RecordRolloutItemsAsync into session recording workflow. (done)
-- Integrate Prompt base and apply_patch instructions loading into Prompt.GetFullInstructions.
+ - Integrate Prompt base and apply_patch instructions loading into Prompt.GetFullInstructions. (done)
 - Integrate MessageHistory.HistoryMetadataAsync and LookupEntry into history CLI workflows. (done)
