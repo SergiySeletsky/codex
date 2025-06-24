@@ -2,6 +2,7 @@ using System.CommandLine;
 using CodexCli.Config;
 
 // Ported from codex-rs/cli/src/proto.rs
+// Cross-CLI parity tested in CrossCliCompatTests.ProtoHelpMatches
 
 namespace CodexCli.Commands;
 
