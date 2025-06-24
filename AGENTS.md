@@ -70,6 +70,7 @@
 - Added TaskStarted events to RealCodexAgent and wired Codex.SetTask/RemoveTask into CLI loops for parity.
 - Integrated Codex.ConvertApplyPatchToProtocol into ExecCommand patch handling with new cross-CLI test.
 - Integrated PatchSummary.PrintSummary into ExecCommand patch workflow.
+- Added cross-CLI test validating DebugCommand seatbelt parity.
 
 ## Rust to C# Mapping
 
@@ -107,7 +108,7 @@
 - codex-rs/core/src/error.rs -> codex-dotnet/CodexCli/Util/CodexErr.cs (done)
 - codex-rs/login/src/lib.rs -> codex-dotnet/CodexCli/Util/ChatGptLogin.cs (done)
 - codex-rs/cli/src/login.rs -> codex-dotnet/CodexCli/Commands/LoginCommand.cs (done)
-- codex-rs/cli/src/debug_sandbox.rs -> codex-dotnet/CodexCli/Commands/DebugCommand.cs (done)
+- codex-rs/cli/src/debug_sandbox.rs -> codex-dotnet/CodexCli/Commands/DebugCommand.cs (done, parity tested)
 - codex-rs/cli/src/proto.rs -> codex-dotnet/CodexCli/Commands/ProtoCommand.cs (done)
 - codex-rs/core/src/safety.rs -> codex-dotnet/CodexCli/Util/Safety.cs (done)
 - codex-rs/core/src/exec.rs SandboxType -> codex-dotnet/CodexCli/Protocol/SandboxType.cs (done)
@@ -168,7 +169,7 @@
 - Add AppConfig loading parity tests and wire into remaining commands.
 - Port remaining Codex session workflow (submission loop, rollout persistence) to .NET.
 - Expand ResponseItem coverage with integration tests for new event types.
-- Wire DebugCommand and ProtoCommand into parity tests and CLI workflows.
+- Wire ProtoCommand into parity tests and CLI workflows (DebugCommand parity done).
 - Integrate Codex.FormatExecOutput into ExecCommand parity tests.
 - Integrate Codex.GetWritableRoots into spawn workflow.
 - Integrate Codex.GetLastAssistantMessageFromTurn and RecordConversationHistory into conversation logic.

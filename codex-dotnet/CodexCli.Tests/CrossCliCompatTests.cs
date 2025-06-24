@@ -822,6 +822,14 @@ args = ["run", "--project", "codex-dotnet/CodexCli", "mcp"]
         Assert.Equal(rOut, dOut);
     }
 
+    [CrossCliFact]
+    public void DebugSeatbeltMatches()
+    {
+        var dotnet = RunProcess("dotnet", "run --project codex-dotnet/CodexCli debug seatbelt \"echo hi\"");
+        var rust = RunProcess("cargo", "run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- debug seatbelt \"echo hi\"");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
 
     [CrossCliFact]
     public void ExecImageUploadMatches()

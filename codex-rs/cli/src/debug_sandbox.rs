@@ -1,4 +1,5 @@
 // C# port implemented in `codex-dotnet/CodexCli/Commands/DebugCommand.cs` (done)
+// Parity test in `codex-dotnet/CodexCli.Tests/CrossCliCompatTests.DebugSeatbeltMatches`
 use std::path::PathBuf;
 
 use codex_common::CliConfigOverrides;
