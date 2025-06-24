@@ -172,6 +172,7 @@
 - Port remaining Codex session workflow (submission loop, rollout persistence) to .NET.
 - Expand ResponseItem coverage with integration tests for new event types.
 - Wire ProtoCommand into parity tests and CLI workflows (done).
+- Wire DebugCommand into parity tests and CLI workflows (done).
 - Integrate Codex.FormatExecOutput into ExecCommand parity tests.
 - Integrate Codex.GetWritableRoots into spawn workflow.
 - Integrate Codex.GetLastAssistantMessageFromTurn and RecordConversationHistory into conversation logic.
