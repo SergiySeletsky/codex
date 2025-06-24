@@ -5,6 +5,8 @@ using System.Text;
 using System.IO;
 using System.Collections.Generic;
 
+// Ported from codex-rs/cli/src/main.rs MCP subcommand (done)
+// Cross-CLI parity tested in CrossCliCompatTests.McpHelpMatches
 namespace CodexCli.Commands;
 
 public static class McpCommand

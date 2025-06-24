@@ -42,6 +42,7 @@ enum Subcommand {
     Login(LoginCommand),
 
     /// Experimental: run Codex as an MCP server.
+    /// Parity test in `codex-dotnet/CodexCli.Tests/CrossCliCompatTests.McpHelpMatches`
     Mcp,
 
     /// Run the Protocol stream via stdin/stdout
