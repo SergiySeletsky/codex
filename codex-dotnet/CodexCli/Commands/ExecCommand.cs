@@ -4,7 +4,7 @@ using CodexCli.Util;
 // Partial port of codex-rs/exec/src/lib.rs Exec command
 // CodexWrapper and safety checks integrated
 // Cross-CLI parity tested in CrossCliCompatTests.ExecHelpMatches, ExecJsonMatches,
-// ExecPatchSummaryMatches, ExecMcpMatches, ExecLastMessageMatches and ApplyPatchCliMatches. Patch application
+// ExecPatchSummaryMatches, ExecMcpMatches, ExecLastMessageMatches, ExecApprovalMatches and ApplyPatchCliMatches. Patch application
 // via ConvertProtocolPatchToAction is covered in ApplyPatchCliMatches.
 // WritableRoots integration unit tested in CodexStatePartialCloneTests.ClonesWritableRoots
 using CodexCli.Protocol;
@@ -115,7 +115,9 @@ public static class ExecCommand
             bool disableStorage = opts.DisableResponseStorage ?? cfg?.DisableResponseStorage ?? false;
             historyEnabled = Codex.RecordConversationHistory(disableStorage, providerInfo.WireApi);
             ConversationHistory? history = historyEnabled ? new ConversationHistory() : null;
-            var approvedCommands = new HashSet<List<string>>(new SequenceEqualityComparer<string>());
+            var state = new CodexState();
+            // Reuse session approved commands so subsequent requests honor session approval
+            var approvedCommands = state.ApprovedCommands;
             var approvalPolicy = opts.Approval ?? cfg?.ApprovalPolicy ?? ApprovalMode.OnFailure;
             RolloutRecorder? recorder = null;
             StreamWriter? logWriter = null;
@@ -214,7 +216,6 @@ public static class ExecCommand
                 : (sandboxList.Count > 0 ? string.Join(',', sandboxList.Select(s => s.ToString())) : "default");
             var processor = new CodexCli.Protocol.EventProcessor(withAnsi, !hideReason, cfg?.FileOpener ?? UriBasedFileOpener.None, Environment.CurrentDirectory);
             var sandboxPolicy = new SandboxPolicy { Permissions = sandboxList };
-            var state = new CodexState();
             state.WritableRoots = Codex.GetWritableRoots(Environment.CurrentDirectory);
             processor.PrintConfigSummary(
                 opts.Model ?? cfg?.Model ?? "default",
@@ -348,7 +349,8 @@ public static class ExecCommand
                             if (resp?.StartsWith("a", StringComparison.OrdinalIgnoreCase) == true)
                             {
                                 decision = ReviewDecision.ApprovedForSession;
-                                approvedCommands.Add(ar.Command.ToList());
+                                // Save command so future requests skip prompts (see SafetyTests.AssessCommandSafety_RespectsApprovedCommands)
+                                Codex.AddApprovedCommand(state, ar.Command.ToList());
                             }
                             else if (resp?.StartsWith("y", StringComparison.OrdinalIgnoreCase) == true)
                             {

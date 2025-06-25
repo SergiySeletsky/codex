@@ -1,5 +1,6 @@
 using CodexCli.Models;
 using CodexCli.Protocol;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace CodexCli.Util;
@@ -10,7 +11,7 @@ namespace CodexCli.Util;
 /// </summary>
 public class CodexState
 {
-    public HashSet<List<string>> ApprovedCommands { get; } = new();
+public HashSet<List<string>> ApprovedCommands { get; } = new(new SequenceEqualityComparer<string>());
     public string? PreviousResponseId { get; set; }
     public ConversationHistory? ZdrTranscript { get; set; }
     public bool HasCurrentTask { get; set; }

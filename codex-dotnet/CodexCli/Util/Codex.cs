@@ -471,6 +471,8 @@ public class Codex
 
     /// <summary>
     /// Ported from codex-rs/core/src/codex.rs `add_approved_command` (done).
+    /// Used by ExecCommand when users approve a command for the session. See
+    /// SafetyTests.AssessCommandSafety_RespectsApprovedCommands for coverage.
     /// </summary>
     public static void AddApprovedCommand(CodexState state, List<string> command)
     {

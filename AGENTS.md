@@ -81,6 +81,8 @@
 - Added cross-CLI test validating ExecCommand patch summary parity.
 - Added cross-CLI test validating ExecCommand last-message output parity.
 - Added cross-CLI test validating ExecCommand approval prompt parity.
+- Integrated Codex.NotifyApproval into ExecCommand and stored session approvals via AddApprovedCommand.
+- Added unit test verifying approved commands bypass prompts via AddApprovedCommand.
 - Improved ExecPatchSummaryMatches to compare summary lines exactly.
 - Added cross-CLI tests exercising ExecRunner via ExecJsonMatches, ExecPatchSummaryMatches and ExecCancelImmediatelyMatches.
 - Integrated PatchApplier.ApplyActionAndReport into ExecCommand using new
@@ -152,12 +154,11 @@
 - codex-rs/core/src/codex.rs convert_apply_patch_to_protocol -> codex-dotnet/CodexCli/Util/Codex.cs ConvertApplyPatchToProtocol (done)
 - codex-rs/core/src/codex.rs first_offending_path -> codex-dotnet/CodexCli/Util/Codex.cs FirstOffendingPath (done)
 - codex-rs/core/src/safety.rs is_write_patch_constrained_to_writable_paths -> codex-dotnet/CodexCli/Util/Safety.cs IsWritePatchConstrainedToWritableRoots (done)
-- codex-rs/exec/src/lib.rs -> codex-dotnet/CodexCli/Commands/ExecCommand.cs (partial, safety and Ctrl+C integrated, writable-roots spawn logic, help/json/patch-summary/last-message/approval/apply_patch/mcp parity tested)
+ - codex-rs/exec/src/lib.rs -> codex-dotnet/CodexCli/Commands/ExecCommand.cs (partial, safety and Ctrl+C integrated, writable-roots spawn logic, help/json/patch-summary/last-message/approval/session-approval/apply_patch/mcp parity tested)
 - Integrate Codex.GetWritableRoots into spawn workflow. (done)
 - Integrate Codex.GetLastAssistantMessageFromTurn and RecordConversationHistory into conversation logic. (done)
 - Integrate Codex.RequestCommandApproval and RequestPatchApproval into approval workflow. (done)
- - codex-rs/tui/src/lib.rs -> codex-dotnet/CodexCli/Interactive/InteractiveApp.cs (done, input queuing integrated)
-- Integrate Codex.NotifyExecCommandBegin, NotifyExecCommandEnd and NotifyBackgroundEvent into session event workflow. (done)
+- Integrate Codex.NotifyApproval and AddApprovedCommand into approval workflow. (done)
 - Integrate Codex.InjectInput and GetPendingInput into session input workflow. (done)
 - codex-rs/core/src/codex.rs State.partial_clone -> codex-dotnet/CodexCli/Util/CodexState.cs PartialClone (done)
 - codex-rs/core/src/codex.rs maybe_notify -> codex-dotnet/CodexCli/Util/Codex.cs MaybeNotify (done)
