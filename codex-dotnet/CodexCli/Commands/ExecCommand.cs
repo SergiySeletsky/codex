@@ -7,6 +7,7 @@ using CodexCli.Util;
 // ExecPatchSummaryMatches, ExecMcpMatches, ExecLastMessageMatches, ExecApprovalMatches and ApplyPatchCliMatches. Patch application
 // via ConvertProtocolPatchToAction is covered in ApplyPatchCliMatches.
 // WritableRoots integration unit tested in CodexStatePartialCloneTests.ClonesWritableRoots
+// Shell function call handling uses Codex.ToExecParams for parity with parse_container_exec_arguments
 using CodexCli.Protocol;
 using System;
 using CodexCli.ApplyPatch;
@@ -446,7 +447,11 @@ public static class ExecCommand
                         }
                         else
                         {
-                            var execParams = new ExecParams(begin.Command.ToList(), begin.Cwd, null, envMap, null, null, sessionId);
+                            // Build ExecParams using Codex.ToExecParams so cwd resolution
+                            // and environment policy match the Rust helper to_exec_params.
+                            var shellParams = new ShellToolCallParams(begin.Command.ToList(), null, null);
+                            var execParams = Codex.ToExecParams(shellParams, policy, begin.Cwd)
+                                with { SessionId = sessionId };
                             var result = await ExecRunner.RunAsync(execParams, CancellationToken.None, sandboxPolicy);
                             var endEv = Codex.NotifyExecCommandEnd(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), result.Stdout, result.Stderr, result.ExitCode);
                             if (opts.Json)

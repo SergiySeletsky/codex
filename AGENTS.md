@@ -10,6 +10,8 @@
 - Updated Rust and C# sources with status comments and added parity tests for each port.
 - Implemented ChatCompletions aggregator and hooked it into ModelClient with new unit and integration tests.
 - Added SSE fixture streaming support in RealCodexAgent with a unit test.
+- Integrated Codex.ToExecParams into ExecCommand shell call handling to mirror
+  parse_container_exec_arguments behavior.
 - Fixed recursion bug in ResponseStream.Aggregate and verified aggregation tests pass.
 - Ported Codex error enums and EnvVarError helper with new unit tests.
 - Implemented CodexWrapper session initialization with unit and CLI parity tests.
@@ -78,6 +80,7 @@
 - Added cross-CLI test validating ProtoCommand help parity.
 - Added cross-CLI test validating LoginCommand help parity.
 - Added cross-CLI test validating ExecCommand help parity.
+- Added unit test verifying Codex.ToExecParams and noted shell call parity.
 - Added cross-CLI test validating ExecCommand JSON output parity.
 - Added cross-CLI test validating ExecCommand patch summary parity.
 - Added cross-CLI test validating ExecCommand last-message output parity.
@@ -157,12 +160,12 @@
 - codex-rs/core/src/codex.rs convert_apply_patch_to_protocol -> codex-dotnet/CodexCli/Util/Codex.cs ConvertApplyPatchToProtocol (done)
 - codex-rs/core/src/codex.rs first_offending_path -> codex-dotnet/CodexCli/Util/Codex.cs FirstOffendingPath (done)
 - codex-rs/core/src/safety.rs is_write_patch_constrained_to_writable_paths -> codex-dotnet/CodexCli/Util/Safety.cs IsWritePatchConstrainedToWritableRoots (done)
- - codex-rs/exec/src/lib.rs -> codex-dotnet/CodexCli/Commands/ExecCommand.cs (partial, safety and Ctrl+C integrated, writable-roots spawn logic, help/json/patch-summary/last-message/approval/session-approval/apply_patch/mcp parity tested)
+ - codex-rs/exec/src/lib.rs -> codex-dotnet/CodexCli/Commands/ExecCommand.cs (partial, safety and Ctrl+C integrated, writable-roots spawn logic, help/json/patch-summary/last-message/approval/session-approval/apply_patch/mcp/shell parity tested)
  - codex-rs/core/src/client.rs -> codex-dotnet/CodexCli/Protocol/RealCodexAgent.cs (done, SSE fixture parity tested)
  - codex-rs/core/src/models.rs -> codex-dotnet/CodexCli/Models/ResponseItem.cs (done, patch/exec-end/MCP parity tested)
 - Integrate newly ported utilities throughout CLI commands and finalize SSE handling (fixture streaming done).
-- Integrate Codex.NotifyApproval and AddApprovedCommand into approval workflow. (done)
-- Integrate Codex.InjectInput and GetPendingInput into session input workflow. (done)
+ - Integrate Codex.ToExecParams and TryParseContainerExecArguments into ExecCommand function call handling. (done)
+- Integrate PatchSummary.PrintSummary into patch application workflow. (done)
 - codex-rs/core/src/codex.rs State.partial_clone -> codex-dotnet/CodexCli/Util/CodexState.cs PartialClone (done)
 - codex-rs/core/src/codex.rs maybe_notify -> codex-dotnet/CodexCli/Util/Codex.cs MaybeNotify (done)
 - codex-rs/core/src/codex.rs notify_exec_command_begin -> codex-dotnet/CodexCli/Util/Codex.cs NotifyExecCommandBegin (done)

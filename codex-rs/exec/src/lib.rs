@@ -2,6 +2,7 @@
 // Parity test in `codex-dotnet/CodexCli.Tests/CrossCliCompatTests.ExecHelpMatches`,
 // `ExecJsonMatches`, `ExecPatchSummaryMatches`, `ExecLastMessageMatches`,
 // `ExecApprovalMatches`, `ApplyPatchCliMatches` and `ExecMcpMatches`.
+// Shell function call handling parity tested in `CodexToExecParamsTests`
 // Session approvals stored via add_approved_command are exercised in
 // `SafetyTests.AssessCommandSafety_RespectsApprovedCommands`.
 // WritableRoots integration unit tested in `codex-dotnet/CodexCli.Tests/CodexStatePartialCloneTests.ClonesWritableRoots`
