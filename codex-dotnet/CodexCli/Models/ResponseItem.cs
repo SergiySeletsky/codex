@@ -1,4 +1,5 @@
 // Ported from codex-rs/core/src/models.rs (response item schema)
+// Patch event mapping parity covered in ResponseItemFactoryTests.MapsPatchEvents
 namespace CodexCli.Models;
 
 using System.Text.Json.Serialization;

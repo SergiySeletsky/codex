@@ -78,4 +78,19 @@ public class ResponseItemFactoryTests
         Assert.NotNull(item);
         Assert.Contains("hello", item!.Content[0].Text);
     }
+
+    [Fact]
+    public void MapsPatchEvents()
+    {
+        var changes = new Dictionary<string, FileChange> { { "foo.txt", new AddFileChange("hi") } };
+        var begin = new PatchApplyBeginEvent("id", false, changes);
+        var beginItem = ResponseItemFactory.FromEvent(begin) as MessageItem;
+        Assert.NotNull(beginItem);
+        Assert.Contains("Applying patch", beginItem!.Content[0].Text);
+
+        var end = new PatchApplyEndEvent("id", "", "", true);
+        var endItem = ResponseItemFactory.FromEvent(end) as MessageItem;
+        Assert.NotNull(endItem);
+        Assert.Contains("Patch applied", endItem!.Content[0].Text);
+    }
 }

@@ -1,4 +1,4 @@
-// C# port: codex-dotnet/CodexCli/Models/ResponseItem.cs
+// C# port: codex-dotnet/CodexCli/Models/ResponseItem.cs (patch events parity tested in ResponseItemFactoryTests.MapsPatchEvents)
 use std::collections::HashMap;
 
 use base64::Engine;
