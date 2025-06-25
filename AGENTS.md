@@ -85,6 +85,7 @@
 - Added cross-CLI test validating ExecCommand patch summary parity.
 - Added cross-CLI test validating ExecCommand last-message output parity.
 - Added cross-CLI test validating ExecCommand approval prompt parity.
+- Added cross-CLI test validating ExecCommand environment variable handling parity.
 - Integrated Codex.NotifyApproval into ExecCommand and stored session approvals via AddApprovedCommand.
 - Added unit test verifying approved commands bypass prompts via AddApprovedCommand.
 - Improved ExecPatchSummaryMatches to compare summary lines exactly.
@@ -160,10 +161,11 @@
 - codex-rs/core/src/codex.rs convert_apply_patch_to_protocol -> codex-dotnet/CodexCli/Util/Codex.cs ConvertApplyPatchToProtocol (done)
 - codex-rs/core/src/codex.rs first_offending_path -> codex-dotnet/CodexCli/Util/Codex.cs FirstOffendingPath (done)
 - codex-rs/core/src/safety.rs is_write_patch_constrained_to_writable_paths -> codex-dotnet/CodexCli/Util/Safety.cs IsWritePatchConstrainedToWritableRoots (done)
- - codex-rs/exec/src/lib.rs -> codex-dotnet/CodexCli/Commands/ExecCommand.cs (partial, safety and Ctrl+C integrated, writable-roots spawn logic, help/json/patch-summary/last-message/approval/session-approval/apply_patch/mcp/shell parity tested)
+ - codex-rs/exec/src/lib.rs -> codex-dotnet/CodexCli/Commands/ExecCommand.cs (partial, safety and Ctrl+C integrated, writable-roots spawn logic, help/json/patch-summary/last-message/approval/session-approval/apply_patch/mcp/shell/env parity tested)
  - codex-rs/core/src/client.rs -> codex-dotnet/CodexCli/Protocol/RealCodexAgent.cs (done, SSE fixture parity tested)
  - codex-rs/core/src/models.rs -> codex-dotnet/CodexCli/Models/ResponseItem.cs (done, patch/exec-end/MCP parity tested)
 - Integrate newly ported utilities throughout CLI commands and finalize SSE handling (fixture streaming done).
+- Add environment variable parity test for ExecCommand (done).
  - Integrate Codex.ToExecParams and TryParseContainerExecArguments into ExecCommand function call handling. (done)
 - Integrate PatchSummary.PrintSummary into patch application workflow. (done)
 - codex-rs/core/src/codex.rs State.partial_clone -> codex-dotnet/CodexCli/Util/CodexState.cs PartialClone (done)

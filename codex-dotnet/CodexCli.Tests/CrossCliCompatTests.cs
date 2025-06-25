@@ -825,6 +825,14 @@ args = ["run", "--project", "codex-dotnet/CodexCli", "mcp"]
         Assert.Equal(rOut, dOut);
     }
 
+    [CrossCliFact]
+    public void ExecEnvSetMatches()
+    {
+        var dotnet = RunProcess("dotnet", "run --project codex-dotnet/CodexCli exec 'bash -c \"echo -n $FOO\"' --model-provider Mock --env-set FOO=bar");
+        var rust = RunProcess("cargo", "run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- exec 'bash -c \"echo -n $FOO\"' -c model_provider=Mock --env-set FOO=bar");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
     private static string ExtractPatchSummary(string text)
     {
         var lines = text.Split('\n');

@@ -4,7 +4,8 @@ using CodexCli.Util;
 // Partial port of codex-rs/exec/src/lib.rs Exec command
 // CodexWrapper and safety checks integrated
 // Cross-CLI parity tested in CrossCliCompatTests.ExecHelpMatches, ExecJsonMatches,
-// ExecPatchSummaryMatches, ExecMcpMatches, ExecLastMessageMatches, ExecApprovalMatches and ApplyPatchCliMatches. Patch application
+// ExecPatchSummaryMatches, ExecMcpMatches, ExecLastMessageMatches, ExecApprovalMatches,
+// ExecEnvSetMatches and ApplyPatchCliMatches. Patch application
 // via ConvertProtocolPatchToAction is covered in ApplyPatchCliMatches.
 // WritableRoots integration unit tested in CodexStatePartialCloneTests.ClonesWritableRoots
 // Shell function call handling uses Codex.ToExecParams for parity with parse_container_exec_arguments
