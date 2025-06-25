@@ -79,12 +79,14 @@
 - Added cross-CLI test validating ExecCommand help parity.
 - Added cross-CLI test validating ExecCommand JSON output parity.
 - Added cross-CLI test validating ExecCommand patch summary parity.
+- Added cross-CLI test validating ExecCommand last-message output parity.
 - Improved ExecPatchSummaryMatches to compare summary lines exactly.
 - Added cross-CLI tests exercising ExecRunner via ExecJsonMatches, ExecPatchSummaryMatches and ExecCancelImmediatelyMatches.
 - Integrated PatchApplier.ApplyActionAndReport into ExecCommand using new
   ConvertProtocolPatchToAction helper.
 - Updated ExecCommand apply_patch handling to use PatchApplier.ApplyAndReport
   for patch CLI parity.
+- Integrated GetLastAssistantMessageFromTurn and RecordConversationHistory into ExecCommand.
 - codex-rs/core/src/exec.rs -> codex-dotnet/CodexCli/Util/ExecRunner.cs (done, parity tested via ExecJsonMatches, ExecPatchSummaryMatches and ExecCancelImmediatelyMatches)
 - Added cross-CLI test validating ExecCommand MCP workflow parity.
 - Added cross-CLI test validating McpCommand help parity.
@@ -149,9 +151,9 @@
 - codex-rs/core/src/codex.rs convert_apply_patch_to_protocol -> codex-dotnet/CodexCli/Util/Codex.cs ConvertApplyPatchToProtocol (done)
 - codex-rs/core/src/codex.rs first_offending_path -> codex-dotnet/CodexCli/Util/Codex.cs FirstOffendingPath (done)
 - codex-rs/core/src/safety.rs is_write_patch_constrained_to_writable_paths -> codex-dotnet/CodexCli/Util/Safety.cs IsWritePatchConstrainedToWritableRoots (done)
-- codex-rs/exec/src/lib.rs -> codex-dotnet/CodexCli/Commands/ExecCommand.cs (partial, safety and Ctrl+C integrated, writable-roots spawn logic, help/json/patch-summary/apply_patch/mcp parity tested)
+- codex-rs/exec/src/lib.rs -> codex-dotnet/CodexCli/Commands/ExecCommand.cs (partial, safety and Ctrl+C integrated, writable-roots spawn logic, help/json/patch-summary/last-message/apply_patch/mcp parity tested)
 - Integrate Codex.GetWritableRoots into spawn workflow. (done)
-- Integrate PatchApplier.ApplyAndReport into CLI patch workflows. (done)
+- Integrate Codex.GetLastAssistantMessageFromTurn and RecordConversationHistory into conversation logic. (done)
 - codex-rs/apply-patch/src/lib.rs print_summary -> codex-dotnet/CodexCli/ApplyPatch/PatchSummary.cs PrintSummary (done)
  - codex-rs/tui/src/lib.rs -> codex-dotnet/CodexCli/Interactive/InteractiveApp.cs (done, input queuing integrated)
 - Integrate Codex.NotifyExecCommandBegin, NotifyExecCommandEnd and NotifyBackgroundEvent into session event workflow. (done)

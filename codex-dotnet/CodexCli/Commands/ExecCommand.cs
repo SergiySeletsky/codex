@@ -4,7 +4,7 @@ using CodexCli.Util;
 // Partial port of codex-rs/exec/src/lib.rs Exec command
 // CodexWrapper and safety checks integrated
 // Cross-CLI parity tested in CrossCliCompatTests.ExecHelpMatches, ExecJsonMatches,
-// ExecPatchSummaryMatches, ExecMcpMatches and ApplyPatchCliMatches. Patch application
+// ExecPatchSummaryMatches, ExecMcpMatches, ExecLastMessageMatches and ApplyPatchCliMatches. Patch application
 // via ConvertProtocolPatchToAction is covered in ApplyPatchCliMatches.
 // WritableRoots integration unit tested in CodexStatePartialCloneTests.ClonesWritableRoots
 using CodexCli.Protocol;
@@ -107,7 +107,14 @@ public static class ExecCommand
 
             SessionManager.SetPersistence(cfg?.History.Persistence ?? HistoryPersistence.SaveAll);
             var sessionId = opts.SessionId ?? SessionManager.CreateSession();
-            var history = new ConversationHistory();
+            // decide if conversation history should be kept for parity with Rust
+            var historyEnabled = false;
+            var providerId = EnvUtils.GetModelProviderId(opts.ModelProvider) ?? cfg?.ModelProvider ?? "openai";
+            var providerInfo = cfg?.GetProvider(providerId) ?? ModelProviderInfo.BuiltIns[providerId];
+            bool hideReason = opts.HideAgentReasoning ?? cfg?.HideAgentReasoning ?? false;
+            bool disableStorage = opts.DisableResponseStorage ?? cfg?.DisableResponseStorage ?? false;
+            historyEnabled = Codex.RecordConversationHistory(disableStorage, providerInfo.WireApi);
+            ConversationHistory? history = historyEnabled ? new ConversationHistory() : null;
             var approvedCommands = new HashSet<List<string>>(new SequenceEqualityComparer<string>());
             var approvalPolicy = opts.Approval ?? cfg?.ApprovalPolicy ?? ApprovalMode.OnFailure;
             RolloutRecorder? recorder = null;
@@ -182,14 +189,10 @@ public static class ExecCommand
                 Console.Error.WriteLine($"{ov.Overrides.Count} override(s) parsed and applied");
             }
 
-            var providerId = EnvUtils.GetModelProviderId(opts.ModelProvider) ?? cfg?.ModelProvider ?? "openai";
-            var providerInfo = cfg?.GetProvider(providerId) ?? ModelProviderInfo.BuiltIns[providerId];
             var baseUrl = EnvUtils.GetProviderBaseUrl(null) ?? providerInfo.BaseUrl;
             var apiKey = ApiKeyManager.GetKey(providerInfo);
             var client = new OpenAIClient(apiKey, baseUrl);
             var execPolicy = ExecPolicy.LoadDefault();
-            bool hideReason = opts.HideAgentReasoning ?? cfg?.HideAgentReasoning ?? false;
-            bool disableStorage = opts.DisableResponseStorage ?? cfg?.DisableResponseStorage ?? false;
             bool withAnsi = opts.Color switch
             {
                 ColorMode.Always => true,
@@ -282,6 +285,7 @@ public static class ExecCommand
                 }
                 events = EnumerateInit();
             }
+            var turnItems = new List<ResponseItem>();
             await foreach (var ev in events)
             {
                 if (opts.Json)
@@ -294,6 +298,7 @@ public static class ExecCommand
                 {
                     // use Codex.RecordConversationItemsAsync for parity with Rust session recording
                     await Codex.RecordConversationItemsAsync(recorder, history, new[] { ri });
+                    turnItems.Add(ri);
                 }
                 switch (ev)
                 {
@@ -464,25 +469,27 @@ public static class ExecCommand
                         break;
                     case PatchApplyBeginEvent pb:
                         // Use PatchApplier.ApplyActionAndReport for parity with Rust
-                        var action = Codex.ConvertProtocolPatchToAction(pb.Changes);
-                        PatchApplier.ApplyActionAndReport(action, Console.Out, Console.Error);
+                        var patchAction = Codex.ConvertProtocolPatchToAction(pb.Changes);
+                        PatchApplier.ApplyActionAndReport(patchAction, Console.Out, Console.Error);
                         break;
                     case TaskStartedEvent tsEvent:
                         Codex.SetTask(state, new AgentTask(tsEvent.Id, () => codexCts?.Cancel()));
                         break;
                     case TaskCompleteEvent tc:
-                    Codex.RemoveTask(state, tc.Id);
-                    if (providerId == "mock")
-                    {
-                        var aiResp = await client.ChatAsync(prompt);
-                        Console.WriteLine(aiResp);
-                    }
-                    if (opts.LastMessageFile != null)
-                        await File.WriteAllTextAsync(opts.LastMessageFile, tc.LastAgentMessage ?? string.Empty);
-                    if (opts.NotifyCommand.Length > 0)
-                        Codex.MaybeNotify(opts.NotifyCommand.ToList(),
-                            new AgentTurnCompleteNotification(tc.Id, Array.Empty<string>(), tc.LastAgentMessage));
-                    break;
+                        Codex.RemoveTask(state, tc.Id);
+                        if (providerId == "mock")
+                        {
+                            var aiResp = await client.ChatAsync(prompt);
+                            Console.WriteLine(aiResp);
+                        }
+                        var lastMsg = Codex.GetLastAssistantMessageFromTurn(turnItems);
+                        if (opts.LastMessageFile != null)
+                            await File.WriteAllTextAsync(opts.LastMessageFile, lastMsg ?? string.Empty);
+                        if (opts.NotifyCommand.Length > 0)
+                            Codex.MaybeNotify(opts.NotifyCommand.ToList(),
+                                new AgentTurnCompleteNotification(tc.Id, Array.Empty<string>(), lastMsg));
+                        turnItems.Clear();
+                        break;
                 }
             }
 

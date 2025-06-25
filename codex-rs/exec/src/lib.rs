@@ -1,5 +1,5 @@
 // C# port: codex-dotnet/CodexCli/Commands/ExecCommand.cs (partial, safety and Ctrl+C integrated)
-// Parity test in `codex-dotnet/CodexCli.Tests/CrossCliCompatTests.ExecHelpMatches`, `ExecJsonMatches`, `ExecPatchSummaryMatches`, `ApplyPatchCliMatches` and `ExecMcpMatches`
+// Parity test in `codex-dotnet/CodexCli.Tests/CrossCliCompatTests.ExecHelpMatches`, `ExecJsonMatches`, `ExecPatchSummaryMatches`, `ExecLastMessageMatches`, `ApplyPatchCliMatches` and `ExecMcpMatches`
 // WritableRoots integration unit tested in `codex-dotnet/CodexCli.Tests/CodexStatePartialCloneTests.ClonesWritableRoots`
 mod cli;
 mod event_processor;

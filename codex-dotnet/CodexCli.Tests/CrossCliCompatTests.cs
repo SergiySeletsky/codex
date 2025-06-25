@@ -800,6 +800,20 @@ args = ["run", "--project", "codex-dotnet/CodexCli", "mcp"]
         Assert.Equal(rSummary, dSummary);
     }
 
+    [CrossCliFact]
+    public void ExecLastMessageMatches()
+    {
+        var tmpDotnet = Path.GetTempFileName();
+        var tmpRust = Path.GetTempFileName();
+        RunProcess("dotnet", $"run --project codex-dotnet/CodexCli exec hi --model-provider Mock --output-last-message {tmpDotnet}");
+        RunProcess("cargo", $"run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- exec hi -c model_provider=Mock --output-last-message {tmpRust}");
+        var dMsg = File.ReadAllText(tmpDotnet).Trim();
+        var rMsg = File.ReadAllText(tmpRust).Trim();
+        File.Delete(tmpDotnet);
+        File.Delete(tmpRust);
+        Assert.Equal(rMsg, dMsg);
+    }
+
     private static string ExtractPatchSummary(string text)
     {
         var lines = text.Split('\n');
