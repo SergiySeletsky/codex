@@ -4,6 +4,7 @@ using CodexCli.Util;
 // Partial port of codex-rs/exec/src/lib.rs Exec command
 // CodexWrapper and safety checks integrated
 // Cross-CLI parity tested in CrossCliCompatTests.ExecHelpMatches, ExecJsonMatches, ExecPatchSummaryMatches and ExecMcpMatches
+// WritableRoots integration unit tested in CodexStatePartialCloneTests.ClonesWritableRoots
 using CodexCli.Protocol;
 using System;
 using CodexCli.ApplyPatch;
@@ -208,6 +209,7 @@ public static class ExecCommand
             var processor = new CodexCli.Protocol.EventProcessor(withAnsi, !hideReason, cfg?.FileOpener ?? UriBasedFileOpener.None, Environment.CurrentDirectory);
             var sandboxPolicy = new SandboxPolicy { Permissions = sandboxList };
             var state = new CodexState();
+            state.WritableRoots = Codex.GetWritableRoots(Environment.CurrentDirectory);
             processor.PrintConfigSummary(
                 opts.Model ?? cfg?.Model ?? "default",
                 opts.ModelProvider ?? cfg?.ModelProvider ?? string.Empty,
@@ -354,8 +356,7 @@ public static class ExecCommand
                             ApplyPatchCommandParser.MaybeParseApplyPatchVerified(argv, begin.Cwd, out var action) == MaybeApplyPatchVerified.Body &&
                             action != null)
                         {
-                            var roots = sandboxPolicy.GetWritableRootsWithCwd(begin.Cwd);
-                            var patchSafety = Safety.AssessPatchSafety(action, approvalPolicy, roots, begin.Cwd);
+                            var patchSafety = Safety.AssessPatchSafety(action, approvalPolicy, state.WritableRoots, begin.Cwd);
                             if (patchSafety == SafetyCheck.Reject)
                             {
                                 Console.WriteLine("Patch denied");

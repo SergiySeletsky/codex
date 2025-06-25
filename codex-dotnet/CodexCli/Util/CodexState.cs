@@ -17,6 +17,7 @@ public class CodexState
     public AgentTask? CurrentTask { get; set; }
     public List<ResponseInputItem> PendingInput { get; } = new();
     public Dictionary<string, TaskCompletionSource<ReviewDecision>> PendingApprovals { get; } = new();
+    public List<string> WritableRoots { get; set; } = new();
 
     public CodexState PartialClone(bool retainZdrTranscript)
     {
@@ -28,6 +29,7 @@ public class CodexState
         foreach (var cmd in ApprovedCommands)
             clone.ApprovedCommands.Add(new List<string>(cmd));
         clone.HasCurrentTask = this.HasCurrentTask;
+        clone.WritableRoots = new List<string>(this.WritableRoots);
         // current task is intentionally not cloned
         return clone;
     }

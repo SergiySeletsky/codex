@@ -70,6 +70,7 @@
 - Added TaskStarted events to RealCodexAgent and wired Codex.SetTask/RemoveTask into CLI loops for parity.
 - Integrated Codex.ConvertApplyPatchToProtocol into ExecCommand patch handling with new cross-CLI test.
 - Integrated PatchSummary.PrintSummary into ExecCommand patch workflow.
+- Integrated Codex.GetWritableRoots into ExecCommand spawn workflow.
 - Added cross-CLI test validating DebugCommand seatbelt parity.
 - Added cross-CLI test validating DebugCommand landlock parity.
 - Added cross-CLI test validating ProtoCommand help parity.
@@ -141,8 +142,8 @@
 - codex-rs/core/src/codex.rs convert_apply_patch_to_protocol -> codex-dotnet/CodexCli/Util/Codex.cs ConvertApplyPatchToProtocol (done)
 - codex-rs/core/src/codex.rs first_offending_path -> codex-dotnet/CodexCli/Util/Codex.cs FirstOffendingPath (done)
 - codex-rs/core/src/safety.rs is_write_patch_constrained_to_writable_paths -> codex-dotnet/CodexCli/Util/Safety.cs IsWritePatchConstrainedToWritableRoots (done)
-- codex-rs/core/src/codex.rs to_exec_params -> codex-dotnet/CodexCli/Util/Codex.cs ToExecParams (done)
-- codex-rs/core/src/codex.rs parse_container_exec_arguments -> codex-dotnet/CodexCli/Util/Codex.cs TryParseContainerExecArguments (done)
+- codex-rs/exec/src/lib.rs -> codex-dotnet/CodexCli/Commands/ExecCommand.cs (partial, safety and Ctrl+C integrated, writable-roots spawn logic, help/json/patch-summary/mcp parity tested)
+- Integrate Codex.GetWritableRoots into spawn workflow. (done)
 - codex-rs/core/src/codex.rs resolve_path -> codex-dotnet/CodexCli/Util/Codex.cs ResolvePath (done)
 - codex-rs/apply-patch/src/lib.rs print_summary -> codex-dotnet/CodexCli/ApplyPatch/PatchSummary.cs PrintSummary (done)
 - codex-rs/core/src/codex.rs apply_changes_from_apply_patch -> codex-dotnet/CodexCli/ApplyPatch/PatchApplier.cs ApplyAction (done)
