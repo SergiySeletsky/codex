@@ -81,6 +81,8 @@
 - Added cross-CLI test validating ExecCommand patch summary parity.
 - Improved ExecPatchSummaryMatches to compare summary lines exactly.
 - Added cross-CLI tests exercising ExecRunner via ExecJsonMatches, ExecPatchSummaryMatches and ExecCancelImmediatelyMatches.
+- Integrated PatchApplier.ApplyActionAndReport into ExecCommand using new
+  ConvertProtocolPatchToAction helper.
 - codex-rs/core/src/exec.rs -> codex-dotnet/CodexCli/Util/ExecRunner.cs (done, parity tested via ExecJsonMatches, ExecPatchSummaryMatches and ExecCancelImmediatelyMatches)
 - Added cross-CLI test validating ExecCommand MCP workflow parity.
 - Added cross-CLI test validating McpCommand help parity.
@@ -116,6 +118,7 @@
 - codex-rs/core/src/mcp_connection_manager.rs -> codex-dotnet/CodexCli/Util/McpConnectionManager.cs (done)
 - codex-rs/core/src/mcp_connection_manager.rs fully_qualified_tool_name -> codex-dotnet/CodexCli/Util/McpConnectionManager.cs FullyQualifiedToolName (done)
 - codex-rs/core/src/mcp_connection_manager.rs try_parse_fully_qualified_tool_name -> codex-dotnet/CodexCli/Util/McpConnectionManager.cs TryParseFullyQualifiedToolName (done)
+- codex-rs/core/src/codex.rs patch_apply_event_to_action -> codex-dotnet/CodexCli/Util/Codex.cs ConvertProtocolPatchToAction (done)
 - codex-rs/mcp-server/src/json_to_toml.rs -> codex-dotnet/CodexCli/Util/JsonToToml.cs (done)
 - codex-rs/mcp-server/src/message_processor.rs -> codex-dotnet/CodexCli/Util/McpEventStream.cs (done)
 - codex-rs/execpolicy/src/lib.rs -> codex-dotnet/CodexCli/Util/ExecPolicy.cs (done)
@@ -174,7 +177,7 @@
 - codex-rs/core/src/client.rs -> codex-dotnet/CodexCli/Protocol/RealCodexAgent.cs (done)
 - codex-rs/core/src/models.rs -> codex-dotnet/CodexCli/Models/ResponseItem.cs (done)
 - codex-rs/core/src/rollout.rs -> codex-dotnet/CodexCli/Util/RolloutRecorder.cs and Commands/ReplayCommand.cs (done)
-- codex-rs/tui/src/lib.rs -> codex-dotnet/CodexCli/Interactive/InteractiveApp.cs (done)
+- Integrate PatchApplier.ApplyActionAndReport into CLI patch workflows. (done)
 
 ## TODO
 

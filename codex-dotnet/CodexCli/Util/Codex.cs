@@ -143,6 +143,29 @@ public class Codex
     }
 
     /// <summary>
+    /// Reverse of <see cref="ConvertApplyPatchToProtocol"/>. Converts protocol
+    /// <see cref="FileChange"/> entries to an <see cref="ApplyPatchAction"/> so
+    /// helpers like <see cref="PatchApplier.ApplyActionAndReport"/> can be used
+    /// for parity with Rust.
+    /// </summary>
+    public static ApplyPatchAction ConvertProtocolPatchToAction(IReadOnlyDictionary<string, FileChange> changes)
+    {
+        var result = new Dictionary<string, ApplyPatchFileChange>(changes.Count);
+        foreach (var kv in changes)
+        {
+            ApplyPatchFileChange c = kv.Value switch
+            {
+                AddFileChange add => new ApplyPatchFileChange { Kind = "add", Content = add.Content },
+                DeleteFileChange => new ApplyPatchFileChange { Kind = "delete" },
+                UpdateFileChange upd => new ApplyPatchFileChange { Kind = "update", UnifiedDiff = upd.UnifiedDiff, MovePath = upd.MovePath },
+                _ => throw new InvalidOperationException($"unknown change type {kv.Value.GetType()}")
+            };
+            result[kv.Key] = c;
+        }
+        return new ApplyPatchAction(result);
+    }
+
+    /// <summary>
     /// Ported from codex-rs/core/src/codex.rs `first_offending_path` (done).
     /// Returns the first path in the apply_patch action that is not under any
     /// writable root. Paths may be relative to <paramref name="cwd"/>.

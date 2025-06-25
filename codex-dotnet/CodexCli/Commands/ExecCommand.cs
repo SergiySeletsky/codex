@@ -3,7 +3,9 @@ using CodexCli.Config;
 using CodexCli.Util;
 // Partial port of codex-rs/exec/src/lib.rs Exec command
 // CodexWrapper and safety checks integrated
-// Cross-CLI parity tested in CrossCliCompatTests.ExecHelpMatches, ExecJsonMatches, ExecPatchSummaryMatches and ExecMcpMatches
+// Cross-CLI parity tested in CrossCliCompatTests.ExecHelpMatches, ExecJsonMatches,
+// ExecPatchSummaryMatches and ExecMcpMatches. Patch application via
+// ConvertProtocolPatchToAction is covered in ApplyPatchCliMatches.
 // WritableRoots integration unit tested in CodexStatePartialCloneTests.ClonesWritableRoots
 using CodexCli.Protocol;
 using System;
@@ -454,45 +456,9 @@ public static class ExecCommand
                         }
                         break;
                     case PatchApplyBeginEvent pb:
-                        foreach (var kv in pb.Changes)
-                        {
-                            var path = kv.Key;
-                            switch (kv.Value)
-                            {
-                                case AddFileChange add:
-                                    Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-                                    File.WriteAllText(path, add.Content);
-                                    break;
-                                case DeleteFileChange:
-                                    if (File.Exists(path)) File.Delete(path);
-                                    break;
-                               case UpdateFileChange upd:
-                                    var full = Path.GetFullPath(path);
-                                    var lines = File.Exists(full) ? File.ReadAllLines(full).ToList() : new List<string>();
-                                    var difflines = PatchParser.ParseUnified(upd.UnifiedDiff);
-                                    int idx2 = 0;
-                                    foreach (var ln in difflines)
-                                    {
-                                        if (ln.StartsWith("+"))
-                                        {
-                                            lines.Insert(idx2, ln.Substring(1));
-                                            idx2++;
-                                        }
-                                        else if (ln.StartsWith("-"))
-                                        {
-                                            if (idx2 < lines.Count && lines[idx2] == ln.Substring(1))
-                                                lines.RemoveAt(idx2);
-                                        }
-                                        else
-                                        {
-                                            if (idx2 < lines.Count && lines[idx2] == ln.TrimStart(' '))
-                                                idx2++;
-                                        }
-                                    }
-                                    File.WriteAllLines(full, lines);
-                                    break;
-                                }
-                        }
+                        // Use PatchApplier.ApplyActionAndReport for parity with Rust
+                        var action = Codex.ConvertProtocolPatchToAction(pb.Changes);
+                        PatchApplier.ApplyActionAndReport(action, Console.Out, Console.Error);
                         break;
                     case TaskStartedEvent tsEvent:
                         Codex.SetTask(state, new AgentTask(tsEvent.Id, () => codexCts?.Cancel()));
