@@ -1,5 +1,5 @@
 // C# port: codex-dotnet/CodexCli/Commands/ExecCommand.cs (partial, safety and Ctrl+C integrated)
-// Parity test in `codex-dotnet/CodexCli.Tests/CrossCliCompatTests.ExecHelpMatches` and `ExecJsonMatches`
+// Parity test in `codex-dotnet/CodexCli.Tests/CrossCliCompatTests.ExecHelpMatches`, `ExecJsonMatches` and `ExecPatchSummaryMatches`
 mod cli;
 mod event_processor;
 
