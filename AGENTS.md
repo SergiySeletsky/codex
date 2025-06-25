@@ -71,6 +71,7 @@
 - Integrated Codex.ConvertApplyPatchToProtocol into ExecCommand patch handling with new cross-CLI test.
 - Integrated PatchSummary.PrintSummary into ExecCommand patch workflow.
 - Integrated Codex.GetWritableRoots into ExecCommand spawn workflow.
+- Integrated Codex.InjectInput into InteractiveApp to queue user messages while a task is running (see CodexInjectPendingInputTests).
 - Added cross-CLI test validating DebugCommand seatbelt parity.
 - Added cross-CLI test validating DebugCommand landlock parity.
 - Added cross-CLI test validating ProtoCommand help parity.
@@ -146,9 +147,9 @@
 - Integrate Codex.GetWritableRoots into spawn workflow. (done)
 - codex-rs/core/src/codex.rs resolve_path -> codex-dotnet/CodexCli/Util/Codex.cs ResolvePath (done)
 - codex-rs/apply-patch/src/lib.rs print_summary -> codex-dotnet/CodexCli/ApplyPatch/PatchSummary.cs PrintSummary (done)
-- codex-rs/core/src/codex.rs apply_changes_from_apply_patch -> codex-dotnet/CodexCli/ApplyPatch/PatchApplier.cs ApplyAction (done)
-- codex-rs/core/src/codex.rs apply_changes_from_apply_patch_and_report -> codex-dotnet/CodexCli/ApplyPatch/PatchApplier.cs ApplyActionAndReport (done)
-- codex-rs/apply-patch/src/lib.rs apply_patch -> codex-dotnet/CodexCli/ApplyPatch/PatchApplier.cs ApplyAndReport (done)
+ - codex-rs/tui/src/lib.rs -> codex-dotnet/CodexCli/Interactive/InteractiveApp.cs (done, input queuing integrated)
+- Integrate Codex.NotifyExecCommandBegin, NotifyExecCommandEnd and NotifyBackgroundEvent into session event workflow. (done)
+- Integrate Codex.InjectInput and GetPendingInput into session input workflow. (done)
 - codex-rs/core/src/codex.rs State.partial_clone -> codex-dotnet/CodexCli/Util/CodexState.cs PartialClone (done)
 - codex-rs/core/src/codex.rs maybe_notify -> codex-dotnet/CodexCli/Util/Codex.cs MaybeNotify (done)
 - codex-rs/core/src/codex.rs notify_exec_command_begin -> codex-dotnet/CodexCli/Util/Codex.cs NotifyExecCommandBegin (done)

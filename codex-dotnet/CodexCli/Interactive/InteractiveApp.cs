@@ -11,7 +11,8 @@ using SessionManager = CodexCli.Util.SessionManager;
 /// <summary>
 /// Mirrors codex-rs/tui/src/lib.rs interactive app.
 /// Basic event loop with /log and /version commands implemented and
-/// session startup routed through CodexWrapper (done).
+/// session startup routed through CodexWrapper (done). Input queuing
+/// via Codex.InjectInput tested in CodexInjectPendingInputTests.
 /// </summary>
 
 namespace CodexCli.Interactive;
@@ -204,6 +205,18 @@ public static class InteractiveApp
                     chat.AddAgentMessage($"Saved history to {file}");
                     continue;
                 }
+                if (state.HasCurrentTask &&
+                    Codex.InjectInput(state, new List<InputItem>{ new TextInputItem(prompt) }))
+                {
+                    history.Add(prompt);
+                    SessionManager.AddEntry(sessionId, prompt);
+                    if (logWriter != null)
+                        await logWriter.WriteLineAsync(prompt);
+                    chat.AddUserMessage(prompt);
+                    status.UpdateText("queued input");
+                    continue;
+                }
+
                 history.Add(prompt);
                 SessionManager.AddEntry(sessionId, prompt);
                 if (logWriter != null)
