@@ -77,6 +77,7 @@
 - Added cross-CLI test validating ExecCommand help parity.
 - Added cross-CLI test validating ExecCommand JSON output parity.
 - Added cross-CLI test validating ExecCommand patch summary parity.
+- Improved ExecPatchSummaryMatches to compare summary lines exactly.
 - Added cross-CLI test validating ExecCommand MCP workflow parity.
 - Added cross-CLI test validating McpCommand help parity.
 - Added cross-CLI test validating McpManagerCommand help parity.
