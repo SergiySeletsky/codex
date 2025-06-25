@@ -5,6 +5,8 @@ namespace CodexCli.Util;
 
 /// <summary>
 /// Simplified port of codex-rs/core/src/exec.rs (done).
+/// Cross-CLI parity covered in CrossCliCompatTests.ExecJsonMatches,
+/// ExecPatchSummaryMatches and ExecCancelImmediatelyMatches.
 /// </summary>
 
 public static class ExecRunner

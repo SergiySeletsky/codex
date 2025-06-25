@@ -80,7 +80,8 @@
 - Added cross-CLI test validating ExecCommand JSON output parity.
 - Added cross-CLI test validating ExecCommand patch summary parity.
 - Improved ExecPatchSummaryMatches to compare summary lines exactly.
-- Improved ExecPatchSummaryMatches to compare summary lines exactly.
+- Added cross-CLI tests exercising ExecRunner via ExecJsonMatches, ExecPatchSummaryMatches and ExecCancelImmediatelyMatches.
+- codex-rs/core/src/exec.rs -> codex-dotnet/CodexCli/Util/ExecRunner.cs (done, parity tested via ExecJsonMatches, ExecPatchSummaryMatches and ExecCancelImmediatelyMatches)
 - Added cross-CLI test validating ExecCommand MCP workflow parity.
 - Added cross-CLI test validating McpCommand help parity.
 - Added cross-CLI test validating McpManagerCommand help parity.
@@ -167,7 +168,7 @@
 - codex-rs/core/src/codex.rs add_approved_command -> codex-dotnet/CodexCli/Util/Codex.cs AddApprovedCommand (done)
 - codex-rs/core/src/codex.rs call_tool -> codex-dotnet/CodexCli/Util/Codex.cs CallToolAsync (done)
 - codex-rs/core/src/codex.rs abort -> codex-dotnet/CodexCli/Util/Codex.cs Abort (done)
-- codex-rs/core/src/codex.rs send_event -> codex-dotnet/CodexCli/Util/Codex.cs SendEventAsync (done)
+- Integrate Codex.FormatExecOutput into ExecCommand parity tests. (done)
 - codex-rs/core/src/codex.rs -> codex-dotnet/CodexCli/Util/Codex.cs (partial)
  - codex-rs/exec/src/lib.rs -> codex-dotnet/CodexCli/Commands/ExecCommand.cs (partial, safety and Ctrl+C integrated, help/json/patch-summary/mcp parity tested)
 - codex-rs/core/src/client.rs -> codex-dotnet/CodexCli/Protocol/RealCodexAgent.cs (done)
