@@ -810,6 +810,20 @@ args = ["run", "--project", "codex-dotnet/CodexCli", "mcp"]
         for (int i = start; i < lines.Length && !string.IsNullOrWhiteSpace(lines[i]); i++)
             summary.AppendLine(lines[i].Trim());
         return summary.ToString().Trim();
+        var rSummary = ExtractPatchSummary(rust.stdout);
+        Assert.Equal(rSummary, dSummary);
+    }
+
+    private static string ExtractPatchSummary(string text)
+    {
+        var lines = text.Split('\n');
+        var start = Array.IndexOf(lines, "Success. Updated the following files:");
+        if (start < 0)
+            return string.Empty;
+        var summary = new System.Text.StringBuilder();
+        for (int i = start; i < lines.Length && !string.IsNullOrWhiteSpace(lines[i]); i++)
+            summary.AppendLine(lines[i].Trim());
+        return summary.ToString().Trim();
     }
 
     [CrossCliFact]
