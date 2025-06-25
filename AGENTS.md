@@ -85,6 +85,7 @@
 - Added unit test verifying approved commands bypass prompts via AddApprovedCommand.
 - Improved ExecPatchSummaryMatches to compare summary lines exactly.
 - Added unit test verifying ResponseItemFactory maps patch events correctly.
+- Added unit tests verifying ResponseItemFactory maps ExecCommandEnd and MCP tool call events.
 - Added cross-CLI tests exercising ExecRunner via ExecJsonMatches, ExecPatchSummaryMatches and ExecCancelImmediatelyMatches.
 - Integrated PatchApplier.ApplyActionAndReport into ExecCommand using new
   ConvertProtocolPatchToAction helper.
@@ -157,8 +158,8 @@
 - codex-rs/core/src/safety.rs is_write_patch_constrained_to_writable_paths -> codex-dotnet/CodexCli/Util/Safety.cs IsWritePatchConstrainedToWritableRoots (done)
  - codex-rs/exec/src/lib.rs -> codex-dotnet/CodexCli/Commands/ExecCommand.cs (partial, safety and Ctrl+C integrated, writable-roots spawn logic, help/json/patch-summary/last-message/approval/session-approval/apply_patch/mcp parity tested)
 - Integrate Codex.GetWritableRoots into spawn workflow. (done)
- - codex-rs/core/src/models.rs -> codex-dotnet/CodexCli/Models/ResponseItem.cs (done, patch event parity tested)
-- Integrate Codex.RequestCommandApproval and RequestPatchApproval into approval workflow. (done)
+ - codex-rs/core/src/models.rs -> codex-dotnet/CodexCli/Models/ResponseItem.cs (done, patch/exec-end/MCP parity tested)
+- Expand ResponseItem coverage with integration tests for new event types. (done)
 - Integrate Codex.NotifyApproval and AddApprovedCommand into approval workflow. (done)
 - Integrate Codex.InjectInput and GetPendingInput into session input workflow. (done)
 - codex-rs/core/src/codex.rs State.partial_clone -> codex-dotnet/CodexCli/Util/CodexState.cs PartialClone (done)
