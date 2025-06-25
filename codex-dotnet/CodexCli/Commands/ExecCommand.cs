@@ -4,13 +4,14 @@ using CodexCli.Util;
 // Partial port of codex-rs/exec/src/lib.rs Exec command
 // CodexWrapper and safety checks integrated
 // Cross-CLI parity tested in CrossCliCompatTests.ExecHelpMatches, ExecJsonMatches,
-// ExecPatchSummaryMatches and ExecMcpMatches. Patch application via
-// ConvertProtocolPatchToAction is covered in ApplyPatchCliMatches.
+// ExecPatchSummaryMatches, ExecMcpMatches and ApplyPatchCliMatches. Patch application
+// via ConvertProtocolPatchToAction is covered in ApplyPatchCliMatches.
 // WritableRoots integration unit tested in CodexStatePartialCloneTests.ClonesWritableRoots
 using CodexCli.Protocol;
 using System;
 using CodexCli.ApplyPatch;
 using CodexCli.Models;
+using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using System.Text.Json;
@@ -396,9 +397,15 @@ public static class ExecCommand
                                 await logWriter.WriteLineAsync(System.Text.Json.JsonSerializer.Serialize(pbEvent));
                             try
                             {
-                                var result = PatchApplier.ApplyWithSummary(patch, begin.Cwd);
-                                PatchSummary.PrintSummary(result.Affected, Console.Out); // Port of print_summary helper
-                                var peEvent = new PatchApplyEndEvent(Guid.NewGuid().ToString(), result.Summary, string.Empty, true);
+                                var swOut = new StringWriter();
+                                var swErr = new StringWriter();
+                                PatchApplier.ApplyAndReport(patch, begin.Cwd, swOut, swErr);
+                                var stdout = swOut.ToString();
+                                var stderr = swErr.ToString();
+                                Console.Out.Write(stdout);
+                                Console.Error.Write(stderr);
+                                var success = string.IsNullOrEmpty(stderr);
+                                var peEvent = new PatchApplyEndEvent(Guid.NewGuid().ToString(), stdout.TrimEnd(), stderr.TrimEnd(), success);
                                 if (opts.Json)
                                     Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(peEvent));
                                 else
