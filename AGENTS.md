@@ -93,6 +93,7 @@
 - Improved ExecPatchSummaryMatches to compare summary lines exactly.
 - Added unit test verifying ResponseItemFactory maps patch events correctly.
 - Added unit tests verifying ResponseItemFactory maps ExecCommandEnd and MCP tool call events.
+- Added cross-CLI test validating ReplayCommand help output parity.
 - Added cross-CLI tests exercising ExecRunner via ExecJsonMatches, ExecPatchSummaryMatches, ExecCancelImmediatelyMatches, ExecNetworkEnvMatches and ExecConfigMatches.
 - Added cross-CLI test validating network sandbox environment variable parity.
 - Added cross-CLI test validating ExecCommand configuration loading parity.
@@ -170,7 +171,7 @@
 - Add AppConfig loading parity tests and wire into remaining commands. (done)
  - codex-rs/core/src/client.rs -> codex-dotnet/CodexCli/Protocol/RealCodexAgent.cs (done, SSE fixture unit and cross-CLI parity tested)
  - codex-rs/core/src/models.rs -> codex-dotnet/CodexCli/Models/ResponseItem.cs (done, patch/exec-end/MCP parity tested)
-- Integrate newly ported utilities throughout CLI commands and finalize SSE handling (fixture streaming done).
+- codex-rs/core/src/rollout.rs -> codex-dotnet/CodexCli/Util/RolloutRecorder.cs and Commands/ReplayCommand.cs (done, help/json/messages-only/follow parity tested)
 - Add sandbox enforcement logic and finalize ApprovalModeCliArg/ExecEnv integration in command execution (ApprovalModeCliArg done).
  - Integrate Codex.ToExecParams and TryParseContainerExecArguments into ExecCommand function call handling. (done)
 - Integrate PatchSummary.PrintSummary into patch application workflow. (done)

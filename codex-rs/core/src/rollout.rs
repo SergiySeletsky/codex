@@ -3,6 +3,7 @@
 //! sessions can be replayed or inspected later (mirrors the behaviour of the
 //! upstream TypeScript implementation).
 // C# equivalents: `codex-dotnet/CodexCli/Util/RolloutRecorder.cs` and `codex-dotnet/CodexCli/Commands/ReplayCommand.cs`
+// Parity tests: ReplayHelpMatches, ReplayJsonMatches, ReplayMessagesOnlyMatches and ReplayFollowMatches
 
 use std::fs::File;
 use std::fs::{self};
