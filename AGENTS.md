@@ -98,6 +98,7 @@
 - Added cross-CLI tests exercising ExecRunner via ExecJsonMatches, ExecPatchSummaryMatches, ExecCancelImmediatelyMatches, ExecNetworkEnvMatches and ExecConfigMatches.
 - Added cross-CLI test validating network sandbox environment variable parity.
 - Added cross-CLI test validating ExecCommand configuration loading parity.
+- ExecCommand now records rollout events using RealCodexAgent.RunWithRolloutAsync with unit test ExecRolloutRecorderTests.
  - codex-rs/core/src/exec.rs -> codex-dotnet/CodexCli/Util/ExecRunner.cs (done, parity tested via ExecJsonMatches, ExecPatchSummaryMatches, ExecCancelImmediatelyMatches, ExecNetworkEnvMatches and ExecConfigMatches)
  - codex-rs/core/src/config.rs -> codex-dotnet/CodexCli/Config/AppConfig.cs (done, config loading parity tested)
   ConvertProtocolPatchToAction helper.
@@ -168,8 +169,9 @@
 - codex-rs/core/src/codex.rs record_conversation_history -> codex-dotnet/CodexCli/Util/Codex.cs RecordConversationHistory (done)
 - codex-rs/core/src/codex.rs convert_apply_patch_to_protocol -> codex-dotnet/CodexCli/Util/Codex.cs ConvertApplyPatchToProtocol (done)
 - codex-rs/core/src/codex.rs first_offending_path -> codex-dotnet/CodexCli/Util/Codex.cs FirstOffendingPath (done)
- - codex-rs/exec/src/lib.rs -> codex-dotnet/CodexCli/Commands/ExecCommand.cs (partial, safety and Ctrl+C integrated, writable-roots spawn logic, help/json/patch-summary/last-message/approval/session-approval/apply_patch/mcp/shell/env/config/approval-mode parity tested)
+ - codex-rs/exec/src/lib.rs -> codex-dotnet/CodexCli/Commands/ExecCommand.cs (partial, safety and Ctrl+C integrated, writable-roots spawn logic, help/json/patch-summary/last-message/approval/session-approval/apply_patch/mcp/shell/env/config/approval-mode/rollout parity tested)
  - codex-rs/core/src/client.rs -> codex-dotnet/CodexCli/Protocol/RealCodexAgent.cs (done, SSE fixture and RunWithRolloutAsync unit tested, cross-CLI SSE parity tested)
+- Port remaining Codex session workflow (submission loop, rollout persistence) to .NET (rollout persistence done).
  - codex-rs/core/src/client.rs -> codex-dotnet/CodexCli/Protocol/RealCodexAgent.cs (done, SSE fixture unit and cross-CLI parity tested)
  - codex-rs/core/src/models.rs -> codex-dotnet/CodexCli/Models/ResponseItem.cs (done, patch/exec-end/MCP parity tested)
 - codex-rs/core/src/rollout.rs -> codex-dotnet/CodexCli/Util/RolloutRecorder.cs and Commands/ReplayCommand.cs (done, help/json/messages-only/follow parity tested)

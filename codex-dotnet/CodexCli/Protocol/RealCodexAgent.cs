@@ -7,7 +7,8 @@ using System.Threading;
 using System.Threading.Tasks;
 
 /// Ported from codex-rs/core/src/client.rs (streaming model client with Ctrl+C parity).
-/// RunWithRolloutAsync parity tested in RealCodexAgentRolloutTests.
+/// RunWithRolloutAsync parity tested in RealCodexAgentRolloutTests and used by
+/// ExecCommand for rollout persistence.
 
 namespace CodexCli.Protocol;
 

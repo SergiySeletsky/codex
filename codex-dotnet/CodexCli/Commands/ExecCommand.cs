@@ -8,6 +8,7 @@ using CodexCli.Util;
 // ExecEnvSetMatches, ExecNetworkEnvMatches, ExecConfigMatches and ApplyPatchCliMatches. Patch application
 // via ConvertProtocolPatchToAction is covered in ApplyPatchCliMatches.
 // WritableRoots integration unit tested in CodexStatePartialCloneTests.ClonesWritableRoots
+// Rollout persistence tested in ExecRolloutRecorderTests
 // Shell function call handling uses Codex.ToExecParams for parity with parse_container_exec_arguments
 // ask-for-approval option parsed via ApprovalModeCliArg for parity with Rust CLI
 using CodexCli.Protocol;
@@ -274,9 +275,19 @@ public static class ExecCommand
             }
             else
             {
-                Func<string, OpenAIClient, string, CancellationToken, IAsyncEnumerable<Event>>? agent = null;
+                Func<string, OpenAIClient, string, CancellationToken, IAsyncEnumerable<Event>> agent;
                 if (providerId == "mock")
+                {
                     agent = (p, c, m, t) => MockCodexAgent.RunAsync(p, imagePaths, null, t);
+                }
+                else if (recorder != null)
+                {
+                    agent = (p, c, m, t) => RealCodexAgent.RunWithRolloutAsync(p, c, m, recorder!, null, imagePaths, opts.NotifyCommand, t);
+                }
+                else
+                {
+                    agent = (p, c, m, t) => RealCodexAgent.RunAsync(p, c, m, null, imagePaths, opts.NotifyCommand, t);
+                }
                 var sigint = SignalUtils.NotifyOnSigInt();
                 var (stream, first, cts) = await CodexWrapper.InitCodexAsync(prompt, client, opts.Model ?? cfg?.Model ?? "default", agent, opts.NotifyCommand);
                 codexCts = cts;

@@ -1,5 +1,5 @@
 // C# analog implemented in codex-dotnet/CodexCli/Protocol/RealCodexAgent.cs
-// (streaming model client with Ctrl+C cancellation parity and RunWithRolloutAsync unit test)
+// (streaming model client with Ctrl+C cancellation parity and RunWithRolloutAsync unit test used by ExecRolloutRecorderTests)
 use std::io::BufRead;
 use std::path::Path;
 use std::time::Duration;
