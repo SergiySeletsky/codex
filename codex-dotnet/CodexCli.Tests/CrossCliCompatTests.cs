@@ -843,6 +843,17 @@ args = ["run", "--project", "codex-dotnet/CodexCli", "mcp"]
     }
 
     [CrossCliFact]
+    public void ExecConfigMatches()
+    {
+        var cfg = Path.GetTempFileName();
+        File.WriteAllText(cfg, "model_provider = \"Mock\"");
+        var dotnet = RunProcess("dotnet", $"run --project codex-dotnet/CodexCli --config {cfg} exec hi --json");
+        var rust = RunProcess("cargo", $"run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- --config {cfg} exec hi --json");
+        File.Delete(cfg);
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [CrossCliFact]
     public void ExecNetworkEnvMatches()
     {
         var dotnet = RunProcess("dotnet", "run --project codex-dotnet/CodexCli exec 'bash -c \"echo -n $CODEX_SANDBOX_NETWORK_DISABLED\"' --model-provider Mock");

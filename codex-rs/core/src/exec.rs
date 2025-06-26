@@ -1,6 +1,7 @@
 // C# port implemented in codex-dotnet/CodexCli/Util/ExecRunner.cs (done)
 // Parity tests: ExecJsonMatches, ExecPatchSummaryMatches,
-// ExecCancelImmediatelyMatches and ExecNetworkEnvMatches
+// ExecCancelImmediatelyMatches, ExecNetworkEnvMatches and
+// ExecConfigMatches
 // ExecCancelImmediatelyMatches and ExecNetworkEnvMatches
 #[cfg(unix)]
 use std::os::unix::process::ExitStatusExt;
