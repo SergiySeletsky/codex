@@ -6,7 +6,8 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-/// Ported from codex-rs/core/src/client.rs (streaming model client with Ctrl+C parity)
+/// Ported from codex-rs/core/src/client.rs (streaming model client with Ctrl+C parity).
+/// RunWithRolloutAsync parity tested in RealCodexAgentRolloutTests.
 
 namespace CodexCli.Protocol;
 
@@ -54,7 +55,7 @@ public static class RealCodexAgent
                 data = line.Substring(5).Trim();
         }
     }
-public static async IAsyncEnumerable<Event> RunAsync(
+    public static async IAsyncEnumerable<Event> RunAsync(
         string prompt,
         OpenAIClient client,
         string model,
@@ -113,5 +114,26 @@ public static async IAsyncEnumerable<Event> RunAsync(
         }
         if (interrupted || cancel.IsCancellationRequested)
             yield return new ErrorEvent(Guid.NewGuid().ToString(), "Interrupted");
+    }
+
+    /// <summary>
+    /// Wrapper over <see cref="RunAsync"/> that records streamed events to a rollout file.
+    /// </summary>
+    public static async IAsyncEnumerable<Event> RunWithRolloutAsync(
+        string prompt,
+        OpenAIClient client,
+        string model,
+        RolloutRecorder recorder,
+        Func<Event, Task<ReviewDecision>>? approvalResponder = null,
+        IReadOnlyList<string>? images = null,
+        IReadOnlyList<string>? notifyCommand = null,
+        [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancel = default)
+    {
+        await foreach (var ev in RunAsync(prompt, client, model, approvalResponder, images, notifyCommand, cancel))
+        {
+            if (ResponseItemFactory.FromEvent(ev) is { } ri)
+                await Codex.RecordRolloutItemsAsync(recorder, new[] { ri });
+            yield return ev;
+        }
     }
 }

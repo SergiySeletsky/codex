@@ -11,6 +11,7 @@
 - Implemented ChatCompletions aggregator and hooked it into ModelClient with new unit and integration tests.
 - Added SSE fixture streaming support in RealCodexAgent with a unit test.
 - Added cross-CLI SSE fixture parity test verifying Exec output matches.
+- Added RunWithRolloutAsync helper to RealCodexAgent with unit test recording rollout events.
 - Integrated Codex.ToExecParams into ExecCommand shell call handling to mirror
   parse_container_exec_arguments behavior.
 - Fixed recursion bug in ResponseStream.Aggregate and verified aggregation tests pass.
@@ -168,7 +169,7 @@
 - codex-rs/core/src/codex.rs convert_apply_patch_to_protocol -> codex-dotnet/CodexCli/Util/Codex.cs ConvertApplyPatchToProtocol (done)
 - codex-rs/core/src/codex.rs first_offending_path -> codex-dotnet/CodexCli/Util/Codex.cs FirstOffendingPath (done)
  - codex-rs/exec/src/lib.rs -> codex-dotnet/CodexCli/Commands/ExecCommand.cs (partial, safety and Ctrl+C integrated, writable-roots spawn logic, help/json/patch-summary/last-message/approval/session-approval/apply_patch/mcp/shell/env/config/approval-mode parity tested)
-- Add AppConfig loading parity tests and wire into remaining commands. (done)
+ - codex-rs/core/src/client.rs -> codex-dotnet/CodexCli/Protocol/RealCodexAgent.cs (done, SSE fixture and RunWithRolloutAsync unit tested, cross-CLI SSE parity tested)
  - codex-rs/core/src/client.rs -> codex-dotnet/CodexCli/Protocol/RealCodexAgent.cs (done, SSE fixture unit and cross-CLI parity tested)
  - codex-rs/core/src/models.rs -> codex-dotnet/CodexCli/Models/ResponseItem.cs (done, patch/exec-end/MCP parity tested)
 - codex-rs/core/src/rollout.rs -> codex-dotnet/CodexCli/Util/RolloutRecorder.cs and Commands/ReplayCommand.cs (done, help/json/messages-only/follow parity tested)
