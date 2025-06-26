@@ -332,7 +332,7 @@ where
 }
 
 /// used in tests to stream from a text SSE file
-// parity covered by RealCodexAgentSseFixtureTests in the C# port
+// parity covered by RealCodexAgentSseFixtureTests and CrossCliCompatTests.ExecSseFixtureMatches in the C# port
 async fn stream_from_fixture(path: impl AsRef<Path>) -> Result<ResponseStream> {
     let (tx_event, rx_event) = mpsc::channel::<Result<ResponseEvent>>(16);
     let f = std::fs::File::open(path.as_ref())?;

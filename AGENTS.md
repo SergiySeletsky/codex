@@ -10,6 +10,7 @@
 - Updated Rust and C# sources with status comments and added parity tests for each port.
 - Implemented ChatCompletions aggregator and hooked it into ModelClient with new unit and integration tests.
 - Added SSE fixture streaming support in RealCodexAgent with a unit test.
+- Added cross-CLI SSE fixture parity test verifying Exec output matches.
 - Integrated Codex.ToExecParams into ExecCommand shell call handling to mirror
   parse_container_exec_arguments behavior.
 - Fixed recursion bug in ResponseStream.Aggregate and verified aggregation tests pass.
@@ -164,7 +165,7 @@
 - codex-rs/core/src/codex.rs first_offending_path -> codex-dotnet/CodexCli/Util/Codex.cs FirstOffendingPath (done)
 - codex-rs/core/src/safety.rs is_write_patch_constrained_to_writable_paths -> codex-dotnet/CodexCli/Util/Safety.cs IsWritePatchConstrainedToWritableRoots (done)
  - codex-rs/exec/src/lib.rs -> codex-dotnet/CodexCli/Commands/ExecCommand.cs (partial, safety and Ctrl+C integrated, writable-roots spawn logic, help/json/patch-summary/last-message/approval/session-approval/apply_patch/mcp/shell/env/approval-mode parity tested)
- - codex-rs/core/src/client.rs -> codex-dotnet/CodexCli/Protocol/RealCodexAgent.cs (done, SSE fixture parity tested)
+ - codex-rs/core/src/client.rs -> codex-dotnet/CodexCli/Protocol/RealCodexAgent.cs (done, SSE fixture unit and cross-CLI parity tested)
  - codex-rs/core/src/models.rs -> codex-dotnet/CodexCli/Models/ResponseItem.cs (done, patch/exec-end/MCP parity tested)
 - Integrate newly ported utilities throughout CLI commands and finalize SSE handling (fixture streaming done).
 - Add sandbox enforcement logic and finalize ApprovalModeCliArg/ExecEnv integration in command execution (ApprovalModeCliArg done).

@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Collections.Generic;
 using CodexCli.Util;
 using CodexCli.Models;
 using System.Text.Json;
@@ -830,6 +831,22 @@ args = ["run", "--project", "codex-dotnet/CodexCli", "mcp"]
     {
         var dotnet = RunProcess("dotnet", "run --project codex-dotnet/CodexCli exec 'bash -c \"echo -n $FOO\"' --model-provider Mock --env-set FOO=bar");
         var rust = RunProcess("cargo", "run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- exec 'bash -c \"echo -n $FOO\"' -c model_provider=Mock --env-set FOO=bar");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [CrossCliFact]
+    public void ExecSseFixtureMatches()
+    {
+        var content = "event: response.output_item.done\n" +
+                      "data: {\"type\":\"response.output_item.done\",\"item\":{\"type\":\"message\",\"role\":\"assistant\",\"content\":[{\"type\":\"text\",\"text\":\"hi\"}]}}\n\n" +
+                      "event: response.completed\n" +
+                      "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"r1\",\"output\":[]}}\n\n";
+        var path = System.IO.Path.GetTempFileName();
+        System.IO.File.WriteAllText(path, content);
+        var env = new Dictionary<string,string>{{"CODEX_RS_SSE_FIXTURE", path}};
+        var dotnet = RunProcess("dotnet", "run --project codex-dotnet/CodexCli exec hi --json", env);
+        var rust = RunProcess("cargo", "run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- exec hi --json", env);
+        System.IO.File.Delete(path);
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 

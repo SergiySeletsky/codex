@@ -14,7 +14,7 @@ public static class RealCodexAgent
 {
     private record SseEvent(string Type, System.Text.Json.JsonElement? Response, System.Text.Json.JsonElement? Item);
 
-    // Used by RealCodexAgentSseFixtureTests for parity with Rust stream_from_fixture
+    // Used by RealCodexAgentSseFixtureTests and CrossCliCompatTests.ExecSseFixtureMatches for parity with Rust stream_from_fixture
     private static async IAsyncEnumerable<ResponseEvent> StreamFromFixture(string path)
     {
         using var reader = new StreamReader(path);
