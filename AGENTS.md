@@ -98,7 +98,7 @@
 - Added cross-CLI tests exercising ExecRunner via ExecJsonMatches, ExecPatchSummaryMatches, ExecCancelImmediatelyMatches, ExecNetworkEnvMatches and ExecConfigMatches.
 - Added cross-CLI test validating network sandbox environment variable parity.
 - Added cross-CLI test validating ExecCommand configuration loading parity.
-- ExecCommand now records rollout events using RealCodexAgent.RunWithRolloutAsync with unit test ExecRolloutRecorderTests.
+  ConvertProtocolPatchToAction helper with unit test coverage.
  - codex-rs/core/src/exec.rs -> codex-dotnet/CodexCli/Util/ExecRunner.cs (done, parity tested via ExecJsonMatches, ExecPatchSummaryMatches, ExecCancelImmediatelyMatches, ExecNetworkEnvMatches and ExecConfigMatches)
  - codex-rs/core/src/config.rs -> codex-dotnet/CodexCli/Config/AppConfig.cs (done, config loading parity tested)
   ConvertProtocolPatchToAction helper.
@@ -140,7 +140,7 @@
 - codex-rs/core/src/mcp_tool_call.rs -> codex-dotnet/CodexCli/Util/McpToolCall.cs (done)
 - codex-rs/core/src/mcp_connection_manager.rs -> codex-dotnet/CodexCli/Util/McpConnectionManager.cs (done)
 - codex-rs/core/src/mcp_connection_manager.rs fully_qualified_tool_name -> codex-dotnet/CodexCli/Util/McpConnectionManager.cs FullyQualifiedToolName (done)
-- codex-rs/core/src/mcp_connection_manager.rs try_parse_fully_qualified_tool_name -> codex-dotnet/CodexCli/Util/McpConnectionManager.cs TryParseFullyQualifiedToolName (done)
+ - codex-rs/core/src/codex.rs patch_apply_event_to_action -> codex-dotnet/CodexCli/Util/Codex.cs ConvertProtocolPatchToAction (done, unit tested)
 - codex-rs/core/src/codex.rs patch_apply_event_to_action -> codex-dotnet/CodexCli/Util/Codex.cs ConvertProtocolPatchToAction (done)
 - codex-rs/mcp-server/src/json_to_toml.rs -> codex-dotnet/CodexCli/Util/JsonToToml.cs (done)
 - codex-rs/mcp-server/src/message_processor.rs -> codex-dotnet/CodexCli/Util/McpEventStream.cs (done)

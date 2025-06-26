@@ -146,7 +146,7 @@ public class Codex
     /// Reverse of <see cref="ConvertApplyPatchToProtocol"/>. Converts protocol
     /// <see cref="FileChange"/> entries to an <see cref="ApplyPatchAction"/> so
     /// helpers like <see cref="PatchApplier.ApplyActionAndReport"/> can be used
-    /// for parity with Rust.
+    /// for parity with Rust. Covered by <c>CodexConvertProtocolPatchTests</c>.
     /// </summary>
     public static ApplyPatchAction ConvertProtocolPatchToAction(IReadOnlyDictionary<string, FileChange> changes)
     {
