@@ -94,13 +94,14 @@
 - Added unit test verifying ResponseItemFactory maps patch events correctly.
 - Added unit tests verifying ResponseItemFactory maps ExecCommandEnd and MCP tool call events.
 - Added cross-CLI tests exercising ExecRunner via ExecJsonMatches, ExecPatchSummaryMatches and ExecCancelImmediatelyMatches.
+- Added cross-CLI test validating network sandbox environment variable parity.
 - Integrated PatchApplier.ApplyActionAndReport into ExecCommand using new
   ConvertProtocolPatchToAction helper.
 - Updated ExecCommand apply_patch handling to use PatchApplier.ApplyAndReport
   for patch CLI parity.
 - Integrated GetLastAssistantMessageFromTurn and RecordConversationHistory into ExecCommand.
 - ask-for-approval option now parsed via ApprovalModeCliArg for CLI parity.
-- codex-rs/core/src/exec.rs -> codex-dotnet/CodexCli/Util/ExecRunner.cs (done, parity tested via ExecJsonMatches, ExecPatchSummaryMatches and ExecCancelImmediatelyMatches)
+ - codex-rs/core/src/exec.rs -> codex-dotnet/CodexCli/Util/ExecRunner.cs (done, parity tested via ExecJsonMatches, ExecPatchSummaryMatches, ExecCancelImmediatelyMatches and ExecNetworkEnvMatches)
 - Added cross-CLI test validating ExecCommand MCP workflow parity.
 - Added cross-CLI test validating McpCommand help parity.
 - Added cross-CLI test validating McpManagerCommand help parity.

@@ -835,6 +835,14 @@ args = ["run", "--project", "codex-dotnet/CodexCli", "mcp"]
     }
 
     [CrossCliFact]
+    public void ExecNetworkEnvMatches()
+    {
+        var dotnet = RunProcess("dotnet", "run --project codex-dotnet/CodexCli exec 'bash -c \"echo -n $CODEX_SANDBOX_NETWORK_DISABLED\"' --model-provider Mock");
+        var rust = RunProcess("cargo", "run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- exec 'bash -c \"echo -n $CODEX_SANDBOX_NETWORK_DISABLED\"' -c model_provider=Mock");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [CrossCliFact]
     public void ExecSseFixtureMatches()
     {
         var content = "event: response.output_item.done\n" +
