@@ -9,6 +9,7 @@
 - Ported project documentation, user notifications, environment flags, model provider registry, config profile helpers, configuration types, conversation and message history, approval mode parsing, config overrides, elapsed time helpers and MCP tool call.
 - Updated Rust and C# sources with status comments and added parity tests for each port.
 - Implemented ChatCompletions aggregator and hooked it into ModelClient with new unit and integration tests.
+- Expanded ChatCompletionsAggregationTests verifying Completed ordering after aggregation.
 - Added SSE fixture streaming support in RealCodexAgent with a unit test.
 - Added cross-CLI SSE fixture parity test verifying Exec output matches.
 - Added RunWithRolloutAsync helper to RealCodexAgent with unit test recording rollout events.
@@ -117,7 +118,7 @@
 - codex-rs/tui/src/exec_command.rs -> codex-dotnet/CodexCli/Util/ExecCommandUtils.cs (done)
 - codex-rs/core/src/is_safe_command.rs -> codex-dotnet/CodexCli/Util/SafeCommand.cs (done)
 - codex-rs/core/src/exec.rs -> codex-dotnet/CodexCli/Util/ExecRunner.cs (done)
-- codex-rs/core/src/exec_env.rs -> codex-dotnet/CodexCli/Util/ExecEnv.cs (done)
+- codex-rs/core/src/chat_completions.rs -> codex-dotnet/CodexCli/Util/ChatCompletions.cs (done, ordering unit tested)
 - codex-rs/core/src/openai_api_key.rs -> codex-dotnet/CodexCli/Util/OpenAiApiKey.cs (done)
 - codex-rs/core/src/openai_tools.rs -> codex-dotnet/CodexCli/Util/OpenAiTools.cs (done)
 - codex-rs/core/src/util.rs -> codex-dotnet/CodexCli/Util/{Backoff.cs,GitUtils.cs,SignalUtils.cs} (done)
