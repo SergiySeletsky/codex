@@ -17,7 +17,7 @@ public record ExecOptions(
     string? Profile,
     string? ModelProvider,
     bool FullAuto,
-    ApprovalMode? Approval,
+    ApprovalModeCliArg? Approval,
     SandboxPermission[] Sandbox,
     ColorMode Color,
     string? Cwd,

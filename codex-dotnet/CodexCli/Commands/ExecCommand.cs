@@ -9,6 +9,7 @@ using CodexCli.Util;
 // via ConvertProtocolPatchToAction is covered in ApplyPatchCliMatches.
 // WritableRoots integration unit tested in CodexStatePartialCloneTests.ClonesWritableRoots
 // Shell function call handling uses Codex.ToExecParams for parity with parse_container_exec_arguments
+// ask-for-approval option parsed via ApprovalModeCliArg for parity with Rust CLI
 using CodexCli.Protocol;
 using System;
 using CodexCli.ApplyPatch;
@@ -32,7 +33,7 @@ public static class ExecCommand
         var profileOpt = new Option<string?>("--profile", "Config profile");
         var providerOpt = new Option<string?>("--model-provider", "Model provider");
         var fullAutoOpt = new Option<bool>("--full-auto", () => false, "Run in full-auto mode");
-        var approvalOpt = new Option<ApprovalMode?>("--ask-for-approval", "When to require approval");
+        var approvalOpt = new Option<ApprovalModeCliArg?>("--ask-for-approval", "When to require approval");
         var sandboxOpt = new Option<string[]>("-s", description: "Sandbox permissions") { AllowMultipleArgumentsPerToken = true };
         var colorOpt = new Option<ColorMode>("--color", () => ColorMode.Auto, "Output color mode");
         var cwdOpt = new Option<string?>(new[] {"--cwd", "-C"}, "Working directory for Codex");
@@ -120,7 +121,7 @@ public static class ExecCommand
             var state = new CodexState();
             // Reuse session approved commands so subsequent requests honor session approval
             var approvedCommands = state.ApprovedCommands;
-            var approvalPolicy = opts.Approval ?? cfg?.ApprovalPolicy ?? ApprovalMode.OnFailure;
+            var approvalPolicy = opts.Approval?.ToApprovalMode() ?? cfg?.ApprovalPolicy ?? ApprovalMode.OnFailure;
             RolloutRecorder? recorder = null;
             StreamWriter? logWriter = null;
             if (opts.EventLogFile != null)

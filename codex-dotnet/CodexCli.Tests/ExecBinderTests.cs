@@ -16,7 +16,7 @@ public class ExecBinderTests
         var profileOpt = new Option<string?>("--profile");
         var providerOpt = new Option<string?>("--model-provider");
         var fullAutoOpt = new Option<bool>("--full-auto");
-        var approvalOpt = new Option<ApprovalMode?>("--ask-for-approval");
+        var approvalOpt = new Option<ApprovalModeCliArg?>("--ask-for-approval");
         var sandboxOpt = new Option<string[]>("-s") { AllowMultipleArgumentsPerToken = true };
         var colorOpt = new Option<ColorMode>("--color", () => ColorMode.Auto);
         var cwdOpt = new Option<string?>("--cwd");
@@ -72,12 +72,13 @@ public class ExecBinderTests
         var root = new RootCommand();
         root.AddCommand(cmd);
 
-        await root.InvokeAsync("exec hello --model gpt-4 --full-auto --session abc --hide-agent-reasoning --disable-response-storage --no-project-doc --json --event-log log.txt --env-inherit all --env-ignore-default-excludes --env-exclude FOO --env-set X=1 --env-include-only PATH --mcp-server demo --events-url http://localhost --watch-events");
+        await root.InvokeAsync("exec hello --model gpt-4 --full-auto --ask-for-approval on-failure --session abc --hide-agent-reasoning --disable-response-storage --no-project-doc --json --event-log log.txt --env-inherit all --env-ignore-default-excludes --env-exclude FOO --env-set X=1 --env-include-only PATH --mcp-server demo --events-url http://localhost --watch-events");
 
         Assert.NotNull(captured);
         Assert.Equal("hello", captured!.Prompt);
         Assert.Equal("gpt-4", captured.Model);
         Assert.True(captured.FullAuto);
+        Assert.Equal(ApprovalModeCliArg.OnFailure, captured.Approval);
         Assert.True(captured.HideAgentReasoning);
         Assert.True(captured.DisableResponseStorage);
         Assert.True(captured.NoProjectDoc);

@@ -5,6 +5,7 @@
 // Shell function call handling parity tested in `CodexToExecParamsTests`
 // Session approvals stored via add_approved_command are exercised in
 // `SafetyTests.AssessCommandSafety_RespectsApprovedCommands`.
+// ask-for-approval flag parsed via ApprovalModeCliArg parity tested in ExecBinderTests
 // WritableRoots integration unit tested in `codex-dotnet/CodexCli.Tests/CodexStatePartialCloneTests.ClonesWritableRoots`
 mod cli;
 mod event_processor;

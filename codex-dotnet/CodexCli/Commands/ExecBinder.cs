@@ -5,6 +5,8 @@ using CodexCli.Config;
 
 namespace CodexCli.Commands;
 
+// Parsed approval flag uses ApprovalModeCliArg for parity with Rust CLI (tested in ExecBinderTests)
+
 public class ExecBinder : BinderBase<ExecOptions>
 {
     private readonly Argument<string?> _prompt;
@@ -13,7 +15,7 @@ public class ExecBinder : BinderBase<ExecOptions>
     private readonly Option<string?> _profile;
     private readonly Option<string?> _provider;
     private readonly Option<bool> _fullAuto;
-    private readonly Option<ApprovalMode?> _approval;
+    private readonly Option<ApprovalModeCliArg?> _approval;
     private readonly Option<string[]> _sandbox;
     private readonly Option<ColorMode> _color;
     private readonly Option<string?> _cwd;
@@ -43,7 +45,7 @@ public class ExecBinder : BinderBase<ExecOptions>
 
     public ExecBinder(Argument<string?> prompt, Option<FileInfo[]> images, Option<string?> model,
         Option<string?> profile, Option<string?> provider, Option<bool> fullAuto,
-        Option<ApprovalMode?> approval, Option<string[]> sandbox, Option<ColorMode> color,
+        Option<ApprovalModeCliArg?> approval, Option<string[]> sandbox, Option<ColorMode> color,
         Option<string?> cwd, Option<string?> lastMessage, Option<string?> sessionId, Option<bool> skipGit,
         Option<string[]> notify, Option<string[]> overrides, Option<ReasoningEffort?> effort,
         Option<ReasoningSummary?> summary, Option<string?> instructions,
