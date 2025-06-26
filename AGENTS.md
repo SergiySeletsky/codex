@@ -77,6 +77,7 @@
 - Integrated Codex.InjectInput into InteractiveApp to queue user messages while a task is running (see CodexInjectPendingInputTests).
 - Added cross-CLI test validating DebugCommand seatbelt parity.
 - Added cross-CLI test validating DebugCommand landlock parity.
+- Added cross-CLI test validating DebugCommand help parity.
 - Added cross-CLI test validating ProtoCommand help parity.
 - Added cross-CLI test validating LoginCommand help parity.
 - Added cross-CLI test validating ExecCommand help parity.
@@ -114,7 +115,7 @@
 - codex-rs/core/src/openai_tools.rs -> codex-dotnet/CodexCli/Util/OpenAiTools.cs (done)
 - codex-rs/core/src/util.rs -> codex-dotnet/CodexCli/Util/{Backoff.cs,GitUtils.cs,SignalUtils.cs} (done)
 - codex-rs/core/src/project_doc.rs -> codex-dotnet/CodexCli/Util/ProjectDoc.cs (done)
-- codex-rs/core/src/user_notification.rs -> codex-dotnet/CodexCli/Util/UserNotification.cs (done)
+ - codex-rs/cli/src/debug_sandbox.rs -> codex-dotnet/CodexCli/Commands/DebugCommand.cs (done, seatbelt/landlock/help parity tested)
 - codex-rs/core/src/flags.rs -> codex-dotnet/CodexCli/Config/EnvFlags.cs (done)
 - codex-rs/core/src/model_provider_info.rs -> codex-dotnet/CodexCli/Config/ModelProviderInfo.cs (done)
 - codex-rs/core/src/config_profile.rs -> codex-dotnet/CodexCli/Config/ConfigProfile.cs (done)
@@ -180,7 +181,7 @@
 - codex-rs/core/src/codex.rs remove_task -> codex-dotnet/CodexCli/Util/Codex.cs RemoveTask (done)
 - codex-rs/core/src/codex.rs record_rollout_items -> codex-dotnet/CodexCli/Util/Codex.cs RecordRolloutItemsAsync (done)
 - codex-rs/core/src/codex.rs record_conversation_items -> codex-dotnet/CodexCli/Util/Codex.cs RecordConversationItemsAsync (done)
-- codex-rs/core/src/codex.rs request_command_approval -> codex-dotnet/CodexCli/Util/Codex.cs RequestCommandApproval (done)
+ - Wire DebugCommand into parity tests and CLI workflows (done, help parity tested).
 - codex-rs/core/src/codex.rs request_patch_approval -> codex-dotnet/CodexCli/Util/Codex.cs RequestPatchApproval (done)
 - codex-rs/core/src/codex.rs notify_approval -> codex-dotnet/CodexCli/Util/Codex.cs NotifyApproval (done)
 - codex-rs/core/src/codex.rs add_approved_command -> codex-dotnet/CodexCli/Util/Codex.cs AddApprovedCommand (done)

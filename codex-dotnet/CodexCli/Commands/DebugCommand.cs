@@ -3,7 +3,7 @@ using CodexCli.Config;
 using CodexCli.Util;
 
 // Ported from codex-rs/cli/src/debug_sandbox.rs
-// Cross-CLI parity tested in CrossCliCompatTests.DebugSeatbeltMatches and DebugLandlockMatches
+// Cross-CLI parity tested in CrossCliCompatTests.DebugSeatbeltMatches, DebugLandlockMatches and DebugHelpMatches
 
 namespace CodexCli.Commands;
 

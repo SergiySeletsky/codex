@@ -871,6 +871,14 @@ args = ["run", "--project", "codex-dotnet/CodexCli", "mcp"]
     }
 
     [CrossCliFact]
+    [CrossCliFact]
+    public void DebugHelpMatches()
+    {
+        var dotnet = RunProcess("dotnet", "run --project codex-dotnet/CodexCli debug --help");
+        var rust = RunProcess("cargo", "run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- debug --help");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
     public void ExecHistoryCountMatches()
     {
         RunProcess("dotnet", "run --project codex-dotnet/CodexCli exec hi --model-provider Mock --hide-agent-reasoning --disable-response-storage --no-project-doc");
