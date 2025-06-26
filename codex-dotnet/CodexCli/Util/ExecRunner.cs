@@ -8,6 +8,7 @@ namespace CodexCli.Util;
 /// Cross-CLI parity covered in CrossCliCompatTests.ExecJsonMatches,
 /// ExecPatchSummaryMatches, ExecCancelImmediatelyMatches and
 /// ExecNetworkEnvMatches.
+/// ExecNetworkEnvMatches.
 /// </summary>
 
 public static class ExecRunner

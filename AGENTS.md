@@ -95,6 +95,7 @@
 - Added unit tests verifying ResponseItemFactory maps ExecCommandEnd and MCP tool call events.
 - Added cross-CLI tests exercising ExecRunner via ExecJsonMatches, ExecPatchSummaryMatches and ExecCancelImmediatelyMatches.
 - Added cross-CLI test validating network sandbox environment variable parity.
+ - codex-rs/core/src/exec.rs -> codex-dotnet/CodexCli/Util/ExecRunner.cs (done, parity tested via ExecJsonMatches, ExecPatchSummaryMatches, ExecCancelImmediatelyMatches and ExecNetworkEnvMatches)
 - Integrated PatchApplier.ApplyActionAndReport into ExecCommand using new
   ConvertProtocolPatchToAction helper.
 - Updated ExecCommand apply_patch handling to use PatchApplier.ApplyAndReport
