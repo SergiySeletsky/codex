@@ -1,4 +1,6 @@
 // Ported from codex-rs/core/src/models.rs (response item schema)
+// Patch, exec-end and MCP call mapping parity covered in
+// ResponseItemFactoryTests.MapsPatchEvents, MapsExecEnd and MapsMcpEvents
 namespace CodexCli.Models;
 
 using System.Text.Json.Serialization;

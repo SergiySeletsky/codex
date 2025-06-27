@@ -37,7 +37,7 @@ public class SafetyTests
     [Fact]
     public void AssessCommandSafety_BasicCases()
     {
-        var approved = new HashSet<List<string>>();
+        var approved = new HashSet<List<string>>(new SequenceEqualityComparer<string>());
         var sandbox = new SandboxPolicy();
         var ok = Safety.AssessCommandSafety(new List<string>{"ls"}, ApprovalMode.OnFailure, sandbox, approved);
         Assert.Equal(SafetyCheck.AutoApprove, ok);
@@ -47,5 +47,14 @@ public class SafetyTests
 
         var ask = Safety.AssessCommandSafety(new List<string>{"foo"}, ApprovalMode.OnFailure, sandbox, approved);
         Assert.Equal(SafetyCheck.AskUser, ask);
+    }
+
+    [Fact]
+    public void AssessCommandSafety_RespectsApprovedCommands()
+    {
+        var state = new CodexState();
+        Codex.AddApprovedCommand(state, new List<string>{"touch","foo"});
+        var result = Safety.AssessCommandSafety(new List<string>{"touch","foo"}, ApprovalMode.OnFailure, new SandboxPolicy(), state.ApprovedCommands);
+        Assert.Equal(SafetyCheck.AutoApprove, result);
     }
 }

@@ -3,10 +3,20 @@ using CodexCli.Config;
 using CodexCli.Util;
 // Partial port of codex-rs/exec/src/lib.rs Exec command
 // CodexWrapper and safety checks integrated
+// Cross-CLI parity tested in CrossCliCompatTests.ExecHelpMatches, ExecJsonMatches,
+// ExecPatchSummaryMatches, ExecMcpMatches, ExecLastMessageMatches, ExecApprovalMatches,
+// ExecEnvSetMatches, ExecNetworkEnvMatches, ExecConfigMatches, ExecAggregatedFixtureMatches and
+// ApplyPatchCliMatches. Patch application
+// via ConvertProtocolPatchToAction is covered in ApplyPatchCliMatches.
+// WritableRoots integration unit tested in CodexStatePartialCloneTests.ClonesWritableRoots
+// Rollout persistence tested in ExecRolloutRecorderTests
+// Shell function call handling uses Codex.ToExecParams for parity with parse_container_exec_arguments
+// ask-for-approval option parsed via ApprovalModeCliArg for parity with Rust CLI
 using CodexCli.Protocol;
 using System;
 using CodexCli.ApplyPatch;
 using CodexCli.Models;
+using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using System.Text.Json;
@@ -25,7 +35,7 @@ public static class ExecCommand
         var profileOpt = new Option<string?>("--profile", "Config profile");
         var providerOpt = new Option<string?>("--model-provider", "Model provider");
         var fullAutoOpt = new Option<bool>("--full-auto", () => false, "Run in full-auto mode");
-        var approvalOpt = new Option<ApprovalMode?>("--ask-for-approval", "When to require approval");
+        var approvalOpt = new Option<ApprovalModeCliArg?>("--ask-for-approval", "When to require approval");
         var sandboxOpt = new Option<string[]>("-s", description: "Sandbox permissions") { AllowMultipleArgumentsPerToken = true };
         var colorOpt = new Option<ColorMode>("--color", () => ColorMode.Auto, "Output color mode");
         var cwdOpt = new Option<string?>(new[] {"--cwd", "-C"}, "Working directory for Codex");
@@ -102,9 +112,18 @@ public static class ExecCommand
 
             SessionManager.SetPersistence(cfg?.History.Persistence ?? HistoryPersistence.SaveAll);
             var sessionId = opts.SessionId ?? SessionManager.CreateSession();
-            var history = new ConversationHistory();
-            var approvedCommands = new HashSet<List<string>>(new SequenceEqualityComparer<string>());
-            var approvalPolicy = opts.Approval ?? cfg?.ApprovalPolicy ?? ApprovalMode.OnFailure;
+            // decide if conversation history should be kept for parity with Rust
+            var historyEnabled = false;
+            var providerId = EnvUtils.GetModelProviderId(opts.ModelProvider) ?? cfg?.ModelProvider ?? "openai";
+            var providerInfo = cfg?.GetProvider(providerId) ?? ModelProviderInfo.BuiltIns[providerId];
+            bool hideReason = opts.HideAgentReasoning ?? cfg?.HideAgentReasoning ?? false;
+            bool disableStorage = opts.DisableResponseStorage ?? cfg?.DisableResponseStorage ?? false;
+            historyEnabled = Codex.RecordConversationHistory(disableStorage, providerInfo.WireApi);
+            ConversationHistory? history = historyEnabled ? new ConversationHistory() : null;
+            var state = new CodexState();
+            // Reuse session approved commands so subsequent requests honor session approval
+            var approvedCommands = state.ApprovedCommands;
+            var approvalPolicy = opts.Approval?.ToApprovalMode() ?? cfg?.ApprovalPolicy ?? ApprovalMode.OnFailure;
             RolloutRecorder? recorder = null;
             StreamWriter? logWriter = null;
             if (opts.EventLogFile != null)
@@ -177,14 +196,10 @@ public static class ExecCommand
                 Console.Error.WriteLine($"{ov.Overrides.Count} override(s) parsed and applied");
             }
 
-            var providerId = EnvUtils.GetModelProviderId(opts.ModelProvider) ?? cfg?.ModelProvider ?? "openai";
-            var providerInfo = cfg?.GetProvider(providerId) ?? ModelProviderInfo.BuiltIns[providerId];
             var baseUrl = EnvUtils.GetProviderBaseUrl(null) ?? providerInfo.BaseUrl;
             var apiKey = ApiKeyManager.GetKey(providerInfo);
             var client = new OpenAIClient(apiKey, baseUrl);
             var execPolicy = ExecPolicy.LoadDefault();
-            bool hideReason = opts.HideAgentReasoning ?? cfg?.HideAgentReasoning ?? false;
-            bool disableStorage = opts.DisableResponseStorage ?? cfg?.DisableResponseStorage ?? false;
             bool withAnsi = opts.Color switch
             {
                 ColorMode.Always => true,
@@ -206,7 +221,7 @@ public static class ExecCommand
                 : (sandboxList.Count > 0 ? string.Join(',', sandboxList.Select(s => s.ToString())) : "default");
             var processor = new CodexCli.Protocol.EventProcessor(withAnsi, !hideReason, cfg?.FileOpener ?? UriBasedFileOpener.None, Environment.CurrentDirectory);
             var sandboxPolicy = new SandboxPolicy { Permissions = sandboxList };
-            var state = new CodexState();
+            state.WritableRoots = Codex.GetWritableRoots(Environment.CurrentDirectory);
             processor.PrintConfigSummary(
                 opts.Model ?? cfg?.Model ?? "default",
                 opts.ModelProvider ?? cfg?.ModelProvider ?? string.Empty,
@@ -261,9 +276,19 @@ public static class ExecCommand
             }
             else
             {
-                Func<string, OpenAIClient, string, CancellationToken, IAsyncEnumerable<Event>>? agent = null;
+                Func<string, OpenAIClient, string, CancellationToken, IAsyncEnumerable<Event>> agent;
                 if (providerId == "mock")
+                {
                     agent = (p, c, m, t) => MockCodexAgent.RunAsync(p, imagePaths, null, t);
+                }
+                else if (recorder != null)
+                {
+                    agent = (p, c, m, t) => RealCodexAgent.RunWithRolloutAsync(p, c, m, recorder!, null, imagePaths, opts.NotifyCommand, t);
+                }
+                else
+                {
+                    agent = (p, c, m, t) => RealCodexAgent.RunAsync(p, c, m, null, imagePaths, opts.NotifyCommand, t);
+                }
                 var sigint = SignalUtils.NotifyOnSigInt();
                 var (stream, first, cts) = await CodexWrapper.InitCodexAsync(prompt, client, opts.Model ?? cfg?.Model ?? "default", agent, opts.NotifyCommand);
                 codexCts = cts;
@@ -276,6 +301,7 @@ public static class ExecCommand
                 }
                 events = EnumerateInit();
             }
+            var turnItems = new List<ResponseItem>();
             await foreach (var ev in events)
             {
                 if (opts.Json)
@@ -288,6 +314,7 @@ public static class ExecCommand
                 {
                     // use Codex.RecordConversationItemsAsync for parity with Rust session recording
                     await Codex.RecordConversationItemsAsync(recorder, history, new[] { ri });
+                    turnItems.Add(ri);
                 }
                 switch (ev)
                 {
@@ -325,7 +352,31 @@ public static class ExecCommand
                             break;
                         }
                         var safety = Safety.AssessCommandSafety(ar.Command.ToList(), approvalPolicy, sandboxPolicy, approvedCommands);
+                        ReviewDecision decision = ReviewDecision.Approved;
                         if (safety == SafetyCheck.Reject)
+                        {
+                            decision = ReviewDecision.Denied;
+                        }
+                        else if (safety == SafetyCheck.AskUser)
+                        {
+                            Console.Write($"Run '{string.Join(" ", ar.Command)}'? [y/a/N] ");
+                            var resp = Console.ReadLine();
+                            if (resp?.StartsWith("a", StringComparison.OrdinalIgnoreCase) == true)
+                            {
+                                decision = ReviewDecision.ApprovedForSession;
+                                // Save command so future requests skip prompts (see SafetyTests.AssessCommandSafety_RespectsApprovedCommands)
+                                Codex.AddApprovedCommand(state, ar.Command.ToList());
+                            }
+                            else if (resp?.StartsWith("y", StringComparison.OrdinalIgnoreCase) == true)
+                            {
+                                decision = ReviewDecision.Approved;
+                            }
+                            else
+                            {
+                                decision = ReviewDecision.Denied;
+                            }
+                        }
+                        if (decision == ReviewDecision.Denied)
                         {
                             Console.WriteLine("Denied");
                             var deniedEv = Codex.NotifyBackgroundEvent(Guid.NewGuid().ToString(), "command denied");
@@ -333,18 +384,8 @@ public static class ExecCommand
                                 Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(deniedEv));
                             else
                                 processor.ProcessEvent(deniedEv);
-                            break;
                         }
-                        if (safety == SafetyCheck.AskUser)
-                        {
-                            Console.Write($"Run '{string.Join(" ", ar.Command)}'? [y/a/N] ");
-                            var resp = Console.ReadLine();
-                            if (resp?.StartsWith("a", StringComparison.OrdinalIgnoreCase) == true)
-                                approvedCommands.Add(ar.Command.ToList());
-                            if (!(resp?.StartsWith("y", StringComparison.OrdinalIgnoreCase) == true ||
-                                  resp?.StartsWith("a", StringComparison.OrdinalIgnoreCase) == true))
-                                Console.WriteLine("Denied");
-                        }
+                        Codex.NotifyApproval(state, ar.Id, decision);
                         break;
                     case ExecCommandBeginEvent begin:
                         var argv = begin.Command.ToArray();
@@ -353,8 +394,7 @@ public static class ExecCommand
                             ApplyPatchCommandParser.MaybeParseApplyPatchVerified(argv, begin.Cwd, out var action) == MaybeApplyPatchVerified.Body &&
                             action != null)
                         {
-                            var roots = sandboxPolicy.GetWritableRootsWithCwd(begin.Cwd);
-                            var patchSafety = Safety.AssessPatchSafety(action, approvalPolicy, roots, begin.Cwd);
+                            var patchSafety = Safety.AssessPatchSafety(action, approvalPolicy, state.WritableRoots, begin.Cwd);
                             if (patchSafety == SafetyCheck.Reject)
                             {
                                 Console.WriteLine("Patch denied");
@@ -392,9 +432,15 @@ public static class ExecCommand
                                 await logWriter.WriteLineAsync(System.Text.Json.JsonSerializer.Serialize(pbEvent));
                             try
                             {
-                                var result = PatchApplier.ApplyWithSummary(patch, begin.Cwd);
-                                PatchSummary.PrintSummary(result.Affected, Console.Out); // Port of print_summary helper
-                                var peEvent = new PatchApplyEndEvent(Guid.NewGuid().ToString(), result.Summary, string.Empty, true);
+                                var swOut = new StringWriter();
+                                var swErr = new StringWriter();
+                                PatchApplier.ApplyAndReport(patch, begin.Cwd, swOut, swErr);
+                                var stdout = swOut.ToString();
+                                var stderr = swErr.ToString();
+                                Console.Out.Write(stdout);
+                                Console.Error.Write(stderr);
+                                var success = string.IsNullOrEmpty(stderr);
+                                var peEvent = new PatchApplyEndEvent(Guid.NewGuid().ToString(), stdout.TrimEnd(), stderr.TrimEnd(), success);
                                 if (opts.Json)
                                     Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(peEvent));
                                 else
@@ -415,7 +461,11 @@ public static class ExecCommand
                         }
                         else
                         {
-                            var execParams = new ExecParams(begin.Command.ToList(), begin.Cwd, null, envMap, null, null, sessionId);
+                            // Build ExecParams using Codex.ToExecParams so cwd resolution
+                            // and environment policy match the Rust helper to_exec_params.
+                            var shellParams = new ShellToolCallParams(begin.Command.ToList(), null, null);
+                            var execParams = Codex.ToExecParams(shellParams, policy, begin.Cwd)
+                                with { SessionId = sessionId };
                             var result = await ExecRunner.RunAsync(execParams, CancellationToken.None, sandboxPolicy);
                             var endEv = Codex.NotifyExecCommandEnd(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), result.Stdout, result.Stderr, result.ExitCode);
                             if (opts.Json)
@@ -427,7 +477,19 @@ public static class ExecCommand
                         }
                         break;
                     case PatchApplyApprovalRequestEvent pr:
+                        ReviewDecision patchDecision = ReviewDecision.Approved;
                         if (approvalPolicy == ApprovalMode.Never)
+                        {
+                            patchDecision = ReviewDecision.Denied;
+                        }
+                        else
+                        {
+                            Console.Write($"Apply patch? [y/N] ");
+                            var r = Console.ReadLine();
+                            if (!r?.StartsWith("y", StringComparison.OrdinalIgnoreCase) ?? true)
+                                patchDecision = ReviewDecision.Denied;
+                        }
+                        if (patchDecision == ReviewDecision.Denied)
                         {
                             Console.WriteLine("Patch denied");
                             var deniedEv = Codex.NotifyBackgroundEvent(Guid.NewGuid().ToString(), "patch denied");
@@ -436,78 +498,31 @@ public static class ExecCommand
                             else
                                 processor.ProcessEvent(deniedEv);
                         }
-                        else
-                        {
-                            Console.Write($"Apply patch? [y/N] ");
-                            var r = Console.ReadLine();
-                            if (!r?.StartsWith("y", StringComparison.OrdinalIgnoreCase) ?? true)
-                            {
-                                Console.WriteLine("Patch denied");
-                                var deniedEv = Codex.NotifyBackgroundEvent(Guid.NewGuid().ToString(), "patch denied");
-                                if (opts.Json)
-                                    Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(deniedEv));
-                                else
-                                    processor.ProcessEvent(deniedEv);
-                            }
-                        }
+                        Codex.NotifyApproval(state, pr.Id, patchDecision);
                         break;
                     case PatchApplyBeginEvent pb:
-                        foreach (var kv in pb.Changes)
-                        {
-                            var path = kv.Key;
-                            switch (kv.Value)
-                            {
-                                case AddFileChange add:
-                                    Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-                                    File.WriteAllText(path, add.Content);
-                                    break;
-                                case DeleteFileChange:
-                                    if (File.Exists(path)) File.Delete(path);
-                                    break;
-                               case UpdateFileChange upd:
-                                    var full = Path.GetFullPath(path);
-                                    var lines = File.Exists(full) ? File.ReadAllLines(full).ToList() : new List<string>();
-                                    var difflines = PatchParser.ParseUnified(upd.UnifiedDiff);
-                                    int idx2 = 0;
-                                    foreach (var ln in difflines)
-                                    {
-                                        if (ln.StartsWith("+"))
-                                        {
-                                            lines.Insert(idx2, ln.Substring(1));
-                                            idx2++;
-                                        }
-                                        else if (ln.StartsWith("-"))
-                                        {
-                                            if (idx2 < lines.Count && lines[idx2] == ln.Substring(1))
-                                                lines.RemoveAt(idx2);
-                                        }
-                                        else
-                                        {
-                                            if (idx2 < lines.Count && lines[idx2] == ln.TrimStart(' '))
-                                                idx2++;
-                                        }
-                                    }
-                                    File.WriteAllLines(full, lines);
-                                    break;
-                                }
-                        }
+                        // Use PatchApplier.ApplyActionAndReport for parity with Rust
+                        var patchAction = Codex.ConvertProtocolPatchToAction(pb.Changes);
+                        PatchApplier.ApplyActionAndReport(patchAction, Console.Out, Console.Error);
                         break;
                     case TaskStartedEvent tsEvent:
                         Codex.SetTask(state, new AgentTask(tsEvent.Id, () => codexCts?.Cancel()));
                         break;
                     case TaskCompleteEvent tc:
-                    Codex.RemoveTask(state, tc.Id);
-                    if (providerId == "mock")
-                    {
-                        var aiResp = await client.ChatAsync(prompt);
-                        Console.WriteLine(aiResp);
-                    }
-                    if (opts.LastMessageFile != null)
-                        await File.WriteAllTextAsync(opts.LastMessageFile, tc.LastAgentMessage ?? string.Empty);
-                    if (opts.NotifyCommand.Length > 0)
-                        Codex.MaybeNotify(opts.NotifyCommand.ToList(),
-                            new AgentTurnCompleteNotification(tc.Id, Array.Empty<string>(), tc.LastAgentMessage));
-                    break;
+                        Codex.RemoveTask(state, tc.Id);
+                        if (providerId == "mock")
+                        {
+                            var aiResp = await client.ChatAsync(prompt);
+                            Console.WriteLine(aiResp);
+                        }
+                        var lastMsg = Codex.GetLastAssistantMessageFromTurn(turnItems);
+                        if (opts.LastMessageFile != null)
+                            await File.WriteAllTextAsync(opts.LastMessageFile, lastMsg ?? string.Empty);
+                        if (opts.NotifyCommand.Length > 0)
+                            Codex.MaybeNotify(opts.NotifyCommand.ToList(),
+                                new AgentTurnCompleteNotification(tc.Id, Array.Empty<string>(), lastMsg));
+                        turnItems.Clear();
+                        break;
                 }
             }
 

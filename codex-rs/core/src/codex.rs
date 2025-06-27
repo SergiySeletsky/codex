@@ -1773,6 +1773,7 @@ fn first_offending_path(
 }
 
 // C# port in codex-dotnet/CodexCli/Util/Codex.cs ConvertApplyPatchToProtocol (done)
+// and ConvertProtocolPatchToAction (patch event handling parity tested)
 fn convert_apply_patch_to_protocol(action: &ApplyPatchAction) -> HashMap<PathBuf, FileChange> {
     let changes = action.changes();
     let mut result = HashMap::with_capacity(changes.len());

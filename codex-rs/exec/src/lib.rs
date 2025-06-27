@@ -1,4 +1,15 @@
 // C# port: codex-dotnet/CodexCli/Commands/ExecCommand.cs (partial, safety and Ctrl+C integrated)
+// Parity test in `codex-dotnet/CodexCli.Tests/CrossCliCompatTests.ExecHelpMatches`,
+// `ExecJsonMatches`, `ExecPatchSummaryMatches`, `ExecLastMessageMatches`,
+// `ExecApprovalMatches`, `ExecEnvSetMatches`, `ExecNetworkEnvMatches`,
+// `ExecConfigMatches`, `ExecAggregatedFixtureMatches`, `ApplyPatchCliMatches`
+// and `ExecMcpMatches`.
+// Rollout persistence parity tested in `ExecRolloutRecorderTests`
+// Shell function call handling parity tested in `CodexToExecParamsTests`
+// Session approvals stored via add_approved_command are exercised in
+// `SafetyTests.AssessCommandSafety_RespectsApprovedCommands`.
+// ask-for-approval flag parsed via ApprovalModeCliArg parity tested in ExecBinderTests
+// WritableRoots integration unit tested in `codex-dotnet/CodexCli.Tests/CodexStatePartialCloneTests.ClonesWritableRoots`
 mod cli;
 mod event_processor;
 

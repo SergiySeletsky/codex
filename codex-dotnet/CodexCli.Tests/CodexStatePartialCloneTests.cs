@@ -31,4 +31,14 @@ public class CodexStatePartialCloneTests
         Assert.NotNull(clone.ZdrTranscript);
         Assert.Equal(hist.Contents().Count, clone.ZdrTranscript!.Contents().Count);
     }
+
+    [Fact]
+    public void ClonesWritableRoots()
+    {
+        var state = new CodexState();
+        state.WritableRoots.Add("/tmp");
+        var clone = state.PartialClone(false);
+        Assert.Equal(state.WritableRoots, clone.WritableRoots);
+        Assert.NotSame(state.WritableRoots, clone.WritableRoots);
+    }
 }

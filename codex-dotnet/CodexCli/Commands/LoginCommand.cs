@@ -1,4 +1,5 @@
 // Ported from codex-rs/cli/src/login.rs (done)
+// Cross-CLI parity tested in CrossCliCompatTests.LoginHelpMatches
 using System.CommandLine;
 using CodexCli.Config;
 using CodexCli.Util;

@@ -1,4 +1,5 @@
 // C# port implemented in `codex-dotnet/CodexCli/Commands/ProtoCommand.cs` (done)
+// Parity test in `codex-dotnet/CodexCli.Tests/CrossCliCompatTests.ProtoHelpMatches`
 use std::io::IsTerminal;
 use std::sync::Arc;
 

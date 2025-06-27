@@ -3,6 +3,7 @@ using System.CommandLine;
 using CodexCli.Util;
 
 // Rust CLI implemented in codex-rs/cli/src/main.rs (replay messages-only and follow parity tested)
+// Cross-CLI version and help parity tested in CrossCliCompatTests.VersionMatches and HelpMatches
 
 namespace CodexCli;
 

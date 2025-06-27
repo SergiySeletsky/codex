@@ -78,4 +78,41 @@ public class ResponseItemFactoryTests
         Assert.NotNull(item);
         Assert.Contains("hello", item!.Content[0].Text);
     }
+
+    [Fact]
+    public void MapsPatchEvents()
+    {
+        var changes = new Dictionary<string, FileChange> { { "foo.txt", new AddFileChange("hi") } };
+        var begin = new PatchApplyBeginEvent("id", false, changes);
+        var beginItem = ResponseItemFactory.FromEvent(begin) as MessageItem;
+        Assert.NotNull(beginItem);
+        Assert.Contains("Applying patch", beginItem!.Content[0].Text);
+
+        var end = new PatchApplyEndEvent("id", "", "", true);
+        var endItem = ResponseItemFactory.FromEvent(end) as MessageItem;
+        Assert.NotNull(endItem);
+        Assert.Contains("Patch applied", endItem!.Content[0].Text);
+    }
+
+    [Fact]
+    public void MapsExecEnd()
+    {
+        var ev = new ExecCommandEndEvent("id", "out", "", 0);
+        var item = ResponseItemFactory.FromEvent(ev) as LocalShellCallItem;
+        Assert.NotNull(item);
+        Assert.Equal(LocalShellStatus.Completed, item!.Status);
+    }
+
+    [Fact]
+    public void MapsMcpEvents()
+    {
+        var begin = new McpToolCallBeginEvent("c1", "srv", "tool", "{\"a\":1}");
+        var bItem = ResponseItemFactory.FromEvent(begin) as FunctionCallItem;
+        Assert.NotNull(bItem);
+        Assert.Equal("tool", bItem!.Name);
+        var end = new McpToolCallEndEvent("c1", true, "{\"ok\":true}");
+        var eItem = ResponseItemFactory.FromEvent(end) as FunctionCallOutputItem;
+        Assert.NotNull(eItem);
+        Assert.Equal("c1", eItem!.CallId);
+    }
 }

@@ -1,4 +1,5 @@
 // C# port implemented in `codex-dotnet/CodexCli/Commands/LoginCommand.cs` (done)
+// Parity test in `codex-dotnet/CodexCli.Tests/CrossCliCompatTests.LoginHelpMatches`
 use codex_common::CliConfigOverrides;
 use codex_core::config::Config;
 use codex_core::config::ConfigOverrides;

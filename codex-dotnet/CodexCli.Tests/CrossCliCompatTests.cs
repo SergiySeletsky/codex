@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Collections.Generic;
 using CodexCli.Util;
 using CodexCli.Models;
 using System.Text.Json;
@@ -518,6 +519,14 @@ args = ["run", "--project", "codex-dotnet/CodexCli", "mcp"]
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 
+    [CrossCliFact]
+    public void McpClientHelpMatches()
+    {
+        var dotnet = RunProcess("dotnet", "run --project codex-dotnet/CodexCli mcp-client --help");
+        var rust = RunProcess("cargo", "run --quiet --manifest-path ../../codex-rs/mcp-client/Cargo.toml -- --help");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
     [CrossCliFact(Skip="flaky in CI")]
     public void McpManagerWatchEventsMatches()
     {
@@ -787,7 +796,131 @@ args = ["run", "--project", "codex-dotnet/CodexCli", "mcp"]
     {
         var dotnet = RunProcess("dotnet", "run --project codex-dotnet/CodexCli exec hi --model-provider Mock");
         var rust = RunProcess("cargo", "run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- exec hi -c model_provider=Mock");
+        var dSummary = ExtractPatchSummary(dotnet.stdout);
+        var rSummary = ExtractPatchSummary(rust.stdout);
+        Assert.Equal(rSummary, dSummary);
+    }
+
+    [CrossCliFact]
+    public void ExecLastMessageMatches()
+    {
+        var tmpDotnet = Path.GetTempFileName();
+        var tmpRust = Path.GetTempFileName();
+        RunProcess("dotnet", $"run --project codex-dotnet/CodexCli exec hi --model-provider Mock --output-last-message {tmpDotnet}");
+        RunProcess("cargo", $"run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- exec hi -c model_provider=Mock --output-last-message {tmpRust}");
+        var dMsg = File.ReadAllText(tmpDotnet).Trim();
+        var rMsg = File.ReadAllText(tmpRust).Trim();
+        File.Delete(tmpDotnet);
+        File.Delete(tmpRust);
+        Assert.Equal(rMsg, dMsg);
+    }
+
+    [CrossCliFact]
+    public void ExecApprovalMatches()
+    {
+        var input = "y\n";
+        var dotnet = RunProcessWithPty("dotnet run --project codex-dotnet/CodexCli exec 'touch foo' --model-provider Mock --ask-for-approval on-failure", input);
+        var rust = RunProcessWithPty("cargo run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- exec 'touch foo' -c model_provider=Mock --ask-for-approval on-failure", input);
+        var dOut = AnsiEscape.StripAnsi(dotnet.stdout).Trim();
+        var rOut = AnsiEscape.StripAnsi(rust.stdout).Trim();
+        Assert.Equal(rOut, dOut);
+    }
+
+    [CrossCliFact]
+    public void ExecEnvSetMatches()
+    {
+        var dotnet = RunProcess("dotnet", "run --project codex-dotnet/CodexCli exec 'bash -c \"echo -n $FOO\"' --model-provider Mock --env-set FOO=bar");
+        var rust = RunProcess("cargo", "run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- exec 'bash -c \"echo -n $FOO\"' -c model_provider=Mock --env-set FOO=bar");
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [CrossCliFact]
+    public void ExecNetworkEnvMatches()
+    {
+        var dotnet = RunProcess("dotnet", "run --project codex-dotnet/CodexCli exec 'bash -c \"echo -n $CODEX_SANDBOX_NETWORK_DISABLED\"' --model-provider Mock");
+        var rust = RunProcess("cargo", "run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- exec 'bash -c \"echo -n $CODEX_SANDBOX_NETWORK_DISABLED\"' -c model_provider=Mock");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [CrossCliFact]
+    public void ExecConfigMatches()
+    {
+        var cfg = Path.GetTempFileName();
+        File.WriteAllText(cfg, "model_provider = \"Mock\"");
+        var dotnet = RunProcess("dotnet", $"run --project codex-dotnet/CodexCli --config {cfg} exec hi --json");
+        var rust = RunProcess("cargo", $"run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- --config {cfg} exec hi --json");
+        File.Delete(cfg);
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [CrossCliFact]
+    [CrossCliFact]
+    public void ExecAggregatedFixtureMatches()
+    {
+        var content = "event: response.output_item.done\n" +
+                      "data: {\"type\":\"response.output_item.done\",\"item\":{\"type\":\"message\",\"role\":\"assistant\",\"content\":[{\"type\":\"text\",\"text\":\"he\"}]}}\n\n" +
+                      "event: response.output_item.done\n" +
+                      "data: {\"type\":\"response.output_item.done\",\"item\":{\"type\":\"message\",\"role\":\"assistant\",\"content\":[{\"type\":\"text\",\"text\":\"llo\"}]}}\n\n" +
+                      "event: response.completed\n" +
+                      "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"r1\",\"output\":[]}}\n\n";
+        var path = System.IO.Path.GetTempFileName();
+        System.IO.File.WriteAllText(path, content);
+        var env = new Dictionary<string,string>{{"CODEX_RS_SSE_FIXTURE", path}};
+        var dotnet = RunProcess("dotnet", "run --project codex-dotnet/CodexCli exec hi", env);
+        var rust = RunProcess("cargo", "run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- exec hi", env);
+        System.IO.File.Delete(path);
+        var dOut = AnsiEscape.StripAnsi(dotnet.stdout).Trim();
+        var rOut = AnsiEscape.StripAnsi(rust.stdout).Trim();
+        Assert.Equal(rOut, dOut);
+    }
+
+    public void ExecNetworkEnvMatches()
+    {
+        var dotnet = RunProcess("dotnet", "run --project codex-dotnet/CodexCli exec 'bash -c \"echo -n $CODEX_SANDBOX_NETWORK_DISABLED\"' --model-provider Mock");
+        var rust = RunProcess("cargo", "run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- exec 'bash -c \"echo -n $CODEX_SANDBOX_NETWORK_DISABLED\"' -c model_provider=Mock");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [CrossCliFact]
+    public void ExecSseFixtureMatches()
+    {
+        var content = "event: response.output_item.done\n" +
+                      "data: {\"type\":\"response.output_item.done\",\"item\":{\"type\":\"message\",\"role\":\"assistant\",\"content\":[{\"type\":\"text\",\"text\":\"hi\"}]}}\n\n" +
+                      "event: response.completed\n" +
+                      "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"r1\",\"output\":[]}}\n\n";
+        var path = System.IO.Path.GetTempFileName();
+        System.IO.File.WriteAllText(path, content);
+        var env = new Dictionary<string,string>{{"CODEX_RS_SSE_FIXTURE", path}};
+        var dotnet = RunProcess("dotnet", "run --project codex-dotnet/CodexCli exec hi --json", env);
+        var rust = RunProcess("cargo", "run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- exec hi --json", env);
+        System.IO.File.Delete(path);
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    private static string ExtractPatchSummary(string text)
+    {
+        var lines = text.Split('\n');
+        var start = Array.IndexOf(lines, "Success. Updated the following files:");
+        if (start < 0)
+            return string.Empty;
+        var summary = new System.Text.StringBuilder();
+        for (int i = start; i < lines.Length && !string.IsNullOrWhiteSpace(lines[i]); i++)
+            summary.AppendLine(lines[i].Trim());
+        return summary.ToString().Trim();
+        var rSummary = ExtractPatchSummary(rust.stdout);
+        Assert.Equal(rSummary, dSummary);
+    }
+
+    private static string ExtractPatchSummary(string text)
+    {
+        var lines = text.Split('\n');
+        var start = Array.IndexOf(lines, "Success. Updated the following files:");
+        if (start < 0)
+            return string.Empty;
+        var summary = new System.Text.StringBuilder();
+        for (int i = start; i < lines.Length && !string.IsNullOrWhiteSpace(lines[i]); i++)
+            summary.AppendLine(lines[i].Trim());
+        return summary.ToString().Trim();
     }
 
     [CrossCliFact]
@@ -802,6 +935,14 @@ args = ["run", "--project", "codex-dotnet/CodexCli", "mcp"]
     }
 
     [CrossCliFact]
+    [CrossCliFact]
+    public void DebugHelpMatches()
+    {
+        var dotnet = RunProcess("dotnet", "run --project codex-dotnet/CodexCli debug --help");
+        var rust = RunProcess("cargo", "run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- debug --help");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
     public void ExecHistoryCountMatches()
     {
         RunProcess("dotnet", "run --project codex-dotnet/CodexCli exec hi --model-provider Mock --hide-agent-reasoning --disable-response-storage --no-project-doc");
@@ -820,6 +961,70 @@ args = ["run", "--project", "codex-dotnet/CodexCli", "mcp"]
         var dOut = AnsiEscape.StripAnsi(dotnet.stdout).Trim();
         var rOut = AnsiEscape.StripAnsi(rust.stdout).Trim();
         Assert.Equal(rOut, dOut);
+    }
+
+    [CrossCliFact]
+    public void DebugSeatbeltMatches()
+    {
+        var dotnet = RunProcess("dotnet", "run --project codex-dotnet/CodexCli debug seatbelt \"echo hi\"");
+        var rust = RunProcess("cargo", "run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- debug seatbelt \"echo hi\"");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [CrossCliFact]
+    [CrossCliFact]
+    public void ReplayHelpMatches()
+    {
+        var dotnet = RunProcess("dotnet", "run --project codex-dotnet/CodexCli replay --help");
+        var rust = RunProcess("cargo", "run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- replay --help");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    public void DebugLandlockMatches()
+    {
+        var dotnet = RunProcess("dotnet", "run --project codex-dotnet/CodexCli debug landlock \"echo hi\"");
+        var rust = RunProcess("cargo", "run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- debug landlock \"echo hi\"");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [CrossCliFact]
+    public void ProtoHelpMatches()
+    {
+        var dotnet = RunProcess("dotnet", "run --project codex-dotnet/CodexCli proto --help");
+        var rust = RunProcess("cargo", "run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- proto --help");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [CrossCliFact]
+    public void LoginHelpMatches()
+    {
+        var dotnet = RunProcess("dotnet", "run --project codex-dotnet/CodexCli login --help");
+        var rust = RunProcess("cargo", "run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- login --help");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [CrossCliFact]
+    public void ExecHelpMatches()
+    {
+        var dotnet = RunProcess("dotnet", "run --project codex-dotnet/CodexCli exec --help");
+        var rust = RunProcess("cargo", "run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- exec --help");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [CrossCliFact]
+    public void McpHelpMatches()
+    {
+        var dotnet = RunProcess("dotnet", "run --project codex-dotnet/CodexCli mcp --help");
+        var rust = RunProcess("cargo", "run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- mcp --help");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
+    }
+
+    [CrossCliFact]
+    public void McpManagerHelpMatches()
+    {
+        var dotnet = RunProcess("dotnet", "run --project codex-dotnet/CodexCli mcp-manager --help");
+        var rust = RunProcess("cargo", "run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- mcp-manager --help");
+        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 
 
