@@ -825,6 +825,17 @@ args = ["run", "--project", "codex-dotnet/CodexCli", "mcp"]
         var rOut = AnsiEscape.StripAnsi(rust.stdout).Trim();
         Assert.Equal(rOut, dOut);
     }
+    [CrossCliFact]
+    public void ExecPatchApprovalMatches()
+    {
+        var input = "y\ny\n";
+        var dotnet = RunProcessWithPty("dotnet run --project codex-dotnet/CodexCli exec hi --model-provider Mock --ask-for-approval on-failure", input);
+        var rust = RunProcessWithPty("cargo run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- exec hi -c model_provider=Mock --ask-for-approval on-failure", input);
+        var dOut = AnsiEscape.StripAnsi(dotnet.stdout).Trim();
+        var rOut = AnsiEscape.StripAnsi(rust.stdout).Trim();
+        Assert.Equal(rOut, dOut);
+    }
+
 
     [CrossCliFact]
     public void ExecEnvSetMatches()

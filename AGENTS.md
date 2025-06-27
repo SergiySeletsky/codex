@@ -13,9 +13,8 @@
 - Added cross-CLI tests validating McpClient command parity (ping, list-tools, list-roots, call-codex, help).
 - Ported Codex tool-runner and tool-call param with serialization tests and added mapping comments.
 - Added CodexToolRunner integration test and CLI parity test for mcp-client call-codex.
-- Bridged command and patch approval workflow via Codex.RequestCommandApproval,
-  RequestPatchApproval and NotifyApproval with unit tests and ExecCommand parity.
-
+- Bridged command and patch approval workflow via Codex.RequestCommandApproval, RequestPatchApproval and NotifyApproval with unit tests and ExecCommand parity.
+- Added CLI and integration tests verifying patch approval flow via ExecPatchApprovalMatches and ExecPatchApprovalCliTests.
 ## Rust to C# Mapping
 
 - codex-rs/tui/src/exec_command.rs -> codex-dotnet/CodexCli/Util/ExecCommandUtils.cs (done)
@@ -122,4 +121,3 @@
 
 - Finish session submission loop and finalize rollout persistence in .NET
 - Complete Codex spawn interface parity and clean up remaining partial implementations
-- Verify patch approval flow via additional CLI tests
