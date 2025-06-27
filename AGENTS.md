@@ -16,6 +16,7 @@
 - Bridged command and patch approval workflow via Codex.RequestCommandApproval, RequestPatchApproval and NotifyApproval with unit tests and ExecCommand parity.
 - Added CLI and integration tests verifying patch approval flow via ExecPatchApprovalMatches and ExecPatchApprovalCliTests.
 - Ported user notification serialization helpers with dedicated unit tests.
+- Added unit tests covering CodexToolCallParam JSON serialization.
 ## Rust to C# Mapping
 
 - codex-rs/tui/src/exec_command.rs -> codex-dotnet/CodexCli/Util/ExecCommandUtils.cs (done)
