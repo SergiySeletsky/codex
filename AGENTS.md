@@ -13,6 +13,8 @@
 - Added cross-CLI tests validating McpClient command parity (ping, list-tools, list-roots, call-codex, help).
 - Ported Codex tool-runner and tool-call param with serialization tests and added mapping comments.
 - Added CodexToolRunner integration test and CLI parity test for mcp-client call-codex.
+- Bridged command and patch approval workflow via Codex.RequestCommandApproval,
+  RequestPatchApproval and NotifyApproval with unit tests and ExecCommand parity.
 
 ## Rust to C# Mapping
 
@@ -99,17 +101,17 @@
 - Integrate Codex.ConvertApplyPatchToProtocol into ExecCommand patch handling. (done)
 - Integrate Codex.ToExecParams and TryParseContainerExecArguments into ExecCommand function call handling.
  - Integrate PatchSummary.PrintSummary into patch application workflow. (done)
-- Integrate PatchApplier.ApplyActionAndReport into CLI patch workflows.
-- Integrate PatchApplier.ApplyAndReport into CLI patch workflows.
+ - Integrate PatchApplier.ApplyActionAndReport into CLI patch workflows. (done)
+ - Integrate PatchApplier.ApplyAndReport into CLI patch workflows. (done)
 - Integrate Codex.MaybeNotify into session event notifications. (done)
  - Integrate Codex.NotifyExecCommandBegin, NotifyExecCommandEnd and NotifyBackgroundEvent into session event workflow. (done)
-- Integrate Codex.InjectInput and GetPendingInput into session input workflow.
-- Integrate Codex.ResolvePath into command path handling. (done)
-- Integrate Codex.SetTask and Codex.RemoveTask into session task workflow. (done)
-- Integrate Codex.RequestCommandApproval and RequestPatchApproval into approval workflow.
-- Integrate Codex.NotifyApproval and AddApprovedCommand into approval workflow.
-- Integrate Codex.CallToolAsync into CLI tool-call workflow.
-- Integrate Codex.CallToolAsync into CLI tool-call workflow. (done)
+ - Integrate Codex.InjectInput and GetPendingInput into session input workflow. (done)
+ - Integrate Codex.ResolvePath into command path handling. (done)
+ - Integrate Codex.SetTask and Codex.RemoveTask into session task workflow. (done)
+ - Integrate Codex.RequestCommandApproval and RequestPatchApproval into approval workflow. (done)
+ - Integrate Codex.NotifyApproval and AddApprovedCommand into approval workflow. (done)
+ - Integrate Codex.CallToolAsync into CLI tool-call workflow. (done)
+ - Integrate Codex.CallToolAsync into CLI tool-call workflow. (done)
 - Integrate Codex.SendEventAsync into MCP tool call notifications. (done)
 - Integrate Codex.Abort into session lifecycle management. (done)
 - Integrate Codex.RecordConversationItemsAsync and RecordRolloutItemsAsync into session recording workflow. (done)
@@ -118,6 +120,6 @@
 
 ## Next Tasks
 
-- Finish bridging approval workflow via RequestCommandApproval and RequestPatchApproval
-- Implement NotifyApproval and AddApprovedCommand parity
-- Expose Codex.SetTask and Codex.RemoveTask in session task hooks
+- Finish session submission loop and finalize rollout persistence in .NET
+- Complete Codex spawn interface parity and clean up remaining partial implementations
+- Verify patch approval flow via additional CLI tests
