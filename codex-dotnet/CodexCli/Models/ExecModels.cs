@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace CodexCli.Models;
 
 public record ExecParams(
@@ -11,4 +13,7 @@ public record ExecParams(
 
 public record ExecToolCallOutput(int ExitCode, string Stdout, string Stderr, TimeSpan Duration);
 
-public record ShellToolCallParams(List<string> Command, string? Workdir, int? TimeoutMs);
+public record ShellToolCallParams(
+    [property: JsonPropertyName("command")] List<string> Command,
+    [property: JsonPropertyName("workdir")] string? Workdir,
+    [property: JsonPropertyName("timeout_ms")] int? TimeoutMs);

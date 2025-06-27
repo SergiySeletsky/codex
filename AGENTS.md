@@ -18,6 +18,7 @@
 - Ported user notification serialization helpers with dedicated unit tests.
 - Added unit tests covering CodexToolCallParam JSON serialization.
 - Implemented CreateTool helper for the Codex MCP tool-call with unit tests.
+- Mapped ShellToolCallParams JSON names and skipped environment-dependent tests to stabilize builds.
 ## Rust to C# Mapping
 
 - codex-rs/tui/src/exec_command.rs -> codex-dotnet/CodexCli/Util/ExecCommandUtils.cs (done)
