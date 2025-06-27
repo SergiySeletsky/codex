@@ -19,6 +19,7 @@
 - Added unit tests covering CodexToolCallParam JSON serialization.
 - Implemented CreateTool helper for the Codex MCP tool-call with unit tests.
 - Mapped ShellToolCallParams JSON names and skipped environment-dependent tests to stabilize builds.
+- Implemented AgentTask.Spawn helper mirroring Rust spawn logic with unit tests.
 ## Rust to C# Mapping
 
 - codex-rs/tui/src/exec_command.rs -> codex-dotnet/CodexCli/Util/ExecCommandUtils.cs (done)
@@ -57,6 +58,7 @@
 - codex-rs/mcp-server/src/codex_tool_config.rs create_tool_for_codex_tool_call_param -> codex-dotnet/CodexCli/Util/CodexToolRunner.cs CreateTool (done)
 - codex-rs/core/src/user_notification.rs -> codex-dotnet/CodexCli/Util/UserNotification.cs (done, serialization unit tested)
 - codex-rs/execpolicy/src/lib.rs -> codex-dotnet/CodexCli/Util/ExecPolicy.cs (done)
+- codex-rs/core/src/codex.rs AgentTask.spawn -> codex-dotnet/CodexCli/Util/AgentTask.cs Spawn (done)
 - codex-rs/core/src/chat_completions.rs -> codex-dotnet/CodexCli/Util/ChatCompletions.cs (done)
 - codex-rs/core/src/error.rs -> codex-dotnet/CodexCli/Util/CodexErr.cs (done)
 - codex-rs/login/src/lib.rs -> codex-dotnet/CodexCli/Util/ChatGptLogin.cs (done)

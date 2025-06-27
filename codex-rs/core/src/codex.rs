@@ -496,6 +496,7 @@ pub(crate) struct AgentTask {
     handle: AbortHandle,
 }
 
+// C# port implemented in codex-dotnet/CodexCli/Util/AgentTask.cs Spawn (done)
 impl AgentTask {
     fn spawn(sess: Arc<Session>, sub_id: String, input: Vec<InputItem>) -> Self {
         let handle =
