@@ -2,117 +2,13 @@
 
 ## Completed Summary
 
-- Bootstrapped the .NET CLI with configuration loading, interactive mode, history management, sandbox enforcement and patch replay.
-- Ported provider management, API key handling and TUI widgets with approval workflow.
-- Added MCP client/server support with SSE events and cross-language tests.
-- Migrated utilities such as ExecCommandUtils, SafeCommand, ExecRunner/ExecEnv, OpenAiApiKey, OpenAiTools, Backoff, GitUtils and SignalUtils.
-- Ported project documentation, user notifications, environment flags, model provider registry, config profile helpers, configuration types, conversation and message history, approval mode parsing, config overrides, elapsed time helpers and MCP tool call.
-- Updated Rust and C# sources with status comments and added parity tests for each port.
-- Implemented ChatCompletions aggregator and hooked it into ModelClient with new unit and integration tests.
-- Expanded ChatCompletionsAggregationTests verifying Completed ordering after aggregation.
-- Added SSE fixture streaming support in RealCodexAgent with a unit test.
-- Added cross-CLI SSE fixture parity test verifying Exec output matches.
-- Added cross-CLI aggregation parity test verifying Exec output matches when
-  streaming assistant chunks.
-- Added RunWithRolloutAsync helper to RealCodexAgent with unit test recording rollout events.
-- Integrated Codex.ToExecParams into ExecCommand shell call handling to mirror
-  parse_container_exec_arguments behavior.
-- Fixed recursion bug in ResponseStream.Aggregate and verified aggregation tests pass.
-- Ported Codex error enums and EnvVarError helper with new unit tests.
-- Implemented CodexWrapper session initialization with unit and CLI parity tests.
-- Ported protocol event types and serialization helpers with parity tests.
-- Ported AppConfig loader and integrated CodexWrapper into CodexToolRunner.
-- Implemented Codex spawn interface and added unit and CLI parity tests.
-- Ported model client agent (RealCodexAgent) with streaming tests.
-- Ported response and rollout models with RolloutRecorder and replay parity tests.
-- Integrated CodexWrapper into ExecCommand for session startup parity.
-- Ported safety check helpers and updated cross-CLI tests for interactive save.
-- Integrated CodexWrapper into InteractiveApp for session startup parity.
-- Integrated safety checks into ExecCommand using sandbox-aware policies and added SequenceEqualityComparer helper.
-- Added Ctrl+C signal handling to ExecCommand via SignalUtils and verified cancellation with new tests.
-- Fixed project paths in cross-language tests so MSBuild can locate the .NET projects.
-- Fixed ExecEnv to ignore duplicate environment variables and removed default log level output to match Rust CLI.
-- Added unit test covering duplicate environment variable handling in ExecEnv.
-- Ported json_to_toml helper and added unit tests verifying TOML conversion.
-- Ported ChatGptLogin helper and added unit test ensuring script deployment.
-- Ported ExecPolicy loader and added unit tests verifying command filtering.
-- Connected ChatGptLogin into LoginCommand with injectable delegate and added new unit test.
-- Ported debug sandbox and proto commands with a new ProtoCommand unit test.
-- Implemented MCP event streaming helpers (McpEventStream) and added watch-events tests.
-- Ported `format_exec_output` helper as `Codex.FormatExecOutput` with new unit test.
-- Ported `get_writable_roots` helper as `Codex.GetWritableRoots` with new unit test.
-- Ported `get_last_assistant_message_from_turn` and `record_conversation_history` helpers as `Codex` methods with new unit tests.
-- Ported `convert_apply_patch_to_protocol` helper as `Codex.ConvertApplyPatchToProtocol` with unit, integration and CLI tests.
-- Ported `print_summary` helper as `PatchSummary.PrintSummary` with new unit and CLI tests.
-- Ported `first_offending_path` helper as `Codex.FirstOffendingPath` with new unit tests.
-- Ported `apply_changes_from_apply_patch` and `apply_changes_from_apply_patch_and_report` as `PatchApplier.ApplyAction` and `PatchApplier.ApplyActionAndReport` with new unit tests.
-- Ported `apply_patch` helper as `PatchApplier.ApplyAndReport` with new unit, integration and CLI tests.
-- Ported `is_write_patch_constrained_to_writable_paths` helper as `Safety.IsWritePatchConstrainedToWritableRoots` with new unit test.
-- Ported `to_exec_params` and `parse_container_exec_arguments` helpers as `Codex.ToExecParams` and `Codex.TryParseContainerExecArguments` with new unit tests.
-- Ported platform sandbox detection as `Safety.GetPlatformSandbox` with new unit test.
-- Ported `State.partial_clone` helper as `CodexState.PartialClone` with new unit test.
-- Ported `maybe_notify` helper as `Codex.MaybeNotify` with new unit test.
-- Ported `notify_exec_command_begin`, `notify_exec_command_end`, and `notify_background_event` helpers as `Codex.NotifyExecCommandBegin`, `Codex.NotifyExecCommandEnd` and `Codex.NotifyBackgroundEvent` with new unit tests.
-- Ported `inject_input` and `get_pending_input` helpers as `Codex.InjectInput` and `Codex.GetPendingInput` with new unit tests.
-- Ported `resolve_path` helper as `Codex.ResolvePath` with new unit tests.
-- Ported `set_task` and `remove_task` helpers as `Codex.SetTask` and `Codex.RemoveTask` with new unit tests.
-- Ported `prompt.md` base instructions and `APPLY_PATCH_TOOL_INSTRUCTIONS` constant to C# with runtime loading.
-- Marked prompt and apply_patch instruction markdown files with port comments for traceability.
-- Ported `record_conversation_items` and `record_rollout_items` helpers as `Codex.RecordConversationItemsAsync` and `Codex.RecordRolloutItemsAsync` with new unit tests.
-- Ported `request_command_approval`, `request_patch_approval`, `notify_approval` and `add_approved_command` helpers as `Codex` methods with new unit tests.
-- Updated Prompt instruction loader to strip HTML comments so tests consume the same text as Rust.
-- Ported `call_tool` helper as `Codex.CallToolAsync` with unit, integration and CLI parity tests.
-- Ported `abort` helper as `Codex.Abort` with unit and CLI parity tests.
-- Ported `send_event` helper as `Codex.SendEventAsync` with new unit tests.
-- Added event notifications in `McpToolCall.HandleMcpToolCallAsync` with unit tests verifying begin/end events.
-- Ported `history_metadata` and `lookup` helpers as `MessageHistory.HistoryMetadataAsync` and `MessageHistory.LookupEntry` with new unit tests.
-- Ported `append_entry` helper as `MessageHistory.AppendEntryAsync` with file locking and permissions handling.
-- Integrated `Codex.MaybeNotify` into RealCodexAgent and CLI loops with new parity tests.
-- Ported MCP tool name helpers `fully_qualified_tool_name` and `try_parse_fully_qualified_tool_name` with unit tests verifying round-trip parsing.
-- Integrated MessageHistory.HistoryMetadataAsync into HistoryCommand `messages-entry` for parity.
-- Integrated Codex.CallToolAsync into ExecCommand remote workflow for parity.
-- Integrated Codex.NotifyExecCommandBegin/End and NotifyBackgroundEvent into ExecCommand for denial diagnostics with new cross-CLI test.
-- Integrated Codex.ResolvePath into ExecCommand path handling for logs and instructions.
-- Integrated Codex.RecordConversationItemsAsync into ExecCommand event loop for session recording parity.
-- Integrated Codex.Abort into ExecCommand and InteractiveApp lifecycle to clear session state on cancel.
-- Added TaskStarted events to RealCodexAgent and wired Codex.SetTask/RemoveTask into CLI loops for parity.
-- Integrated Codex.ConvertApplyPatchToProtocol into ExecCommand patch handling with new cross-CLI test.
-- Integrated PatchSummary.PrintSummary into ExecCommand patch workflow.
-- Integrated Codex.GetWritableRoots into ExecCommand spawn workflow.
-- Integrated Codex.InjectInput into InteractiveApp to queue user messages while a task is running (see CodexInjectPendingInputTests).
-- Added cross-CLI test validating DebugCommand seatbelt parity.
-- Added cross-CLI test validating DebugCommand landlock parity.
-- Added cross-CLI test validating DebugCommand help parity.
-- Added cross-CLI test validating ProtoCommand help parity.
-- Added cross-CLI test validating LoginCommand help parity.
-- Added cross-CLI test validating ExecCommand help parity.
-- Added cross-CLI tests verifying version output matches for both the CLI and TUI.
-- Added unit test verifying Codex.ToExecParams and noted shell call parity.
-- Added cross-CLI test validating ExecCommand JSON output parity.
-- Added cross-CLI test validating ExecCommand patch summary parity.
-- Added cross-CLI test validating ExecCommand last-message output parity.
-- Added cross-CLI test validating ExecCommand approval prompt parity.
-- Added cross-CLI test validating ExecCommand environment variable handling parity.
-- Integrated Codex.NotifyApproval into ExecCommand and stored session approvals via AddApprovedCommand.
-- Added unit test verifying approved commands bypass prompts via AddApprovedCommand.
-- Improved ExecPatchSummaryMatches to compare summary lines exactly.
-- Added unit test verifying ResponseItemFactory maps patch events correctly.
-- Added unit tests verifying ResponseItemFactory maps ExecCommandEnd and MCP tool call events.
-- Added cross-CLI test validating ReplayCommand help output parity.
-- Added cross-CLI tests exercising ExecRunner via ExecJsonMatches, ExecPatchSummaryMatches, ExecCancelImmediatelyMatches, ExecNetworkEnvMatches and ExecConfigMatches.
-- Added cross-CLI test validating network sandbox environment variable parity.
-- Added cross-CLI test validating ExecCommand configuration loading parity.
-  ConvertProtocolPatchToAction helper with unit test coverage.
- - codex-rs/core/src/exec.rs -> codex-dotnet/CodexCli/Util/ExecRunner.cs (done, parity tested via ExecJsonMatches, ExecPatchSummaryMatches, ExecCancelImmediatelyMatches, ExecNetworkEnvMatches and ExecConfigMatches)
- - codex-rs/core/src/config.rs -> codex-dotnet/CodexCli/Config/AppConfig.cs (done, config loading parity tested)
-  ConvertProtocolPatchToAction helper.
-- Updated ExecCommand apply_patch handling to use PatchApplier.ApplyAndReport
-  for patch CLI parity.
-- Integrated GetLastAssistantMessageFromTurn and RecordConversationHistory into ExecCommand.
-- ask-for-approval option now parsed via ApprovalModeCliArg for CLI parity.
- - codex-rs/core/src/exec.rs -> codex-dotnet/CodexCli/Util/ExecRunner.cs (done, parity tested via ExecJsonMatches, ExecPatchSummaryMatches, ExecCancelImmediatelyMatches and ExecNetworkEnvMatches)
-- Added cross-CLI test validating ExecCommand MCP workflow parity.
-- Added cross-CLI test validating McpCommand help parity.
+- Bootstrapped the .NET CLI with config loading, interactive mode and sandbox enforcement.
+- Ported core utilities and configuration helpers with unit tests.
+- Implemented RealCodexAgent with SSE streaming, rollout recording and aggregation parity.
+- Migrated Exec, Debug, Login, Proto, MCP, MCP manager, MCP client and Replay commands with cross-CLI help and output tests.
+- Ported patch application and conversation history helpers with parity tests.
+- Integrated approval workflow, environment handling and task management.
+- Added extensive cross-CLI tests covering JSON output, patch summaries, last messages, SSE aggregation, config and network sandbox behavior.
 - Added cross-CLI test validating McpManagerCommand help parity.
 - Added cross-CLI tests validating McpClient command parity (ping, list-tools, list-roots, call-codex, help).
 
@@ -182,45 +78,11 @@
 - codex-rs/core/src/rollout.rs -> codex-dotnet/CodexCli/Util/RolloutRecorder.cs and Commands/ReplayCommand.cs (done, help/json/messages-only/follow parity tested)
 - Add sandbox enforcement logic and finalize ApprovalModeCliArg/ExecEnv integration in command execution (ApprovalModeCliArg done).
  - Integrate Codex.ToExecParams and TryParseContainerExecArguments into ExecCommand function call handling. (done)
-- Integrate PatchSummary.PrintSummary into patch application workflow. (done)
-- codex-rs/core/src/codex.rs State.partial_clone -> codex-dotnet/CodexCli/Util/CodexState.cs PartialClone (done)
-- codex-rs/core/src/codex.rs maybe_notify -> codex-dotnet/CodexCli/Util/Codex.cs MaybeNotify (done)
-- codex-rs/core/src/codex.rs notify_exec_command_begin -> codex-dotnet/CodexCli/Util/Codex.cs NotifyExecCommandBegin (done)
-- codex-rs/core/src/codex.rs notify_exec_command_end -> codex-dotnet/CodexCli/Util/Codex.cs NotifyExecCommandEnd (done)
-- codex-rs/core/src/codex.rs notify_background_event -> codex-dotnet/CodexCli/Util/Codex.cs NotifyBackgroundEvent (done)
-- codex-rs/core/src/codex.rs inject_input -> codex-dotnet/CodexCli/Util/Codex.cs InjectInput (done)
-- codex-rs/core/src/codex.rs get_pending_input -> codex-dotnet/CodexCli/Util/Codex.cs GetPendingInput (done)
-- codex-rs/core/src/codex.rs set_task -> codex-dotnet/CodexCli/Util/Codex.cs SetTask (done)
-- codex-rs/core/src/codex.rs remove_task -> codex-dotnet/CodexCli/Util/Codex.cs RemoveTask (done)
-- codex-rs/core/src/codex.rs record_rollout_items -> codex-dotnet/CodexCli/Util/Codex.cs RecordRolloutItemsAsync (done)
-- codex-rs/core/src/codex.rs record_conversation_items -> codex-dotnet/CodexCli/Util/Codex.cs RecordConversationItemsAsync (done)
- - Wire DebugCommand into parity tests and CLI workflows (done, help parity tested).
-- codex-rs/core/src/codex.rs request_patch_approval -> codex-dotnet/CodexCli/Util/Codex.cs RequestPatchApproval (done)
-- codex-rs/core/src/codex.rs notify_approval -> codex-dotnet/CodexCli/Util/Codex.cs NotifyApproval (done)
-- codex-rs/core/src/codex.rs add_approved_command -> codex-dotnet/CodexCli/Util/Codex.cs AddApprovedCommand (done)
-- codex-rs/core/src/codex.rs call_tool -> codex-dotnet/CodexCli/Util/Codex.cs CallToolAsync (done)
-- codex-rs/core/src/codex.rs abort -> codex-dotnet/CodexCli/Util/Codex.cs Abort (done)
-- Integrate Codex.FormatExecOutput into ExecCommand parity tests. (done)
-- codex-rs/core/src/codex.rs -> codex-dotnet/CodexCli/Util/Codex.cs (partial)
- - codex-rs/exec/src/lib.rs -> codex-dotnet/CodexCli/Commands/ExecCommand.cs (partial, safety and Ctrl+C integrated, help/json/patch-summary/mcp parity tested)
-- codex-rs/core/src/client.rs -> codex-dotnet/CodexCli/Protocol/RealCodexAgent.cs (done)
-- codex-rs/core/src/models.rs -> codex-dotnet/CodexCli/Models/ResponseItem.cs (done)
-- codex-rs/core/src/rollout.rs -> codex-dotnet/CodexCli/Util/RolloutRecorder.cs and Commands/ReplayCommand.cs (done)
-- Integrate PatchApplier.ApplyActionAndReport into CLI patch workflows. (done)
-
-## TODO
-
-- Integrate newly ported utilities throughout CLI commands and finalize SSE handling.
-- Expand CLI and cross-language parity tests and fix flakes, including chat aggregation.
-- Resolve exec parity test failures by aligning provider configuration between implementations.
-- Add sandbox enforcement logic and wire ApprovalModeCliArg and ExecEnv into command execution.
-- Improve API key login flow using OpenAiApiKey helper and implement Ctrl+C handling via SignalUtils (partial: ExecCommand).
-- Implement CLI comparitive tests ensuring .NET and Rust outputs match for chat aggregation.
-- Add AppConfig loading parity tests and wire into remaining commands.
-- Port remaining Codex session workflow (submission loop, rollout persistence) to .NET.
-- Expand ResponseItem coverage with integration tests for new event types.
-- Wire ProtoCommand into parity tests and CLI workflows (done).
-- Wire DebugCommand into parity tests and CLI workflows (done).
+- Finalize SSE handling across commands and resolve remaining parity test flakes.
+- Align provider configuration between implementations to fix exec parity failures.
+- Complete sandbox enforcement using ApprovalModeCliArg and ExecEnv.
+- Improve API key login flow and unify Ctrl+C handling across commands.
+- Finish session submission loop and finalize rollout persistence in .NET.
 - Wire LoginCommand into parity tests and CLI workflows (done).
 - Wire ExecCommand into parity tests and CLI workflows (done).
 - Wire McpCommand into parity tests and CLI workflows (done).
