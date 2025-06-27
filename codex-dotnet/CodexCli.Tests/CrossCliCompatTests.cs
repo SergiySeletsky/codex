@@ -854,6 +854,26 @@ args = ["run", "--project", "codex-dotnet/CodexCli", "mcp"]
     }
 
     [CrossCliFact]
+    [CrossCliFact]
+    public void ExecAggregatedFixtureMatches()
+    {
+        var content = "event: response.output_item.done\n" +
+                      "data: {\"type\":\"response.output_item.done\",\"item\":{\"type\":\"message\",\"role\":\"assistant\",\"content\":[{\"type\":\"text\",\"text\":\"he\"}]}}\n\n" +
+                      "event: response.output_item.done\n" +
+                      "data: {\"type\":\"response.output_item.done\",\"item\":{\"type\":\"message\",\"role\":\"assistant\",\"content\":[{\"type\":\"text\",\"text\":\"llo\"}]}}\n\n" +
+                      "event: response.completed\n" +
+                      "data: {\"type\":\"response.completed\",\"response\":{\"id\":\"r1\",\"output\":[]}}\n\n";
+        var path = System.IO.Path.GetTempFileName();
+        System.IO.File.WriteAllText(path, content);
+        var env = new Dictionary<string,string>{{"CODEX_RS_SSE_FIXTURE", path}};
+        var dotnet = RunProcess("dotnet", "run --project codex-dotnet/CodexCli exec hi", env);
+        var rust = RunProcess("cargo", "run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- exec hi", env);
+        System.IO.File.Delete(path);
+        var dOut = AnsiEscape.StripAnsi(dotnet.stdout).Trim();
+        var rOut = AnsiEscape.StripAnsi(rust.stdout).Trim();
+        Assert.Equal(rOut, dOut);
+    }
+
     public void ExecNetworkEnvMatches()
     {
         var dotnet = RunProcess("dotnet", "run --project codex-dotnet/CodexCli exec 'bash -c \"echo -n $CODEX_SANDBOX_NETWORK_DISABLED\"' --model-provider Mock");

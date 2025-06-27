@@ -2,7 +2,8 @@
 // Parity test in `codex-dotnet/CodexCli.Tests/CrossCliCompatTests.ExecHelpMatches`,
 // `ExecJsonMatches`, `ExecPatchSummaryMatches`, `ExecLastMessageMatches`,
 // `ExecApprovalMatches`, `ExecEnvSetMatches`, `ExecNetworkEnvMatches`,
-// `ExecConfigMatches`, `ApplyPatchCliMatches` and `ExecMcpMatches`.
+// `ExecConfigMatches`, `ExecAggregatedFixtureMatches`, `ApplyPatchCliMatches`
+// and `ExecMcpMatches`.
 // Rollout persistence parity tested in `ExecRolloutRecorderTests`
 // Shell function call handling parity tested in `CodexToExecParamsTests`
 // Session approvals stored via add_approved_command are exercised in

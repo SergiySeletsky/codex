@@ -5,7 +5,8 @@ using CodexCli.Util;
 // CodexWrapper and safety checks integrated
 // Cross-CLI parity tested in CrossCliCompatTests.ExecHelpMatches, ExecJsonMatches,
 // ExecPatchSummaryMatches, ExecMcpMatches, ExecLastMessageMatches, ExecApprovalMatches,
-// ExecEnvSetMatches, ExecNetworkEnvMatches, ExecConfigMatches and ApplyPatchCliMatches. Patch application
+// ExecEnvSetMatches, ExecNetworkEnvMatches, ExecConfigMatches, ExecAggregatedFixtureMatches and
+// ApplyPatchCliMatches. Patch application
 // via ConvertProtocolPatchToAction is covered in ApplyPatchCliMatches.
 // WritableRoots integration unit tested in CodexStatePartialCloneTests.ClonesWritableRoots
 // Rollout persistence tested in ExecRolloutRecorderTests

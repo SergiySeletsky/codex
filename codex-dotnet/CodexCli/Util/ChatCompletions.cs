@@ -5,7 +5,8 @@ using System.Threading;
 namespace CodexCli.Util;
 
 // Ported from codex-rs/core/src/chat_completions.rs aggregator (done).
-// Aggregation ordering verified by ChatCompletionsAggregationTests.
+// Aggregation ordering verified by ChatCompletionsAggregationTests and
+// CLI parity by CrossCliCompatTests.ExecAggregatedFixtureMatches.
 public static class ChatCompletions
 {
     public static async IAsyncEnumerable<ResponseEvent> Aggregate(

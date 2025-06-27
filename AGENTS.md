@@ -12,6 +12,8 @@
 - Expanded ChatCompletionsAggregationTests verifying Completed ordering after aggregation.
 - Added SSE fixture streaming support in RealCodexAgent with a unit test.
 - Added cross-CLI SSE fixture parity test verifying Exec output matches.
+- Added cross-CLI aggregation parity test verifying Exec output matches when
+  streaming assistant chunks.
 - Added RunWithRolloutAsync helper to RealCodexAgent with unit test recording rollout events.
 - Integrated Codex.ToExecParams into ExecCommand shell call handling to mirror
   parse_container_exec_arguments behavior.
@@ -119,7 +121,7 @@
 - codex-rs/tui/src/exec_command.rs -> codex-dotnet/CodexCli/Util/ExecCommandUtils.cs (done)
 - codex-rs/core/src/is_safe_command.rs -> codex-dotnet/CodexCli/Util/SafeCommand.cs (done)
 - codex-rs/core/src/exec.rs -> codex-dotnet/CodexCli/Util/ExecRunner.cs (done)
-- codex-rs/core/src/chat_completions.rs -> codex-dotnet/CodexCli/Util/ChatCompletions.cs (done, ordering unit tested)
+- codex-rs/core/src/chat_completions.rs -> codex-dotnet/CodexCli/Util/ChatCompletions.cs (done, ordering unit tested, aggregation parity tested via ExecAggregatedFixtureMatches)
 - codex-rs/core/src/openai_api_key.rs -> codex-dotnet/CodexCli/Util/OpenAiApiKey.cs (done)
 - codex-rs/core/src/openai_tools.rs -> codex-dotnet/CodexCli/Util/OpenAiTools.cs (done)
 - codex-rs/core/src/util.rs -> codex-dotnet/CodexCli/Util/{Backoff.cs,GitUtils.cs,SignalUtils.cs} (done)
@@ -172,10 +174,10 @@
 - codex-rs/core/src/codex.rs record_conversation_history -> codex-dotnet/CodexCli/Util/Codex.cs RecordConversationHistory (done)
 - codex-rs/core/src/codex.rs convert_apply_patch_to_protocol -> codex-dotnet/CodexCli/Util/Codex.cs ConvertApplyPatchToProtocol (done)
 - codex-rs/core/src/codex.rs first_offending_path -> codex-dotnet/CodexCli/Util/Codex.cs FirstOffendingPath (done)
- - codex-rs/exec/src/lib.rs -> codex-dotnet/CodexCli/Commands/ExecCommand.cs (partial, safety and Ctrl+C integrated, writable-roots spawn logic, help/json/patch-summary/last-message/approval/session-approval/apply_patch/mcp/shell/env/config/approval-mode/rollout parity tested)
+ - codex-rs/exec/src/lib.rs -> codex-dotnet/CodexCli/Commands/ExecCommand.cs (partial, safety and Ctrl+C integrated, writable-roots spawn logic, help/json/patch-summary/last-message/approval/session-approval/apply_patch/mcp/shell/env/config/approval-mode/rollout/aggregation parity tested)
  - codex-rs/core/src/client.rs -> codex-dotnet/CodexCli/Protocol/RealCodexAgent.cs (done, SSE fixture and RunWithRolloutAsync unit tested, cross-CLI SSE parity tested)
-- Port remaining Codex session workflow (submission loop, rollout persistence) to .NET (rollout persistence done).
- - codex-rs/core/src/client.rs -> codex-dotnet/CodexCli/Protocol/RealCodexAgent.cs (done, SSE fixture unit and cross-CLI parity tested)
+- Expand CLI and cross-language parity tests and fix flakes, including chat aggregation (chat aggregation parity done).
+- Implement CLI comparitive tests ensuring .NET and Rust outputs match for chat aggregation (done).
  - codex-rs/core/src/models.rs -> codex-dotnet/CodexCli/Models/ResponseItem.cs (done, patch/exec-end/MCP parity tested)
 - codex-rs/core/src/rollout.rs -> codex-dotnet/CodexCli/Util/RolloutRecorder.cs and Commands/ReplayCommand.cs (done, help/json/messages-only/follow parity tested)
 - Add sandbox enforcement logic and finalize ApprovalModeCliArg/ExecEnv integration in command execution (ApprovalModeCliArg done).

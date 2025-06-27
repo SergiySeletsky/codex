@@ -1,5 +1,6 @@
 // C# port: aggregator implemented in `codex-dotnet/CodexCli/Util/ChatCompletions.cs` (done)
 // Aggregation ordering parity covered by ChatCompletionsAggregationTests
+// and CLI parity by CrossCliCompatTests.ExecAggregatedFixtureMatches
 use std::time::Duration;
 
 use bytes::Bytes;
