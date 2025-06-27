@@ -1,4 +1,5 @@
 //! Configuration object accepted by the `codex` MCP tool-call.
+// C# port implemented in codex-dotnet/CodexCli/Util/CodexToolCallParam.cs (done)
 
 use codex_core::protocol::AskForApproval;
 use codex_core::protocol::SandboxPolicy;

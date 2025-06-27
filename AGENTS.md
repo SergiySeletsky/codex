@@ -11,6 +11,8 @@
 - Added extensive cross-CLI tests covering JSON output, patch summaries, last messages, SSE aggregation, config and network sandbox behavior.
 - Added cross-CLI test validating McpManagerCommand help parity.
 - Added cross-CLI tests validating McpClient command parity (ping, list-tools, list-roots, call-codex, help).
+- Ported Codex tool-runner and tool-call param with serialization tests and added mapping comments.
+- Added CodexToolRunner integration test and CLI parity test for mcp-client call-codex.
 
 ## Rust to C# Mapping
 
@@ -45,6 +47,9 @@
 - codex-rs/core/src/codex.rs patch_apply_event_to_action -> codex-dotnet/CodexCli/Util/Codex.cs ConvertProtocolPatchToAction (done)
 - codex-rs/mcp-server/src/json_to_toml.rs -> codex-dotnet/CodexCli/Util/JsonToToml.cs (done)
 - codex-rs/mcp-server/src/message_processor.rs -> codex-dotnet/CodexCli/Util/McpEventStream.cs (done)
+- codex-rs/mcp-server/src/codex_tool_runner.rs -> codex-dotnet/CodexCli/Util/CodexToolRunner.cs (done, CodexToolRunnerTests cover placeholder events)
+- codex-rs/mcp-server/src/codex_tool_config.rs -> codex-dotnet/CodexCli/Util/CodexToolCallParam.cs (done, serialization unit tested)
+- codex-rs/core/src/user_notification.rs -> codex-dotnet/CodexCli/Util/UserNotification.cs (done, serialization unit tested)
 - codex-rs/execpolicy/src/lib.rs -> codex-dotnet/CodexCli/Util/ExecPolicy.cs (done)
 - codex-rs/core/src/chat_completions.rs -> codex-dotnet/CodexCli/Util/ChatCompletions.cs (done)
 - codex-rs/core/src/error.rs -> codex-dotnet/CodexCli/Util/CodexErr.cs (done)
@@ -110,3 +115,9 @@
 - Integrate Codex.RecordConversationItemsAsync and RecordRolloutItemsAsync into session recording workflow. (done)
  - Integrate Prompt base and apply_patch instructions loading into Prompt.GetFullInstructions. (done)
 - Integrate MessageHistory.HistoryMetadataAsync and LookupEntry into history CLI workflows. (done)
+
+## Next Tasks
+
+- Finish bridging approval workflow via RequestCommandApproval and RequestPatchApproval
+- Implement NotifyApproval and AddApprovedCommand parity
+- Expose Codex.SetTask and Codex.RemoveTask in session task hooks

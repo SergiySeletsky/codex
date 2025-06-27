@@ -1,6 +1,8 @@
 using System.Text.Json;
 using System.Collections.Generic;
 using System.Threading;
+
+// Ported from codex-rs/mcp-server/src/codex_tool_runner.rs (simplified)
 using CodexCli.Protocol;
 using CodexCli.Config;
 
@@ -38,13 +40,3 @@ public static class CodexToolRunner
             false);
     }
 }
-
-public record CodexToolCallParam(
-    string Prompt,
-    string? Model = null,
-    string? Profile = null,
-    string? Cwd = null,
-    string? ApprovalPolicy = null,
-    IReadOnlyList<string>? SandboxPermissions = null,
-    Dictionary<string, JsonElement>? Config = null,
-    string? Provider = null);
