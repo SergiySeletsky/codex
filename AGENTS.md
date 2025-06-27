@@ -84,6 +84,7 @@
 - Added cross-CLI test validating ProtoCommand help parity.
 - Added cross-CLI test validating LoginCommand help parity.
 - Added cross-CLI test validating ExecCommand help parity.
+- Added cross-CLI tests verifying version output matches for both the CLI and TUI.
 - Added unit test verifying Codex.ToExecParams and noted shell call parity.
 - Added cross-CLI test validating ExecCommand JSON output parity.
 - Added cross-CLI test validating ExecCommand patch summary parity.
@@ -126,6 +127,7 @@
  - codex-rs/cli/src/debug_sandbox.rs -> codex-dotnet/CodexCli/Commands/DebugCommand.cs (done, seatbelt/landlock/help parity tested)
 - codex-rs/core/src/flags.rs -> codex-dotnet/CodexCli/Config/EnvFlags.cs (done)
 - codex-rs/core/src/model_provider_info.rs -> codex-dotnet/CodexCli/Config/ModelProviderInfo.cs (done)
+ - codex-rs/cli/src/main.rs root command -> codex-dotnet/CodexCli/Program.cs (done, version/help parity tested)
 - codex-rs/core/src/config_profile.rs -> codex-dotnet/CodexCli/Config/ConfigProfile.cs (done)
 - codex-rs/core/src/config_types.rs -> codex-dotnet/CodexCli/Config/{History.cs,ShellEnvironmentPolicy.cs,Tui.cs,UriBasedFileOpener.cs,ReasoningModels.cs} (done)
 - codex-rs/core/src/config.rs -> codex-dotnet/CodexCli/Config/AppConfig.cs (done)
