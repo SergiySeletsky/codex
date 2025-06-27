@@ -113,6 +113,7 @@ impl From<CodexToolCallSandboxPermission> for codex_core::protocol::SandboxPermi
     }
 }
 
+// C# port implemented in codex-dotnet/CodexCli/Util/CodexToolRunner.cs CreateTool (done)
 pub(crate) fn create_tool_for_codex_tool_call_param() -> Tool {
     let schema = SchemaSettings::draft2019_09()
         .with(|s| {

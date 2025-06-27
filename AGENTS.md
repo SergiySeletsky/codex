@@ -17,6 +17,7 @@
 - Added CLI and integration tests verifying patch approval flow via ExecPatchApprovalMatches and ExecPatchApprovalCliTests.
 - Ported user notification serialization helpers with dedicated unit tests.
 - Added unit tests covering CodexToolCallParam JSON serialization.
+- Implemented CreateTool helper for the Codex MCP tool-call with unit tests.
 ## Rust to C# Mapping
 
 - codex-rs/tui/src/exec_command.rs -> codex-dotnet/CodexCli/Util/ExecCommandUtils.cs (done)
@@ -52,6 +53,7 @@
 - codex-rs/mcp-server/src/message_processor.rs -> codex-dotnet/CodexCli/Util/McpEventStream.cs (done)
 - codex-rs/mcp-server/src/codex_tool_runner.rs -> codex-dotnet/CodexCli/Util/CodexToolRunner.cs (done, CodexToolRunnerTests cover placeholder events)
 - codex-rs/mcp-server/src/codex_tool_config.rs -> codex-dotnet/CodexCli/Util/CodexToolCallParam.cs (done, serialization unit tested)
+- codex-rs/mcp-server/src/codex_tool_config.rs create_tool_for_codex_tool_call_param -> codex-dotnet/CodexCli/Util/CodexToolRunner.cs CreateTool (done)
 - codex-rs/core/src/user_notification.rs -> codex-dotnet/CodexCli/Util/UserNotification.cs (done, serialization unit tested)
 - codex-rs/execpolicy/src/lib.rs -> codex-dotnet/CodexCli/Util/ExecPolicy.cs (done)
 - codex-rs/core/src/chat_completions.rs -> codex-dotnet/CodexCli/Util/ChatCompletions.cs (done)

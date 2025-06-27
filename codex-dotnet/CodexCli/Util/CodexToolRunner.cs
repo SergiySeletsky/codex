@@ -39,4 +39,19 @@ public static class CodexToolRunner
             new List<JsonElement> { JsonSerializer.SerializeToElement("codex done") },
             false);
     }
+
+    /// <summary>
+    /// Ported from codex-rs/mcp-server/src/codex_tool_config.rs
+    /// `create_tool_for_codex_tool_call_param` (simplified).
+    /// Returns a minimal Tool descriptor used by the MCP client tests.
+    /// </summary>
+    public static Tool CreateTool()
+    {
+        var schema = new ToolInputSchema(null, null, "object");
+        return new Tool(
+            "codex",
+            schema,
+            "Run a Codex session.",
+            null);
+    }
 }
