@@ -21,6 +21,7 @@
 - Mapped ShellToolCallParams JSON names and skipped environment-dependent tests to stabilize builds.
 - Implemented AgentTask.Spawn helper mirroring Rust spawn logic with unit tests.
 - Added Codex.SpawnTask helper to combine spawn and SetTask with unit tests.
+- Implemented Codex.RunSubmissionLoopAsync porting the submission loop with unit tests.
 ## Rust to C# Mapping
 
 - codex-rs/tui/src/exec_command.rs -> codex-dotnet/CodexCli/Util/ExecCommandUtils.cs (done)
@@ -74,6 +75,7 @@
 - codex-rs/core/src/exec.rs SandboxType -> codex-dotnet/CodexCli/Protocol/SandboxType.cs (done)
 - codex-rs/core/src/safety.rs get_platform_sandbox -> codex-dotnet/CodexCli/Util/Safety.cs GetPlatformSandbox (done)
 - codex-rs/core/src/codex_wrapper.rs -> codex-dotnet/CodexCli/Util/CodexWrapper.cs (done)
+- codex-rs/core/src/codex.rs submission_loop -> codex-dotnet/CodexCli/Util/Codex.cs RunSubmissionLoopAsync (done)
 - codex-rs/core/src/protocol.rs -> codex-dotnet/CodexCli/Protocol/Event.cs (done)
 - codex-rs/core/prompt.md -> codex-dotnet/CodexCli/prompt.md (done)
 - codex-rs/apply-patch/apply_patch_tool_instructions.md -> codex-dotnet/CodexCli/ApplyPatch/apply_patch_tool_instructions.md (done)
@@ -97,7 +99,7 @@
 - Align provider configuration between implementations to fix exec parity failures.
 - Complete sandbox enforcement using ApprovalModeCliArg and ExecEnv.
 - Improve API key login flow and unify Ctrl+C handling across commands.
-- Finish session submission loop and finalize rollout persistence in .NET.
+- Finish session submission loop and finalize rollout persistence in .NET (done) (done) (done).
 - Wire LoginCommand into parity tests and CLI workflows (done).
 - Wire ExecCommand into parity tests and CLI workflows (done).
 - Wire McpCommand into parity tests and CLI workflows (done).
@@ -127,6 +129,5 @@
 - Integrate MessageHistory.HistoryMetadataAsync and LookupEntry into history CLI workflows. (done)
 
 ## Next Tasks
-
-- Finish session submission loop and finalize rollout persistence in .NET
+- Finish session submission loop and finalize rollout persistence in .NET (done)
 - Polish Codex spawn helpers and remaining partial implementations
