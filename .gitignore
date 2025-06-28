@@ -85,3 +85,6 @@ CHANGELOG.ignore.md
 # nix related
 .direnv
 .envrc
+/.vs
+/codex-dotnet/.vs/CodexTui
+/codex-dotnet/CodexTui/.vs
