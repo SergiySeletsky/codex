@@ -9,6 +9,7 @@
 - Added spawn helpers, submission loop and approval workflow with corresponding unit tests.
 - Added cross CLI tests verifying JSON output, patch summaries, patch approval and network sandbox behaviour.
 - Skipped `OpenAiApiKeyTests.ReadsValueFromEnvironment` and `ExecRunnerTimeoutTests.CommandTimesOut` when environment permissions are missing.
+- Disabled test parallelization to avoid environment variable race conditions.
 
 ## Rust to C# Mapping (selected)
 - `cli` commands -> `CodexCli/Commands`
