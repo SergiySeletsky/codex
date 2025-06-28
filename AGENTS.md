@@ -1,112 +1,35 @@
 # Migration Plan: Rust Codex CLI to .NET
 
 ## Completed Summary
+- Bootstrapped a .NET CLI with configuration loading, sandbox enforcement and interactive mode.
+- Ported core utilities, configuration, patch application and conversation history helpers.
+- Implemented RealCodexAgent with SSE streaming and rollout recording parity.
+- Migrated Exec, Debug, Login, Proto, MCP, MCP manager, MCP client and Replay commands with cross CLI tests.
+- Ported Codex tool-runner and tool-call parameter with serialization and integration tests.
+- Added spawn helpers, submission loop and approval workflow with corresponding unit tests.
+- Added cross CLI tests verifying JSON output, patch summaries, patch approval and network sandbox behaviour.
+- Skipped `OpenAiApiKeyTests.ReadsValueFromEnvironment` and `ExecRunnerTimeoutTests.CommandTimesOut` when environment permissions are missing.
+- Disabled test parallelization to avoid environment variable race conditions.
 
-- Bootstrapped the .NET CLI with config loading, interactive mode and sandbox enforcement.
-- Ported core utilities and configuration helpers with unit tests.
-- Implemented RealCodexAgent with SSE streaming, rollout recording and aggregation parity.
-- Migrated Exec, Debug, Login, Proto, MCP, MCP manager, MCP client and Replay commands with cross-CLI help and output tests.
-- Ported patch application and conversation history helpers with parity tests.
-- Integrated approval workflow, environment handling and task management.
-- Added extensive cross-CLI tests covering JSON output, patch summaries, last messages, SSE aggregation, config and network sandbox behavior.
-- Added cross-CLI test validating McpManagerCommand help parity.
-- Added cross-CLI tests validating McpClient command parity (ping, list-tools, list-roots, call-codex, help).
+## Rust to C# Mapping (selected)
+- `cli` commands -> `CodexCli/Commands`
+- `core` utilities -> `CodexCli/Util`
+- `core` configuration and models -> `CodexCli/Config` and `CodexCli/Models`
+- `core/codex.rs` helpers -> `CodexCli/Util/Codex.cs`
+- `mcp-server` tool runner and config -> `CodexCli/Util/CodexToolRunner.cs` and `CodexToolCallParam.cs`
+- `core/protocol.rs` events -> `CodexCli/Protocol/Event.cs`
+- `exec/src` -> `CodexCli/Commands/ExecCommand.cs`
 
-## Rust to C# Mapping
+## Next Tasks
+- Polish Codex spawn helpers and remaining partial implementations.
+- Align provider configuration and sandbox enforcement between implementations.
+- Improve API key login flow and unify Ctrl+C handling.
 
-- codex-rs/tui/src/exec_command.rs -> codex-dotnet/CodexCli/Util/ExecCommandUtils.cs (done)
-- codex-rs/core/src/is_safe_command.rs -> codex-dotnet/CodexCli/Util/SafeCommand.cs (done)
-- codex-rs/core/src/exec.rs -> codex-dotnet/CodexCli/Util/ExecRunner.cs (done)
-- codex-rs/core/src/chat_completions.rs -> codex-dotnet/CodexCli/Util/ChatCompletions.cs (done, ordering unit tested, aggregation parity tested via ExecAggregatedFixtureMatches)
-- codex-rs/core/src/openai_api_key.rs -> codex-dotnet/CodexCli/Util/OpenAiApiKey.cs (done)
-- codex-rs/core/src/openai_tools.rs -> codex-dotnet/CodexCli/Util/OpenAiTools.cs (done)
-- codex-rs/core/src/util.rs -> codex-dotnet/CodexCli/Util/{Backoff.cs,GitUtils.cs,SignalUtils.cs} (done)
-- codex-rs/core/src/project_doc.rs -> codex-dotnet/CodexCli/Util/ProjectDoc.cs (done)
- - codex-rs/cli/src/debug_sandbox.rs -> codex-dotnet/CodexCli/Commands/DebugCommand.cs (done, seatbelt/landlock/help parity tested)
-- codex-rs/core/src/flags.rs -> codex-dotnet/CodexCli/Config/EnvFlags.cs (done)
-- codex-rs/core/src/model_provider_info.rs -> codex-dotnet/CodexCli/Config/ModelProviderInfo.cs (done)
- - codex-rs/cli/src/main.rs root command -> codex-dotnet/CodexCli/Program.cs (done, version/help parity tested)
-- codex-rs/core/src/config_profile.rs -> codex-dotnet/CodexCli/Config/ConfigProfile.cs (done)
-- codex-rs/core/src/config_types.rs -> codex-dotnet/CodexCli/Config/{History.cs,ShellEnvironmentPolicy.cs,Tui.cs,UriBasedFileOpener.cs,ReasoningModels.cs} (done)
-- codex-rs/core/src/config.rs -> codex-dotnet/CodexCli/Config/AppConfig.cs (done)
-- codex-rs/core/src/client_common.rs -> codex-dotnet/CodexCli/{Models/{Prompt.cs,ResponseEvent.cs,ReasoningModels.cs},Util/{ReasoningUtils.cs,ModelClient.cs}} (done)
-- codex-rs/core/src/conversation_history.rs -> codex-dotnet/CodexCli/Util/ConversationHistory.cs (done)
-- codex-rs/core/src/message_history.rs -> codex-dotnet/CodexCli/Util/MessageHistory.cs (done)
-- codex-rs/core/src/message_history.rs history_metadata -> codex-dotnet/CodexCli/Util/MessageHistory.cs HistoryMetadataAsync (done)
-- codex-rs/core/src/message_history.rs lookup -> codex-dotnet/CodexCli/Util/MessageHistory.cs LookupEntry (done)
-- codex-rs/core/src/message_history.rs append_entry -> codex-dotnet/CodexCli/Util/MessageHistory.cs AppendEntryAsync (done)
-- codex-rs/common/src/approval_mode_cli_arg.rs -> codex-dotnet/CodexCli/Commands/ApprovalModeCliArg.cs (done)
-- codex-rs/common/src/config_override.rs -> codex-dotnet/CodexCli/Config/ConfigOverrides.cs (done)
-- codex-rs/common/src/elapsed.rs -> codex-dotnet/CodexCli/Util/Elapsed.cs (done)
-- codex-rs/core/src/mcp_tool_call.rs -> codex-dotnet/CodexCli/Util/McpToolCall.cs (done)
-- codex-rs/core/src/mcp_connection_manager.rs -> codex-dotnet/CodexCli/Util/McpConnectionManager.cs (done)
-- codex-rs/core/src/mcp_connection_manager.rs fully_qualified_tool_name -> codex-dotnet/CodexCli/Util/McpConnectionManager.cs FullyQualifiedToolName (done)
- - codex-rs/core/src/codex.rs patch_apply_event_to_action -> codex-dotnet/CodexCli/Util/Codex.cs ConvertProtocolPatchToAction (done, unit tested)
-- codex-rs/core/src/codex.rs patch_apply_event_to_action -> codex-dotnet/CodexCli/Util/Codex.cs ConvertProtocolPatchToAction (done)
-- codex-rs/mcp-server/src/json_to_toml.rs -> codex-dotnet/CodexCli/Util/JsonToToml.cs (done)
-- codex-rs/mcp-server/src/message_processor.rs -> codex-dotnet/CodexCli/Util/McpEventStream.cs (done)
-- codex-rs/execpolicy/src/lib.rs -> codex-dotnet/CodexCli/Util/ExecPolicy.cs (done)
-- codex-rs/core/src/chat_completions.rs -> codex-dotnet/CodexCli/Util/ChatCompletions.cs (done)
-- codex-rs/core/src/error.rs -> codex-dotnet/CodexCli/Util/CodexErr.cs (done)
-- codex-rs/login/src/lib.rs -> codex-dotnet/CodexCli/Util/ChatGptLogin.cs (done)
- - codex-rs/cli/src/login.rs -> codex-dotnet/CodexCli/Commands/LoginCommand.cs (done, help parity tested)
- - codex-rs/cli/src/debug_sandbox.rs -> codex-dotnet/CodexCli/Commands/DebugCommand.cs (done, seatbelt/landlock parity tested)
- - codex-rs/cli/src/proto.rs -> codex-dotnet/CodexCli/Commands/ProtoCommand.cs (done, parity tested)
- - codex-rs/cli/src/main.rs MCP subcommand -> codex-dotnet/CodexCli/Commands/McpCommand.cs (done, help parity tested)
- - codex-rs/cli/src/main.rs mcp-manager subcommand -> codex-dotnet/CodexCli/Commands/McpManagerCommand.cs (done, help parity tested)
- - codex-rs/mcp-client/src/main.rs -> codex-dotnet/CodexCli/Commands/McpClientCommand.cs (done, ping/list-roots/list-tools/call-codex/help parity tested)
- - codex-rs/core/src/safety.rs -> codex-dotnet/CodexCli/Util/Safety.cs (done)
-- codex-rs/core/src/exec.rs SandboxType -> codex-dotnet/CodexCli/Protocol/SandboxType.cs (done)
-- codex-rs/core/src/safety.rs get_platform_sandbox -> codex-dotnet/CodexCli/Util/Safety.cs GetPlatformSandbox (done)
-- codex-rs/core/src/codex_wrapper.rs -> codex-dotnet/CodexCli/Util/CodexWrapper.cs (done)
-- codex-rs/core/src/protocol.rs -> codex-dotnet/CodexCli/Protocol/Event.cs (done)
-- codex-rs/core/prompt.md -> codex-dotnet/CodexCli/prompt.md (done)
-- codex-rs/apply-patch/apply_patch_tool_instructions.md -> codex-dotnet/CodexCli/ApplyPatch/apply_patch_tool_instructions.md (done)
-- codex-rs/apply-patch/src/lib.rs APPLY_PATCH_TOOL_INSTRUCTIONS -> codex-dotnet/CodexCli/Models/Prompt.cs ApplyPatchToolInstructions (done)
-- codex-rs/core/src/client_common.rs BASE_INSTRUCTIONS -> codex-dotnet/CodexCli/Models/Prompt.cs BaseInstructions (done)
-- codex-rs/core/src/codex.rs format_exec_output -> codex-dotnet/CodexCli/Util/Codex.cs FormatExecOutput (done)
-- codex-rs/core/src/codex.rs get_writable_roots -> codex-dotnet/CodexCli/Util/Codex.cs GetWritableRoots (done)
-- codex-rs/core/src/codex.rs get_last_assistant_message_from_turn -> codex-dotnet/CodexCli/Util/Codex.cs GetLastAssistantMessageFromTurn (done)
-- codex-rs/core/src/codex.rs record_conversation_history -> codex-dotnet/CodexCli/Util/Codex.cs RecordConversationHistory (done)
-- codex-rs/core/src/codex.rs convert_apply_patch_to_protocol -> codex-dotnet/CodexCli/Util/Codex.cs ConvertApplyPatchToProtocol (done)
-- codex-rs/core/src/codex.rs first_offending_path -> codex-dotnet/CodexCli/Util/Codex.cs FirstOffendingPath (done)
- - codex-rs/exec/src/lib.rs -> codex-dotnet/CodexCli/Commands/ExecCommand.cs (partial, safety and Ctrl+C integrated, writable-roots spawn logic, help/json/patch-summary/last-message/approval/session-approval/apply_patch/mcp/shell/env/config/approval-mode/rollout/aggregation parity tested)
- - codex-rs/core/src/client.rs -> codex-dotnet/CodexCli/Protocol/RealCodexAgent.cs (done, SSE fixture and RunWithRolloutAsync unit tested, cross-CLI SSE parity tested)
-- Expand CLI and cross-language parity tests and fix flakes, including chat aggregation (chat aggregation parity done).
-- Implement CLI comparitive tests ensuring .NET and Rust outputs match for chat aggregation (done).
- - codex-rs/core/src/models.rs -> codex-dotnet/CodexCli/Models/ResponseItem.cs (done, patch/exec-end/MCP parity tested)
-- codex-rs/core/src/rollout.rs -> codex-dotnet/CodexCli/Util/RolloutRecorder.cs and Commands/ReplayCommand.cs (done, help/json/messages-only/follow parity tested)
-- Add sandbox enforcement logic and finalize ApprovalModeCliArg/ExecEnv integration in command execution (ApprovalModeCliArg done).
- - Integrate Codex.ToExecParams and TryParseContainerExecArguments into ExecCommand function call handling. (done)
-- Finalize SSE handling across commands and resolve remaining parity test flakes.
-- Align provider configuration between implementations to fix exec parity failures.
-- Complete sandbox enforcement using ApprovalModeCliArg and ExecEnv.
-- Improve API key login flow and unify Ctrl+C handling across commands.
-- Finish session submission loop and finalize rollout persistence in .NET.
-- Wire LoginCommand into parity tests and CLI workflows (done).
-- Wire ExecCommand into parity tests and CLI workflows (done).
-- Wire McpCommand into parity tests and CLI workflows (done).
-- Wire McpManagerCommand into parity tests and CLI workflows (done).
-- Wire McpClientCommand into parity tests and CLI workflows (done).
-- Integrate Codex.FormatExecOutput into ExecCommand parity tests.
-- Integrate Codex.GetWritableRoots into spawn workflow.
-- Integrate Codex.GetLastAssistantMessageFromTurn and RecordConversationHistory into conversation logic.
-- Integrate Codex.ConvertApplyPatchToProtocol into ExecCommand patch handling. (done)
-- Integrate Codex.ToExecParams and TryParseContainerExecArguments into ExecCommand function call handling.
- - Integrate PatchSummary.PrintSummary into patch application workflow. (done)
-- Integrate PatchApplier.ApplyActionAndReport into CLI patch workflows.
-- Integrate PatchApplier.ApplyAndReport into CLI patch workflows.
-- Integrate Codex.MaybeNotify into session event notifications. (done)
- - Integrate Codex.NotifyExecCommandBegin, NotifyExecCommandEnd and NotifyBackgroundEvent into session event workflow. (done)
-- Integrate Codex.InjectInput and GetPendingInput into session input workflow.
-- Integrate Codex.ResolvePath into command path handling. (done)
-- Integrate Codex.SetTask and Codex.RemoveTask into session task workflow. (done)
-- Integrate Codex.RequestCommandApproval and RequestPatchApproval into approval workflow.
-- Integrate Codex.NotifyApproval and AddApprovedCommand into approval workflow.
-- Integrate Codex.CallToolAsync into CLI tool-call workflow.
-- Integrate Codex.CallToolAsync into CLI tool-call workflow. (done)
-- Integrate Codex.SendEventAsync into MCP tool call notifications. (done)
-- Integrate Codex.Abort into session lifecycle management. (done)
-- Integrate Codex.RecordConversationItemsAsync and RecordRolloutItemsAsync into session recording workflow. (done)
- - Integrate Prompt base and apply_patch instructions loading into Prompt.GetFullInstructions. (done)
-- Integrate MessageHistory.HistoryMetadataAsync and LookupEntry into history CLI workflows. (done)
+## Running Tests
+Run unit and integration tests with:
+
+```bash
+dotnet test codex-dotnet/CodexCli.Tests/CodexCli.Tests.csproj --verbosity minimal --nologo
+```
+
+Run `dotnet restore` first if dependencies are missing.

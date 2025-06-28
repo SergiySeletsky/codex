@@ -18,7 +18,7 @@ public class PromptTests
         var prompt = new Prompt();
         var res = prompt.GetFullInstructions("codex");
         Assert.StartsWith("Please resolve", res);
-        Assert.DoesNotContain("apply_patch", res);
+        Assert.Contains("apply_patch", res);
         Assert.Contains("deployed coding agent", res);
     }
 }

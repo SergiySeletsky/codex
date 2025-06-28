@@ -496,6 +496,8 @@ pub(crate) struct AgentTask {
     handle: AbortHandle,
 }
 
+// C# port implemented in codex-dotnet/CodexCli/Util/AgentTask.cs Spawn (done)
+// Integrated via Codex.SpawnTask in codex-dotnet/CodexCli/Util/Codex.cs (done)
 impl AgentTask {
     fn spawn(sess: Arc<Session>, sub_id: String, input: Vec<InputItem>) -> Self {
         let handle =
@@ -530,6 +532,7 @@ async fn submission_loop(
     tx_event: Sender<Event>,
     ctrl_c: Arc<Notify>,
 ) {
+    // C# port implemented in codex-dotnet/CodexCli/Util/Codex.cs RunSubmissionLoopAsync (done)
     // Generate a unique ID for the lifetime of this Codex session.
     let session_id = Uuid::new_v4();
 

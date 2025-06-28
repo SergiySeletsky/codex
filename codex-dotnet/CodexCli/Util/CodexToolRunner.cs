@@ -1,6 +1,8 @@
 using System.Text.Json;
 using System.Collections.Generic;
 using System.Threading;
+
+// Ported from codex-rs/mcp-server/src/codex_tool_runner.rs (simplified)
 using CodexCli.Protocol;
 using CodexCli.Config;
 
@@ -37,14 +39,19 @@ public static class CodexToolRunner
             new List<JsonElement> { JsonSerializer.SerializeToElement("codex done") },
             false);
     }
-}
 
-public record CodexToolCallParam(
-    string Prompt,
-    string? Model = null,
-    string? Profile = null,
-    string? Cwd = null,
-    string? ApprovalPolicy = null,
-    IReadOnlyList<string>? SandboxPermissions = null,
-    Dictionary<string, JsonElement>? Config = null,
-    string? Provider = null);
+    /// <summary>
+    /// Ported from codex-rs/mcp-server/src/codex_tool_config.rs
+    /// `create_tool_for_codex_tool_call_param` (simplified).
+    /// Returns a minimal Tool descriptor used by the MCP client tests.
+    /// </summary>
+    public static Tool CreateTool()
+    {
+        var schema = new ToolInputSchema(null, null, "object");
+        return new Tool(
+            "codex",
+            schema,
+            "Run a Codex session.",
+            null);
+    }
+}

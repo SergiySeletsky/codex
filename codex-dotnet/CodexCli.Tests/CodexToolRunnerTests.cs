@@ -17,5 +17,13 @@ public class CodexToolRunnerTests
         Assert.IsType<SessionConfiguredEvent>(events[0]);
         Assert.Equal("codex done", result.Content[0].GetString());
     }
+
+    [Fact]
+    public void CreateToolReturnsBasicSchema()
+    {
+        var tool = CodexToolRunner.CreateTool();
+        Assert.Equal("codex", tool.Name);
+        Assert.Equal("object", tool.InputSchema.Type);
+    }
 }
 

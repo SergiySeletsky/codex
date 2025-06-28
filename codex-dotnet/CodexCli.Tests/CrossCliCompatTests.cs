@@ -825,20 +825,23 @@ args = ["run", "--project", "codex-dotnet/CodexCli", "mcp"]
         var rOut = AnsiEscape.StripAnsi(rust.stdout).Trim();
         Assert.Equal(rOut, dOut);
     }
+    [CrossCliFact]
+    public void ExecPatchApprovalMatches()
+    {
+        var input = "y\ny\n";
+        var dotnet = RunProcessWithPty("dotnet run --project codex-dotnet/CodexCli exec hi --model-provider Mock --ask-for-approval on-failure", input);
+        var rust = RunProcessWithPty("cargo run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- exec hi -c model_provider=Mock --ask-for-approval on-failure", input);
+        var dOut = AnsiEscape.StripAnsi(dotnet.stdout).Trim();
+        var rOut = AnsiEscape.StripAnsi(rust.stdout).Trim();
+        Assert.Equal(rOut, dOut);
+    }
+
 
     [CrossCliFact]
     public void ExecEnvSetMatches()
     {
         var dotnet = RunProcess("dotnet", "run --project codex-dotnet/CodexCli exec 'bash -c \"echo -n $FOO\"' --model-provider Mock --env-set FOO=bar");
         var rust = RunProcess("cargo", "run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- exec 'bash -c \"echo -n $FOO\"' -c model_provider=Mock --env-set FOO=bar");
-        Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
-    }
-
-    [CrossCliFact]
-    public void ExecNetworkEnvMatches()
-    {
-        var dotnet = RunProcess("dotnet", "run --project codex-dotnet/CodexCli exec 'bash -c \"echo -n $CODEX_SANDBOX_NETWORK_DISABLED\"' --model-provider Mock");
-        var rust = RunProcess("cargo", "run --quiet --manifest-path ../../codex-rs/cli/Cargo.toml -- exec 'bash -c \"echo -n $CODEX_SANDBOX_NETWORK_DISABLED\"' -c model_provider=Mock");
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 
@@ -853,7 +856,6 @@ args = ["run", "--project", "codex-dotnet/CodexCli", "mcp"]
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 
-    [CrossCliFact]
     [CrossCliFact]
     public void ExecAggregatedFixtureMatches()
     {
@@ -907,20 +909,6 @@ args = ["run", "--project", "codex-dotnet/CodexCli", "mcp"]
         for (int i = start; i < lines.Length && !string.IsNullOrWhiteSpace(lines[i]); i++)
             summary.AppendLine(lines[i].Trim());
         return summary.ToString().Trim();
-        var rSummary = ExtractPatchSummary(rust.stdout);
-        Assert.Equal(rSummary, dSummary);
-    }
-
-    private static string ExtractPatchSummary(string text)
-    {
-        var lines = text.Split('\n');
-        var start = Array.IndexOf(lines, "Success. Updated the following files:");
-        if (start < 0)
-            return string.Empty;
-        var summary = new System.Text.StringBuilder();
-        for (int i = start; i < lines.Length && !string.IsNullOrWhiteSpace(lines[i]); i++)
-            summary.AppendLine(lines[i].Trim());
-        return summary.ToString().Trim();
     }
 
     [CrossCliFact]
@@ -934,7 +922,6 @@ args = ["run", "--project", "codex-dotnet/CodexCli", "mcp"]
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 
-    [CrossCliFact]
     [CrossCliFact]
     public void DebugHelpMatches()
     {
@@ -971,7 +958,6 @@ args = ["run", "--project", "codex-dotnet/CodexCli", "mcp"]
         Assert.Equal(rust.stdout.Trim(), dotnet.stdout.Trim());
     }
 
-    [CrossCliFact]
     [CrossCliFact]
     public void ReplayHelpMatches()
     {

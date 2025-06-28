@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Channels;
@@ -45,6 +46,40 @@ public class Codex
     }
 
     public void Cancel() => _ctrlC.Cancel();
+
+    /// <summary>
+    /// Simplified port of codex-rs/core/src/codex.rs `submission_loop` (done).
+    /// Processes submissions and forwards events from spawned tasks.
+    /// </summary>
+    public static async Task RunSubmissionLoopAsync(
+        ChannelReader<Submission> submissions,
+        ChannelWriter<Event> events,
+        Func<string, CancellationToken, IAsyncEnumerable<Event>> agent,
+        CancellationToken cancel = default)
+    {
+        var state = new CodexState();
+        await foreach (var sub in submissions.ReadAllAsync(cancel))
+        {
+            switch (sub.Op)
+            {
+                case ConfigureSessionOp cfg:
+                    var stream = agent(cfg.Instructions ?? string.Empty, cancel);
+                    SpawnTask(state, events, sub.Id, stream, cancel);
+                    break;
+                case UserInputOp ui:
+                    if (!InjectInput(state, ui.Items.ToList()))
+                    {
+                        var text = ui.Items.OfType<TextInputItem>().FirstOrDefault()?.Text ?? string.Empty;
+                        var run = agent(text, cancel);
+                        SpawnTask(state, events, sub.Id, run, cancel);
+                    }
+                    break;
+                case InterruptOp:
+                    Abort(state);
+                    break;
+            }
+        }
+    }
 
     /// <summary>
     /// Ported from codex-rs/core/src/codex.rs `format_exec_output` (done).
@@ -343,6 +378,22 @@ public class Codex
     public static BackgroundEvent NotifyBackgroundEvent(string subId, string message)
     {
         return new BackgroundEvent(subId, message);
+    }
+
+    /// <summary>
+    /// Ported from codex-rs/core/src/codex.rs `AgentTask::spawn` and `Session::set_task` (done).
+    /// Spawns the events in the background and registers the task on the state.
+    /// </summary>
+    public static AgentTask SpawnTask(
+        CodexState state,
+        ChannelWriter<Event> writer,
+        string subId,
+        IAsyncEnumerable<Event> events,
+        CancellationToken cancel = default)
+    {
+        var task = AgentTask.Spawn(writer, subId, events, cancel);
+        SetTask(state, task);
+        return task;
     }
 
     /// <summary>

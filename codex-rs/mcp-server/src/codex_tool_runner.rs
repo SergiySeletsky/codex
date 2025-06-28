@@ -1,6 +1,7 @@
 //! Asynchronous worker that executes a **Codex** tool-call inside a spawned
 //! Tokio task. Separated from `message_processor.rs` to keep that file small
 //! and to make future feature-growth easier to manage.
+// C# port implemented in codex-dotnet/CodexCli/Util/CodexToolRunner.cs (done)
 
 use codex_core::codex_wrapper::init_codex;
 use codex_core::config::Config as CodexConfig;
