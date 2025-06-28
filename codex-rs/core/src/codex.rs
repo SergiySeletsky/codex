@@ -497,6 +497,7 @@ pub(crate) struct AgentTask {
 }
 
 // C# port implemented in codex-dotnet/CodexCli/Util/AgentTask.cs Spawn (done)
+// Integrated via Codex.SpawnTask in codex-dotnet/CodexCli/Util/Codex.cs (done)
 impl AgentTask {
     fn spawn(sess: Arc<Session>, sub_id: String, input: Vec<InputItem>) -> Self {
         let handle =

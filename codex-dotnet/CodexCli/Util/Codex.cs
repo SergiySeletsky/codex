@@ -346,6 +346,22 @@ public class Codex
     }
 
     /// <summary>
+    /// Ported from codex-rs/core/src/codex.rs `AgentTask::spawn` and `Session::set_task` (done).
+    /// Spawns the events in the background and registers the task on the state.
+    /// </summary>
+    public static AgentTask SpawnTask(
+        CodexState state,
+        ChannelWriter<Event> writer,
+        string subId,
+        IAsyncEnumerable<Event> events,
+        CancellationToken cancel = default)
+    {
+        var task = AgentTask.Spawn(writer, subId, events, cancel);
+        SetTask(state, task);
+        return task;
+    }
+
+    /// <summary>
     /// Ported from codex-rs/core/src/codex.rs `set_task` (done).
     /// Replaces any current task with the provided one, aborting the old task.
     /// </summary>
