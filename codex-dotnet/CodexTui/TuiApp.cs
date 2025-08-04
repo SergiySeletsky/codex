@@ -42,6 +42,7 @@ internal static class TuiApp
         using var ctrlC = SignalUtils.NotifyOnSigInt();
         LogBridge.LatestLog += chat.UpdateLatestLog;
         CancellationTokenSource? agentCts = null;
+        ctrlC.Token.Register(() => agentCts?.Cancel());
 
         var sessionId = SessionManager.CreateSession();
         var history = new List<string>();
@@ -136,10 +137,7 @@ internal static class TuiApp
         while (true)
         {
             if (ctrlC.IsCancellationRequested)
-            {
-                agentCts?.Cancel();
                 break;
-            }
             bool scrolled = false;
             while (queue.TryDequeue(out var ev))
             {

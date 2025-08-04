@@ -41,6 +41,11 @@ public static class InteractiveApp
                 logWriter = new StreamWriter(opts.EventLogFile, append: false);
             using var ctrlC = SignalUtils.NotifyOnSigInt();
             CancellationTokenSource? agentCts = null;
+            ctrlC.Token.Register(() =>
+            {
+                agentCts?.Cancel();
+                Codex.Abort(state);
+            });
 
             bool withAnsi = !Console.IsOutputRedirected;
             bool hideReason = opts.HideAgentReasoning ?? cfg?.HideAgentReasoning ?? false;
@@ -74,18 +79,10 @@ public static class InteractiveApp
             while (true)
             {
                 if (ctrlC.IsCancellationRequested)
-                {
-                    agentCts?.Cancel();
-                    Codex.Abort(state);
                     break;
-                }
                 var prompt = AnsiConsole.Ask<string>("cmd> ");
                 if (ctrlC.IsCancellationRequested)
-                {
-                    agentCts?.Cancel();
-                    Codex.Abort(state);
                     break;
-                }
                 if (prompt.Equals("/quit", StringComparison.OrdinalIgnoreCase))
                     break;
                 if (prompt.Equals("/history", StringComparison.OrdinalIgnoreCase))
